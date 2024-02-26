@@ -13,4 +13,4 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 If you like the idea and you are able to sponsor to host this including the data feel free to contact me at osi(at)pong.de
 
-you can also find me on discord: https://discord.gg/Xkku2jPTEY
+You can also find me on discord: https://discord.gg/Xkku2jPTEY
