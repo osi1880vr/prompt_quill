@@ -1,0 +1,6 @@
+$Env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"
+$Env:FORCE_CMAKE="1"
+pip install llama-cpp-python --force-reinstall --upgrade --no-cache-dir
+
+
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
