@@ -18,7 +18,7 @@ Here you find just the code to run the UI or to insert data into your instance o
 * Create prompts from your input based on similar existing prompts from the vector store.
 * Select the Model to be used and set some of the parameters that get exposed by the different frameworks.
 * Edit the magic Prompt that's send to make the LLM a prompt engineering helper.
-* You find 3 different versions that try to offer the same service, I have implemented it in llama-index, haystac and llmware. They offer different connections to vector stores. As vector Stores it supports Milvus and Qdrant
+* You find 3 different versions that try to offer the same service, I have implemented it in llama-index, haystack and llmware. They offer different connections to vector stores. As vector Stores it supports Milvus and Qdrant
 
 
 # No Feature
