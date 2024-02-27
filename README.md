@@ -2,22 +2,22 @@
 
 Here you find the sources to run your own instance of prompt quill.
 
-A gradio UI that will help you to create more sophisticated text to image prompts
+A gradio UI that will help you to create more sophisticated text to image prompts.
 
 If you are a power prompt engineer you might not need this.
 
 It is manly useful for users that are poor prompt engineers like myself.
 
-It helps create beautiful prompts based on simple input like "sail to italy"
+It helps create beautiful prompts based on simple input like "sail to italy".
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
 
 # Features
 
-* Create prompts from your input based on similar existing prompts from the vector store
-* Select the Model to be used and set some of the parameters that get exposed by the different frameworks
-* Edit the magic Prompt that's send to make the LLM a prompt engineering helper
+* Create prompts from your input based on similar existing prompts from the vector store.
+* Select the Model to be used and set some of the parameters that get exposed by the different frameworks.
+* Edit the magic Prompt that's send to make the LLM a prompt engineering helper.
 
 
 # No Feature
@@ -30,18 +30,22 @@ This will become a topic once the project will find a hosting provider.
 
 # Roadmap
 
-* Add more models to the model lists
-* Add negative prompting
-* Add model / LORA advisor
-* Add history to the conversation if not already included by the framework
-* Add longterm history by storing conversations to disk
-* Add more settings to finetune the vector search
+* Add more models to the model lists.
+* Add negative prompting.
+* Add model / LORA advisor.
+* Add history to the conversation if not already included by the framework.
+* Add longterm history by storing conversations to disk.
+* Add more settings to finetune the vector search.
 
 
 # Looking for a hosting solution
 
-If you like the idea, and you are able to sponsor to longterm host this including the data feel free to contact me 
+If you like the idea, and you are able to sponsor to longterm host this including the data feel free to contact me.
 
+
+# More prompts :)
+
+if you like and can provide large numbers of prompts please get in contact.
 
 # Contact
 
