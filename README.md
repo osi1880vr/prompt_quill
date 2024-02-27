@@ -32,7 +32,7 @@ This will become a topic once the project will find a hosting provider.
 
 # Roadmap
 
-Next steps will be to add more models to the model lists
+Add more models to the model lists
 
 Add negative prompting
 
