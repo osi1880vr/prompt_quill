@@ -45,7 +45,7 @@ If you like the idea, and you are able to sponsor to longterm host this includin
 
 # More prompts :)
 
-if you like and can provide large numbers of prompts please get in contact.
+If you like and can provide large numbers of prompts please get in contact.
 
 # Contact
 
