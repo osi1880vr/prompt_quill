@@ -47,7 +47,7 @@ Add more settings to finetune the vector search
 
 # Looking for a hosting solution
 
-If you like the idea and you are able to sponsor to longterm host this including the data feel free to contact me 
+If you like the idea, and you are able to sponsor to longterm host this including the data feel free to contact me 
 
 
 # Contact
