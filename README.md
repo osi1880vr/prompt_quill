@@ -47,6 +47,7 @@ If you like the idea, and you are able to sponsor to longterm host this includin
 # More prompts :)
 
 If you like and can provide large numbers of prompts please get in contact.
+I like to compile a growing vector DB which I then like to share at some place where I can upload those files.
 
 # Contact
 
