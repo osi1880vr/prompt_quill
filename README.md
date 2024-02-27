@@ -1,10 +1,10 @@
 # Welcome to Prompt Quill
 
-Here you find the sources to run your own instance of prompt quill.
+Here you find the sources to run your own instance of Prompt Quill.
 
-A gradio UI that will help you to create more sophisticated text to image prompts.
+A Gradio UI that will help you to create more sophisticated text to image prompts.
 
-If you are a power prompt engineer you might not need this.
+If you are a power prompt engineer you might not need this. It still could help to inspire you.
 
 It is manly useful for users that are poor prompt engineers like myself.
 
