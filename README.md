@@ -15,11 +15,9 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 # Features
 
-Create prompts from your input based on similar existing prompts from the vector store
-
-Select the Model to be used and set some of the parameters that get exposed by the different frameworks
-
-Edit the magic Prompt that's send to make the LLM a prompt engineering helper
+* Create prompts from your input based on similar existing prompts from the vector store
+* Select the Model to be used and set some of the parameters that get exposed by the different frameworks
+* Edit the magic Prompt that's send to make the LLM a prompt engineering helper
 
 
 # No Feature
@@ -32,17 +30,12 @@ This will become a topic once the project will find a hosting provider.
 
 # Roadmap
 
-Add more models to the model lists
-
-Add negative prompting
-
-Add model / LORA advisor
-
-Add history to the conversation if not already included by the framework
-
-Add longterm history by storing conversations to disk
-
-Add more settings to finetune the vector search
+* Add more models to the model lists
+* Add negative prompting
+* Add model / LORA advisor
+* Add history to the conversation if not already included by the framework
+* Add longterm history by storing conversations to disk
+* Add more settings to finetune the vector search
 
 
 # Looking for a hosting solution
