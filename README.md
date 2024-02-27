@@ -42,6 +42,9 @@ Add history to the conversation if not already included by the framework
 
 Add longterm history by storing conversations to disk
 
+Add more settings to finetune the vector search
+
+
 # Looking for a hosting solution
 
 If you like the idea and you are able to sponsor to host this including the data feel free to contact me 
