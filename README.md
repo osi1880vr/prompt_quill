@@ -45,6 +45,4 @@ If you like the idea, and you are able to sponsor to longterm host this includin
 
 # Contact
 
-Mail: osi(at)pong.de
-
-You can also find me on discord: https://discord.gg/gMDTAwfQAP
+You can find me on discord: https://discord.gg/gMDTAwfQAP
