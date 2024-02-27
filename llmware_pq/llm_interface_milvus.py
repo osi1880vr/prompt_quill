@@ -35,6 +35,7 @@ class LLM_INTERFACE:
         self.model_name = 'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
         self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
         self.model_file = model_list.model_list[self.model_name]['file']
+        self.model_type = 'deep_link'
 
         self.set_pipeline()
 
@@ -62,10 +63,12 @@ class LLM_INTERFACE:
 
         self.prompter = Prompt()
 
-        self.prompter.model_catalog.register_gguf_model(self.model_name,
-                                                        self.hf_repo_name,
-                                                        self.model_file,
-                                                        prompt_wrapper="open_chat")
+        if self.model_type == 'deep_link':
+            self.prompter.model_catalog.register_gguf_model(self.model_name,
+                                                            self.hf_repo_name,
+                                                            self.model_file,
+                                                            prompt_wrapper="open_chat")
+
         self.prompter.load_model(self.model_name)
         self.prompter.pc.add_custom_prompt_card("image_prompt",
                                                 self.run_order_list,
@@ -111,8 +114,13 @@ class LLM_INTERFACE:
         self.instruct = instruct
 
         self.model_name = model
-        self.hf_repo_name = model_list.model_list[self.model_name]['path']
-        self.model_file = model_list.model_list[self.model_name]['file']
+        self.model_type = model_list.model_list[self.model_name]['type']
+        if self.model_type == 'deep_link':
+            self.hf_repo_name = model_list.model_list[self.model_name]['path']
+            self.model_file = model_list.model_list[self.model_name]['file']
+        else:
+            self.hf_repo_name = None
+            self.model_file = None
 
 
         del self.prompter
