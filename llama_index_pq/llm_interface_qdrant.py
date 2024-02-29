@@ -37,6 +37,7 @@ class LLM_INTERFACE:
             # api_key="<qdrant-api-key>",
         )
 
+        self.instruct = False
         self.n_ctx=3900
         self.n_batch=128
         self.n_gpu_layers=50
@@ -132,6 +133,7 @@ class LLM_INTERFACE:
 
         self.model_path = model_list.model_list[model]['path']
 
+        self.llm._model = None
         del self.llm
 
         # delete the model from Ram
@@ -147,6 +149,7 @@ class LLM_INTERFACE:
 
         self.log('magic_prompt_logfile.txt',f"Magic Prompt: \n{prompt_text} \n")
 
+        self.llm._model = None
         del self.llm
 
         # delete the model from Ram

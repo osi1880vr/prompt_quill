@@ -135,6 +135,7 @@ class LLM_INTERFACE:
 
         self.model_path = model_list.model_list[model]['path']
 
+        self.llm._model = None
         del self.llm
 
 
@@ -151,6 +152,7 @@ class LLM_INTERFACE:
 
         self.log('magic_prompt_logfile.txt',f"Magic Prompt: \n{prompt_text} \n")
 
+        self.llm._model = None
         del self.llm
 
         # delete the model from Ram
