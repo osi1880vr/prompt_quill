@@ -3,8 +3,6 @@ import model_list
 import os
 
 from llmware.gguf_configs import GGUFConfigs
-
-#GGUFConfigs().set_config("custom_lib_path", "C:\\Users\\user\\miniconda3\\envs\\prompt_work\\Lib\\site-packages\\llama_cpp\\llama.dll")
 GGUFConfigs().set_config("n_gpu_layers", 50)
 
 import torch
@@ -64,8 +62,6 @@ with gr.Blocks(css=css) as pq_ui:
 			clear_btn="Clear"
 		)
 
-
-
 	with gr.Tab("Character"):
 		gr.Interface(
 			set_prompt,
@@ -94,7 +90,6 @@ with gr.Blocks(css=css) as pq_ui:
 			,outputs="text",
 			allow_flagging='never',
 			flagging_options=None
-
 		)
 
 if __name__ == "__main__":

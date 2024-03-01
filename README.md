@@ -37,6 +37,9 @@ This will become a topic once the project will find a hosting provider.
 * Add history to the conversation if not already included by the framework.
 * Add longterm history by storing conversations to disk.
 * Add more settings to finetune the vector search.
+* Add REST API
+* Build Comfyui Plugin
+* Find someone do a plugin for Auto1111 :D
 
 
 # Looking for a hosting solution

@@ -4,10 +4,6 @@ import llm_interface_qdrant
 interface = llm_interface_qdrant.LLM_INTERFACE()
 
 import model_list
-import os
-
-
-
 
 def set_model(model, temperature, n_ctx, n_batch, n_gpu_layers, max_tokens, top_k):
 	return interface.change_model(model,temperature,n_ctx,n_batch,n_gpu_layers,max_tokens, top_k)
@@ -51,8 +47,6 @@ with gr.Blocks(css=css) as pq_ui:
 			clear_btn="Clear"
 		)
 
-
-
 	with gr.Tab("Character"):
 		gr.Interface(
 			set_prompt,
@@ -62,11 +56,11 @@ with gr.Blocks(css=css) as pq_ui:
 			flagging_options=None
 
 		)
+
 	with gr.Tab("Model Settings"):
 		gr.Interface(
 			set_model,
 			[
-
 				gr.Dropdown(
 					model_list.model_list.keys(),value=list(model_list.model_list.keys())[0], label="LLM Model", info="Will add more LLMs later!"
 				),
@@ -81,7 +75,6 @@ with gr.Blocks(css=css) as pq_ui:
 			,outputs="text",
 			allow_flagging='never',
 			flagging_options=None
-
 		)
 
 if __name__ == "__main__":
