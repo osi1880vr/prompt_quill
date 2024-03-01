@@ -2,6 +2,13 @@ import gradio as gr
 import model_list
 import os
 
+from llmware.gguf_configs import GGUFConfigs
+
+#GGUFConfigs().set_config("custom_lib_path", "C:\\Users\\user\\miniconda3\\envs\\prompt_work\\Lib\\site-packages\\llama_cpp\\llama.dll")
+GGUFConfigs().set_config("n_gpu_layers", 50)
+
+import torch
+test = torch.cuda.is_available()
 
 # you could set this in your env as ENV Variables, to be able to just run we do it like this
 os.environ['COLLECTION_DB_URI'] = 'mongodb://192.168.0.127:27017/'
@@ -15,19 +22,40 @@ def set_model(model, temperature, max_tokens, top_k, instruct):
 def set_prompt(prompt_text):
 	return interface.set_prompt(prompt_text)
 
-with gr.Blocks() as pq_ui:
+
+
+css = """
+.gr-image {
+  min-width: 60px !important;
+  max-width: 60px !important;
+  min-heigth: 65px !important;
+  max-heigth: 65px !important;  
+  
+}
+.app-title {
+  font-size: 50px;
+}
+"""
+
+with gr.Blocks(css=css) as pq_ui:
 
 	with gr.Tab("Chat"):
-		gr.Image("logo/pq_small.jpg",width=100,show_label=False,show_download_button=False,type="pil")
-		#gr.Markdown(value='<img src="prompt_work/logo/pq_small.jpg" alt="A Quill">')
 
+		with gr.Row():
+			# Image element (adjust width as needed)
+			gr.Image("logo/pq_v_small.jpg",width="20vw",show_label=False,show_download_button=False,container=False, elem_classes="gr-image",)
+
+			# Title element (adjust font size and styling with CSS if needed)
+			gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
 		gr.ChatInterface(
 			interface.run_llm_response,
-			chatbot=gr.Chatbot(height=300,render=False),
-			textbox=gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7,render=False),
-			title="Prompt Quill v0.0.1",
-			description="Enter your prompt to work with",
+			chatbot=gr.Chatbot(height=500,render=False,elem_id="chatbot"),
+			textbox=gr.Textbox(placeholder="Enter your prompt to work with",
+							   container=False,
+							   scale=7,
+							   render=False, # render is false as we are in a blocks environment
+							   ),
 			theme="soft",
 			examples=['A fishermans lake','night at cyberpunk city','living in a steampunk world'],
 			cache_examples=True,
@@ -41,12 +69,14 @@ with gr.Blocks() as pq_ui:
 	with gr.Tab("Character"):
 		gr.Interface(
 			set_prompt,
-			[	gr.TextArea(interface.prompt_template,lines = 20),]
-			,outputs="text",
+			[	gr.TextArea(interface.prompt_template,lines = 20),],
+			outputs=None,
 			allow_flagging='never',
-			flagging_options=None
+			flagging_options=None,
+
 
 		)
+
 	with gr.Tab("Model Settings"):
 		gr.Interface(
 			set_model,
@@ -68,4 +98,4 @@ with gr.Blocks() as pq_ui:
 		)
 
 if __name__ == "__main__":
-	pq_ui.launch(share=True)
+	pq_ui.launch() #share=True

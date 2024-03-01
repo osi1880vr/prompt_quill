@@ -116,7 +116,7 @@ class LLM_INTERFACE:
         self.model_name = model
         self.model_type = model_list.model_list[self.model_name]['type']
         if self.model_type == 'deep_link':
-            self.hf_repo_name = model_list.model_list[self.model_name]['path']
+            self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
             self.model_file = model_list.model_list[self.model_name]['file']
         else:
             self.hf_repo_name = None

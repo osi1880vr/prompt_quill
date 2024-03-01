@@ -14,19 +14,35 @@ def set_model(model, temperature, n_ctx, n_batch, n_gpu_layers, max_tokens, top_
 def set_prompt(prompt_text):
 	return interface.set_prompt(prompt_text)
 
-with gr.Blocks() as pq_ui:
+css = """
+.gr-image {
+  min-width: 60px !important;
+  max-width: 60px !important;
+  min-heigth: 65px !important;
+  max-heigth: 65px !important;  
+  
+}
+.app-title {
+  font-size: 50px;
+}
+"""
+
+with gr.Blocks(css=css) as pq_ui:
 
 	with gr.Tab("Chat"):
-		gr.Image("prompt_work/logo/pq_small.jpg",width=100,show_label=False,show_download_button=False,type="pil")
-		#gr.Markdown(value='<img src="prompt_work/logo/pq_small.jpg" alt="A Quill">')
+
+		with gr.Row():
+			# Image element (adjust width as needed)
+			gr.Image("logo/pq_v_small.jpg",width="20vw",show_label=False,show_download_button=False,container=False, elem_classes="gr-image",)
+
+			# Title element (adjust font size and styling with CSS if needed)
+			gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
 
 		gr.ChatInterface(
 			interface.run_llm_response,
-			chatbot=gr.Chatbot(height=300,render=False),
-			textbox=gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7,render=False),
-			title="Prompt Quill v0.0.1",
-			description="Enter your prompt to work with",
+			chatbot=gr.Chatbot(height=500,render=False),
+			textbox=gr.Textbox(placeholder="Enter your prompt to work with", container=False, scale=7,render=False),
 			theme="soft",
 			examples=['A fishermans lake','night at cyberpunk city','living in a steampunk world'],
 			cache_examples=True,
