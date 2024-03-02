@@ -42,6 +42,34 @@ Right now there is just a few examples in there to make it work, but if you chan
 You might need to play a little with that, but during development I learned that with this you get a powerful tool to make it generate prompts in your style as close as possible.
 
 
+
+# simple prompt vs Prompt Quill prompt
+
+The left is the prompt _rocket man in space_
+
+On the right we see the image the prompt from Prompt Quill created.
+
+<img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" /><img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
+
+The full prompt from Prompt Quill was:
+
+_High-quality digital art, ultra-detailed, professional, clear, high contrast, high saturation, vivid deep blacks, crystal clear, ((rocket man in space)), wearing a full helmet and leather jacket, leather gloves, standing in front of an advanced high-tech space rocket, surrounded by the vastness of outer space, with intense, vibrant colors, colorful, dark, modern art style, the rocket illuminated by the cosmic light, the rocketman standing solo against the cosmic backdrop, bokeh effect creating a blurry background, photography-style composition, on eye level, masterpiece._
+
+
+# robust prompts even with no negative prompt
+Here you see images that are a hand made prompt and a prompt made by Propmt Quill
+
+the left is the Prompt Quill prompt and the right is the hand made prompt, they use the same settings and seed
+
+also they use a very detailed handcrafted negative prompt, the right image is the more nicer one
+
+<img src="images/neg_sample/left_1.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_1.webp" alt="Logo"  width="329px" height="586px" />
+
+NBow we see same prompts same seed but with no negative prompt and we can see how the right one drifts away from the first one whiole the left also drifts but not as hard
+
+<img src="images/neg_sample/left_2.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_2.webp" alt="Logo"  width="329px" height="586px" />
+
+
 # The data needed for all the fun
 
 To get data into your prompt quill there are two ways: the hard and the easy one ;)
