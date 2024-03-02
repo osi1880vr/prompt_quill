@@ -45,11 +45,13 @@ You might need to play a little with that, but during development I learned that
 
 # simple prompt vs Prompt Quill prompt
 
-The left is the prompt _rocket man in space_
+This is the prompt _rocket man in space_
 
-On the right we see the image the prompt from Prompt Quill created.
+<img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" />
 
-<img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" /><img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
+Here we see the image the prompt from Prompt Quill created out of _rocket man in space_.
+
+<img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
 
 The full prompt from Prompt Quill was:
 
