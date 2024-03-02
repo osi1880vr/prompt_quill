@@ -6,15 +6,9 @@ from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.components.generators.llama_cpp import LlamaCppGenerator
 import prompt_templates
 import model_list
-import torch
 import gc
 
-
-
-
-
 class LLM_INTERFACE:
-
 
     def __init__(self):
 
@@ -39,7 +33,7 @@ class LLM_INTERFACE:
 
 
         self.generator = LlamaCppGenerator(
-            model_path=self.model_path,
+            model=self.model_path,
             n_ctx=self.n_ctx,
             n_batch=self.n_batch,
             model_kwargs={"n_gpu_layers": self.n_gpu_layers},
@@ -47,11 +41,7 @@ class LLM_INTERFACE:
         )
 
         self.prompt_template = prompt_templates.prompt_template_b
-
-
         self.set_pipeline()
-
-
 
     def set_pipeline(self):
 
@@ -75,13 +65,11 @@ class LLM_INTERFACE:
         self.rag_pipeline.connect("retriever", "prompt_builder.documents")
         self.rag_pipeline.connect("prompt_builder", "llm")
 
-
     def run_llm_response(self, query, history):
 
         f = open('logfile.txt', 'a')
         f.write(f"QUERY: {query} \n")
         f.close()
-
 
         results = self.rag_pipeline.run(
             {
@@ -98,10 +86,7 @@ class LLM_INTERFACE:
 
         return res
 
-
     def change_model(self,model,temperature,n_ctx,n_batch,n_gpu_layers,max_tokens,top_k):
-
-
         self.n_ctx=n_ctx
         self.n_batch=n_batch
         self.n_gpu_layers=n_gpu_layers
@@ -135,7 +120,6 @@ class LLM_INTERFACE:
         f = open('magic_prompt_logfile.txt', 'a')
         f.write(f"Magic Prompt: \n{prompt_text} \n\n\n")
         f.close()
-
 
         del self.generator.model
         del self.generator

@@ -1,16 +1,13 @@
-import gradio as gr
-
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
 from llama_index.llms.llama_cpp.llama_utils import messages_to_prompt, completion_to_prompt
 from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.milvus import MilvusVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import qdrant_client
 
 import prompt_templates
 import model_list
-import torch
+
 import gc
 
 url = "http://192.168.0.127:6333"

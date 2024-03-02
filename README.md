@@ -55,3 +55,47 @@ I like to compile a growing vector DB which I then like to share at some place w
 # Contact
 
 You can find me on discord: https://discord.gg/gMDTAwfQAP
+
+# Install
+
+to run this thing you need to decide which brand you like most, 
+than you got to setup a vector store and start playing with it.
+
+If you did download a snapshot from civitai you have to run the Qdrant vectror store
+A docker compose file you will find in the docker folder
+
+just cd to the qdrant folder and run:
+
+docker compose up
+
+this will start the qdrant server.
+Once it is up and running you should find it a http://localhost:6333 
+Under collections there is a little blue arrow right and there you can upload the snapshot
+Once that is done you are ready to go to get the prompt quill running
+
+get into the folder of your brand you like to run
+llama_index, llmware or haystack
+
+run pip install -r .\requirements.txt
+
+
+any other than llmware you have to do this following steps:
+and finaly if you like to run on GPU you have to setup llama-cpp and torch to run on GPU for your environment
+to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
+
+on any other platform please find how you do it, I do not have any other platform, if you find out please let me know and I add it here
+
+if you only run on CPU the last steps is
+
+run pip install -r .\requirements_cpu.txt
+
+
+longterm I will create a one click installer but thats not today ;)
+
+
+
+
+
+
+
+
