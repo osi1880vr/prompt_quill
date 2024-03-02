@@ -1,6 +1,4 @@
-<img src="images/pg_large.png" alt="Logo"  width="100px" height="100px" />
-
-
+<img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
 # Welcome to Prompt Quill
 
