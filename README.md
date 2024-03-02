@@ -6,9 +6,9 @@ A Gradio UI that will help you to create more sophisticated text to image prompt
 
 If you are a power prompt engineer you might not need this. It still could help to inspire you.
 
-It is manly useful for users that are poor prompt engineers like myself.
+It is mainly useful for users that are poor prompt engineers like myself.
 
-It helps create beautiful prompts based on simple input like "sail to italy".
+It helps to create beautiful prompts based on simple input like "sail to italy".
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
@@ -23,8 +23,8 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 # No Feature
 
-There is nothing preventing you from prompt injection or change the way the LLM will behave. 
-This is not focus of this project as that is a whole different story to solve. 
+There is nothing preventing you from prompt injection or changing the way the LLM will behave. 
+This is not the focus of this project as that is a whole different story to solve. 
 
 This will become a topic once the project will find a hosting provider.
 
@@ -34,19 +34,19 @@ This will become a topic once the project will find a hosting provider.
 In the Character tab you will find "the magic prompt" that's the history that gets set when you enter 
 your prompt to generate a new one.
 
-Here you get full control about to make it as close as possible to your personal prompting style.
+Here you will get full control and you can make it as close as possible to your personal prompting style.
 
 Right now there is just a few examples in there to make it work, but if you change the Query and Answer to your type of prompts it will tend to generate such prompts in your prefered style.
-You might need to play a little with that, but during development I learned that with this you get a powerfull tool to make it generate prompts in your style as close as possible.
+You might need to play a little with that, but during development I learned that with this you get a powerful tool to make it generate prompts in your style as close as possible.
 
 
-# The data, needed for all the fun
+# The data needed for all the fun
 
-To get data into your prompt quill there is two ways, the hard and the easy one ;)
+To get data into your prompt quill there are two ways: the hard and the easy one ;)
 
-The hard way is to go and get a large number of prompts and put them into a vector store, the scripts to do so are included.
+The hard way is to go and get a large number of prompts and put them into a vector store. The scripts to do so are included.
 
-The easy way, just download more than 1.5 million prompts ready to go here: https://civitai.com/models/330412
+For the easy way, just download more than 1.5 million prompts ready to go here: https://civitai.com/models/330412
 
 
 # Roadmap
@@ -93,19 +93,20 @@ Once it is up and running you should find it a http://localhost:6333 .
 Under collections there is a little blue arrow right and there you can upload the snapshot.
 Once that is done you are ready to go to get the prompt quill running.
 
-get into the folder of your brand you like to run
+get into the folder of any of the following brands you like to run on:
 llama_index, llmware or haystack
 
 run pip install -r .\requirements.txt.
 
 
-any other than llmware you have to do this following steps:
+Unless you use llmware you have to do this following steps to run llama-cpp:
+
 and finally if you like to run on GPU you have to setup llama-cpp and torch to run on GPU for your environment
 to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
 
-on any other platform please find how you do it, I do not have any other platform, if you find out please let me know and I add it here
+On any other platform please find how you do it, I do not have any other platform, if you find out please let me know and I add it here.
 
-if you only run on CPU the last steps is
+If you only run on CPU the last steps is
 
 run pip install -r .\requirements_cpu.txt
 
