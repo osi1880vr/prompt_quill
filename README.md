@@ -43,7 +43,7 @@ You might need to play a little with that, but during development I learned that
 
 
 
-# simple prompt vs Prompt Quill prompt
+# Simple prompt vs Prompt Quill prompt
 
 This is the prompt _rocket man in space_
 
@@ -58,7 +58,7 @@ The full prompt from Prompt Quill was:
 _High-quality digital art, ultra-detailed, professional, clear, high contrast, high saturation, vivid deep blacks, crystal clear, ((rocket man in space)), wearing a full helmet and leather jacket, leather gloves, standing in front of an advanced high-tech space rocket, surrounded by the vastness of outer space, with intense, vibrant colors, colorful, dark, modern art style, the rocket illuminated by the cosmic light, the rocketman standing solo against the cosmic backdrop, bokeh effect creating a blurry background, photography-style composition, on eye level, masterpiece._
 
 
-# robust prompts even with no negative prompt
+# Robust prompts even with no negative prompt
 Here you see images that are a hand made prompt and a prompt made by Propmt Quill
 
 the left is the Prompt Quill prompt and the right is the hand made prompt, they use the same settings and seed
