@@ -29,6 +29,17 @@ This is not focus of this project as that is a whole different story to solve.
 This will become a topic once the project will find a hosting provider.
 
 
+# The best feature :)
+
+In the Character tab you will find "the magic prompt" that's the history that gets set when you enter 
+your prompt to generate a new one.
+
+Here you get full control about to make it as close as possible to your personal prompting style.
+
+Right now there is just a few examples in there to make it work, but if you change the Query and Answer to your type of prompts it will tend to generate such prompts in your prefered style.
+You might need to play a little with that, but during development I learned that with this you get a powerfull tool to make it generate prompts in your style as close as possible.
+
+
 # Roadmap
 
 * Add more models to the model lists.
