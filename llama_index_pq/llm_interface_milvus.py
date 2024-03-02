@@ -10,10 +10,6 @@ import model_list
 
 import gc
 
-url = "http://192.168.0.127:6333"
-
-
-
 class LLM_INTERFACE:
 
 
@@ -23,7 +19,7 @@ class LLM_INTERFACE:
         self.model_path = model_list.model_list['thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 
         self.vector_store = MilvusVectorStore(
-            uri = "http://192.168.0.127:19530",
+            uri = "http://localhost:19530",
             port = 19530   ,
             collection_name = self.index,
             dim = 384,

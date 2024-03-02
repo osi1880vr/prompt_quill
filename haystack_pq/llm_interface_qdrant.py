@@ -13,7 +13,7 @@ class LLM_INTERFACE:
     def __init__(self):
 
         self.index='haystack_prompt_out_all'
-        self.url = "http://192.168.0.127:6333"
+        self.url = "http://localhost:6333"
 
         self.model_path = model_list.model_list['speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 

@@ -40,6 +40,15 @@ Right now there is just a few examples in there to make it work, but if you chan
 You might need to play a little with that, but during development I learned that with this you get a powerfull tool to make it generate prompts in your style as close as possible.
 
 
+# The data, needed for all the fun
+
+To get data into your prompt quill there is two ways, the hard and the easy one ;)
+
+The hardway is to go and get a large number of prompts and put them into a vector store, the scripts to do so are included.
+
+The easy way, just download more than 1.5 million prompts ready to go here: https://civitai.com/models/330412
+
+
 # Roadmap
 
 * Add more models to the model lists.
