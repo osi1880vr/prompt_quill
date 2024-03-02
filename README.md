@@ -2,15 +2,15 @@
 
 # Welcome to Prompt Quill
 
-Here you find the sources to run your own instance of Prompt Quill.
+Prompt Quill was created to help users create better prompts for creating images. 
 
-A Gradio UI that will help you to create more sophisticated text to image prompts.
+It is useful for poor prompt engineers like me who struggle with coming up with all of the detailed instructions that are needed to create beautiful images using image generation models like Stable Diffusion. 
 
-If you are a power prompt engineer you might not need this. It still could help to inspire you.
+Even if are an expert, it could still be used to inspire other prompts.
 
-It is mainly useful for users that are poor prompt engineers like myself.
+A Gradio UI will also help you to create more sophisticated text to image prompts.
 
-It helps to create beautiful prompts based on simple input like "sail to italy".
+It will help to create beautiful prompts based on a simple input like "sail to italy".
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
@@ -19,8 +19,8 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 * Create prompts from your input based on similar existing prompts from the vector store.
 * Select the Model to be used and set some of the parameters that get exposed by the different frameworks.
-* Edit the magic Prompt that's send to make the LLM a prompt engineering helper.
-* You find 3 different versions that try to offer the same service, I have implemented it in llmware, llama-index and haystack . They offer different connections to vector stores. As vector Stores it supports Milvus and Qdrant.
+* Edit the Magic Prompt that's sent to make the LLM a prompt engineering helper.
+* I have implemented Prompt Quill using llmware, llama-index and haystack. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
 
 
 # No Feature
@@ -28,18 +28,18 @@ Here you find just the code to run the UI or to insert data into your instance o
 There is nothing preventing you from prompt injection or changing the way the LLM will behave. 
 This is not the focus of this project as that is a whole different story to solve. 
 
-This will become a topic once the project will find a hosting provider.
+This will become a topic once there is a hosting provider for the project.
 
 
 # The best feature :)
 
-In the Character tab you will find "the magic prompt" that's the history that gets set when you enter 
+In the Character tab you will find "the magic prompt", which is the history that gets set when you enter 
 your prompt to generate a new one.
 
 Here you will get full control, and you can make it as close as possible to your personal prompting style.
 
-Right now there is just a few examples in there to make it work, but if you change the Query and Answer to your type of prompts it will tend to generate such prompts in your prefered style.
-You might need to play a little with that, but during development I learned that with this you get a powerful tool to make it generate prompts in your style as close as possible.
+Right now there are just a few examples, but if you change the Query and Answer to your type of prompts, it will tend to generate prompts corresponding to your preferred style.
+You might need to experiment with that but during development, I learned that with this you can get a powerful tool to make it generate prompts as close as possible to your style.
 
 
 
@@ -49,7 +49,7 @@ This is the prompt _rocket man in space_
 
 <img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" />
 
-Here we see the image the prompt from Prompt Quill created out of _rocket man in space_.
+Here we can see the image the prompt from Prompt Quill created out of _rocket man in space_. It is a nice prompt but still lacking in detail.
 
 <img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
 
@@ -78,7 +78,7 @@ To get data into your prompt quill there are two ways: the hard and the easy one
 
 The hard way is to go and get a large number of prompts and put them into a vector store. The scripts to do so are included.
 
-For the easy way, just download more than 1.5 million prompts ready to go here: https://civitai.com/models/330412
+For the easy way, just download more than 1.5 million prompts that are ready to go here: https://civitai.com/models/330412
 
 
 # Roadmap
@@ -96,25 +96,25 @@ For the easy way, just download more than 1.5 million prompts ready to go here: 
 
 # Looking for a hosting solution
 
-If you like the idea, and you are able to sponsor to longterm host this including the data feel free to contact me.
+If you like this project, and you are willing and able to sponsor this project as a longterm host (this including the data), feel free to contact me.
 
 
 # More prompts :)
 
-If you like and can provide large numbers of prompts please get in contact.
-I like to compile a growing vector DB which I then like to share at some place where I can upload those files.
+If you like and can provide large numbers of prompts please get in contact with me.
+I am compiling a growing vector DB which I can then share at some place where I can upload those files.
 
 # Contact
 
-You can find me on discord: https://discord.gg/gMDTAwfQAP
+Please find me and join us on discord: https://discord.gg/gMDTAwfQAP
 
 # Install
 
-to run this thing you need to decide which brand you like most, 
+To run this thing you need to decide which brand you like most, 
 then you got to set up a vector store and start playing with it.
 
 If you did download a snapshot from civitai you have to run the Qdrant vectror store.
-A docker compose file you will find in the docker folder
+A docker compose file you will find in the docker folder.
 
 just cd to the qdrant folder and run:
 
@@ -138,15 +138,15 @@ If you only run on CPU the last steps is
 run pip install -r .\requirements_cpu.txt
 
 
-if you like to run on GPU you have to set up llama-cpp and torch to run on GPU for your environment
+If you like to run on GPU you have to set up llama-cpp and torch to run on GPU for your environment
 to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
 
-On any other platform please find how you do it, I do not have any other platform, if you find out please let me know and I add it here.
+On any other platform please find how you do it, I do not have any other platform. If you create a method, please let me know and I can add it here. Contributions are welcome.
 
 
 
 
-long term I will create a one click installer but that's not today ;)
+Long term, I will create a one click installer but that's not today ;)
 
 
 
