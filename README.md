@@ -111,7 +111,7 @@ You can find me on discord: https://discord.gg/gMDTAwfQAP
 # Install
 
 to run this thing you need to decide which brand you like most, 
-than you got to setup a vector store and start playing with it.
+then you got to set up a vector store and start playing with it.
 
 If you did download a snapshot from civitai you have to run the Qdrant vectror store.
 A docker compose file you will find in the docker folder
@@ -146,7 +146,7 @@ On any other platform please find how you do it, I do not have any other platfor
 
 
 
-longterm I will create a one click installer but that's not today ;)
+long term I will create a one click installer but that's not today ;)
 
 
 
