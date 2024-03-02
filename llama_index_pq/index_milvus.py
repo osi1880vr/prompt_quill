@@ -27,7 +27,7 @@ from llama_index.core import (
 from llama_index.core.storage.storage_context import StorageContext
 
 vector_store = MilvusVectorStore(
-    uri = "http://192.168.0.127:19530",
+    uri = "http://localhost:19530",
     port = 19530   ,
     collection_name = 'llama_index_prompts_large',
     dim = 384,

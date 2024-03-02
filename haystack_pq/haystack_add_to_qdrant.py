@@ -27,7 +27,7 @@ from pathlib import Path
 
 
 document_store = QdrantDocumentStore(
-    url="http://192.168.0.127:6333",
+    url="http://localhost:6333",
     index='haystack_prompt_out_all',
     return_embedding=True,
     wait_result_from_api=True,

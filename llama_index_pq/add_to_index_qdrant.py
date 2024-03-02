@@ -32,7 +32,7 @@ client = qdrant_client.QdrantClient(
     # but requires qdrant-client >= 1.1.1
     #location=":memory:"
     # otherwise set Qdrant instance address with:
-    url="http://192.168.0.127:6333"
+    url="http://localhost:6333"
     # set API KEY for Qdrant Cloud
     # api_key="<qdrant-api-key>",
 )

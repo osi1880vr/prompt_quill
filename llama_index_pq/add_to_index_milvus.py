@@ -27,7 +27,7 @@ from llama_index.prompts import PromptTemplate
 
 
 vector_store = MilvusVectorStore(
-    uri = "http://192.168.0.127:19530",
+    uri = "http://localhost:19530",
     port = 19530   ,
     collection_name = 'llama_index_prompts_all',
     dim = 384,

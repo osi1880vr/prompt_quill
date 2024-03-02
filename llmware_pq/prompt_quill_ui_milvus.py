@@ -24,8 +24,8 @@ import torch
 test = torch.cuda.is_available()
 
 # you could set this in your env as ENV Variables, to be able to just run we do it like this
-os.environ['COLLECTION_DB_URI'] = 'mongodb://192.168.0.127:27017/'
-os.environ['MILVUS_HOST'] = '192.168.0.127'
+os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
+os.environ['MILVUS_HOST'] = 'localhost'
 os.environ['MILVUS_PORT'] = '19530'
 import llm_interface_milvus
 

@@ -21,7 +21,7 @@ import prompt_templates
 import model_list
 
 import gc
-import os
+
 
 class LLM_INTERFACE:
 
