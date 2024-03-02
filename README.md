@@ -1,3 +1,7 @@
+<img src="images/pg_large.png" alt="Logo"  width="100px" height="100px" />
+
+
+
 # Welcome to Prompt Quill
 
 Here you find the sources to run your own instance of Prompt Quill.
