@@ -133,14 +133,17 @@ run pip install -r .\requirements.txt.
 
 Unless you use llmware you have to do this following steps to run llama-cpp:
 
+If you only run on CPU the last steps is
+
+run pip install -r .\requirements_cpu.txt
+
+
 if you like to run on GPU you have to set up llama-cpp and torch to run on GPU for your environment
 to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
 
 On any other platform please find how you do it, I do not have any other platform, if you find out please let me know and I add it here.
 
-If you only run on CPU the last steps is
 
-run pip install -r .\requirements_cpu.txt
 
 
 longterm I will create a one click installer but that's not today ;)
