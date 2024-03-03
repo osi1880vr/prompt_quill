@@ -25,14 +25,6 @@ Here you find just the code to run the UI or to insert data into your instance o
 * I have implemented Prompt Quill using llmware, llama-index and haystack. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
 
 
-# No Feature
-
-There is nothing preventing you from prompt injection or changing the way the LLM will behave. 
-This is not the focus of this project as that is a whole different story to solve. 
-
-This will become a topic once there is a hosting provider for the project.
-
-
 # The best feature :)
 
 In the Character tab you will find "the magic prompt", which is the history that gets set when you enter 
@@ -81,6 +73,22 @@ Also they use a very detailed handcrafted negative prompt, the right image is th
 Now we see same prompts, same seed but with no negative prompt, and we can see how much the right one drifts away from the first one while the left drifts not as hard.
 
 <img src="images/neg_sample/left_2.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_2.webp" alt="Logo"  width="329px" height="586px" />
+
+
+# the sail to italy example
+
+_"sail to italy"_ would give you a prompt like this:
+
+_Stunning aerial photograph of a sailboat gracefully navigating through the crystal-clear waters of the Mediterranean Sea, en route to Italy. The sun casts a warm golden glow on the boat, while the distant villages and medieval towns along the coastline appear as intricate, detailed miniatures in the background. The image captures the beauty of the Italian coastline, with its picturesque beaches, islands, and castles, all bathed in the warm, golden light of the setting sun. The sailboat's sails billow with the wind, creating a sense of movement and adventure in this breathtaking scene. The photograph is taken in 8K resolution, offering an incredibly detailed and immersive view of the scene, with the stars twinkling in the night sky above, creating an Aurora-style atmosphere that adds to the magic of the moment._
+
+Here is a few samples from 8 different free online image generators:
+We see the prompts are not just working for stable diffusion models.
+
+
+<img src="images/sail_to_italy/1.jpg" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/2.webp" alt="sailing"  width="400" height="400" />
+<img src="images/sail_to_italy/3.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/4.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/5.png" alt="sailing"  width="266" height="266" />
+<img src="images/sail_to_italy/6.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/7.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="266" height="266" />
+
 
 
 # The data needed for all the fun
@@ -157,20 +165,14 @@ On any other platform please find how you do it, I do not have any other platfor
 Long term, I will create a one click installer but that's not today ;)
 
 
+# No Feature
 
-# the sail to italy example 
+There is nothing preventing you from prompt injection or changing the way the LLM will behave.
+This is not the focus of this project as that is a whole different story to solve.
 
-_"sail to italy"_ would give you a prompt like this:
-
-_Stunning aerial photograph of a sailboat gracefully navigating through the crystal-clear waters of the Mediterranean Sea, en route to Italy. The sun casts a warm golden glow on the boat, while the distant villages and medieval towns along the coastline appear as intricate, detailed miniatures in the background. The image captures the beauty of the Italian coastline, with its picturesque beaches, islands, and castles, all bathed in the warm, golden light of the setting sun. The sailboat's sails billow with the wind, creating a sense of movement and adventure in this breathtaking scene. The photograph is taken in 8K resolution, offering an incredibly detailed and immersive view of the scene, with the stars twinkling in the night sky above, creating an Aurora-style atmosphere that adds to the magic of the moment._
-
-Here is a few samples from 8 different free online image generators:
-We see the prompts are not just working for stable diffusion models.
+This will become a topic once there is a hosting provider for the project.
 
 
-<img src="images/sail_to_italy/1.jpg" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/2.webp" alt="sailing"  width="400" height="400" />
-<img src="images/sail_to_italy/3.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/4.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/5.png" alt="sailing"  width="266" height="266" />
-<img src="images/sail_to_italy/6.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/7.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="266" height="266" />
 
 
 
