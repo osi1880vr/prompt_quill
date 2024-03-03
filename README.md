@@ -89,6 +89,8 @@ The hard way is to go and get a large number of prompts and put them into a vect
 
 For the easy way, just download more than 1.5 million prompts that are ready to go here: https://civitai.com/models/330412
 
+When you use the data you will be running the world's largest RAG driven prompt engineer helper there is today.
+
 
 # Roadmap
 
