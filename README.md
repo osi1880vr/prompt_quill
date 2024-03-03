@@ -47,17 +47,21 @@ You might need to experiment with that but during development, I learned that wi
 
 This is the prompt _rocket man in space_
 
-<img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" />
+<img src="images/prompt_sample/rocket_man.webp" alt="spaceman"  width="500px" height="286px" />
 
 Here we can see the image the prompt from Prompt Quill created out of _rocket man in space_.
 
-<img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
+<img src="images/prompt_sample/rocket_man_pq.webp" alt="spaceman"  width="500px" height="286px" />
 
 The full prompt from Prompt Quill was:
 
 _High-quality digital art, ultra-detailed, professional, clear, high contrast, high saturation, vivid deep blacks, crystal clear, ((rocket man in space)), wearing a full helmet and leather jacket, leather gloves, standing in front of an advanced high-tech space rocket, surrounded by the vastness of outer space, with intense, vibrant colors, colorful, dark, modern art style, the rocket illuminated by the cosmic light, the rocketman standing solo against the cosmic backdrop, bokeh effect creating a blurry background, photography-style composition, on eye level, masterpiece._
 
 Looking at this prompt, keep in mind that you got full control about the prompt style by editing the history in the character tab.
+You might wonder where is that rocket from the prompt, its clearly not in the image, We don't know that, maybe it is very little hiding behind the guy in front.
+It depends on the model you use and on how many samples you take using different seeds, the one you see is the one I liked the most from the few samples I took.
+Here is a few more samples using a different model.
+<img src="images/space_man/1.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/2.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/3.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/4.webp" alt="spaceman"  width="250" height="176" />
 
 
 # Robust prompts even with no negative prompt
@@ -65,7 +69,7 @@ Here you see images comparing a regular, hand made prompt versus a prompt made b
 
 The left is the Prompt Quill prompt and the right is the hand made prompt, they use the same settings and seed.
 
-Also they use a very detailed handcrafted negative prompt, the right image is the more nicer one.
+Also they use a very detailed handcrafted negative prompt, the right image is the nicer one.
 
 <img src="images/neg_sample/left_1.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_1.webp" alt="Logo"  width="329px" height="586px" />
 
