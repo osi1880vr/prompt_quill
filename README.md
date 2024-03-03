@@ -63,6 +63,7 @@ It depends on the model you use and on how many samples you take using different
 Here is a few more samples using a different model.
 
 <img src="images/space_man/1.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/2.webp" alt="spaceman"  width="250" height="176" />
+
 <img src="images/space_man/3.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/4.webp" alt="spaceman"  width="250" height="176" />
 
 
