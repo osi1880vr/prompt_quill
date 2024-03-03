@@ -2,17 +2,15 @@
 
 # Welcome to Prompt Quill <img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
-The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 1.5 million prompts in the vector store. This number will keep growing as I will release ever-growing vector stores when they are available.
+The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 1.5 million prompts in the vector store. This number will keep growing as I plant to release ever-growing vector stores when they are available.
 
-Prompt Quill was created to help users create better prompts for creating images. 
+Prompt Quill was created to help users make better prompts for creating images. 
 
-It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using image generation models like Stable Diffusion or other image generators. 
+It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using models like Stable Diffusion or other image generators. 
 
 Even if you are an expert, it could still be used to inspire other prompts.
 
 A Gradio UI will also help you to create more sophisticated text to image prompts.
-
-It will help to create beautiful prompts based on a simple input like "sail to italy".
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
@@ -27,14 +25,12 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 # The best feature :)
 
-In the Character tab you will find "the magic prompt", which is the history that gets set when you enter 
-your prompt to generate a new one.
+In the Character tab you will find "the magic prompt", which is the history that gets set when you enter your prompt to generate a new one.
 
 Here you will get full control, and you can make it as close as possible to your personal prompting style.
 
-Right now there are just a few examples, but if you change the Query and Answer to your type of prompts, it will tend to generate prompts corresponding to your preferred style.
-You might need to experiment with that but during development, I learned that with this you can get a powerful tool to make it generate prompts as close as possible to your style.
-
+Right now there are just a few examples, but if you change the Query and Answer to your type of prompts, it will generate prompts corresponding to your preferred style.
+You might need to experiment with this but during development, I learned that with this you can get a powerful tool to make it generate prompts as close as possible to your style.
 
 
 # Simple prompt vs Prompt Quill prompt
@@ -51,12 +47,12 @@ The full prompt from Prompt Quill was:
 
 _High-quality digital art, ultra-detailed, professional, clear, high contrast, high saturation, vivid deep blacks, crystal clear, ((rocket man in space)), wearing a full helmet and leather jacket, leather gloves, standing in front of an advanced high-tech space rocket, surrounded by the vastness of outer space, with intense, vibrant colors, colorful, dark, modern art style, the rocket illuminated by the cosmic light, the rocketman standing solo against the cosmic backdrop, bokeh effect creating a blurry background, photography-style composition, on eye level, masterpiece._
 
-Looking at this prompt, keep in mind that you got full control about the prompt style by editing the history in the character tab.
+Looking at this prompt, keep in mind that you get full control about the prompt style by editing the history in the character tab.
 
-You might wonder where is that rocket from the prompt, its clearly not in the image, We don't know that, maybe it is very little hiding behind the guy in front.
-It depends on the model you use and on how many samples you take using different seeds, the one you see is the one I liked the most from the few samples I took.
-Also, the image dimensions used will have a large impact on what will get shown, a wide image will look totally different than a high image. But that's AI image generation theories which is not part of this thing here. It's all just about making nicer prompts. It's up to you to create the right image setup for your prompts.
-Here is a few more samples using a different model.
+You might wonder where the rocket is from the prompt. It is clearly not in the image and maybe it is hiding behind the guy in front.
+The outcome depends on the model you use and on how many samples you take using different seeds. The example you see here is the one I liked the most from the few samples I took.
+Also, the image dimensions used will have a large impact on what gets shown. A wide image will look totally different than a high image. (But that's AI image generation theories which are not part of this here.) Here, it's all just about making nicer prompts. It's up to you to create the right image setup for your prompts.
+Here are a few more samples using a different model.
 
 <img src="images/space_man/1.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/2.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/3.webp" alt="spaceman"  width="250" height="176" />
 
@@ -81,7 +77,7 @@ _"sail to italy"_ would give you a prompt like this:
 
 _Stunning aerial photograph of a sailboat gracefully navigating through the crystal-clear waters of the Mediterranean Sea, en route to Italy. The sun casts a warm golden glow on the boat, while the distant villages and medieval towns along the coastline appear as intricate, detailed miniatures in the background. The image captures the beauty of the Italian coastline, with its picturesque beaches, islands, and castles, all bathed in the warm, golden light of the setting sun. The sailboat's sails billow with the wind, creating a sense of movement and adventure in this breathtaking scene. The photograph is taken in 8K resolution, offering an incredibly detailed and immersive view of the scene, with the stars twinkling in the night sky above, creating an Aurora-style atmosphere that adds to the magic of the moment._
 
-Here is a few samples from 8 different free online image generators:
+Here are a few samples from 8 different free online image generators:
 We see the prompts are not just working for stable diffusion models.
 
 
@@ -126,7 +122,7 @@ I am compiling a growing vector DB which I can then share at some place where I 
 
 # Install
 
-To run this thing you need to decide which brand you like most, 
+To run this thing you need to decide which RAG platform you like most (we support LLMWare, Llama-Index and Haystack), 
 then you got to set up a vector store and start playing with it.
 
 If you did download a snapshot from civitai you have to run the Qdrant vectror store.
