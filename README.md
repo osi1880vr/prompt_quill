@@ -124,11 +124,6 @@ If you like and can provide large numbers of prompts please get in contact with 
 I am compiling a growing vector DB which I can then share at some place where I can upload those files.
 
 
-# Contact
-
-Please find me and join us on discord: https://discord.gg/gMDTAwfQAP
-
-
 # Install
 
 To run this thing you need to decide which brand you like most, 
@@ -172,6 +167,10 @@ This is not the focus of this project as that is a whole different story to solv
 
 This will become a topic once there is a hosting provider for the project.
 
+
+# Contact
+
+Please find me and join us on discord: https://discord.gg/gMDTAwfQAP
 
 
 
