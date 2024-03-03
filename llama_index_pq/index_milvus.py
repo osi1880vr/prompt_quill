@@ -32,8 +32,7 @@ vector_store = MilvusVectorStore(
     collection_name = 'llama_index_prompts_large',
     dim = 384,
     similarity_metric = "L2",
-    #text_key="paragraph",
-    #overwrite=True
+
 )
 
 sample_files_path = "E:\short_large"
@@ -52,7 +51,7 @@ for subdir, dirs, files in os.walk(sample_files_path):
 
 
         # here we set the file_path to become no part of the embedding, its not for this usecase
-        # also we check if a doc has zero content then we dont try to embedd it as it would result in an error
+        # also we check if a doc has zero content then we don't try to embedd it as it would result in an error
         docs = []
         for doc in documents:
             doc.excluded_llm_metadata_keys.append("file_path")
@@ -63,10 +62,5 @@ for subdir, dirs, files in os.walk(sample_files_path):
         del documents
 
         vector_index = VectorStoreIndex.from_documents(docs, storage_context=storage_context,embed_model=embed_model, show_progress=True)
-
-        #vector_store.collection.flush() # seems to be not needed
-
-
-
 
 
