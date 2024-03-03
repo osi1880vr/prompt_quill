@@ -4,15 +4,11 @@ import os
 
 from llmware.gguf_configs import GGUFConfigs
 
-#GGUFConfigs().set_config("custom_lib_path", "C:\\Users\\user\\miniconda3\\envs\\prompt_work\\Lib\\site-packages\\llama_cpp\\llama.dll")
 GGUFConfigs().set_config("n_gpu_layers", 50)
 
-import torch
-test = torch.cuda.is_available()
-
 # you could set this in your env as ENV Variables, to be able to just run we do it like this
-os.environ['COLLECTION_DB_URI'] = 'mongodb://192.168.0.127:27017/'
-os.environ["USER_MANAGED_QDRANT_HOST"] = "192.168.0.127"
+os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
+os.environ["USER_MANAGED_QDRANT_HOST"] = "localhost"
 os.environ["USER_MANAGED_QDRANT_PORT"] = "6333"
 import llm_interface_qdrant
 

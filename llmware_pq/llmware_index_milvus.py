@@ -61,15 +61,6 @@ def rag (library_name):
 
     print(f"done - total processing time - {time.time()-t0}")
 
-    #print("\nupdate: Loading 1B parameter BLING model for LLM inference")
-
-    #prompter = Prompt().load_model("llmware/bling-1b-0.1")
-    #query = "what is the executive's base annual salary"
-
-    #results = Query(library).semantic_query(query, result_count=50, embedding_distance_threshold=1.0)
-
-
-
 
 if __name__ == "__main__":
 
