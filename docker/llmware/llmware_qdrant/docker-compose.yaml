@@ -33,12 +33,5 @@ services:
 volumes:
   llmware-mongodb:
     driver: local
-
-configs:
-  qdrant_config:
-    content:
-      log_level: INFO
-
-
-
-
+  qdrant_data:
+    driver: local
