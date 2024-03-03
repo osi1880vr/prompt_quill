@@ -40,7 +40,6 @@ class LLM_INTERFACE:
         self.library_name = 'llmware_qdrant'
         self.lib = Library().load_library(self.library_name)
 
-
         self.run_order_list = ["blurb1", "$context", "blurb2", "$query", "instruction"]
 
         self.prompt_dict = prompt_templates.prompt_template_a

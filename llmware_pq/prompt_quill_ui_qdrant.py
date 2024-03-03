@@ -49,9 +49,6 @@ css = """
 }
 """
 
-
-
-
 with gr.Blocks(css=css) as pq_ui:
 
 	with gr.Tab("Chat"):
@@ -78,8 +75,6 @@ with gr.Blocks(css=css) as pq_ui:
 			undo_btn="↩️ Undo",
 			clear_btn="Clear"
 		)
-
-
 
 	with gr.Tab("Character"):
 		gr.Interface(
