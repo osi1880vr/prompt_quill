@@ -69,7 +69,7 @@ Also they use a very detailed handcrafted negative prompt, the right image is th
 
 <img src="images/neg_sample/left_1.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_1.webp" alt="Logo"  width="329px" height="586px" />
 
-Now we see same prompts same seed but with no negative prompt, and we can see how the right one drifts away from the first one while the left drifts not as hard.
+Now we see same prompts same seed but with no negative prompt, and we can see how much the right one drifts away from the first one while the left drifts not as hard.
 
 <img src="images/neg_sample/left_2.webp" alt="Logo"  width="329px" height="586px" /><img src="images/neg_sample/right_2.webp" alt="Logo"  width="329px" height="586px" />
 
