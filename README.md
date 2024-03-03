@@ -59,6 +59,7 @@ _High-quality digital art, ultra-detailed, professional, clear, high contrast, h
 
 Looking at this prompt, keep in mind that you got full control about the prompt style by editing the history in the character tab.
 
+
 # Robust prompts even with no negative prompt
 Here you see images comparing a regular, hand made prompt versus a prompt made by Prompt Quill.
 
@@ -105,9 +106,11 @@ If you like this project, and you are willing and able to sponsor this project a
 If you like and can provide large numbers of prompts please get in contact with me.
 I am compiling a growing vector DB which I can then share at some place where I can upload those files.
 
+
 # Contact
 
 Please find me and join us on discord: https://discord.gg/gMDTAwfQAP
+
 
 # Install
 
@@ -131,21 +134,16 @@ llmware, llama_index or haystack
 
 run pip install -r .\requirements.txt.
 
-
 Unless you use llmware you have to do this following steps to run llama-cpp:
 
 If you only run on CPU the last steps is
 
 run pip install -r .\requirements_cpu.txt
 
-
 If you like to run on GPU you have to set up llama-cpp and torch to run on GPU for your environment
 to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
 
 On any other platform please find how you do it, I do not have any other platform. If you create a method, please let me know and I can add it here. Contributions are welcome.
-
-
-
 
 Long term, I will create a one click installer but that's not today ;)
 
@@ -158,6 +156,7 @@ _"sail to italy"_ would give you a prompt like this:
 _Stunning aerial photograph of a sailboat gracefully navigating through the crystal-clear waters of the Mediterranean Sea, en route to Italy. The sun casts a warm golden glow on the boat, while the distant villages and medieval towns along the coastline appear as intricate, detailed miniatures in the background. The image captures the beauty of the Italian coastline, with its picturesque beaches, islands, and castles, all bathed in the warm, golden light of the setting sun. The sailboat's sails billow with the wind, creating a sense of movement and adventure in this breathtaking scene. The photograph is taken in 8K resolution, offering an incredibly detailed and immersive view of the scene, with the stars twinkling in the night sky above, creating an Aurora-style atmosphere that adds to the magic of the moment._
 
 Here is a few samples from free online image generators:
+We see the prompts are not just working for stable diffusion models.
 
 
 <img src="images/sail_to_italy/1.jpg" alt="sailing"  width="512" height="512" />
