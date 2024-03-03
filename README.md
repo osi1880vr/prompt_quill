@@ -61,6 +61,7 @@ Looking at this prompt, keep in mind that you got full control about the prompt 
 
 You might wonder where is that rocket from the prompt, its clearly not in the image, We don't know that, maybe it is very little hiding behind the guy in front.
 It depends on the model you use and on how many samples you take using different seeds, the one you see is the one I liked the most from the few samples I took.
+Also, the image dimensions used will have a large impact on what will get shown, a wide image will look totally different than a high image. But that's AI image generation theories which is not part of this thing here. It's all just about making nicer prompts. It's up to you to create the right image setup for your prompts.
 Here is a few more samples using a different model.
 
 <img src="images/space_man/1.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/2.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/3.webp" alt="spaceman"  width="250" height="176" />
