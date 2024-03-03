@@ -18,7 +18,7 @@ Here you find just the code to run the UI or to insert data into your instance o
 # Features
 
 * Create prompts from your input based on similar existing prompts from the vector store.
-* Select the Model to be used and set some of the parameters that get exposed by the different frameworks.
+* Select the LLM to be used and set some of the parameters that get exposed by the different frameworks.
 * Edit the Magic Prompt that's sent to make the LLM a prompt engineering helper.
 * I have implemented Prompt Quill using llmware, llama-index and haystack. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
 
