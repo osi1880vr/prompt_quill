@@ -4,7 +4,7 @@
 
 Prompt Quill was created to help users create better prompts for creating images. 
 
-It is useful for poor prompt engineers like me who struggle with coming up with all of the detailed instructions that are needed to create beautiful images using image generation models like Stable Diffusion. 
+It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using image generation models like Stable Diffusion or other image generators. 
 
 Even if are an expert, it could still be used to inspire other prompts.
 
@@ -49,7 +49,7 @@ This is the prompt _rocket man in space_
 
 <img src="images/prompt_sample/rocket_man.webp" alt="Logo"  width="500px" height="286px" />
 
-Here we can see the image the prompt from Prompt Quill created out of _rocket man in space_. It is a nice prompt but still lacking in detail.
+Here we can see the image the prompt from Prompt Quill created out of _rocket man in space_.
 
 <img src="images/prompt_sample/rocket_man_pq.webp" alt="Logo"  width="500px" height="286px" />
 
