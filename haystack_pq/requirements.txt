@@ -1,0 +1,5 @@
+gradio==4.19.2
+haystack-ai
+qdrant-haystack
+llama-cpp-haystack
+sentence-transformers>=2.2.0

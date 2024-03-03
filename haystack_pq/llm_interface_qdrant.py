@@ -1,3 +1,17 @@
+# Copyright 2023 osiworx
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License.  You
+# may obtain a copy of the License at
+
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.  See the License for the specific language governing
+# permissions and limitations under the License.
+
 from haystack import Pipeline
 from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
 from haystack.components.builders.prompt_builder import PromptBuilder
@@ -6,20 +20,14 @@ from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.components.generators.llama_cpp import LlamaCppGenerator
 import prompt_templates
 import model_list
-import torch
 import gc
 
-
-
-
-
 class LLM_INTERFACE:
-
 
     def __init__(self):
 
         self.index='haystack_prompt_out_all'
-        self.url = "http://192.168.0.127:6333"
+        self.url = "http://localhost:6333"
 
         self.model_path = model_list.model_list['speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 
@@ -39,7 +47,7 @@ class LLM_INTERFACE:
 
 
         self.generator = LlamaCppGenerator(
-            model_path=self.model_path,
+            model=self.model_path,
             n_ctx=self.n_ctx,
             n_batch=self.n_batch,
             model_kwargs={"n_gpu_layers": self.n_gpu_layers},
@@ -47,11 +55,7 @@ class LLM_INTERFACE:
         )
 
         self.prompt_template = prompt_templates.prompt_template_b
-
-
         self.set_pipeline()
-
-
 
     def set_pipeline(self):
 
@@ -75,13 +79,11 @@ class LLM_INTERFACE:
         self.rag_pipeline.connect("retriever", "prompt_builder.documents")
         self.rag_pipeline.connect("prompt_builder", "llm")
 
-
     def run_llm_response(self, query, history):
 
         f = open('logfile.txt', 'a')
         f.write(f"QUERY: {query} \n")
         f.close()
-
 
         results = self.rag_pipeline.run(
             {
@@ -98,10 +100,7 @@ class LLM_INTERFACE:
 
         return res
 
-
     def change_model(self,model,temperature,n_ctx,n_batch,n_gpu_layers,max_tokens,top_k):
-
-
         self.n_ctx=n_ctx
         self.n_batch=n_batch
         self.n_gpu_layers=n_gpu_layers
@@ -135,7 +134,6 @@ class LLM_INTERFACE:
         f = open('magic_prompt_logfile.txt', 'a')
         f.write(f"Magic Prompt: \n{prompt_text} \n\n\n")
         f.close()
-
 
         del self.generator.model
         del self.generator

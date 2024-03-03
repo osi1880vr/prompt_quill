@@ -1,3 +1,18 @@
+# Copyright 2023 osiworx
+
+# Licensed under the Apache License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License.  You
+# may obtain a copy of the License at
+
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.  See the License for the specific language governing
+# permissions and limitations under the License.
+
+
 import gradio as gr
 import model_list
 import os
@@ -9,8 +24,8 @@ import torch
 test = torch.cuda.is_available()
 
 # you could set this in your env as ENV Variables, to be able to just run we do it like this
-os.environ['COLLECTION_DB_URI'] = 'mongodb://192.168.0.127:27017/'
-os.environ['MILVUS_HOST'] = '192.168.0.127'
+os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
+os.environ['MILVUS_HOST'] = 'localhost'
 os.environ['MILVUS_PORT'] = '19530'
 import llm_interface_milvus
 

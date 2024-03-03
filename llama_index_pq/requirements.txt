@@ -1,0 +1,6 @@
+gradio==4.19.2
+llama-index==0.10.15
+llama-index-vector-stores-milvus
+llama-index-vector-stores-qdrant
+llama-index-embeddings-huggingface
+llama-index-llms-llama-cpp

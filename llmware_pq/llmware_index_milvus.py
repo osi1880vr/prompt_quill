@@ -13,13 +13,12 @@ import os
 import time
 
 from llmware.library import Library
-from llmware.retrieval import Query
-from llmware.setup import Setup
 from llmware.status import Status
-from llmware.prompts import Prompt
 import datetime
 
-
+os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
+os.environ['MILVUS_HOST'] = 'localhost'
+os.environ['MILVUS_PORT'] = '19530'
 def rag (library_name):
 
     # Step 0 - Configuration - we will use these in Step 4 to install the embeddings
