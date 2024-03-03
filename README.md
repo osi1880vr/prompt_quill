@@ -8,7 +8,7 @@ Prompt Quill was created to help users create better prompts for creating images
 
 It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using image generation models like Stable Diffusion or other image generators. 
 
-Even if are an expert, it could still be used to inspire other prompts.
+Even if you are an expert, it could still be used to inspire other prompts.
 
 A Gradio UI will also help you to create more sophisticated text to image prompts.
 
