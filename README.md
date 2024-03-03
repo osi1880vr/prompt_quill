@@ -169,9 +169,8 @@ We see the prompts are not just working for stable diffusion models.
 
 
 <img src="images/sail_to_italy/1.jpg" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/2.webp" alt="sailing"  width="400" height="400" />
-<img src="images/sail_to_italy/3.jpg" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/4.jpg" alt="sailing"  width="400" height="400" />
-<img src="images/sail_to_italy/5.png" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/6.jpg" alt="sailing"  width="400" height="400" />
-<img src="images/sail_to_italy/7.jpg" alt="sailing"  width="400" height="400" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="400" height="400" />
+<img src="images/sail_to_italy/3.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/4.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/5.png" alt="sailing"  width="266" height="266" />
+<img src="images/sail_to_italy/6.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/7.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="266" height="266" />
 
 
 
