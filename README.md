@@ -1,6 +1,6 @@
-<img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
-# Welcome to Prompt Quill
+
+# Welcome to Prompt Quill <img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
 Prompt Quill was created to help users create better prompts for creating images. 
 
@@ -150,6 +150,24 @@ On any other platform please find how you do it, I do not have any other platfor
 Long term, I will create a one click installer but that's not today ;)
 
 
+
+# the sail to italy example 
+
+_"sail to italy"_ would give you a prompt like this:
+
+_Stunning aerial photograph of a sailboat gracefully navigating through the crystal-clear waters of the Mediterranean Sea, en route to Italy. The sun casts a warm golden glow on the boat, while the distant villages and medieval towns along the coastline appear as intricate, detailed miniatures in the background. The image captures the beauty of the Italian coastline, with its picturesque beaches, islands, and castles, all bathed in the warm, golden light of the setting sun. The sailboat's sails billow with the wind, creating a sense of movement and adventure in this breathtaking scene. The photograph is taken in 8K resolution, offering an incredibly detailed and immersive view of the scene, with the stars twinkling in the night sky above, creating an Aurora-style atmosphere that adds to the magic of the moment._
+
+Here is a few samples from free online image generators:
+
+
+<img src="images/sailToItaly/bing.jpg" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/craiyon.webp" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/davinciai.jpg" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/deepai.jpg" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/dezgo.png" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/fotor-ai.jpg" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/gencraft.jpg" alt="Logo"  width="512" height="512" />
+<img src="images/sailToItaly/image2go.jpg" alt="Logo"  width="512" height="512" />
 
 
 
