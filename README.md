@@ -160,14 +160,14 @@ _Stunning aerial photograph of a sailboat gracefully navigating through the crys
 Here is a few samples from free online image generators:
 
 
-<img src="images/sail_to_italy/bing.jpg" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/craiyon.webp" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/davinciai.jpg" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/deepai.jpg" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/dezgo.png" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/fotor-ai.jpg" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/gencraft.jpg" alt="sailing"  width="512" height="512" />
-<img src="images/sail_to_italy/image2go.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/1.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/2.webp" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/3.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/4.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/5.png" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/6.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/7.jpg" alt="sailing"  width="512" height="512" />
+<img src="images/sail_to_italy/8.jpg" alt="sailing"  width="512" height="512" />
 
 
 
