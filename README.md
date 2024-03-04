@@ -10,7 +10,7 @@ It is useful for poor prompt engineers like me who struggle with coming up with 
 
 Even if you are an expert, it could still be used to inspire other prompts.
 
-A Gradio UI will also help you to create more sophisticated text to image prompts.
+The Gradio UI will also help you to create more sophisticated text to image prompts.
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
