@@ -24,7 +24,7 @@ import prompt_templates
 import model_list
 import gc
 
-url = "http://192.168.0.127:6333"
+url = "http://localhost:6333"
 
 
 class LLM_INTERFACE:
@@ -43,7 +43,7 @@ class LLM_INTERFACE:
             # but requires qdrant-client >= 1.1.1
             #location=":memory:"
             # otherwise set Qdrant instance address with:
-            url="http://192.168.0.127:6333"
+            url="http://localhost:6333"
             # set API KEY for Qdrant Cloud
             # api_key="<qdrant-api-key>",
         )
