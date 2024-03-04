@@ -16,6 +16,7 @@
 from llmware.library import Library
 from llmware.retrieval import Query
 from llmware.prompts import Prompt
+from llmware.gguf_configs import GGUFConfigs
 
 import prompt_templates
 import model_list
@@ -119,7 +120,9 @@ class LLM_INTERFACE:
         return response["llm_response"]
 
 
-    def change_model(self, model, temperature, max_tokens, top_k, instruct):
+    def change_model(self, model, temperature, max_tokens, top_k, instruct, gpu_layers):
+
+        GGUFConfigs().set_config("n_gpu_layers", gpu_layers)
 
         self.temperature=float(temperature)
         self.top_k=top_k

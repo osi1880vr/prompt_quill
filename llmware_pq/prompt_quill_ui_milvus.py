@@ -30,8 +30,8 @@ os.environ['MILVUS_PORT'] = '19530'
 import llm_interface_milvus
 
 interface = llm_interface_milvus.LLM_INTERFACE()
-def set_model(model, temperature, max_tokens, top_k, instruct):
-	return interface.change_model(model, temperature, max_tokens, top_k, instruct)
+def set_model(model, temperature, max_tokens, gpu_layer, top_k, instruct):
+	return interface.change_model(model, temperature, max_tokens, gpu_layer, top_k, instruct)
 def set_prompt(prompt_text):
 	return interface.set_prompt(prompt_text)
 
@@ -98,6 +98,7 @@ with gr.Blocks(css=css) as pq_ui:
 				),
 				gr.Slider(0, 1, step= 0.1, value=0.0, label="Temperature", info="Choose between 0 and 1"),
 				gr.Slider(0, 1024, step= 1, value=200, label="max output Tokens", info="Choose between 1 and 1024"),
+				gr.Slider(0, 1024, step= 1, value=50, label="GPU Layers", info="Choose between 1 and 1024"),
 				gr.Slider(0, 50, step= 1, value=5, label="how many entrys to be fetched from the vector store", info="Choose between 1 and 50 be careful not to overload the context window of the LLM"),
 				gr.Checkbox(label='Instruct Model')
 

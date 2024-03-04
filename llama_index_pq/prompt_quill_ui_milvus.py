@@ -65,7 +65,7 @@ with gr.Blocks(css=css) as pq_ui:
 		gr.Interface(
 			set_prompt,
 			[	gr.TextArea(interface.prompt_template,lines = 20),]
-			,outputs="text",
+			,outputs=None,
 			allow_flagging='never',
 			flagging_options=None
 
