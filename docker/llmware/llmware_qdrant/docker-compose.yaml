@@ -35,3 +35,8 @@ volumes:
     driver: local
   qdrant_data:
     driver: local
+
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
