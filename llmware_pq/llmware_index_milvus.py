@@ -1,12 +1,16 @@
-"""
-#                   *** FAST START to create vector embeddings from documents ***
-#
-#   docs2vecs_with_milvus-contracts - parses, text chunks and embeds legal contracts
-#   the sample documents (~80 legal template contracts) can be pulled down from a public S3 repo with the command:
-#           sample_files_path = Setup().load_sample_files()
+# Copyright 2023 osiworx
 
-#   note: the example assumes that you have installed Milvus and MongoDB per the separate instructions in the README
-"""
+# Licensed under the Apache License, Version 2.0 (the "License"); you
+# may not use this file except in compliance with the License.  You
+# may obtain a copy of the License at
+
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+# implied.  See the License for the specific language governing
+# permissions and limitations under the License.
 
 
 import os
@@ -60,15 +64,6 @@ def rag (library_name):
     print("update: Embeddings Complete - Status() check at end of embedding - ", update)
 
     print(f"done - total processing time - {time.time()-t0}")
-
-    #print("\nupdate: Loading 1B parameter BLING model for LLM inference")
-
-    #prompter = Prompt().load_model("llmware/bling-1b-0.1")
-    #query = "what is the executive's base annual salary"
-
-    #results = Query(library).semantic_query(query, result_count=50, embedding_distance_threshold=1.0)
-
-
 
 
 if __name__ == "__main__":

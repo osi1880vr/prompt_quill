@@ -38,7 +38,6 @@ class LLM_INTERFACE:
             collection_name = self.index,
             dim = 384,
             similarity_metric = "L2",
-            #   text_key="paragraph"
         )
 
         self.instruct = False
@@ -77,7 +76,7 @@ class LLM_INTERFACE:
             generate_kwargs={},
 
             # kwargs to pass to __init__()
-            # set to at least 1 to use GPU
+            # set to at least 1 to use GPU, check with your model the number need to fully run on GPU might be way higher than 1
             model_kwargs={"n_gpu_layers": self.n_gpu_layers}, # I need to play with this and see if it actually helps
 
             # transform inputs into Llama2 format

@@ -32,8 +32,6 @@ vector_store = MilvusVectorStore(
     collection_name = 'llama_index_prompts_all',
     dim = 384,
     similarity_metric = "L2",
-    #text_key="paragraph",
-    #overwrite=True
 )
 
 
@@ -62,10 +60,4 @@ for subdir, dirs, files in os.walk(sample_files_path):
         del documents
 
         vector_index = VectorStoreIndex.from_documents(docs, storage_context=storage_context, service_context=service_context, show_progress=True)
-
-        vector_store.collection.flush()
-        vector_store.collection.compact()
-
-
-
 

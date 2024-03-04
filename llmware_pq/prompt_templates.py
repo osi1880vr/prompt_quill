@@ -9,11 +9,9 @@ Answer: ultra high res, detailed, perfect face, ((beautiful female scientist)), 
 Query: beautiful female princess in a meadow
 Answer: Best quality, masterpiece, realistic, ((beautiful female princess)), in spring, wearing a flower crown, standing in a blooming meadow, surrounded by butterflies, holding a staff with a crystal on top, the sun shining down on her, a symbol of nature's beauty and power, on eye level, scenic, masterpiece                               
 Query: beautiful female witch on a castle rooftop
-Answer: photorealistic, Professional photo, analog style, ((beautiful female witch)) at midnight, wearing a black cloak with a hood, standing on the rooftop of a castle, surrounded by stars and the moon, casting a spell with a dark aura, mysterious and powerful, on eye level, scenic, masterpiece
-                               """,
-
-                     "blurb2": "Query: ",
-                     "instruction": "\nAnswer: "
-                     }
+Answer: photorealistic, Professional photo, analog style, ((beautiful female witch)) at midnight, wearing a black cloak with a hood, standing on the rooftop of a castle, surrounded by stars and the moon, casting a spell with a dark aura, mysterious and powerful, on eye level, scenic, masterpiece""",
+ "blurb2": "Query: ",
+ "instruction": "\nAnswer: "
+ }
 
 
