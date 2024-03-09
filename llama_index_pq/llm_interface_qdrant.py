@@ -131,21 +131,15 @@ class LLM_INTERFACE:
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 
-
-
-
         output = response.response
 
         negative_prompts = []
         models = []
 
-
         for key in response.metadata.keys():
             if 'negative_prompt' in response.metadata[key]:
                 negative_prompts = negative_prompts + response.metadata[key]['negative_prompt'].split(',')
                 models.append(f'{response.metadata[key]["model_name"]}')
-
-
 
         if len(negative_prompts) > 0:
             negative_prompts = set(negative_prompts)
