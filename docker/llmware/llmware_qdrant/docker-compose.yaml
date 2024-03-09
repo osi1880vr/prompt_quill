@@ -24,19 +24,12 @@ services:
       - 6333
       - 6334
       - 6335
-    configs:
-      - source: qdrant_config
-        target: /qdrant/config/production.yaml
     volumes:
       - qdrant_data:/qdrant_data
+      - ./qdrant_config.yaml:/qdrant/config/production.yaml
 
 volumes:
   llmware-mongodb:
     driver: local
   qdrant_data:
     driver: local
-
-configs:
-  qdrant_config:
-    content: |
-      log_level: INFO
