@@ -94,6 +94,8 @@ Here is a first sneak peek how it will look like then:
 
 <img src="images/neg_prompts/neg_prompt_sneak_peek.png" alt="negative prompts"  width="1348" height="627" />
 
+Here you see a example "nice cat" with no negative prompt on the left and on the right same prompt and seed but with negative prompt
+<img src="images/neg_prompts/no_neg.png" alt="sailing"  width="266" height="266" /><img src="images/neg_prompts/with_neg.png" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="266" height="266" />
 
 
 # The data needed for all the fun
