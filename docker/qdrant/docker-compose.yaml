@@ -15,8 +15,4 @@ services:
         target: /qdrant/config/production.yaml
     volumes:
       - qdrant_data:/qdrant_data
-
-configs:
-  qdrant_config:
-    content: |
-      log_level: INFO
+      - ./qdrant_config.yaml:/qdrant/config/production.yaml
