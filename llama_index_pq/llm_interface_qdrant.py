@@ -19,6 +19,7 @@ from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import qdrant_client
+import json
 
 import prompt_templates
 import model_list
@@ -32,7 +33,7 @@ class LLM_INTERFACE:
 
     def __init__(self):
 
-        self.index='prompts_large'
+        self.index='prompts_large_meta'
 
 
         self.model_path = model_list.model_list['thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
@@ -43,7 +44,7 @@ class LLM_INTERFACE:
             # but requires qdrant-client >= 1.1.1
             #location=":memory:"
             # otherwise set Qdrant instance address with:
-            url="http://localhost:6333"
+            url="http://192.168.0.127:6333"
             # set API KEY for Qdrant Cloud
             # api_key="<qdrant-api-key>",
         )
@@ -130,7 +131,33 @@ class LLM_INTERFACE:
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 
-        return response.response
+
+
+
+        output = response.response
+
+        negative_prompts = []
+        models = []
+
+
+        for key in response.metadata.keys():
+            if 'negative_prompt' in response.metadata[key]:
+                negative_prompts = negative_prompts + response.metadata[key]['negative_prompt'].split(',')
+                models.append(f'{response.metadata[key]["model_name"]}')
+
+
+
+        if len(negative_prompts) > 0:
+            negative_prompts = set(negative_prompts)
+            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{",".join(negative_prompts)}'
+
+        if len(models) > 0:
+            models_out = "\n".join(models)
+
+            output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
+
+
+        return output
 
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):

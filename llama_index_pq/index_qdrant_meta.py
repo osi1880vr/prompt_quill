@@ -31,14 +31,14 @@ client = qdrant_client.QdrantClient(
     # but requires qdrant-client >= 1.1.1
     #location=":memory:"
     # otherwise set Qdrant instance address with:
-    url="http://localhost:6333"
+    url="http://192.168.0.127:6333"
     # set API KEY for Qdrant Cloud
     # api_key="<qdrant-api-key>",
 )
 
-base_path = 'G:\\testPrompts\\meta_out'
+base_path = 'X:\\csv2'
 
-sample_files_path = os.path.join(base_path,'prompt')
+sample_files_path = os.path.join(base_path)
 
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
 
@@ -82,14 +82,13 @@ for subdir, dirs, files in os.walk(sample_files_path):
                 doc.excluded_llm_metadata_keys.append("model_name")
                 doc.excluded_embed_metadata_keys.append("model_name")
 
-                file = get_folder_file(doc.extra_info['file_path'])
-                neg_file = os.path.join(base_path,'neg',file)
-                model_file = os.path.join(base_path,'model',file)
-                neg_promtp = read_file(neg_file)
-                model_data = read_file(model_file)
+                raw_text = doc.text
 
-                doc.metadata['negative_prompt'] = neg_promtp
-                doc.metadata['model_name'] = model_data
+                meta_array = doc.text.split('##superspacer##')
+                doc.text = meta_array[1]
+
+                doc.metadata['negative_prompt'] = meta_array[2]
+                doc.metadata['model_name'] = f'https://civitai.com/models/{meta_array[3]}'
                 docs = docs + [doc]
 
 
