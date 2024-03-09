@@ -85,6 +85,15 @@ We see the prompts are not just working for stable diffusion models.
 <img src="images/sail_to_italy/3.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/4.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/5.png" alt="sailing"  width="266" height="266" />
 <img src="images/sail_to_italy/6.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/7.jpg" alt="sailing"  width="266" height="266" /><img src="images/sail_to_italy/8.jpg" alt="sailing"  width="266" height="266" />
 
+# negative prompts and model examples
+
+Based on the information I retrieved for all those prompts data I also know the negative prompt that was used for a prompt and also I know what model was used to generate the image I took the prompt from, So why not give that information to you too.
+I managed to get this working in llama-index for now but the other two will follow soon. The data will follow pretty soon to.
+
+Here is a first sneak peek how it will look like then:
+
+<img src="images/neg_prompts/neg_prompt_sneak_peek.png" alt="negative prompts"  width="1348" height="627" />
+
 
 
 # The data needed for all the fun
