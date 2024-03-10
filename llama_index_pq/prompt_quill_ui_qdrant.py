@@ -14,6 +14,9 @@
 
 import gradio as gr
 import llm_interface_qdrant
+from civitai.client import civitai_client
+
+
 
 interface = llm_interface_qdrant.LLM_INTERFACE()
 
@@ -22,6 +25,11 @@ def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instru
 	return interface.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens, top_k, instruct)
 def set_prompt(prompt_text):
 	return interface.set_prompt(prompt_text)
+
+def run_civitai_generation(air, prompt, negative_prompt):
+	client = civitai_client()
+	return client.request_generation(air, prompt, negative_prompt)
+
 
 css = """
 .gr-image {
@@ -89,6 +97,20 @@ with gr.Blocks(css=css) as pq_ui:
 			flagging_options=None
 
 		)
+
+	with gr.Tab("Generator"):
+		with gr.Tab("Civitai"):
+
+			gr.Interface(
+				run_civitai_generation,
+				[	gr.TextArea(lines = 1, label="Air",),
+					gr.TextArea(interface.last_prompt,lines = 10, label="Prompt"),
+					 gr.TextArea(interface.last_negative_prompt,lines = 5, label="Negative Prompt"),]
+				,outputs=gr.Image(label="Generated Image"), #"text",
+				allow_flagging='never',
+				flagging_options=None,
+			)
+
 
 if __name__ == "__main__":
 	pq_ui.launch(server_name="0.0.0.0") #share=True
