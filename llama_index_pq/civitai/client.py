@@ -15,17 +15,17 @@ headers = {'Content-Type' : 'application/json',
 		   }
 class civitai_client:
 
-	def get_generation_dict(self,air="", prompt="", negative_prompt=""):
+	def get_generation_dict(self,air="", prompt="", negative_prompt="", steps=20, cfg=7, width=512, heigth=512, clipskip=2):
 		return {
 			"model": air,
 			"prompt": prompt,
 			"negativePrompt": negative_prompt,
-			"scheduler": "EulerA",
-			"steps": 20,
-			"cfgScale": 7,
-			"width": 512,
-			"height": 512,
-			"clipSkip": 2,
+			"scheduler": 'EulerA',
+			"steps": steps,
+			"cfgScale": cfg,
+			"width": width,
+			"height": heigth,
+			"clipSkip": clipskip,
 			"additionalNetworks": [
 				{
 					"model": "",
@@ -44,6 +44,8 @@ class civitai_client:
 				arr = np.asarray(bytearray(req.data), dtype=np.uint8)
 				img = cv2.imdecode(arr, -1)
 				return img
+			else:
+				break
 
 
 	def poll_status(self, token):
@@ -59,21 +61,22 @@ class civitai_client:
 				if res['jobs'][0]['result']['available'] is True:
 					image_url = res['jobs'][0]['result']['blobUrl']
 					break
-
+				if res['jobs'][0]['scheduled'] is False:
+					image_url = -1
+					break
 			else:
 				image_url = -1
+				break
 			time.sleep(1)
 
 
 		return image_url
 
-
-
-	def request_generation(self, air, prompt, negative_prompt):
+	def request_generation(self, air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
 
 		url = civitai_host + '/api/generate'
 
-		req_dict = self.get_generation_dict(air, prompt, negative_prompt)
+		req_dict = self.get_generation_dict(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
 
 		response = requests.post(url, data = json.dumps(req_dict),headers=headers)
 

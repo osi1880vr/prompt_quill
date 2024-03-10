@@ -26,9 +26,9 @@ def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instru
 def set_prompt(prompt_text):
 	return interface.set_prompt(prompt_text)
 
-def run_civitai_generation(air, prompt, negative_prompt):
+def run_civitai_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
 	client = civitai_client()
-	return client.request_generation(air, prompt, negative_prompt)
+	return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
 
 
 css = """
@@ -103,9 +103,17 @@ with gr.Blocks(css=css) as pq_ui:
 
 			gr.Interface(
 				run_civitai_generation,
-				[	gr.TextArea(lines = 1, label="Air",),
-					gr.TextArea(interface.last_prompt,lines = 10, label="Prompt"),
-					 gr.TextArea(interface.last_negative_prompt,lines = 5, label="Negative Prompt"),]
+				[
+					 gr.TextArea(lines = 1, label="Air",value='urn:air:sd1:checkpoint:civitai:4201@130072'),
+					 gr.TextArea(interface.last_prompt,lines = 10, label="Prompt"),
+					 gr.TextArea(interface.last_negative_prompt,lines = 5, label="Negative Prompt"),
+					 #gr.Dropdown(choices=["DPM++ 2M Karras", "Euler a", "Third Choice"]),
+					 gr.Slider(0, 100, step= 1, value=20, label="Steps", info="Choose between 1 and 100"),
+					 gr.Slider(0, 20, step= 0.1, value=7, label="CFG Scale", info="Choose between 1 and 20"),
+					 gr.Slider(0, 1024, step= 1, value=512, label="Width", info="Choose between 1 and 1024"),
+					 gr.Slider(0, 1024, step= 1, value=512, label="Height", info="Choose between 1 and 1024"),
+					 gr.Slider(0, 10, step= 1, value=2, label="Clipskip", info="Choose between 1 and 10"),
+					 ]
 				,outputs=gr.Image(label="Generated Image"), #"text",
 				allow_flagging='never',
 				flagging_options=None,
