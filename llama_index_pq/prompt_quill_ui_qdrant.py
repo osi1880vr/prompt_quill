@@ -23,12 +23,24 @@ interface = llm_interface_qdrant.LLM_INTERFACE()
 import model_list
 def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
 	return interface.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens, top_k, instruct)
+
+def get_last_prompt():
+	return interface.last_prompt,interface.last_negative_prompt
+
+
 def set_prompt(prompt_text):
-	return interface.set_prompt(prompt_text)
+
+	return_data = interface.set_prompt(prompt_text)
+
+	return return_data
 
 def run_civitai_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
 	client = civitai_client()
 	return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
+
+def run_llm_response(query, history):
+	return_data = interface.run_llm_response(query, history)
+	return return_data
 
 
 css = """
@@ -43,6 +55,10 @@ css = """
   font-size: 50px;
 }
 """
+
+prompt_input = gr.TextArea(interface.last_prompt,lines = 10, label="Prompt")
+negative_prompt_input = gr.TextArea(interface.last_negative_prompt,lines = 5, label="Negative Prompt")
+
 
 with gr.Blocks(css=css) as pq_ui:
 
@@ -64,8 +80,10 @@ with gr.Blocks(css=css) as pq_ui:
 			cache_examples=True,
 			retry_btn="🔄  Retry",
 			undo_btn="↩️ Undo",
-			clear_btn="Clear"
+			clear_btn="Clear",
+
 		)
+
 
 	with gr.Tab("Character"):
 		gr.Interface(
@@ -98,15 +116,21 @@ with gr.Blocks(css=css) as pq_ui:
 
 		)
 
-	with gr.Tab("Generator"):
+	with gr.Tab("Generator") as generator:
+		gr.on(
+			triggers=[generator.select],
+			fn=get_last_prompt,
+			inputs=None,
+			outputs=[prompt_input,negative_prompt_input],
+		)
 		with gr.Tab("Civitai"):
 
 			gr.Interface(
 				run_civitai_generation,
 				[
 					 gr.TextArea(lines = 1, label="Air",value='urn:air:sd1:checkpoint:civitai:4201@130072'),
-					 gr.TextArea(interface.last_prompt,lines = 10, label="Prompt"),
-					 gr.TextArea(interface.last_negative_prompt,lines = 5, label="Negative Prompt"),
+					 prompt_input,
+					 negative_prompt_input,
 					 #gr.Dropdown(choices=["DPM++ 2M Karras", "Euler a", "Third Choice"]),
 					 gr.Slider(0, 100, step= 1, value=20, label="Steps", info="Choose between 1 and 100"),
 					 gr.Slider(0, 20, step= 0.1, value=7, label="CFG Scale", info="Choose between 1 and 20"),
@@ -117,7 +141,10 @@ with gr.Blocks(css=css) as pq_ui:
 				,outputs=gr.Image(label="Generated Image"), #"text",
 				allow_flagging='never',
 				flagging_options=None,
+				#live=True
 			)
+
+
 
 
 if __name__ == "__main__":

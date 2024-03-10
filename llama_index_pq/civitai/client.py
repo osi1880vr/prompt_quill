@@ -2,10 +2,6 @@ import json
 import time
 
 import requests
-import cv2
-import urllib3
-import numpy as np
-
 
 civitai_host = 'https://sdk.civitai.com'
 headers = {'Content-Type' : 'application/json',
@@ -40,10 +36,17 @@ class civitai_client:
 		while 1:
 			image_url = self.poll_status(token)
 			if image_url != -1:
-				req = urllib3.request ('GET',image_url)
-				arr = np.asarray(bytearray(req.data), dtype=np.uint8)
-				img = cv2.imdecode(arr, -1)
+				import requests
+				from PIL import Image
+				from io import BytesIO
+
+				# Fetch the image data
+				response = requests.get(image_url)
+
+				# Open the image data as an RGB PIL image
+				img = Image.open(BytesIO(response.content)).convert('RGB')
 				return img
+
 			else:
 				break
 
