@@ -132,7 +132,7 @@ class LLM_INTERFACE:
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 
-        output = response.response
+        output = response.response.lstrip(' ')
         self.last_prompt = output
 
         negative_prompts = []
@@ -145,7 +145,7 @@ class LLM_INTERFACE:
 
         if len(negative_prompts) > 0:
             negative_prompts = set(negative_prompts)
-            self.last_negative_prompt = ",".join(negative_prompts)
+            self.last_negative_prompt = ",".join(negative_prompts).lstrip(' ')
             output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.last_negative_prompt}'
 
         if len(models) > 0:
