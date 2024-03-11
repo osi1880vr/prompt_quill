@@ -103,7 +103,7 @@ class LLM_INTERFACE:
             }
         )
 
-        output = results['answer_builder']['answers'][0].data
+        output = results['answer_builder']['answers'][0].data.lstrip(' ')
 
 
         if 'answer_builder' in results:
@@ -116,7 +116,7 @@ class LLM_INTERFACE:
 
 
             if len(negative_prompts) > 0:
-                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{",".join(set(negative_prompts))}'
+                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{(",".join(set(negative_prompts))).lstrip(" ")}'
 
             if len(models) > 0:
                 models_out = "\n".join(models)

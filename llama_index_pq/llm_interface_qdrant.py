@@ -131,7 +131,7 @@ class LLM_INTERFACE:
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 
-        output = response.response
+        output = response.response.lstrip(' ')
 
         negative_prompts = []
         models = []

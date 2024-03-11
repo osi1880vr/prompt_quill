@@ -122,7 +122,7 @@ class LLM_INTERFACE:
         if self.instruct is True:
             query = f'[INST]{query}[/INST]'
 
-        response = self.query_engine.query(query)
+        response = self.query_engine.query(query).lstrip(' ')
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 

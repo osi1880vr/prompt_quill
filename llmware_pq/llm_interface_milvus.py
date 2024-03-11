@@ -114,7 +114,7 @@ class LLM_INTERFACE:
 
         context = self.aggregate_text_by_query(self.library_name, query, top_n=self.top_k)
 
-        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
+        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context).lstrip(' ')
 
         self.log('logfile.txt',f"RESPONSE: {response['llm_response']} \n")
 
