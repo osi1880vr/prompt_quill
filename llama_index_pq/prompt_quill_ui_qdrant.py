@@ -190,4 +190,4 @@ with gr.Blocks(css=css) as pq_ui:
 
 
 if __name__ == "__main__":
-	pq_ui.launch(server_name="0.0.0.0") #share=True
+	pq_ui.launch() #share=True
