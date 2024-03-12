@@ -37,7 +37,8 @@ class LLM_INTERFACE:
     def __init__(self):
 
         self.index='prompts_large_meta'
-
+        self.last_prompt = ''
+        self.last_negative_prompt = ''
 
         self.model_path = model_list.model_list['thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 
@@ -135,6 +136,7 @@ class LLM_INTERFACE:
         self.log('logfile.txt',f"RESPONSE: {response.response} \n")
 
         output = response.response.lstrip(' ')
+        self.last_prompt = output
 
         negative_prompts = []
         models = []
@@ -146,7 +148,8 @@ class LLM_INTERFACE:
 
         if len(negative_prompts) > 0:
             negative_prompts = set(negative_prompts)
-            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{",".join(negative_prompts)}'
+            self.last_negative_prompt = ",".join(negative_prompts).lstrip(' ')
+            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.last_negative_prompt}'
 
         if len(models) > 0:
             models_out = "\n".join(models)

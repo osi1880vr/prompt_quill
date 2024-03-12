@@ -14,6 +14,16 @@
 
 import gradio as gr
 import llm_interface_qdrant
+from generators.civitai.client import civitai_client
+from generators.hordeai.client import hordeai_client
+from generators.hordeai.client import hordeai_models
+from horde_sdk import ANON_API_KEY
+
+
+
+
+hordeai_model_list = hordeai_models().read_model_list()
+
 import os
 
 interface = llm_interface_qdrant.LLM_INTERFACE()
@@ -21,8 +31,28 @@ interface = llm_interface_qdrant.LLM_INTERFACE()
 import model_list
 def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
 	return interface.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens, top_k, instruct)
+
+def get_last_prompt():
+	return interface.last_prompt,interface.last_negative_prompt
+
+
 def set_prompt(prompt_text):
-	return interface.set_prompt(prompt_text)
+
+	return_data = interface.set_prompt(prompt_text)
+
+	return return_data
+
+def run_civitai_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
+	client = civitai_client()
+	return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
+def run_hordeai_generation(api_key, prompt, negative_prompt, model, sampler, steps, cfg, width, heigth, clipskip):
+	client = hordeai_client()
+	return client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
+									 sampler=sampler, model=model, steps=steps, cfg=cfg, width=width, heigth=heigth, clipskip=clipskip)
+def run_llm_response(query, history):
+	return_data = interface.run_llm_response(query, history)
+	return return_data
+
 
 css = """
 .gr-image {
@@ -36,6 +66,11 @@ css = """
   font-size: 50px;
 }
 """
+
+civitai_prompt_input = gr.TextArea(interface.last_prompt, lines = 10, label="Prompt")
+civitai_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, lines = 5, label="Negative Prompt")
+hordeai_prompt_input = gr.TextArea(interface.last_prompt, lines = 10, label="Prompt")
+hordeai_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, lines = 5, label="Negative Prompt")
 
 with gr.Blocks(css=css) as pq_ui:
 
@@ -57,8 +92,10 @@ with gr.Blocks(css=css) as pq_ui:
 			cache_examples=True,
 			retry_btn="🔄  Retry",
 			undo_btn="↩️ Undo",
-			clear_btn="Clear"
+			clear_btn="Clear",
+
 		)
+
 
 	with gr.Tab("Character"):
 		gr.Interface(
@@ -90,6 +127,67 @@ with gr.Blocks(css=css) as pq_ui:
 			flagging_options=None
 
 		)
+
+	with gr.Tab("Generator") as generator:
+		gr.on(
+			triggers=[generator.select],
+			fn=get_last_prompt,
+			inputs=None,
+			outputs=[civitai_prompt_input, civitai_negative_prompt_input],
+		)
+		with gr.Tab("Civitai") as civitai:
+
+			gr.Interface(
+				run_civitai_generation,
+				[
+					 gr.TextArea(lines = 1, label="Air",value='urn:air:sd1:checkpoint:civitai:4201@130072'),
+					 civitai_prompt_input,
+					 civitai_negative_prompt_input,
+					 #gr.Dropdown(choices=["DPM++ 2M Karras", "Euler a", "Third Choice"]),
+					 gr.Slider(0, 100, step= 1, value=20, label="Steps", info="Choose between 1 and 100"),
+					 gr.Slider(0, 20, step= 0.1, value=7, label="CFG Scale", info="Choose between 1 and 20"),
+					 gr.Slider(0, 1024, step= 1, value=512, label="Width", info="Choose between 1 and 1024"),
+					 gr.Slider(0, 1024, step= 1, value=512, label="Height", info="Choose between 1 and 1024"),
+					 gr.Slider(0, 10, step= 1, value=2, label="Clipskip", info="Choose between 1 and 10"),
+					 ]
+				,outputs=gr.Image(label="Generated Image"), #"text",
+				allow_flagging='never',
+				flagging_options=None,
+				#live=True
+			)
+		with gr.Tab("HordeAI") as hordeai:
+			gr.on(
+				triggers=[generator.select],
+				fn=get_last_prompt,
+				inputs=None,
+				outputs=[hordeai_prompt_input, hordeai_negative_prompt_input],
+			)
+			gr.Interface(
+				run_hordeai_generation,
+				[
+					gr.TextArea(lines = 1, label="API Key",value=ANON_API_KEY),
+					hordeai_prompt_input,
+					hordeai_negative_prompt_input,
+					gr.Dropdown(choices=hordeai_model_list.keys(), value='Deliberate 3.0', label='Model'),
+					gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
+										 "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
+										 "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
+										 ], value=0, label='Sampler'),
+
+
+					gr.Slider(0, 100, step= 1, value=20, label="Steps", info="Choose between 1 and 100"),
+					gr.Slider(0, 20, step= 0.1, value=7, label="CFG Scale", info="Choose between 1 and 20"),
+					gr.Slider(0, 1024, step= 1, value=768, label="Width", info="Choose between 1 and 1024"),
+					gr.Slider(0, 1024, step= 1, value=512, label="Height", info="Choose between 1 and 1024"),
+					gr.Slider(0, 10, step= 1, value=2, label="Clipskip", info="Choose between 1 and 10"),
+				]
+				,outputs=gr.Image(label="Generated Image"), #"text",
+				allow_flagging='never',
+				flagging_options=None,
+				#live=True
+			)
+
+
 
 if __name__ == "__main__":
 	pq_ui.launch(server_name="0.0.0.0") #share=True

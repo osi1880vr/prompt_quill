@@ -4,3 +4,4 @@ llama-index-vector-stores-milvus
 llama-index-vector-stores-qdrant
 llama-index-embeddings-huggingface
 llama-index-llms-llama-cpp
+opencv-python
