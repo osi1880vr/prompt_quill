@@ -172,7 +172,7 @@ with gr.Blocks(css=css) as pq_ui:
 					gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
 										 "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
 										 "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
-										 ], value=0, label='Sampler'),
+										 ], value="k_dpmpp_2s_a", label='Sampler'),
 
 
 					gr.Slider(0, 100, step= 1, value=20, label="Steps", info="Choose between 1 and 100"),
