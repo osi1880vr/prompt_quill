@@ -22,9 +22,16 @@ from haystack.components.builders.answer_builder import AnswerBuilder
 import prompt_templates
 import model_list
 import gc
+import os
 
 
-url = "http://192.168.0.127:6333"
+
+
+url = "http://localhost:6333"
+
+if os.getenv("QDRANT_URL")  is not None:
+    url = os.getenv("QDRANT_URL")
+
 index = 'haystack_large_meta'
 
 class LLM_INTERFACE:

@@ -27,8 +27,8 @@ import os
 
 url = "http://localhost:19530"
 
-if os.environ["MILVUS_URL"]:
-    url = os.environ["MILVUS_URL"]
+if os.getenv("MILVUS_URL")  is not None:
+    url = os.getenv("MILVUS_URL")
 
 
 class LLM_INTERFACE:

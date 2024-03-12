@@ -27,8 +27,9 @@ import gc
 
 host = 'localhost'
 
-if os.environ["QDRANT_HOST"]:
-    host = os.environ["QDRANT_HOST"]
+
+if os.getenv("QDRANT_HOST") is not None:
+    host = os.getenv("QDRANT_HOST")
 
 
 os.environ["USER_MANAGED_QDRANT_HOST"] = host

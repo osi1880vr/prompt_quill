@@ -23,11 +23,13 @@ import datetime
 host = 'localhost'
 mongo_host = 'localhost'
 
-if os.environ["MILVUS_HOST"]:
-    host = os.environ["MILVUS_HOST"]
 
-if os.environ["MONGO_HOST"]:
-    mongo_host = os.environ["MONGO_HOST"]
+if os.getenv("MILVUS_HOST") is not None:
+    host = os.getenv("MILVUS_HOST")
+
+if os.getenv("MONGO_HOST") is not None:
+    mongo_host = os.getenv("MONGO_HOST")
+
 
 # you could set this in your env as ENV Variables, to be able to just run we do it like this
 os.environ['COLLECTION_DB_URI'] = f'mongodb://{mongo_host}:27017/'

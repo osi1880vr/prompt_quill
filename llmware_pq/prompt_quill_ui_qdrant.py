@@ -22,12 +22,12 @@ import os
 host = 'localhost'
 mongo_host = 'localhost'
 
-if os.environ["QDRANT_HOST"]:
-	host = os.environ["QDRANT_HOST"]
+if os.getenv("QDRANT_HOST") is not None:
+	host = os.getenv("QDRANT_HOST")
 
 
-if os.environ["MONGO_HOST"]:
-	mongo_host = os.environ["MONGO_HOST"]
+if os.getenv("MONGO_HOST") is not None:
+	mongo_host = os.getenv("MONGO_HOST")
 
 
 os.environ['COLLECTION_DB_URI'] = f'mongodb://{mongo_host}:27017/'
