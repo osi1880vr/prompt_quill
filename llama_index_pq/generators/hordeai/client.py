@@ -10,7 +10,7 @@ import os
 class hordeai_models:
     def read_model_list(self):
 
-        f = open(os.path.join(os.getcwd(),'generators','hordeai','stable_diffusion.json'),'r')
+        f = open(os.path.join(os.path.dirname(__file__),'stable_diffusion.json'),'r')
         json_string = f.read()
         f.close()
         return json.loads(json_string)
