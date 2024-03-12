@@ -23,6 +23,13 @@ import prompt_templates
 import model_list
 
 import gc
+import os
+
+url = "http://localhost:19530"
+
+if os.environ["MILVUS_URL"]:
+    url = os.environ["MILVUS_URL"]
+
 
 class LLM_INTERFACE:
 
@@ -33,8 +40,8 @@ class LLM_INTERFACE:
         self.model_path = model_list.model_list['thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 
         self.vector_store = MilvusVectorStore(
-            uri = "http://localhost:19530",
-            port = 19530   ,
+            uri = url,
+            port = 19530,
             collection_name = self.index,
             dim = 384,
             similarity_metric = "L2",

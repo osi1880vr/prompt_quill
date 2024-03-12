@@ -13,9 +13,27 @@
 # permissions and limitations under the License.
 
 
+
 import gradio as gr
 import model_list
 import os
+
+
+
+host = 'localhost'
+mongo_host = 'localhost'
+
+if os.environ["MILVUS_HOST"]:
+	host = os.environ["MILVUS_HOST"]
+
+if os.environ["MONGO_HOST"]:
+	mongo_host = os.environ["MONGO_HOST"]
+
+# you could set this in your env as ENV Variables, to be able to just run we do it like this
+os.environ['COLLECTION_DB_URI'] = f'mongodb://{mongo_host}:27017/'
+os.environ['MILVUS_HOST'] = host
+os.environ['MILVUS_PORT'] = '19530'
+
 
 from llmware.gguf_configs import GGUFConfigs
 GGUFConfigs().set_config("n_gpu_layers", 50)
@@ -23,10 +41,7 @@ GGUFConfigs().set_config("n_gpu_layers", 50)
 import torch
 test = torch.cuda.is_available()
 
-# you could set this in your env as ENV Variables, to be able to just run we do it like this
-os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
-os.environ['MILVUS_HOST'] = 'localhost'
-os.environ['MILVUS_PORT'] = '19530'
+
 import llm_interface_milvus
 
 interface = llm_interface_milvus.LLM_INTERFACE()

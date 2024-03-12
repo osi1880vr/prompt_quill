@@ -24,7 +24,14 @@ from llmware.prompts import Prompt
 import datetime
 import gc
 
-os.environ["USER_MANAGED_QDRANT_HOST"] = "localhost"
+
+host = 'localhost'
+
+if os.environ["QDRANT_HOST"]:
+    host = os.environ["QDRANT_HOST"]
+
+
+os.environ["USER_MANAGED_QDRANT_HOST"] = host
 os.environ["USER_MANAGED_QDRANT_PORT"] = "6333"
 
 in_path = 'E:\prompt_sources\sfw_large_split'

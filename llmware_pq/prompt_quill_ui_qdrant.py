@@ -12,20 +12,35 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
+# you could set this in your env as ENV Variables, to be able to just run we do it like this
 
 
 import gradio as gr
 import model_list
 import os
 
+host = 'localhost'
+mongo_host = 'localhost'
+
+if os.environ["QDRANT_HOST"]:
+	host = os.environ["QDRANT_HOST"]
+
+
+if os.environ["MONGO_HOST"]:
+	mongo_host = os.environ["MONGO_HOST"]
+
+
+os.environ['COLLECTION_DB_URI'] = f'mongodb://{mongo_host}:27017/'
+os.environ["USER_MANAGED_QDRANT_HOST"] = host
+os.environ["USER_MANAGED_QDRANT_PORT"] = "6333"
+
+
+
 from llmware.gguf_configs import GGUFConfigs
 
 GGUFConfigs().set_config("n_gpu_layers", 50)
 
-# you could set this in your env as ENV Variables, to be able to just run we do it like this
-os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
-os.environ["USER_MANAGED_QDRANT_HOST"] = "localhost"
-os.environ["USER_MANAGED_QDRANT_PORT"] = "6333"
+
 import llm_interface_qdrant
 
 interface = llm_interface_qdrant.LLM_INTERFACE()

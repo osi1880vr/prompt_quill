@@ -20,8 +20,18 @@ from llmware.library import Library
 from llmware.status import Status
 import datetime
 
-os.environ['COLLECTION_DB_URI'] = 'mongodb://localhost:27017/'
-os.environ['MILVUS_HOST'] = 'localhost'
+host = 'localhost'
+mongo_host = 'localhost'
+
+if os.environ["MILVUS_HOST"]:
+    host = os.environ["MILVUS_HOST"]
+
+if os.environ["MONGO_HOST"]:
+    mongo_host = os.environ["MONGO_HOST"]
+
+# you could set this in your env as ENV Variables, to be able to just run we do it like this
+os.environ['COLLECTION_DB_URI'] = f'mongodb://{mongo_host}:27017/'
+os.environ['MILVUS_HOST'] = host
 os.environ['MILVUS_PORT'] = '19530'
 def rag (library_name):
 
