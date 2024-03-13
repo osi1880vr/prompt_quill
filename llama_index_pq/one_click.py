@@ -63,4 +63,34 @@ def launch_webui():
 # Install/update the project requirements
 run_cmd("python -m pip install -r requirements.txt --upgrade", assert_success=True, environment=True)
 
+
+print()
+print("There is a good chance that llama-cpp is only working with CPU now.")
+print("We could try to copy a precompiled version into the conda environment")
+print("If you like to try say Y, we will take a backup so you can rollbach if you need later")
+print()
+print()
+
+choice = input("Input> ").upper()
+while choice not in 'YN':
+	print("Invalid choice. Please try again.")
+	choice = input("Input> ").upper()
+
+if choice == 'Y':
+	from distutils.dir_util import copy_tree
+	import shutil
+	import os
+	llama_directory = 'installer_files/env/Lib/site-packages/llama_cpp'
+	to_directory = 'installer_files/llama_cpp_backup'
+	compiled_llama_directory = '../llama-cpp_windows/llama_cpp'
+
+	copy_tree(llama_directory, to_directory)
+
+	if os.path.exists(llama_directory):
+		shutil.rmtree(llama_directory)
+	copy_tree(compiled_llama_directory, llama_directory)
+
+
+
+
 launch_webui()
