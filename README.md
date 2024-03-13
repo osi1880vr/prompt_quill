@@ -88,15 +88,22 @@ We see the prompts are not just working for stable diffusion models.
 # negative prompts and model examples
 
 Based on the information I retrieved for all those prompts data I also know the negative prompt that was used for a prompt and also I know what model was used to generate the image I took the prompt from, So why not give that information to you too.
-I managed to get this working in llama-index for now but the other two will follow soon. The data will follow pretty soon to.
-
-Here is a first sneak peek how it will look like then:
+I managed to get this working in llama-index and haystack, the data is available on civitai.
 
 <img src="images/neg_prompts/neg_prompt_sneak_peek.png" alt="negative prompts"  width="1348" height="627" />
 
 Here you see an example "a nice cat" with no negative prompt on the left and on the right same prompt and seed but with negative prompt
 
 <img src="images/neg_prompts/no_neg.png" alt="sailing"  width="266" height="266" /><img src="images/neg_prompts/with_neg.png" alt="sailing"  width="266" height="266" />
+
+# Image generation
+
+I added the free online image generations from civitai and hordeai  to allow you to get a first idea of where the prompt might go once you run it inside your image generation tool.
+Its easy to use but please be aware that your local results might be much nicer than what you get from that online things. In both cases the number of models you can use is quite limited.
+But still it gives you a first idea of how it might go.
+
+<img src="images/image_gen/dogNcat.png" alt="sailing"  width="1369" height="754" />
+
 
 
 # The data needed for all the fun
