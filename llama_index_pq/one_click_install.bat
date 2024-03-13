@@ -48,7 +48,7 @@ if not exist "%INSTALL_DIR%" (
 if not exist "%INSTALL_DIR%/qdrant" (
 
     ECHO Download Qdrant Portable Version
-    REM curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
+    curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
 
     ECHO Download Qdrant Web UI
     curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
