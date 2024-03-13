@@ -31,6 +31,7 @@ set TEMP=%cd%\installer_files
 (call conda deactivate && call conda deactivate && call conda deactivate) 2>nul
 
 @rem config
+set BASE_DIR=%cd%
 set INSTALL_DIR=%cd%\installer_files
 set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
@@ -42,7 +43,15 @@ if not exist "%INSTALL_DIR%" (
 )
 
 
+if exist "%INSTALL_DIR%/qdrant" (
+    ECHO Startup Qdrant
+    cd %INSTALL_DIR%/qdrant
+    start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
+    cd %BASE_DIR%
+    ping 127.0.0.1 -n 6 > nul
+
+)
 
 
 if not exist "%INSTALL_DIR%/qdrant" (
@@ -75,7 +84,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     cd %INSTALL_DIR%/qdrant
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
-    cd %INSTALL_DIR%
+    cd %BASE_DIR%
     ping 127.0.0.1 -n 6 > nul
 
     ECHO Load data into qdrant
@@ -84,10 +93,6 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
 
 )
-
-@rem activate installer env
-call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-
 
 @rem figure out whether git and conda needs to be installed
 call "%CONDA_ROOT_PREFIX%\_conda.exe" --version >nul 2>&1
@@ -123,8 +128,7 @@ if not exist "%INSTALL_ENV_DIR%\python.exe" ( echo. && echo Conda environment is
 set PYTHONNOUSERSITE=1
 set PYTHONPATH=
 set PYTHONHOME=
-set "CUDA_PATH=%INSTALL_ENV_DIR%"
-set "CUDA_HOME=%CUDA_PATH%"
+
 
 @rem activate installer env
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
@@ -134,5 +138,5 @@ call python one_click.py
 
 
 :end
-exit
+rem exit
 
