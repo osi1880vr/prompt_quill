@@ -8,6 +8,7 @@ cd %INSTALL_DIR%/qdrant
 start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
 cd %BASE_DIR%
+REM we do this to give Qdrant some time to fire up
 ping 127.0.0.1 -n 6 > nul
 
 

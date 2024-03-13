@@ -85,6 +85,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     cd %BASE_DIR%
+    REM we do this to give Qdrant some time to fire up
     ping 127.0.0.1 -n 6 > nul
 
     ECHO Load data into qdrant
@@ -102,7 +103,6 @@ if "%ERRORLEVEL%" EQU "0" set conda_exists=T
 @rem download conda
 if "%conda_exists%" == "F" (
 	echo Downloading Miniconda from %MINICONDA_DOWNLOAD_URL% to %INSTALL_DIR%\miniconda_installer.exe
-
 
 	call curl -Lk "%MINICONDA_DOWNLOAD_URL%" > "%INSTALL_DIR%\miniconda_installer.exe" || ( echo. && echo Miniconda failed to download. && goto end )
 
