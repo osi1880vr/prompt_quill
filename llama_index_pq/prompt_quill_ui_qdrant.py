@@ -168,7 +168,7 @@ with gr.Blocks(css=css) as pq_ui:
 			gr.Interface(
 				run_hordeai_generation,
 				[
-					gr.TextArea(lines = 1, label="API Key",value=ANON_API_KEY),
+					gr.TextArea(lines = 1, label="API Key",value=ANON_API_KEY,type='password'),
 					hordeai_prompt_input,
 					hordeai_negative_prompt_input,
 					gr.Dropdown(choices=hordeai_model_list.keys(), value='Deliberate 3.0', label='Model'),
