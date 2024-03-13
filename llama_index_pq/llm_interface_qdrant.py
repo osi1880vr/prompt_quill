@@ -29,7 +29,7 @@ import os
 url = "http://localhost:6333"
 
 if os.getenv("QDRANT_URL") is not None:
-    url = os.getenv("QDRANT_URL")
+    url = os.environ["QDRANT_URL"]
 
 class LLM_INTERFACE:
 

@@ -67,14 +67,16 @@ css = """
 
 with gr.Blocks(css=css) as pq_ui:
 
+
+	with gr.Row():
+		# Image element (adjust width as needed)
+		gr.Image(os.path.join(os.getcwd(),"logo/pq_v_small.jpg"),width="20vw",show_label=False,show_download_button=False,container=False, elem_classes="gr-image",)
+
+		# Title element (adjust font size and styling with CSS if needed)
+		gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
+
 	with gr.Tab("Chat"):
 
-		with gr.Row():
-			# Image element (adjust width as needed)
-			gr.Image(os.path.join(os.getcwd(),"logo/pq_v_small.jpg"),width="20vw",show_label=False,show_download_button=False,container=False, elem_classes="gr-image",)
-
-			# Title element (adjust font size and styling with CSS if needed)
-			gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
 		gr.ChatInterface(
 			interface.run_llm_response,
