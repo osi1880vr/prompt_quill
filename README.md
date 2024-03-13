@@ -17,6 +17,7 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 # Features
 
+* One Click installer available for the llama-index version (windows)
 * Create prompts from your input based on similar existing prompts from the vector store.
 * Select the LLM to be used and set some of the parameters that get exposed by the different frameworks.
 * Edit the Magic Prompt that's sent to make the LLM a prompt engineering helper.
