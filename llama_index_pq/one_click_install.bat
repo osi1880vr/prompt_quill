@@ -89,13 +89,6 @@ if not exist "%INSTALL_DIR%/qdrant" (
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
 
-call python one_click.py
-
-goto end
-
-
-
-
 @rem figure out whether git and conda needs to be installed
 call "%CONDA_ROOT_PREFIX%\_conda.exe" --version >nul 2>&1
 if "%ERRORLEVEL%" EQU "0" set conda_exists=T
