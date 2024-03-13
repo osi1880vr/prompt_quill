@@ -194,3 +194,6 @@ with gr.Blocks(css=css) as pq_ui:
 
 if __name__ == "__main__":
 	pq_ui.launch() #share=True
+
+	import webbrowser
+	webbrowser.open(f"http://127.0.0.1:7680")
