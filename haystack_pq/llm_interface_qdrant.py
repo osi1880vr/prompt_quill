@@ -18,16 +18,28 @@ from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.components.generators.llama_cpp import LlamaCppGenerator
+from haystack.components.builders.answer_builder import AnswerBuilder
 import prompt_templates
 import model_list
 import gc
+import os
+
+
+
+
+url = "http://localhost:6333"
+
+if os.getenv("QDRANT_URL")  is not None:
+    url = os.getenv("QDRANT_URL")
+
+index = 'haystack_large_meta'
 
 class LLM_INTERFACE:
 
     def __init__(self):
 
-        self.index='haystack_prompt_out_all'
-        self.url = "http://localhost:6333"
+        self.index=index
+        self.url = url
 
         self.model_path = model_list.model_list['speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
 
@@ -47,7 +59,7 @@ class LLM_INTERFACE:
 
 
         self.generator = LlamaCppGenerator(
-            model=self.model_path,
+            model_path=self.model_path,
             n_ctx=self.n_ctx,
             n_batch=self.n_batch,
             model_kwargs={"n_gpu_layers": self.n_gpu_layers},
@@ -75,9 +87,14 @@ class LLM_INTERFACE:
         self.rag_pipeline.add_component("retriever", self.retriever)
         self.rag_pipeline.add_component("prompt_builder", self.prompt_builder)
         self.rag_pipeline.add_component("llm", self.llm)
+        self.rag_pipeline.add_component(instance=AnswerBuilder(), name="answer_builder")
         self.rag_pipeline.connect("text_embedder.embedding", "retriever.query_embedding")
         self.rag_pipeline.connect("retriever", "prompt_builder.documents")
         self.rag_pipeline.connect("prompt_builder", "llm")
+        self.rag_pipeline.connect("llm.replies", "answer_builder.replies")
+        self.rag_pipeline.connect("llm.meta", "answer_builder.meta")
+        self.rag_pipeline.connect("retriever", "answer_builder.documents")
+
 
     def run_llm_response(self, query, history):
 
@@ -89,16 +106,37 @@ class LLM_INTERFACE:
             {
                 "text_embedder": {"text": query},
                 "prompt_builder": {"question": query},
+                "answer_builder": {"query": query},
             }
         )
 
+        output = results['answer_builder']['answers'][0].data.lstrip(' ')
+
+
+        if 'answer_builder' in results:
+            docs = results['answer_builder']['answers'][0].documents
+            negative_prompts = []
+            models = []
+            for doc in docs:
+                negative_prompts += doc.meta['negative_prompt'].split(',')
+                models.append(doc.meta['model_name'])
+
+
+            if len(negative_prompts) > 0:
+                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{(",".join(set(negative_prompts))).lstrip(" ")}'
+
+            if len(models) > 0:
+                models_out = "\n".join(models)
+
+                output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
+
+
+
         f = open('logfile.txt', 'a')
-        f.write(f'RESPONSE: {results["llm"]["replies"]} \n')
+        f.write(f'RESPONSE: {output} \n')
         f.close()
 
-        res = ' '.join(results["llm"]["replies"])
-
-        return res
+        return output
 
     def change_model(self,model,temperature,n_ctx,n_batch,n_gpu_layers,max_tokens,top_k):
         self.n_ctx=n_ctx
