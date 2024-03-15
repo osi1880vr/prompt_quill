@@ -80,6 +80,12 @@ if choice == 'Y':
 	from distutils.dir_util import copy_tree
 	import shutil
 	import os
+
+	print_big_message("Installing the CUDA runtime libraries.")
+	run_cmd(f"conda install -y -c \"nvidia/label/cuda-12.2.0\" cuda-runtime", assert_success=True, environment=True)
+
+	run_cmd(f"mkdir installer_files/env/bin", assert_success=True, environment=True)
+
 	llama_directory = 'installer_files/env/Lib/site-packages/llama_cpp'
 	to_directory = 'installer_files/llama_cpp_backup'
 	compiled_llama_directory = '../llama-cpp_windows/llama_cpp'

@@ -40,8 +40,10 @@ class LLM_INTERFACE:
 
         self.index=index
         self.url = url
+        self.last_prompt = ''
+        self.last_negative_prompt = ''
 
-        self.model_path = model_list.model_list['speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
+        self.model_path = model_list.model_list[list(model_list.model_list.keys)[0]]['path']
 
         self.document_store = QdrantDocumentStore(
             url=self.url,
@@ -111,6 +113,7 @@ class LLM_INTERFACE:
         )
 
         output = results['answer_builder']['answers'][0].data.lstrip(' ')
+        self.last_prompt = output
 
 
         if 'answer_builder' in results:
@@ -123,7 +126,9 @@ class LLM_INTERFACE:
 
 
             if len(negative_prompts) > 0:
-                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{(",".join(set(negative_prompts))).lstrip(" ")}'
+                set(negative_prompts)
+                self.last_negative_prompt = ",".join(negative_prompts).lstrip(' ')
+                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.last_negative_prompt}'
 
             if len(models) > 0:
                 models_out = "\n".join(models)

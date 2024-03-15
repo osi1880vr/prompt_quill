@@ -40,7 +40,9 @@ class LLM_INTERFACE:
         self.last_prompt = ''
         self.last_negative_prompt = ''
 
-        self.model_path = model_list.model_list['thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf']['path']
+        keys = model_list.model_list.keys()
+
+        self.model_path = model_list.model_list[list(model_list.model_list)[0]]['path']
 
         self.document_store = qdrant_client.QdrantClient(
             # you can use :memory: mode for fast and light-weight experiments,
