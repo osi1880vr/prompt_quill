@@ -86,15 +86,7 @@ if choice == 'Y':
 
 	run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
 
-	llama_directory = 'installer_files/env/Lib/site-packages/llama_cpp'
-	to_directory = 'installer_files/llama_cpp_backup'
-	compiled_llama_directory = '../llama-cpp_windows/llama_cpp'
 
-	copy_tree(llama_directory, to_directory)
-
-	if os.path.exists(llama_directory):
-		shutil.rmtree(llama_directory)
-	copy_tree(compiled_llama_directory, llama_directory)
 
 
 

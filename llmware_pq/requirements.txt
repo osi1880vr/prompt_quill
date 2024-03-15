@@ -1,3 +1,5 @@
 gradio
 llmware
 qdrant-client
+opencv-python
+horde_sdk
