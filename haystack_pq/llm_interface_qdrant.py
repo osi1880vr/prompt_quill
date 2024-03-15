@@ -43,7 +43,7 @@ class LLM_INTERFACE:
         self.last_prompt = ''
         self.last_negative_prompt = ''
 
-        self.model_path = model_list.model_list[list(model_list.model_list.keys)[0]]['path']
+        self.model_path = model_list.model_list[list(model_list.model_list.keys())[0]]['path']
 
         self.document_store = QdrantDocumentStore(
             url=self.url,
