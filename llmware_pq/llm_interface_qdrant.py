@@ -29,7 +29,8 @@ class LLM_INTERFACE:
 
     def __init__(self):
 
-
+        self.last_prompt = ''
+        self.last_negative_prompt = ''
         self.instruct = False
 
         self.max_tokens=200
@@ -115,9 +116,11 @@ class LLM_INTERFACE:
 
         response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context).lstrip(' ')
 
-        self.log('logfile.txt',f"RESPONSE: {response['llm_response']} \n")
+        self.last_prompt = response['llm_response']
 
-        return response["llm_response"]
+        self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n")
+
+        return self.last_prompt
 
 
     def change_model(self, model, temperature, max_tokens, top_k, instruct, gpu_layers):
