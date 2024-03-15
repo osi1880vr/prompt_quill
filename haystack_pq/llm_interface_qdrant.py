@@ -59,7 +59,7 @@ class LLM_INTERFACE:
 
 
         self.generator = LlamaCppGenerator(
-            model_path=self.model_path,
+            model=self.model_path,
             n_ctx=self.n_ctx,
             n_batch=self.n_batch,
             model_kwargs={"n_gpu_layers": self.n_gpu_layers},
