@@ -19,9 +19,6 @@ from generators.hordeai.client import hordeai_client
 from generators.hordeai.client import hordeai_models
 from horde_sdk import ANON_API_KEY
 
-
-
-
 hordeai_model_list = hordeai_models().read_model_list()
 
 import os
