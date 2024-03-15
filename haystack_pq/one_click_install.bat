@@ -95,7 +95,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     del /f %INSTALL_DIR%/dist-qdrant.zip
     del /f %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
     del /f %INSTALL_DIR%/data.zip
-    del /f %INSTALL_DIR%/delete_after_setup/prompts_large_meta-1265063568362627-2024-03-09-18-44-08.snapshot
+    del /f %INSTALL_DIR%/delete_after_setup/haystack_large_meta-1265063568362627-2024-03-10-17-57-39.snapshot
     rmdir /s /q %INSTALL_DIR%/delete_after_setup
 )
 
