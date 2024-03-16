@@ -169,18 +169,10 @@ if not exist "%INSTALL_DIR%/qdrant" (
     ping 127.0.0.1 -n 6 > nul
 
 
-
     ECHO import data to Mongo
-    rem data exported by mongo compass adds a array to the json which can not be used by mongoimport
-    rem here we check for this array and remove it if needed
-    call python mongo_export_fix.py "llmware.library.json"
-    call python mongo_export_fix.py "llmware.llmware_qdrant.json"
-    call python mongo_export_fix.py "llmware.status.json"
-
-    ECHO %MONGO_TOOLS_DIR%
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.library.json"
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.llmware_qdrant.json"
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.status.json"
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.library.json" --collection "library" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.llmware_qdrant.json" --collection "llmware_qdrant" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.status.json" --collection "status" --jsonArray
 
     ECHO Load data into qdrant
     curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwareqdrant_minilmsbert-1265063568362627-2024-03-03-06-52-29.snapshot"

@@ -67,7 +67,7 @@ run_cmd("python -m pip install -r requirements.txt --upgrade", assert_success=Tr
 print()
 print("There is a good chance that llama-cpp is only working with CPU now.")
 print("We could try to copy a precompiled version into the conda environment")
-print("If you like to try say Y, we will take a backup so you can rollbach if you need later")
+print("If you like to try say Y, we will take a backup so you can rollback if you need later")
 print()
 print()
 
