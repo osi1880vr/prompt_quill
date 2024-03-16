@@ -95,11 +95,10 @@ if not exist "%INSTALL_DIR%/qdrant" (
     curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-1265063568362627-2024-03-09-18-44-08.snapshot"
 
     ECHO some cleanup
-    del /f %INSTALL_DIR%/dist-qdrant.zip
-    del /f %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
-    del /f %INSTALL_DIR%/data.zip
-    del /f %INSTALL_DIR%/delete_after_setup/prompts_large_meta-1265063568362627-2024-03-09-18-44-08.snapshot
-    rmdir /s /q %INSTALL_DIR%/delete_after_setup
+    del /f %INSTALL_DIR%\dist-qdrant.zip
+    del /f %INSTALL_DIR%\qdrant-x86_64-pc-windows-msvc.zip
+    del /f %INSTALL_DIR%\data.zip
+    rmdir /s /q %INSTALL_DIR%\delete_after_setup
 )
 
 @rem figure out whether git and conda needs to be installed
@@ -142,11 +141,10 @@ set "CUDA_HOME=%CUDA_PATH%"
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
 ECHO cleanup miniconda installer
-del /f %INSTALL_DIR%/miniconda_installer.exe
+del /f %INSTALL_DIR%\miniconda_installer.exe
 
 call python one_click.py
 
 
 :end
-rem exit
-
+exit

@@ -99,7 +99,7 @@ set "CUDA_HOME=%CUDA_PATH%"
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
 ECHO cleanup miniconda installer
-del /f %INSTALL_DIR%/miniconda_installer.exe
+del /f %INSTALL_DIR%\miniconda_installer.exe
 
 
 
@@ -115,7 +115,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     ECHO Download Mongo DB
     curl -L https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-7.0.6.zip --output %INSTALL_DIR%/mongo.zip
 
-    ECHO Download Mongo DB
+    ECHO Download Mongo DB Tools
     curl -L https://fastdl.mongodb.org/tools/db/mongodb-database-tools-windows-x86_64-100.9.4.zip --output %INSTALL_DIR%/mongo-tools.zip
 
     ECHO Download llmware data
@@ -183,22 +183,19 @@ if not exist "%INSTALL_DIR%/qdrant" (
     %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.status.json"
 
     ECHO Load data into qdrant
-    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwareqdrant_minilmsbert-1265063568362627-2024-03-03-06-52-29.snapshot"
+    curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwareqdrant_minilmsbert-1265063568362627-2024-03-03-06-52-29.snapshot"
 
 
 
     ECHO some cleanup
-    del /f %INSTALL_DIR%/dist-qdrant.zip
-    del /f %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
-    del /f %INSTALL_DIR%/mongo.zip
-    del /f %INSTALL_DIR%/data.zip
-    rmdir /s /q %INSTALL_DIR%/delete_after_setup
+    del /f /q /a %INSTALL_DIR%\dist-qdrant.zip
+    del /f /q /a %INSTALL_DIR%\qdrant-x86_64-pc-windows-msvc.zip
+    del /f /q /a %INSTALL_DIR%\mongo.zip
+    del /f /q /a %INSTALL_DIR%\mongo-tools.zip
+    del /f /q /a %INSTALL_DIR%\data.zip
+    rmdir /s /q %INSTALL_DIR%\delete_after_setup
 )
 
 
 call python one_click.py
-
-
-:end
-exit
 
