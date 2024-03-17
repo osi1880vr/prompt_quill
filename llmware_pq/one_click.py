@@ -66,8 +66,8 @@ run_cmd("python -m pip install -r requirements.txt --upgrade", assert_success=Tr
 
 print()
 print("There is a good chance that llama-cpp is only working with CPU now.")
-print("We could try to copy a precompiled version into the conda environment")
-print("If you like to try say Y, we will take a backup so you can rollbach if you need later")
+print("To have it working on GPU  we would have to install torch GPU enabled to make llama-cpp pickup those GPU  drivers")
+print("If you like to try say Y, we will take a backup so you can rollback if you need later")
 print()
 print()
 
@@ -82,7 +82,7 @@ if choice == 'Y':
 	import os
 
 	print_big_message("Installing the CUDA runtime libraries.")
-	run_cmd(f"conda install -y -c \"nvidia/label/cuda-12.2.0\" cuda-runtime", assert_success=True, environment=True)
+	run_cmd(f"pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121", assert_success=True, environment=True)
 
 	run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
 

@@ -1,13 +1,15 @@
 set INSTALL_DIR=%cd%\installer_files
 set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
+set CUDA_DIR=%cd%\installer_files\env\Lib\x64
 set BASE_DIR=%cd%
 
-if not exist "%INSTALL_DIR%\bin" (
+if exist "%INSTALL_DIR%\bin" (
     ECHO Setting CUDA environment
-    set "CUDA_PATH=%INSTALL_ENV_DIR%"
-    set "CUDA_HOME=%CUDA_PATH%"
+    set CUDA_PATH=%INSTALL_ENV_DIR%
+    set CUDA_HOME=%CUDA_DIR%
 )
+
 
 ECHO Startup Qdrant
 cd %INSTALL_DIR%/qdrant

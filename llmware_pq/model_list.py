@@ -1,7 +1,13 @@
 
 
 model_list = {
-
+	'TheBloke/toxicqa-Llama2-7B-GGUF':
+		{
+			'type':'deep_link',
+			'name':'TheBloke/toxicqa-Llama2-7B-GGUF',
+			'repo_name': 'TheBloke/toxicqa-Llama2-7B-GGUF',
+			'file':'toxicqa-llama2-7b.Q5_K_M.gguf'
+		},
     'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf':
         {
             'type':'deep_link',

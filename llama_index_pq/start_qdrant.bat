@@ -5,11 +5,14 @@ set BASE_DIR=%cd%
 
 
 
-if not exist "%INSTALL_DIR%\bin" (
+if exist "%INSTALL_DIR%\bin" (
     ECHO Setting CUDA environment
-    set "CUDA_PATH=%INSTALL_ENV_DIR%"
-    set "CUDA_HOME=%CUDA_PATH%"
+    set CUDA_PATH=%INSTALL_ENV_DIR%
+    set CUDA_HOME=%INSTALL_ENV_DIR%
 )
+
+exit
+
 
 ECHO Startup Qdrant to upload the data
 cd %INSTALL_DIR%/qdrant
