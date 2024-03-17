@@ -48,7 +48,7 @@ class LLM_INTERFACE:
         self.prompt_dict = prompt_templates.prompt_template_a
         self.prompt_template = self.prompt_dict["blurb1"]
 
-        self.model_name = 'TheBloke/toxicqa-Llama2-7B-GGUF'
+        self.model_name = 'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
         self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
         self.model_file = model_list.model_list[self.model_name]['file']
         self.model_type = 'deep_link'
@@ -115,9 +115,10 @@ class LLM_INTERFACE:
 
         context = self.aggregate_text_by_query(self.library_name, query, top_n=self.top_k)
 
-        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context).lstrip(' ')
+        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
 
-        self.last_prompt = response['llm_response']
+        self.last_prompt = response['llm_response'].lstrip(' ')
+
 
         self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n")
 
@@ -136,7 +137,7 @@ class LLM_INTERFACE:
         self.model_name = model
         self.model_type = model_list.model_list[self.model_name]['type']
         if self.model_type == 'deep_link':
-            self.hf_repo_name = model_list.model_list[self.model_name]['path']
+            self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
             self.model_file = model_list.model_list[self.model_name]['file']
         else:
             self.hf_repo_name = None
