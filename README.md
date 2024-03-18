@@ -58,6 +58,18 @@ Here are a few more samples using a different model.
 <img src="images/space_man/1.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/2.webp" alt="spaceman"  width="250" height="176" /><img src="images/space_man/3.webp" alt="spaceman"  width="250" height="176" />
 
 
+# one click install demo video (click the image ;)
+
+[![Prompt Quill on youtube](images/video/video1.png)](https://youtu.be/FjvV4-5MU9k "Prompt Quill installed in one click")
+
+
+# as featured in llmware
+
+[![Prompt Quill on youtube](images/video/video2.jpg)](https://youtu.be/hunqd4s9AYI "Prompt Quill featured by llmware")
+
+
+
+
 # Robust prompts even with no negative prompt
 Here you see images comparing a regular, hand made prompt versus a prompt made by Prompt Quill.
 
