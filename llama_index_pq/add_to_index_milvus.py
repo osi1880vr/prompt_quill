@@ -15,16 +15,16 @@
 import datetime
 import os
 
-from llama_index import GPTVectorStoreIndex,VectorStoreIndex, StorageContext, SimpleDirectoryReader, ServiceContext
-from llama_index.vector_stores import MilvusVectorStore
-from llama_index.embeddings import HuggingFaceEmbedding
 
-import torch
-
-from llama_index.llms import HuggingFaceLLM
-from llama_index.prompts import PromptTemplate
+from llama_index.vector_stores.milvus import MilvusVectorStore
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 
+from llama_index.core import (
+    VectorStoreIndex,
+    SimpleDirectoryReader,
+)
+from llama_index.core.storage.storage_context import StorageContext
 
 vector_store = MilvusVectorStore(
     uri = "http://localhost:19530",
@@ -41,7 +41,6 @@ embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-
 
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
-service_context = ServiceContext.from_defaults(llm=None, embed_model=embed_model)
 
 for subdir, dirs, files in os.walk(sample_files_path):
     if len(files) > 0:
@@ -59,5 +58,5 @@ for subdir, dirs, files in os.walk(sample_files_path):
 
         del documents
 
-        vector_index = VectorStoreIndex.from_documents(docs, storage_context=storage_context, service_context=service_context, show_progress=True)
+        vector_index = VectorStoreIndex.from_documents(docs, storage_context=storage_context,embed_model=embed_model, show_progress=True)
 

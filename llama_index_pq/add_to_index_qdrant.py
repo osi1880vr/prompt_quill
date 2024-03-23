@@ -14,15 +14,15 @@
 
 import datetime
 import os
-from llama_index.embeddings import HuggingFaceEmbedding
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
 import qdrant_client
 
-from llama_index import (
+from llama_index.core import (
     VectorStoreIndex,
-    ServiceContext,
     SimpleDirectoryReader,
 )
-from llama_index.storage.storage_context import StorageContext
+from llama_index.core.storage.storage_context import StorageContext
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
 
@@ -32,16 +32,16 @@ client = qdrant_client.QdrantClient(
     # but requires qdrant-client >= 1.1.1
     #location=":memory:"
     # otherwise set Qdrant instance address with:
-    url="http://localhost:6333"
+    url="http://192.168.0.127:6333"
     # set API KEY for Qdrant Cloud
     # api_key="<qdrant-api-key>",
 )
 
-sample_files_path = "E:\prompt_sources\lexica_split"
+sample_files_path = "E:\prompt_sources\horde_split"
 
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
-service_context = ServiceContext.from_defaults(llm=None,embed_model=embed_model)
-vector_store = QdrantVectorStore(client=client, collection_name="prompts_all")
+
+vector_store = QdrantVectorStore(client=client, collection_name="prompts_large_meta",)
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
 
@@ -55,16 +55,33 @@ for subdir, dirs, files in os.walk(sample_files_path):
 
         docs = []
         for doc in documents:
-            doc.excluded_llm_metadata_keys.append("file_path")
-            doc.excluded_embed_metadata_keys.append("file_path")
             if doc.text != '':
+                doc.excluded_llm_metadata_keys.append("file_path")
+                doc.excluded_embed_metadata_keys.append("file_path")
+                doc.excluded_llm_metadata_keys.append("negative_prompt")
+                doc.excluded_embed_metadata_keys.append("negative_prompt")
+                doc.excluded_llm_metadata_keys.append("model_name")
+                doc.excluded_embed_metadata_keys.append("model_name")
+
+                if '##superspacer##' in doc.text:
+
+                    meta_array = doc.text.split('##superspacer##')
+                    doc.text = meta_array[1]
+
+                    doc.metadata['negative_prompt'] = meta_array[2]
+                    doc.metadata['model_name'] = f'https://civitai.com/models/{meta_array[3]}'
+                else:
+                    doc.metadata['negative_prompt'] = ""
+                    doc.metadata['model_name'] = ""
+
+
                 docs = docs + [doc]
 
         del documents
 
 
         index = VectorStoreIndex.from_documents(
-            docs, storage_context=storage_context, service_context=service_context, show_progress=True
+            docs, storage_context=storage_context, embed_model=embed_model, show_progress=True
         )
 
 

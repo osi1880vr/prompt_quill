@@ -151,12 +151,13 @@ class LLM_INTERFACE:
         if len(negative_prompts) > 0:
             negative_prompts = set(negative_prompts)
             self.last_negative_prompt = ",".join(negative_prompts).lstrip(' ')
-            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.last_negative_prompt}'
+            if self.last_negative_prompt != ''
+                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.last_negative_prompt}'
 
         if len(models) > 0:
             models_out = "\n".join(models)
-
-            output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
+            if models_out != '':
+                output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
 
 
         return output
