@@ -63,7 +63,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
 
     ECHO Download LLama-index QDrant data
-    curl -L https://civitai.com/api/download/models/383280 --output %INSTALL_DIR%/data.zip
+    curl -L https://civitai.com/api/download/models/407093 --output %INSTALL_DIR%/data.zip
 
     ECHO Extract Qdrant with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -d %INSTALL_DIR%/qdrant
@@ -92,7 +92,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     ping 127.0.0.1 -n 6 > nul
 
     ECHO Load data into qdrant
-    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-1265063568362627-2024-03-09-18-44-08.snapshot"
+    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-3474994170629559-2024-03-23-06-41-00.snapshot"
 
     ECHO some cleanup
     del /f %INSTALL_DIR%\dist-qdrant.zip
