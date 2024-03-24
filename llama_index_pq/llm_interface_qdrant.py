@@ -19,12 +19,19 @@ from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import qdrant_client
+from settings import io
 import json
 
 import prompt_templates
 import model_list
 import gc
 import os
+
+settings_io = io.settings_io()
+
+
+
+
 
 url = "http://localhost:6333"
 
@@ -41,8 +48,9 @@ class LLM_INTERFACE:
         self.last_negative_prompt = ''
 
         keys = model_list.model_list.keys()
+        self.settings_data = settings_io.load_settings()
 
-        self.model_path = model_list.model_list[list(model_list.model_list)[0]]['path']
+        self.model_path = self.settings_data['model_list'][self.settings_data['LLM Model']]['path']
 
         self.document_store = qdrant_client.QdrantClient(
             # you can use :memory: mode for fast and light-weight experiments,
