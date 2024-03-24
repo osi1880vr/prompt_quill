@@ -48,7 +48,7 @@ class LLM_INTERFACE:
         self.prompt_dict = prompt_templates.prompt_template_a
         self.prompt_template = self.prompt_dict["blurb1"]
 
-        self.model_name = 'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
+        self.model_name = 'TheBloke/Panda-7B-v0.1-GGUF'
         self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
         self.model_file = model_list.model_list[self.model_name]['file']
         self.model_type = 'deep_link'
