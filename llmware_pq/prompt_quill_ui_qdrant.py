@@ -130,7 +130,7 @@ with gr.Blocks(css=css) as pq_ui:
 			[
 
 				gr.Dropdown(
-					model_list.model_list.keys(),value=list(model_list.model_list.keys())[0], label="LLM Model", info="Will add more LLMs later!"
+					model_list.model_list.keys(),value='TheBloke/Panda-7B-v0.1-GGUF', label="LLM Model", info="Will add more LLMs later!"
 				),
 				gr.Slider(0, 1, step= 0.1, value=0.0, label="Temperature", info="Choose between 0 and 1"),
 				gr.Slider(0, 1024, step= 1, value=200, label="max output Tokens", info="Choose between 1 and 1024"),
