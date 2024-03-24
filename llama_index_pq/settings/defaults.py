@@ -1,30 +1,29 @@
 default = {
-    "LLM Model":'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf',
-    "Temperature":0.0,
-    "Context Length":3900,
-    "GPU Layers":50,
-    "max output Tokens":200,
-    "top_k":5,
-    'Instruct Model':False,
+    "LLM Model": 'TheBloke/Panda-7B-v0.1-GGUF',
+    "Temperature": 0.0,
+    "Context Length": 3900,
+    "GPU Layers": 50,
+    "max output Tokens": 200,
+    "top_k": 5,
+    'Instruct Model': False,
 
-    'civitai_Air':'urn:air:sd1:checkpoint:civitai:4201@130072',
-    "civitai_Steps":20,
-    "civitai_CFG Scale":7,
-    "civitai_Width":512,
-    "civitai_Height":512,
-    "civitai_Clipskip":2,
+    'civitai_Air': 'urn:air:sd1:checkpoint:civitai:4201@130072',
+    "civitai_Steps": 20,
+    "civitai_CFG Scale": 7,
+    "civitai_Width": 512,
+    "civitai_Height": 512,
+    "civitai_Clipskip": 2,
 
-    'horde_api_key':"0000000000",
-    'horde_Model':'Deliberate 3.0',
-    'horde_Sampler':"k_dpmpp_2s_a",
-    "horde_Steps":20,
-    "horde_CFG Scale":7,
-    "horde_Width":768,
-    "horde_Height":512,
-    "horde_Clipskip":2,
+    'horde_api_key': "0000000000",
+    'horde_Model': 'Deliberate 3.0',
+    'horde_Sampler': "k_dpmpp_2s_a",
+    "horde_Steps": 20,
+    "horde_CFG Scale": 7,
+    "horde_Width": 768,
+    "horde_Height": 512,
+    "horde_Clipskip": 2,
 
-
-    'selected_template':'prompt_template_b',
+    'selected_template': 'prompt_template_b',
     'model_list': {
 
         'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf':
@@ -38,11 +37,43 @@ default = {
                 'name': 'thebloke/llama-2-13b-chat.Q5_K_M.gguf',
                 'path': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q5_K_M.gguf'
             },
+        'TheBloke/WestLake-7B-v2-GGUF':
+            {
+                'name': 'TheBloke/WestLake-7B-v2-GGUF',
+                'path': 'https://huggingface.co/TheBloke/WestLake-7B-v2-GGUF/resolve/main/westlake-7b-v2.Q4_K_M.gguf'
+            },
+        'TheBloke/Rosa_v2_7B-GGUF':
+            {
+                'name': 'TheBloke/Rosa_v2_7B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Rosa_v2_7B-GGUF/resolve/main/rosa_v2_7b.Q4_K_M.gguf'
+            },
+        'TheBloke/Panda-7B-v0.1-GGUF':
+            {
+                'name': 'TheBloke/Panda-7B-v0.1-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q4_K_M.gguf'
+            },
+        'TheBloke/Sonya-7B-GGUF':
+            {
+                'name': 'TheBloke/Sonya-7B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Sonya-7B-GGUF/resolve/main/sonya-7b.Q4_K_M.gguf'
+            },
+        'TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF':
+            {
+                'name': 'TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF',
+                'path': 'https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF/resolve/main/dolphin-2.6-mistral-7b-dpo.Q4_K_M.gguf'
+            },
+        'TheBloke/Lelantos-7B-GGUF':
+            {
+                'name': 'TheBloke/Lelantos-7B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Lelantos-7B-GGUF/resolve/main/lelantos-7b.Q4_K_M.gguf'
+            },
+
+
     },
 
-    'prompt_templates' : {
+    'prompt_templates': {
 
-        'prompt_template_a' : """Context information is below.        
+        'prompt_template_a': """Context information is below.        
 ---------------------
 {context_str}
 ---------------------
@@ -59,7 +90,6 @@ Query: beautiful female witch on a castle rooftop
 Answer: photorealistic, Professional photo, analog style, ((beautiful female witch)), at midnight, wearing a black cloak with a hood, standing on the rooftop of a castle, surrounded by stars and the moon, casting a spell with a dark aura, mysterious and powerful, on eye level, scenic, masterpiece
 Query: {query_str}
 Answer:""",
-
 
         'prompt_template_b': """Context information is below.
 ---------------------
@@ -82,7 +112,7 @@ Query: {query_str}
 Answer: "
 """,
 
-        'custom_template':''
+        'custom_template': ''
 
     }
 

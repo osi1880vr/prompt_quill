@@ -172,7 +172,7 @@ class LLM_INTERFACE:
         self.top_k=top_k
         self.instruct = instruct
 
-        self.model_path = model_list.model_list[model]['path']
+        self.model_path = model['path']
 
         self.llm._model = None
         del self.llm
@@ -183,7 +183,7 @@ class LLM_INTERFACE:
         self.set_llm()
 
         self.set_pipeline()
-        return f'Model set to {model}'
+        return f'Model set to {model["name"]}'
 
     def set_prompt(self,prompt_text):
         self.prompt_template = prompt_text

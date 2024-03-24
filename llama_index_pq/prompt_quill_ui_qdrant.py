@@ -68,6 +68,7 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
 
 def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
     set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
+    model = settings_data['model_list'][model]
     return interface.change_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
 
 
@@ -136,7 +137,7 @@ hordeai_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, line
 
 
 LLM = gr.Dropdown(
-    model_list.model_list.keys(), value=settings_data['LLM Model'], label="LLM Model",
+    settings_data['model_list'].keys(), value=settings_data['LLM Model'], label="LLM Model",
     info="Will add more LLMs later!"
 )
 Temperature = gr.Slider(0, 1, step=0.1, value=settings_data['Temperature'], label="Temperature",
