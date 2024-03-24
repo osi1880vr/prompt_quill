@@ -2,7 +2,7 @@
 
 # Welcome to Prompt Quill <img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
-The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 1.5 million prompts in the vector store. This number will keep growing as I plan to release ever-growing vector stores when they are available.
+The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 3.2 million prompts in the vector store. This number will keep growing as I plan to release ever-growing vector stores when they are available.
 
 Prompt Quill was created to help users make better prompts for creating images. 
 
