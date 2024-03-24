@@ -15,6 +15,32 @@ model_list = {
             'repo_name': 'TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF',
             'file':'speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
         },
+
+    'TheBloke/WestLake-7B-v2-GGUF':
+        {
+            'type':'deep_link',
+            'name':'TheBloke/WestLake-7B-v2-GGUF',
+            'repo_name': 'TheBloke/WestLake-7B-v2-GGUF',
+            'file':'westlake-7b-v2.Q4_K_M.gguf'
+        },
+    'TheBloke/Rosa_v2_7B-GGUF':
+        {
+            'type':'deep_link',
+            'name':'TheBloke/Rosa_v2_7B-GGUF',
+            'repo_name': 'TheBloke/Rosa_v2_7B-GGUF',
+            'file':'rosa_v2_7b.Q4_K_M.gguf'
+        },
+    'TheBloke/Panda-7B-v0.1-GGUF':
+        {
+            'type':'deep_link',
+            'name':'TheBloke/Panda-7B-v0.1-GGUF',
+            'repo_name': 'TheBloke/Panda-7B-v0.1-GGUF',
+            'file':'panda-7b-v0.1.Q4_K_M.gguf'
+        },
+
+
+
+
     'thebloke/llama-2-13b-chat.Q5_K_M.gguf':
         {
             'type':'deep_link',
