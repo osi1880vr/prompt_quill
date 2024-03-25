@@ -46,7 +46,7 @@ if not exist "%INSTALL_DIR%" (
 if exist "%INSTALL_DIR%/qdrant" (
     ECHO Startup Qdrant
     cd %INSTALL_DIR%/qdrant
-    start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
+    start "" "%INSTALL_DIR%/qdrant/qdrant.exe" --disable-telemetry
 
     cd %BASE_DIR%
     ping 127.0.0.1 -n 6 > nul
