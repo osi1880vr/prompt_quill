@@ -125,7 +125,7 @@ To get data into your prompt quill there are two ways: the hard and the easy one
 
 The hard way is to go and get a large number of prompts and put them into a vector store. The scripts to do so are included.
 
-For the easy way, just download more than 1.5 million prompts that are ready to go here: https://civitai.com/models/330412
+For the easy way, you just run the one click install he will do all you need to run your prompts
 
 
 # Roadmap
