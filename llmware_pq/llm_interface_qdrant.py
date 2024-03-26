@@ -23,13 +23,15 @@ import model_list
 
 import gc
 import os
+from settings import io
+settings_io = io.settings_io()
 
 
 class LLM_INTERFACE:
 
 
     def __init__(self):
-
+        self.settings_data = settings_io.load_settings()
         self.last_prompt = ''
         self.last_negative_prompt = ''
         self.instruct = False
@@ -49,8 +51,8 @@ class LLM_INTERFACE:
         self.prompt_template = self.prompt_dict["blurb1"]
 
         self.model_name = 'TheBloke/Panda-7B-v0.1-GGUF'
-        self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
-        self.model_file = model_list.model_list[self.model_name]['file']
+        self.hf_repo_name = self.settings_data['model_list'][self.model_name]['repo_name']
+        self.model_file = self.settings_data['model_list'][self.model_name]['file']
         self.model_type = 'deep_link'
 
         self.set_pipeline()
@@ -135,10 +137,10 @@ class LLM_INTERFACE:
         self.instruct = instruct
 
         self.model_name = model
-        self.model_type = model_list.model_list[self.model_name]['type']
+        self.model_type = self.settings_data['model_list'][self.model_name]['type']
         if self.model_type == 'deep_link':
-            self.hf_repo_name = model_list.model_list[self.model_name]['repo_name']
-            self.model_file = model_list.model_list[self.model_name]['file']
+            self.hf_repo_name = self.settings_data['model_list'][self.model_name]['repo_name']
+            self.model_file = self.settings_data['model_list'][self.model_name]['file']
         else:
             self.hf_repo_name = None
             self.model_file = None

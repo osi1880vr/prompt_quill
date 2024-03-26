@@ -80,12 +80,9 @@ if not exist "%INSTALL_DIR%/qdrant" (
     ECHO Extract Qdrant web UI with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/data.zip -d %INSTALL_DIR%/delete_after_setup
 
-
-
-
     ECHO Startup Qdrant to upload the data
     cd %INSTALL_DIR%/qdrant
-    start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
+    start "" "%INSTALL_DIR%/qdrant/qdrant.exe" --disable-telemetry
 
     cd %BASE_DIR%
     REM we do this to give Qdrant some time to fire up
@@ -99,6 +96,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     del /f %INSTALL_DIR%\qdrant-x86_64-pc-windows-msvc.zip
     del /f %INSTALL_DIR%\data.zip
     rmdir /s /q %INSTALL_DIR%\delete_after_setup
+    rmdir /s /q %INSTALL_DIR%\qdrant\snapshots
 )
 
 @rem figure out whether git and conda needs to be installed

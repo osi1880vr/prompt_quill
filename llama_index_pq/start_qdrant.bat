@@ -11,7 +11,7 @@ if exist "%INSTALL_DIR%\bin" (
 
 ECHO Startup Qdrant to upload the data
 cd %INSTALL_DIR%/qdrant
-start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
+start "" "%INSTALL_DIR%/qdrant/qdrant.exe"  --disable-telemetry
 
 cd %BASE_DIR%
 REM we do this to give Qdrant some time to fire up
