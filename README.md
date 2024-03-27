@@ -201,7 +201,7 @@ This will become a topic once there is a hosting provider for the project.
 Please find me and join us on discord: https://discord.gg/gMDTAwfQAP
 
 
-
+[![Star History Chart](https://api.star-history.com/svg?repos=osi1880vr/prompt_quill&type=Date)](https://star-history.com/#osi1880vr/prompt_quill&Date)
 
 
 
