@@ -14,6 +14,8 @@ The Gradio UI will also help you to create more sophisticated text to image prom
 
 Here you find just the code to run the UI or to insert data into your instance of the vector store.
 
+There is no hardcoded need to use Docker at all, I understand this scares a lot of people. Docker is only here as it is a convenient way to run the vector stores, but it is easy to run them without docker too. Prompt Quill itself does not need Docker to run.
+
 
 # Features
 
