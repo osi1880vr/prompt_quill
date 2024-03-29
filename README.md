@@ -2,6 +2,10 @@
 
 # Welcome to Prompt Quill <img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
+![Static Badge](https://img.shields.io/badge/python-3.9_%7C_3.10%7C_3.11-blue?color=blue)
+[![discord](https://img.shields.io/badge/Chat%20on-Discord-blue?logo=discord&logoColor=white)](https://discord.gg/gMDTAwfQAP)
+
+
 The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 3.2 million prompts in the vector store. This number will keep growing as I plan to release ever-growing vector stores when they are available.
 
 Prompt Quill was created to help users make better prompts for creating images. 
