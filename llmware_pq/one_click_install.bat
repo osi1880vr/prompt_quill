@@ -33,6 +33,7 @@ set TEMP=%cd%\installer_files
 @rem config
 set BASE_DIR=%cd%
 set INSTALL_DIR=%cd%\installer_files
+set CACHE_DIR=%cd%\installer_cache
 set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
 set MINICONDA_DOWNLOAD_URL=https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe
@@ -44,7 +45,9 @@ set MONGO_TOOLS_DIR=%cd%\installer_files\mongo\mongodb-database-tools-windows-x8
 if not exist "%INSTALL_DIR%" (
 	mkdir "%INSTALL_DIR%"
 )
-
+if not exist "%INSTALL_DIR%/delete_after_setup" (
+	mkdir "%INSTALL_DIR%/delete_after_setup"
+)
 
 if exist "%INSTALL_DIR%/qdrant" (
     ECHO Startup Qdrant
@@ -57,6 +60,14 @@ if exist "%INSTALL_DIR%/qdrant" (
 )
 
 
+if exist "%INSTALL_DIR%/mongo" (
+    ECHO Startup Mongo
+    start "" "%INSTALL_DIR%/mongo/mongodb-win32-x86_64-windows-7.0.6/bin/mongod.exe" --dbpath %INSTALL_DIR%\mongo\data
+
+    cd %BASE_DIR%
+    REM we do this to give Mongo some time to fire up
+    ping 127.0.0.1 -n 6 > nul
+)
 
 
 @rem figure out whether git and conda needs to be installed
@@ -81,7 +92,7 @@ if "%conda_exists%" == "F" (
 @rem create the installer env
 if not exist "%INSTALL_ENV_DIR%" (
 	echo Packages to install: %PACKAGES_TO_INSTALL%
-	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.11 || ( echo. && echo Conda environment creation failed. && goto end )
+	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.10 || ( echo. && echo Conda environment creation failed. && goto end )
 )
 
 @rem check if conda environment was actually created
@@ -106,20 +117,42 @@ del /f %INSTALL_DIR%\miniconda_installer.exe
 
 if not exist "%INSTALL_DIR%/qdrant" (
 
-    ECHO Download Qdrant Portable Version
-    curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
 
-    ECHO Download Qdrant Web UI
-    curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
+    if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
+        ECHO Download Qdrant Portable Version
+        curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
+    ) else (
+        xcopy %CACHE_DIR%\qdrant-x86_64-pc-windows-msvc.zip %INSTALL_DIR%
+    )
 
-    ECHO Download Mongo DB
-    curl -L https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-7.0.6.zip --output %INSTALL_DIR%/mongo.zip
+    if not exist "%CACHE_DIR%/dist-qdrant.zip" (
+        ECHO Download Qdrant Web UI
+        curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
+    ) else (
+        xcopy %CACHE_DIR%\dist-qdrant.zip %INSTALL_DIR%
+    )
 
-    ECHO Download Mongo DB Tools
-    curl -L https://fastdl.mongodb.org/tools/db/mongodb-database-tools-windows-x86_64-100.9.4.zip --output %INSTALL_DIR%/mongo-tools.zip
+    if not exist "%CACHE_DIR%/mongo.zip" (
+        ECHO Download Mongo DB
+        curl -L https://fastdl.mongodb.org/windows/mongodb-windows-x86_64-7.0.6.zip --output %INSTALL_DIR%/mongo.zip
+    ) else (
+        xcopy %CACHE_DIR%\mongo.zip %INSTALL_DIR%
+    )
 
-    ECHO Download llmware data
-    curl -L https://civitai.com/api/download/models/420489 --output %INSTALL_DIR%/data.zip
+    if not exist "%CACHE_DIR%/mongo-tools.zip" (
+        ECHO Download Mongo DB Tools
+        curl -L https://fastdl.mongodb.org/tools/db/mongodb-database-tools-windows-x86_64-100.9.4.zip --output %INSTALL_DIR%/mongo-tools.zip
+    ) else (
+        xcopy %CACHE_DIR%\mongo-tools.zip %INSTALL_DIR%
+    )
+
+    if not exist "%CACHE_DIR%/data.zip" (
+        ECHO Download llmware QDrant data
+        curl -L https://civitai.com/api/download/models/420489 --output %INSTALL_DIR%/data.zip
+    ) else (
+        xcopy %CACHE_DIR%\data.zip %INSTALL_DIR%
+    )
+
 
     ECHO Extract Qdrant with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -d %INSTALL_DIR%/qdrant
@@ -170,9 +203,9 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
 
     ECHO import data to Mongo
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.library.json" --collection "library" --jsonArray
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.llmware_qdrant.json" --collection "llmware_qdrant" --jsonArray
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.status.json" --collection "status" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.library.json" --collection "library" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.llmware_meta_qdrant.json" --collection "llmware_meta_qdrant" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.status.json" --collection "status" --jsonArray
 
     ECHO Load data into qdrant
     curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwaremetaqdrant_minilmsbert-3474994170629559-2024-03-31-07-00-42.snapshot"

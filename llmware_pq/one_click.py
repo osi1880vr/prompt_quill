@@ -72,7 +72,7 @@ run_cmd("python -m pip install -r requirements.txt --upgrade", assert_success=Tr
 
 print()
 print("There is a good chance that llama-cpp is only working with CPU now.")
-print("To have it working on GPU  we would have to install torch GPU enabled to make llama-cpp pickup those GPU  drivers")
+print("To have it working on GPU  we would have to install torch GPU enabled to make llama-cpp pickup those GPU drivers")
 print("If you like to try say Y, we will take a backup so you can rollback if you need later")
 print()
 print()

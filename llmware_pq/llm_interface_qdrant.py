@@ -42,7 +42,7 @@ class LLM_INTERFACE:
 
         self.embedding_model_name = 'mini-lm-sbert' #'nomic-embed-text-v1' #'mini-lm-sbert'
 
-        self.library_name = 'llmware_qdrant'
+        self.library_name = 'llmware_meta_qdrant'
         self.lib = Library().load_library(self.library_name)
 
         self.run_order_list = ["blurb1", "$context", "blurb2", "$query", "instruction"]
