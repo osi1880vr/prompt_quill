@@ -119,7 +119,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     curl -L https://fastdl.mongodb.org/tools/db/mongodb-database-tools-windows-x86_64-100.9.4.zip --output %INSTALL_DIR%/mongo-tools.zip
 
     ECHO Download llmware data
-    curl -L https://civitai.com/api/download/models/371709 --output %INSTALL_DIR%/data.zip
+    curl -L https://civitai.com/api/download/models/420489 --output %INSTALL_DIR%/data.zip
 
     ECHO Extract Qdrant with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -d %INSTALL_DIR%/qdrant
@@ -143,7 +143,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/data.zip -d %INSTALL_DIR%/delete_after_setup
 
     ECHO Extract Qdrant Data with unzip
-    %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/delete_after_setup/prompt_quill_llmware_qdrant_v1.0.zip -d %INSTALL_DIR%/delete_after_setup
+    %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/delete_after_setup/prompt_quill_llmware_qdrant_meta_v1.0.zip -d %INSTALL_DIR%/delete_after_setup
 
     ECHO Extract Mongo with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/delete_after_setup/mongo_data.zip -d %INSTALL_DIR%/delete_after_setup
@@ -175,7 +175,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/llmware.status.json" --collection "status" --jsonArray
 
     ECHO Load data into qdrant
-    curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwareqdrant_minilmsbert-1265063568362627-2024-03-03-06-52-29.snapshot"
+    curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwaremetaqdrant_minilmsbert-3474994170629559-2024-03-31-07-00-42.snapshot"
 
 
 
