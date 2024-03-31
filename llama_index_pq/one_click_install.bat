@@ -33,6 +33,7 @@ set TEMP=%cd%\installer_files
 @rem config
 set BASE_DIR=%cd%
 set INSTALL_DIR=%cd%\installer_files
+set CACHE_DIR=%cd%\installer_cache
 set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
 set MINICONDA_DOWNLOAD_URL=https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe
@@ -56,14 +57,34 @@ if exist "%INSTALL_DIR%/qdrant" (
 
 if not exist "%INSTALL_DIR%/qdrant" (
 
-    ECHO Download Qdrant Portable Version
-    curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
 
-    ECHO Download Qdrant Web UI
-    curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
+    if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
+        ECHO Download Qdrant Portable Version
+        curl -L https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip
+    )
+    else
+    (
+        xcopy %CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip /D
+    )
 
-    ECHO Download LLama-index QDrant data
-    curl -L https://civitai.com/api/download/models/407093 --output %INSTALL_DIR%/data.zip
+    if not exist "%CACHE_DIR%/dist-qdrant.zip" (
+        ECHO Download Qdrant Web UI
+        curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %CACHE_DIR%/dist-qdrant.zip
+    )
+    else
+    (
+        xcopy %CACHE_DIR%/dist-qdrant.zip %INSTALL_DIR%/dist-qdrant.zip /D
+    )
+
+    if not exist "%CACHE_DIR%/data.zip" (
+        ECHO Download LLama-index QDrant data
+        curl -L https://civitai.com/api/download/models/407093 --output %CACHE_DIR%/data.zip
+    )
+    else
+    (
+        xcopy %CACHE_DIR%/data.zip %INSTALL_DIR%/data.zip /D
+    )
+
 
     ECHO Extract Qdrant with unzip
     %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -d %INSTALL_DIR%/qdrant
