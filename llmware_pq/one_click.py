@@ -3,7 +3,7 @@ import os
 import sys
 import platform
 import subprocess
-
+import time
 
 
 script_dir = os.getcwd()
@@ -50,8 +50,14 @@ def run_cmd(cmd, assert_success=False, environment=False, capture_output=False, 
 
 	# Assert the command ran successfully
 	if assert_success and result.returncode != 0:
-		print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) + "'.\n\nExiting now.\nTry running the start/update script again.")
-		sys.exit(1)
+		print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) )
+		print('we will try one more time to see if it will work now')
+		result = subprocess.run(cmd, shell=True, capture_output=capture_output, env=env)
+
+		if assert_success and result.returncode != 0:
+			print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) + "'.\n\nExiting now.\nTry running the start/update script again.")
+			time.sleep(5)
+			sys.exit(1)
 
 	return result
 
