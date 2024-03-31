@@ -88,8 +88,6 @@ with gr.Blocks(css=css) as pq_ui:
 			chatbot=gr.Chatbot(height=500,render=False),
 			textbox=gr.Textbox(placeholder="Enter your prompt to work with", container=False, scale=7,render=False),
 			theme="soft",
-			examples=['A fishermans lake','night at cyberpunk city','living in a steampunk world'],
-			cache_examples=True,
 			retry_btn="🔄  Retry",
 			undo_btn="↩️ Undo",
 			clear_btn="Clear"

@@ -49,7 +49,6 @@ def run_cmd(cmd, assert_success=False, environment=False, capture_output=False, 
 	result = subprocess.run(cmd, shell=True, capture_output=capture_output, env=env)
 
 	# Assert the command ran successfully
-	# Assert the command ran successfully
 	if assert_success and result.returncode != 0:
 		print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) )
 		print('we will try one more time to see if it will work now')

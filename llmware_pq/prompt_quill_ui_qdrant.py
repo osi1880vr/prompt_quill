@@ -226,8 +226,6 @@ with gr.Blocks(css=css) as pq_ui:
                                render=False,  # render is false as we are in a blocks environment
                                ),
             theme="soft",
-            examples=['A fishermans lake', 'night at cyberpunk city', 'living in a steampunk world'],
-            cache_examples=True,
             retry_btn="🔄  Retry",
             undo_btn="↩️ Undo",
             clear_btn="Clear"
