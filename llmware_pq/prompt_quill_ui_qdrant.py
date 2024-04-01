@@ -51,12 +51,14 @@ import llm_interface_qdrant
 interface = llm_interface_qdrant.LLM_INTERFACE()
 
 
-def set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+def set_llm_settings(model, temperature, n_ctx, max_tokens, gpu_layer, top_k, instruct):
     settings_data['LLM Model'] = model
     settings_data['Temperature'] = temperature
     settings_data['max output Tokens'] = max_tokens
     settings_data['top_k'] = top_k
     settings_data['Instruct Model'] = instruct
+    settings_data['Context Length'] = n_ctx
+    settings_data['GPU Layers'] = n_ctx
     settings_io.write_settings(settings_data)
 
 
@@ -82,9 +84,9 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
     settings_io.write_settings(settings_data)
 
 
-def set_model(model, temperature, max_tokens, gpu_layer, top_k, instruct):
-    set_llm_settings(model, temperature, max_tokens, top_k, instruct)
-    return interface.change_model(model, temperature, max_tokens, gpu_layer, top_k, instruct)
+def set_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
+    set_llm_settings(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
+    return interface.change_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
 
 
 def civitai_get_last_prompt():
@@ -118,8 +120,13 @@ def get_last_prompt():
 
 
 def llm_get_settings():
-    return settings_data["LLM Model"], settings_data['Temperature'], settings_data['GPU Layers'], settings_data[
-        'max output Tokens'], settings_data['top_k'], settings_data['Instruct Model']
+    return settings_data["LLM Model"],\
+        settings_data['Temperature'], \
+        settings_data['Context Length'], \
+        settings_data['GPU Layers'], \
+        settings_data['max output Tokens'], \
+        settings_data['top_k'], \
+        settings_data['Instruct Model']
 
 
 def get_prompt_template():
@@ -164,7 +171,9 @@ LLM = gr.Dropdown(
 )
 Temperature = gr.Slider(0, 1, step=0.1, value=settings_data['Temperature'], label="Temperature",
                         info="Choose between 0 and 1")
-max = gr.Slider(0, 1024, step=1, value=settings_data['Context Length'], label="max output Tokens",
+n_ctx = gr.Slider(0, 32768, step=1, value=settings_data['Context Length'], label="Context Length",
+                        info="Choose between 0 and 1")
+max = gr.Slider(0, 1024, step=1, value=settings_data['max output Tokens'], label="max output Tokens",
                 info="Choose between 1 and 1024")
 GPU = gr.Slider(0, 1024, step=1, value=settings_data['GPU Layers'], label="GPU Layers",
                 info="Choose between 1 and 1024")
@@ -260,6 +269,7 @@ with gr.Blocks(css=css) as pq_ui:
             inputs=None,
             outputs=[LLM,
                      Temperature,
+                     n_ctx,
                      GPU,
                      max,
                      top_k,
@@ -271,6 +281,7 @@ with gr.Blocks(css=css) as pq_ui:
             [
                 LLM,
                 Temperature,
+                n_ctx,
                 max,
                 GPU,
                 top_k,

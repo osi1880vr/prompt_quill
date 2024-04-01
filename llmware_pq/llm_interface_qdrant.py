@@ -19,7 +19,7 @@ from llmware.prompts import Prompt
 from llmware.gguf_configs import GGUFConfigs
 
 import prompt_templates
-import model_list
+
 
 import gc
 import os
@@ -36,9 +36,10 @@ class LLM_INTERFACE:
         self.last_negative_prompt = ''
         self.instruct = False
 
-        self.max_tokens=200
-        self.temperature=0.0
-        self.top_k=10
+        self.max_tokens=self.settings_data['max output Tokens']
+        self.temperature=self.settings_data['Temperature']
+        self.top_k=self.settings_data['top_k']
+        self.n_ctx=self.settings_data['Context Length']
 
         self.embedding_model_name = 'mini-lm-sbert' #'nomic-embed-text-v1' #'mini-lm-sbert'
 
@@ -85,7 +86,8 @@ class LLM_INTERFACE:
             self.prompter.model_catalog.register_gguf_model(self.model_name,
                                                             self.hf_repo_name,
                                                             self.model_file,
-                                                            prompt_wrapper="open_chat")
+                                                            prompt_wrapper="open_chat",
+                                                            context_window=self.n_ctx)
 
         self.prompter.load_model(self.model_name)
         self.prompter.pc.add_custom_prompt_card("image_prompt",
@@ -127,15 +129,16 @@ class LLM_INTERFACE:
         return self.last_prompt
 
 
-    def change_model(self, model, temperature, max_tokens, top_k, instruct, gpu_layers):
+    def change_model(self, model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
 
         GGUFConfigs().set_config("n_gpu_layers", gpu_layers)
+        GGUFConfigs().set_config("n_ctx", n_ctx)
 
         self.temperature=float(temperature)
         self.top_k=top_k
         self.max_tokens=max_tokens
         self.instruct = instruct
-
+        self.n_ctx = n_ctx
         self.model_name = model
         self.model_type = self.settings_data['model_list'][self.model_name]['type']
         if self.model_type == 'deep_link':
