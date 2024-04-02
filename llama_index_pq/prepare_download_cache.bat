@@ -25,7 +25,7 @@ if not exist "%CACHE_DIR%" (
 
 if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
     ECHO Download Qdrant Portable Version
-    curl -L -v https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip
+    curl -L  https://github.com/qdrant/qdrant/releases/download/v1.8.1/qdrant-x86_64-pc-windows-msvc.zip --output %CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip
 )
 else
 (
@@ -35,7 +35,7 @@ else
 
 if not exist "%CACHE_DIR%/dist-qdrant.zip" (
     ECHO Download Qdrant Web UI
-    curl -L -v https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %CACHE_DIR%/dist-qdrant.zip
+    curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %CACHE_DIR%/dist-qdrant.zip
 )
 else
 (
@@ -44,7 +44,7 @@ else
 
 if not exist "%CACHE_DIR%/data.zip" (
     ECHO Download LLama-index QDrant data
-    curl -L -v https://civitai.com/api/download/models/407093 --output %CACHE_DIR%/data.zip
+    curl -L https://civitai.com/api/download/models/407093 --output %CACHE_DIR%/data.zip
 )
 else
 (
