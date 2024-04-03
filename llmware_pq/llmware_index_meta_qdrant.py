@@ -12,16 +12,7 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-
 import os
-import time
-
-from llmware.library import Library
-from llmware.status import Status
-import datetime
-import gc
-
-
 host = 'localhost'
 
 
@@ -32,7 +23,16 @@ if os.getenv("QDRANT_HOST") is not None:
 os.environ["USER_MANAGED_QDRANT_HOST"] = host
 os.environ["USER_MANAGED_QDRANT_PORT"] = "6333"
 
-in_path = 'E:\prompt_sources\sfw_large_split'
+
+from llmware.parsers import Parser
+from llmware.library import Library
+from llmware.status import Status
+import gc
+
+
+
+
+in_path = 'E:\prompt_sources\sfw_meta'
 
 def rag (library_name):
 
@@ -45,6 +45,7 @@ def rag (library_name):
     print ("\nupdate: Step 1 - Creating library: {}".format(library_name))
 
     library = Library().create_new_library(library_name)
+    parser = Parser(library)
 
     # Step 3 - point ".add_files" method to the folder of documents that was just created
     #   this method parses all of the documents, text chunks, and captures in MongoDB
@@ -52,19 +53,18 @@ def rag (library_name):
 
     sample_files_path = in_path
 
-    t0 = time.time()
-    for subdir, dirs, files in os.walk(sample_files_path):
-        if len(files) > 0:
-            t2 = time.time()
-            now = datetime.datetime.now()
-            print(f'{now.strftime("%H:%M:%S")} adding folder: {subdir}')
-            library.add_files(input_folder_path=subdir)
-            print(f"done - parsing time - {time.time()-t2}")
-            t1 = time.time()
+    metadata = {"text": -1, "model": 0, "negative_prompt": 1}
+    columns = 3
 
+    # for subdir, dirs, files in os.walk(sample_files_path):
+    #     if len(files) > 0:
+    #         for file in files:
+    #             t0 = time.time()
+    #             parser_output = parser.parse_delimiter_config(subdir, file, cols=columns, mapping_dict=metadata, delimiter="§")
+    #             print(f"done parsing - time - {time.time() - t0} - summary - {parser_output}")
 
     library.install_new_embedding(embedding_model_name=embedding_model, vector_db=vector_db)
-    print(f"done - embedding time - {time.time()-t1}")
+
     gc.collect()
     # Step 4 - Install the embeddings
     print("\nupdate: Step 3 - Generating Embeddings in {} db - with Model- {}".format(vector_db, embedding_model))
@@ -75,12 +75,10 @@ def rag (library_name):
     update = Status().get_embedding_status(library_name, embedding_model)
     print("update: Embeddings Complete - Status() check at end of embedding - ", update)
 
-    print(f"done - total processing time - {time.time()-t0}")
-
 
 if __name__ == "__main__":
 
     # pick any name for the library
-    user_selected_name = "llmware_qdrant"
+    user_selected_name = "llmware_meta_qdrant"
     rag(user_selected_name)
 
