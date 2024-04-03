@@ -112,7 +112,7 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( 
 ECHO cleanup miniconda installer
 del /f %INSTALL_DIR%\miniconda_installer.exe
 
-
+call pip install requests
 
 
 if not exist "%INSTALL_DIR%/qdrant" (
@@ -185,21 +185,20 @@ if not exist "%INSTALL_DIR%/qdrant" (
         mkdir "%INSTALL_DIR%/mongo/data"
     )
 
+
+    ECHO Startup Mongo to upload the data
+    start "" "%INSTALL_DIR%/mongo/mongodb-win32-x86_64-windows-7.0.6/bin/mongod.exe" --dbpath %INSTALL_DIR%\mongo\data
+    cd %BASE_DIR%
+    REM we do this to give Mongo some time to fire up
+    ping 127.0.0.1 -n 6 > nul
+
+
     ECHO Startup Qdrant to upload the data
     cd %INSTALL_DIR%/qdrant
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     REM we do this to give Qdrant some time to fire up
-    ping 127.0.0.1 -n 6 > nul
-
-
-    ECHO Startup Mongo to upload the data
-    start "" "%INSTALL_DIR%/mongo/mongodb-win32-x86_64-windows-7.0.6/bin/mongod.exe" --dbpath %INSTALL_DIR%\mongo\data
-
-
-    cd %BASE_DIR%
-    REM we do this to give Mongo some time to fire up
-    ping 127.0.0.1 -n 6 > nul
+    start /W "" python check_qdrant_up.py
 
 
     ECHO import data to Mongo
