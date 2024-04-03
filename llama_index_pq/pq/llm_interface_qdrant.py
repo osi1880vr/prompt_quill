@@ -22,8 +22,7 @@ import qdrant_client
 from settings import io
 import json
 
-import prompt_templates
-import model_list
+
 import gc
 import os
 
@@ -46,10 +45,7 @@ class LLM_INTERFACE:
         self.index='prompts_large_meta'
         self.last_prompt = ''
         self.last_negative_prompt = ''
-
-        keys = model_list.model_list.keys()
         self.settings_data = settings_io.load_settings()
-
         self.model_path = self.settings_data['model_list'][self.settings_data['LLM Model']]['path']
 
         self.document_store = qdrant_client.QdrantClient(
@@ -73,7 +69,7 @@ class LLM_INTERFACE:
 
         self.set_llm()
 
-        self.prompt_template = prompt_templates.prompt_template_b
+        self.prompt_template = self.settings_data['prompt_templates']['prompt_template_b']
 
         self.set_pipeline()
 
