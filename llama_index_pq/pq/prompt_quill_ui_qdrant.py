@@ -12,6 +12,12 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
+
+
+from llama_cpp_hijack import llama_cpp_hijack
+hijack = llama_cpp_hijack()
+
+
 import gradio as gr
 import llm_interface_qdrant
 from generators.civitai.client import civitai_client
@@ -25,9 +31,6 @@ hordeai_model_list = hordeai_models().read_model_list()
 import os
 
 interface = llm_interface_qdrant.LLM_INTERFACE()
-
-import model_list
-
 
 settings_io = io.settings_io()
 
