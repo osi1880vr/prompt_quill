@@ -86,7 +86,7 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( 
 ECHO cleanup miniconda installer
 del /f %INSTALL_DIR%\miniconda_installer.exe
 
-
+call pip install requests
 
 if exist "%INSTALL_DIR%/qdrant" (
     ECHO Startup Qdrant
