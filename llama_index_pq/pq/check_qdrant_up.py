@@ -22,5 +22,5 @@ while 1:
         break
     trycount += 1
 
-
+print('wating for qdrant sucess it is up and running')
 

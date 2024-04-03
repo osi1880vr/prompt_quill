@@ -64,7 +64,7 @@ if exist "%INSTALL_DIR%/qdrant" (
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     cd %BASE_DIR%
-    start /B "" python pq/check_qdrant_up.py
+    start /W "" python pq/check_qdrant_up.py
 
 )
 
