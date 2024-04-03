@@ -160,7 +160,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
 
 
-
+cd %BASE_DIR%
 call python one_click.py
 
 

@@ -220,7 +220,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     rmdir /s /q %INSTALL_DIR%\delete_after_setup
 )
 
-
+cd %BASE_DIR%
 call python one_click.py
 
 :PrintBigMessage
