@@ -159,5 +159,14 @@ del /f %INSTALL_DIR%\miniconda_installer.exe
 call python one_click.py
 
 
+
+:PrintBigMessage
+echo. && echo.
+echo *******************************************************************
+for %%M in (%*) do echo * %%~M
+echo *******************************************************************
+echo. && echo.
+exit /b
+
 :end
 exit
