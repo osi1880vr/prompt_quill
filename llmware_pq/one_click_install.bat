@@ -200,16 +200,15 @@ if not exist "%INSTALL_DIR%/qdrant" (
     REM we do this to give Qdrant some time to fire up
     start /W "" python check_qdrant_up.py
 
+    cd %BASE_DIR%
 
     ECHO import data to Mongo
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.library.json" --collection "library" --jsonArray
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.llmware_meta_qdrant.json" --collection "llmware_meta_qdrant" --jsonArray
-    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "installer_files/delete_after_setup/mongo_data/llmware.status.json" --collection "status" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "%INSTALL_DIR%/delete_after_setup/mongo_data/llmware.library.json" --collection "library" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "%INSTALL_DIR%/delete_after_setup/mongo_data/llmware.llmware_meta_qdrant.json" --collection "llmware_meta_qdrant" --jsonArray
+    %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "%INSTALL_DIR%/delete_after_setup/mongo_data/llmware.status.json" --collection "status" --jsonArray
 
     ECHO Load data into qdrant
     curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwaremetaqdrant_minilmsbert-3474994170629559-2024-03-31-07-00-42.snapshot"
-
-
 
     ECHO some cleanup
     del /f /q /a %INSTALL_DIR%\dist-qdrant.zip
