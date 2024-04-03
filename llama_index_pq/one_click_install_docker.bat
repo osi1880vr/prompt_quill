@@ -64,7 +64,7 @@ if exist "%INSTALL_DIR%/qdrant" (
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     cd %BASE_DIR%
-    ping 127.0.0.1 -n 6 > nul
+    start /B "" python pq/check_qdrant_up.py
 
 )
 

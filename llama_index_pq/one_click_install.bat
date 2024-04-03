@@ -44,13 +44,57 @@ if not exist "%INSTALL_DIR%" (
 )
 
 
+@rem figure out whether git and conda needs to be installed
+call "%CONDA_ROOT_PREFIX%\_conda.exe" --version >nul 2>&1
+if "%ERRORLEVEL%" EQU "0" set conda_exists=T
+
+@rem (if necessary) install git and conda into a contained environment
+@rem download conda
+if "%conda_exists%" == "F" (
+	echo Downloading Miniconda from %MINICONDA_DOWNLOAD_URL% to %INSTALL_DIR%\miniconda_installer.exe
+
+	call curl -Lk "%MINICONDA_DOWNLOAD_URL%" > "%INSTALL_DIR%\miniconda_installer.exe" || ( echo. && echo Miniconda failed to download. && goto end )
+
+	echo Installing Miniconda to %CONDA_ROOT_PREFIX%
+	start /wait "" "%INSTALL_DIR%\miniconda_installer.exe" /InstallationType=JustMe /NoShortcuts=1 /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /S /D=%CONDA_ROOT_PREFIX%
+
+	@rem test the conda binary
+	echo Miniconda version:
+	call "%CONDA_ROOT_PREFIX%\_conda.exe" --version || ( echo. && echo Miniconda not found. && goto end )
+)
+
+@rem create the installer env
+if not exist "%INSTALL_ENV_DIR%" (
+	echo Packages to install: %PACKAGES_TO_INSTALL%
+	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.11 || ( echo. && echo Conda environment creation failed. && goto end )
+)
+
+@rem check if conda environment was actually created
+if not exist "%INSTALL_ENV_DIR%\python.exe" ( echo. && echo Conda environment is empty. && goto end )
+
+
+@rem environment isolation
+set PYTHONNOUSERSITE=1
+set PYTHONPATH=
+set PYTHONHOME=
+set "CUDA_PATH=%INSTALL_ENV_DIR%"
+set "CUDA_HOME=%CUDA_PATH%"
+
+@rem activate installer env
+call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
+
+ECHO cleanup miniconda installer
+del /f %INSTALL_DIR%\miniconda_installer.exe
+
+
+
 if exist "%INSTALL_DIR%/qdrant" (
     ECHO Startup Qdrant
     cd %INSTALL_DIR%/qdrant
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     cd %BASE_DIR%
-    ping 127.0.0.1 -n 6 > nul
+    start /B "" python pq/check_qdrant_up.py
 
 )
 
@@ -101,7 +145,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
     cd %BASE_DIR%
     REM we do this to give Qdrant some time to fire up
-    ping 127.0.0.1 -n 6 > nul
+    start /B "" python pq/check_qdrant_up.py
 
     ECHO Load data into qdrant
     curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-3474994170629559-2024-03-23-06-41-00.snapshot"
@@ -114,47 +158,8 @@ if not exist "%INSTALL_DIR%/qdrant" (
     rmdir /s /q %INSTALL_DIR%\qdrant\snapshots
 )
 
-@rem figure out whether git and conda needs to be installed
-call "%CONDA_ROOT_PREFIX%\_conda.exe" --version >nul 2>&1
-if "%ERRORLEVEL%" EQU "0" set conda_exists=T
-
-@rem (if necessary) install git and conda into a contained environment
-@rem download conda
-if "%conda_exists%" == "F" (
-	echo Downloading Miniconda from %MINICONDA_DOWNLOAD_URL% to %INSTALL_DIR%\miniconda_installer.exe
-
-	call curl -Lk "%MINICONDA_DOWNLOAD_URL%" > "%INSTALL_DIR%\miniconda_installer.exe" || ( echo. && echo Miniconda failed to download. && goto end )
-
-	echo Installing Miniconda to %CONDA_ROOT_PREFIX%
-	start /wait "" "%INSTALL_DIR%\miniconda_installer.exe" /InstallationType=JustMe /NoShortcuts=1 /AddToPath=0 /RegisterPython=0 /NoRegistry=1 /S /D=%CONDA_ROOT_PREFIX%
-
-	@rem test the conda binary
-	echo Miniconda version:
-	call "%CONDA_ROOT_PREFIX%\_conda.exe" --version || ( echo. && echo Miniconda not found. && goto end )
-)
-
-@rem create the installer env
-if not exist "%INSTALL_ENV_DIR%" (
-	echo Packages to install: %PACKAGES_TO_INSTALL%
-	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.11 || ( echo. && echo Conda environment creation failed. && goto end )
-)
-
-@rem check if conda environment was actually created
-if not exist "%INSTALL_ENV_DIR%\python.exe" ( echo. && echo Conda environment is empty. && goto end )
 
 
-@rem environment isolation
-set PYTHONNOUSERSITE=1
-set PYTHONPATH=
-set PYTHONHOME=
-set "CUDA_PATH=%INSTALL_ENV_DIR%"
-set "CUDA_HOME=%CUDA_PATH%"
-
-@rem activate installer env
-call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-
-ECHO cleanup miniconda installer
-del /f %INSTALL_DIR%\miniconda_installer.exe
 
 call python one_click.py
 
