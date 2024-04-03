@@ -136,14 +136,14 @@ class LLM_INTERFACE:
 
     def run_llm_response(self, query, history):
 
-        self.log('logfile.txt',f"QUERY: {query} \n")
+        self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
         if self.instruct is True:
             query = f'[INST]{query}[/INST]'
 
         response = self.query_engine.query(query)
 
-        self.log('logfile.txt',f"RESPONSE: {response.response} \n")
+        self.log('logfile.txt',f"RESPONSE: {response.response} \n-------------\n")
 
         output = response.response.lstrip(' ')
         self.last_prompt = output

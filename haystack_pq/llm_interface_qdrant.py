@@ -101,7 +101,7 @@ class LLM_INTERFACE:
     def run_llm_response(self, query, history):
 
         f = open('logfile.txt', 'a')
-        f.write(f"QUERY: {query} \n")
+        f.write(f"QUERY: {query} \n-------------\n")
         f.close()
 
         results = self.rag_pipeline.run(
@@ -138,7 +138,7 @@ class LLM_INTERFACE:
 
 
         f = open('logfile.txt', 'a')
-        f.write(f'RESPONSE: {output} \n')
+        f.write(f'RESPONSE: {output} \n-------------\n')
         f.close()
 
         return output

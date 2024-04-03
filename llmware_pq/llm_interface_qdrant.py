@@ -107,11 +107,11 @@ class LLM_INTERFACE:
 
     def run_llm_response(self, query, history):
 
-        self.log('logfile.txt',f"QUERY: {query} \n")
+        self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
         if 'instruct' in query.lower():
             res = 'I only follow one master and thats not you :P'
-            self.log('logfile.txt',f"RESPONSE: {res} \n")
+            self.log('logfile.txt',f"RESPONSE: {res} \n-------------\n")
             return res
 
         if self.instruct is True:
@@ -124,7 +124,7 @@ class LLM_INTERFACE:
         self.last_prompt = response['llm_response'].lstrip(' ')
 
 
-        self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n")
+        self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n-------------\n")
 
         return self.last_prompt
 
