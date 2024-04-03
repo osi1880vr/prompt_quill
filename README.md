@@ -132,6 +132,7 @@ To get data into your prompt quill there are two ways: the hard and the easy one
 The hard way is to go and get a large number of prompts and put them into a vector store. The scripts to do so are included.
 
 For the easy way, you just run the one click install he will do all you need to run your prompts
+The data can be found here also: https://civitai.com/models/330412
 
 
 # Roadmap
@@ -171,7 +172,7 @@ just cd to the qdrant folder and run:
 docker compose up
 
 this will start the qdrant server.
-Once it is up and running you should find it a http://localhost:6333 .
+Once it is up and running you should find it a http://localhost:6333/dashboard .
 Under collections there is a little blue arrow right and there you can upload the snapshot.
 Once that is done you are ready to go to get the prompt quill running.
 
