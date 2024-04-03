@@ -26,6 +26,6 @@ REM we do this to give Qdrant some time to fire up
 @rem activate installer env
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
-start /B "" python pq/check_qdrant_up.py
+start /W "" python pq/check_qdrant_up.py
 
 call python pq\prompt_quill_ui_qdrant.py

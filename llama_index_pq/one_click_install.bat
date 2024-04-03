@@ -94,7 +94,7 @@ if exist "%INSTALL_DIR%/qdrant" (
     start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
 
     cd %BASE_DIR%
-    start /B "" python pq/check_qdrant_up.py
+    start /W "" python pq/check_qdrant_up.py
 
 )
 
@@ -145,7 +145,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
     cd %BASE_DIR%
     REM we do this to give Qdrant some time to fire up
-    start /B "" python pq/check_qdrant_up.py
+    start /W "" python pq/check_qdrant_up.py
 
     ECHO Load data into qdrant
     curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-3474994170629559-2024-03-23-06-41-00.snapshot"
