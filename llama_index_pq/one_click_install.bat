@@ -160,7 +160,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
 
 
-
+cd %BASE_DIR%
 call python one_click.py
 
 
@@ -171,7 +171,9 @@ echo *******************************************************************
 for %%M in (%*) do echo * %%~M
 echo *******************************************************************
 echo. && echo.
+pause
 exit /b
 
 :end
+pause
 exit
