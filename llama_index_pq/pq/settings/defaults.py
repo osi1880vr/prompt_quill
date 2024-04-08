@@ -31,6 +31,11 @@ default = {
                 'name': 'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf',
                 'path': 'https://huggingface.co/TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF/resolve/main/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
             },
+        'TheBloke/openchat-3.5-0106-GGUF':
+            {
+                'name': 'TheBloke/openchat-3.5-0106-GGUF',
+                'path': 'https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF/resolve/main/openchat-3.5-0106.Q8_0.gguf'
+            },
 
         'thebloke/llama-2-13b-chat.Q5_K_M.gguf':
             {

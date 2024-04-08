@@ -32,6 +32,14 @@ default = {
                 'repo_name': 'TheBloke/toxicqa-Llama2-7B-GGUF',
                 'file': 'toxicqa-llama2-7b.Q5_K_M.gguf'
             },
+        'TheBloke/openchat-3.5-0106-GGUF':
+            {
+                'type': 'deep_link',
+                'name': 'TheBloke/openchat-3.5-0106-GGUF',
+                'repo_name': 'TheBloke/openchat-3.5-0106-GGUF',
+                'file': 'openchat-3.5-0106.Q8_0.gguf'
+            },
+
         'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf':
             {
                 'type': 'deep_link',
