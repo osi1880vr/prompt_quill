@@ -20,8 +20,6 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import qdrant_client
 from settings import io
-import json
-
 
 import gc
 import os
@@ -45,6 +43,7 @@ class LLM_INTERFACE:
         self.index='prompts_large_meta'
         self.last_prompt = ''
         self.last_negative_prompt = ''
+        self.last_context = []
         self.settings_data = settings_io.load_settings()
         self.model_path = self.settings_data['model_list'][self.settings_data['LLM Model']]['path']
 
@@ -115,10 +114,11 @@ class LLM_INTERFACE:
         self.vector_store = QdrantVectorStore(client=self.document_store, collection_name=self.index)
         self.vector_index = VectorStoreIndex.from_vector_store( vector_store=self.vector_store, embed_model=self.embed_model)
 
-        self.query_engine = self.vector_index.as_query_engine(similarity_top_k=5,llm=self.llm)
+        self.retriever = self.vector_index.as_retriever(similarity_top_k=self.settings_data['top_k'])
 
-        qa_prompt_tmpl_str = (self.prompt_template)
-        self.qa_prompt_tmpl = PromptTemplate(qa_prompt_tmpl_str)
+        self.query_engine = self.vector_index.as_query_engine(similarity_top_k=self.settings_data['top_k'],llm=self.llm)
+
+        self.qa_prompt_tmpl = PromptTemplate(self.prompt_template)
 
         self.query_engine.update_prompts(
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
@@ -130,6 +130,19 @@ class LLM_INTERFACE:
         f.write(f"QUERY: {text} \n")
         f.close()
 
+
+    def retrieve_context(self, prompt):
+        nodes = self.retriever.retrieve(prompt)
+        self.last_context = [s.node.get_text() for s in nodes]
+        return self.last_context
+
+
+    def set_top_k(self, top_k):
+        self.settings_data['top_k'] = top_k
+        self.set_pipeline()
+
+    def get_context_details(self):
+        return self.last_context
     def run_llm_response(self, query, history):
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
@@ -140,6 +153,9 @@ class LLM_INTERFACE:
         response = self.query_engine.query(query)
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n-------------\n")
+
+
+        self.last_context = [s.node.get_text() for s in response.source_nodes]
 
         output = response.response.lstrip(' ')
         self.last_prompt = output

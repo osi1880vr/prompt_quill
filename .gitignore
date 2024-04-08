@@ -1,3 +1,4 @@
+.gitignore
 /haystack_pq/models/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf
 /llama_index_pq/logfile.txt
 /llama_index_pq/temp/
@@ -6,3 +7,7 @@
 /llama_index_pq/test.bat
 /llmware_pq/test.bat
 /llmware_pq/installer_files/
+/llama_index_pq/pq/settings/settings.dat
+/llama_index_pq/magic_prompt_logfile.txt
+/llama_index_pq/pq/settings/models_temp.txt
+/llama_index_pq/installer_cache/

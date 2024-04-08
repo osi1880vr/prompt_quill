@@ -36,6 +36,14 @@ settings_io = io.settings_io()
 
 settings_data = settings_io.load_settings()
 
+max_top_k = 50
+
+
+class local_mem:
+    def __init__(self):
+        self.context_prompt = ''
+
+
 
 def set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
     settings_data['LLM Model'] = model
@@ -151,7 +159,7 @@ GPU = gr.Slider(0, 1024, step=1, value=settings_data['GPU Layers'], label="GPU L
           info="Choose between 1 and 1024")
 max = gr.Slider(0, 1024, step=1, value=settings_data['max output Tokens'], label="max output Tokens",
           info="Choose between 1 and 1024")
-top_k = gr.Slider(0, 50, step=1, value=settings_data['top_k'],
+top_k = gr.Slider(0, max_top_k, step=1, value=settings_data['top_k'],
           label="how many entrys to be fetched from the vector store",
           info="Choose between 1 and 50 be careful not to overload the context window of the LLM")
 Instruct = gr.Checkbox(label='Instruct Model',value=settings_data['Instruct Model'])
@@ -191,6 +199,47 @@ horde_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['horde_Clipskip'],
 prompt_template = gr.TextArea(settings_data["prompt_templates"][settings_data["selected_template"]], lines=20)
 prompt_template_select = gr.Dropdown(choices=settings_data["prompt_templates"].keys(), value=settings_data["selected_template"], label='Template', interactive=True)
 
+
+def variable_outputs(k):
+    settings_data['top_k'] = int(k)
+    interface.set_top_k(settings_data['top_k'])
+    k = int(k)
+    out = [gr.Textbox(visible=True)]*k + [gr.Textbox(visible=False)]*(max_top_k-k)
+    return out
+
+
+textboxes = []
+local_globals = local_mem()
+
+prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7, render=False)
+
+def get_context_details(*args):
+    context_details = interface.get_context_details()
+    textboxes = []
+    for detail in context_details:
+        t = gr.Textbox(f"{detail}")
+        textboxes.append(t)
+    if len(textboxes) < len(args):
+        x = range(len(textboxes), len(args))
+        for n in x:
+            textboxes.append('')
+    return textboxes
+
+def dive_into(text):
+    local_globals.context_prompt = text
+    context = interface.retrieve_context(text)
+
+    if len(context) < max_top_k-1:
+        x = range(len(context), max_top_k-1)
+        for n in x:
+            context.append('')
+
+    return context  #.append(text)
+
+def set_prompt_input():
+    return local_globals.context_prompt
+
+
 with gr.Blocks(css=css) as pq_ui:
     with gr.Row():
         # Image element (adjust width as needed)
@@ -200,32 +249,51 @@ with gr.Blocks(css=css) as pq_ui:
         # Title element (adjust font size and styling with CSS if needed)
         gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
-    with gr.Tab("Chat"):
+    with gr.Tab("Chat") as chat:
         gr.ChatInterface(
             interface.run_llm_response,
             chatbot=gr.Chatbot(height=500, render=False),
-            textbox=gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7, render=False),
+            textbox=prompt_input,
             theme="soft",
             retry_btn="🔄  Retry",
             undo_btn="↩️ Undo",
             clear_btn="Clear",
-
         )
+        chat.select(set_prompt_input,None,prompt_input)
+
+
+
+    with gr.Tab('Deep Dive') as deep_dive:
+        top_k_slider = gr.Slider(1, max_top_k, value=settings_data['top_k'], step=1, label="How many entries to retrieve:")
+        textboxes = []
+        visible = True
+        for i in range(max_top_k-1):
+            if i+1 > settings_data['top_k']:
+                visible = False
+            t = gr.Textbox(f"Retrieved context {i}",label=f'Context {i+1}',visible=visible)
+            textboxes.append(t)
+
+        output = textboxes
+        #output.append(prompt_input)
+
+        for text in textboxes:
+            text.focus(dive_into,text,output)
+
+        deep_dive.select(get_context_details,textboxes,textboxes)
+        top_k_slider.change(variable_outputs, top_k_slider, textboxes)
 
     with gr.Tab("Character") as Character:
         gr.on(
             triggers=[Character.select],
             fn=get_prompt_template,
             inputs=None,
-            outputs=[prompt_template
-                     ]
+            outputs=[prompt_template]
         )
         gr.on(
             triggers=[prompt_template_select.select],
             fn=set_prompt_template_select,
             inputs = prompt_template_select,
-            outputs=[prompt_template
-                     ]
+            outputs=[prompt_template]
         )
         gr.Interface(
             set_prompt_template,
