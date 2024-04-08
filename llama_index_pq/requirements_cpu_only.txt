@@ -13,3 +13,4 @@ llama-index-embeddings-huggingface
 llama-index-llms-llama-cpp
 opencv-python
 horde_sdk
+deep_translator

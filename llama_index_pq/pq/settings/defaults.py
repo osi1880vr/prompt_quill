@@ -1,4 +1,6 @@
 default = {
+
+    'translate': False,
     "LLM Model": 'TheBloke/Panda-7B-v0.1-GGUF',
     "Temperature": 0.0,
     "Context Length": 3900,

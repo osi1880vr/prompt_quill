@@ -20,6 +20,7 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import qdrant_client
 from settings import io
+from deep_translator import GoogleTranslator
 
 import gc
 import os
@@ -143,7 +144,18 @@ class LLM_INTERFACE:
 
     def get_context_details(self):
         return self.last_context
+
+    def reload_settings(self):
+        self.settings_data = settings_io.load_settings()
+
+
+    def translate(self, query):
+        tanslated = GoogleTranslator(source='auto', target='en').translate(query)
+        return tanslated
     def run_llm_response(self, query, history):
+
+        if self.settings_data['translate']:
+            query = self.translate(query)
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
