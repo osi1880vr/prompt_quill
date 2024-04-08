@@ -39,6 +39,12 @@ settings_data = settings_io.load_settings()
 max_top_k = 50
 
 
+class local_mem:
+    def __init__(self):
+        self.context_prompt = ''
+
+
+
 def set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
     settings_data['LLM Model'] = model
     settings_data['Temperature'] = temperature
@@ -203,6 +209,7 @@ def variable_outputs(k):
 
 
 textboxes = []
+local_globals = local_mem()
 
 prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7, render=False)
 
@@ -219,6 +226,7 @@ def get_context_details(*args):
     return textboxes
 
 def dive_into(text):
+    local_globals.context_prompt = text
     context = interface.retrieve_context(text)
 
     if len(context) < max_top_k-1:
@@ -228,7 +236,8 @@ def dive_into(text):
 
     return context  #.append(text)
 
-
+def set_prompt_input():
+    return local_globals.context_prompt
 
 
 with gr.Blocks(css=css) as pq_ui:
@@ -250,7 +259,7 @@ with gr.Blocks(css=css) as pq_ui:
             undo_btn="↩️ Undo",
             clear_btn="Clear",
         )
-
+        chat.select(set_prompt_input,None,prompt_input)
 
 
 
