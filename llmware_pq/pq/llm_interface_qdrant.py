@@ -128,6 +128,19 @@ class LLM_INTERFACE:
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
 
+    def run_batch_response(self,context):
+        output = ''
+        n = 1
+        for query in context:
+            if query != '':
+                context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
+
+                response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
+                output = f'{output}\n\n\nPrompt {str(n)}:\n{response["llm_response"].lstrip(" ")}'
+                n += 1
+
+        return output
+
 
     def run_llm_response(self, query, history):
 
@@ -151,6 +164,9 @@ class LLM_INTERFACE:
 
         self.last_prompt = response['llm_response'].lstrip(' ')
 
+        if self.settings_data['batch']:
+            batch_result = self.run_batch_response(self.last_context)
+            self.last_prompt = f'Prompt 0:\n{self.last_prompt}\n\n\n{batch_result}'
 
         self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n-------------\n")
 
