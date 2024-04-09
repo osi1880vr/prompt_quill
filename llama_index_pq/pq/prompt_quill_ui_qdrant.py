@@ -244,7 +244,10 @@ def set_translate(translate):
     settings_io.write_settings(settings_data)
     interface.reload_settings()
 
-
+def set_batch(batch):
+    settings_data['batch'] = batch
+    settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 with gr.Blocks(css=css) as pq_ui:
     with gr.Row():
@@ -257,6 +260,7 @@ with gr.Blocks(css=css) as pq_ui:
 
     with gr.Tab("Chat") as chat:
         translate = gr.Checkbox(label="Translate", info="Translate your native language to english?", value=settings_data['translate'])
+        batch = gr.Checkbox(label="Batch", info="Run every entry from the context as a input prompt?", value=settings_data['batch'])
         gr.ChatInterface(
             interface.run_llm_response,
             chatbot=gr.Chatbot(height=500, render=False),
@@ -268,7 +272,7 @@ with gr.Blocks(css=css) as pq_ui:
         )
         chat.select(set_prompt_input,None,prompt_input)
         translate.change(set_translate,translate,None)
-
+        batch.change(set_batch,batch,None)
 
 
     with gr.Tab('Deep Dive') as deep_dive:

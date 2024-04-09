@@ -152,6 +152,18 @@ class LLM_INTERFACE:
     def translate(self, query):
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
+
+
+    def run_batch_response(self,context):
+        output = ''
+        n = 1
+        for query in context:
+            response = self.query_engine.query(query)
+            output = f'{output}\n\n\nPrompt {str(n)}:\n{response.response.lstrip(" ")}'
+            n += 1
+
+        return output
+
     def run_llm_response(self, query, history):
 
         if self.settings_data['translate']:
@@ -171,6 +183,12 @@ class LLM_INTERFACE:
 
         output = response.response.lstrip(' ')
         self.last_prompt = output
+
+        if self.settings_data['batch']:
+            batch_result = self.run_batch_response(self.last_context)
+            output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
+
+
 
         negative_prompts = []
         models = []
