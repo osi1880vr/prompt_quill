@@ -158,9 +158,10 @@ class LLM_INTERFACE:
         output = ''
         n = 1
         for query in context:
-            response = self.query_engine.query(query)
-            output = f'{output}\n\n\nPrompt {str(n)}:\n{response.response.lstrip(" ")}'
-            n += 1
+            if query != '':
+                response = self.query_engine.query(query)
+                output = f'{output}\n\n\nPrompt {str(n)}:\n{response.response.lstrip(" ")}'
+                n += 1
 
         return output
 
