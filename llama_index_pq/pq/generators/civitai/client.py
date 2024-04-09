@@ -2,6 +2,10 @@ import json
 import time
 
 import requests
+import requests
+from PIL import Image
+from io import BytesIO
+
 
 civitai_host = 'https://sdk.civitai.com'
 headers = {'Content-Type' : 'application/json',
@@ -36,9 +40,7 @@ class civitai_client:
 		while 1:
 			image_url = self.poll_status(token)
 			if image_url != -1:
-				import requests
-				from PIL import Image
-				from io import BytesIO
+
 
 				# Fetch the image data
 				response = requests.get(image_url)

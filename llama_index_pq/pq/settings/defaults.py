@@ -26,6 +26,12 @@ default = {
     "horde_Height": 512,
     "horde_Clipskip": 2,
 
+    'automa_Sampler': "DPM++ 2M Karras",
+    "automa_Steps": 20,
+    "automa_CFG Scale": 7,
+    "automa_Width": 768,
+    "automa_Height": 512,
+
     'selected_template': 'prompt_template_b',
     'model_list': {
 
