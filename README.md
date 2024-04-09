@@ -27,7 +27,10 @@ There is no hardcoded need to use Docker at all, I understand this scares a lot 
 * Create prompts from your input based on similar existing prompts from the vector store.
 * Select the LLM to be used and set some of the parameters that get exposed by the different frameworks.
 * Edit the Magic Prompt that's sent to make the LLM a prompt engineering helper.
-* I have implemented Prompt Quill using llmware, llama-index and haystack. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
+* I have implemented Prompt Quill using llmware, llama-index. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
+* Translate, you can enable translate and then enter your prompt in your native language, it will then get translated using Google Translate to english. It's not yet transparent so you will not be able to see the translation.
+* Deep Dive, this will allow you to see the context for your input prompt. when you click a line it will fetch the context as if that would be your input, also it sets the clicked one as the prompt for prompt generation
+* batch mode, this will create a prompt for each result from the context as a input prompt. this will help to give you a more broad idea of what your input could get to. Be a little patient as it will take more time to generate.
 
 
 # The best feature :)
