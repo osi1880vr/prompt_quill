@@ -15,7 +15,6 @@
 
 
 import gradio as gr
-import model_list
 import os
 
 
@@ -40,7 +39,6 @@ GGUFConfigs().set_config("n_gpu_layers", 50)
 
 import torch
 test = torch.cuda.is_available()
-
 
 import llm_interface_milvus
 

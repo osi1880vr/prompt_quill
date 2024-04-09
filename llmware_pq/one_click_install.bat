@@ -208,7 +208,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     %MONGO_TOOLS_DIR%/mongoimport.exe --uri "mongodb://localhost:27017/llmware?retryWrites=true&w=majority" --file "%INSTALL_DIR%/delete_after_setup/mongo_data/llmware.status.json" --collection "status" --jsonArray
 
     ECHO Load data into qdrant
-    curl -X POST "http://localhost:6333/collections/llmware_llmwareqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwaremetaqdrant_minilmsbert-3474994170629559-2024-03-31-07-00-42.snapshot"
+    curl -X POST "http://localhost:6333/collections/llmware_llmwaremetaqdrant_minilmsbert/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/llmware_llmwaremetaqdrant_minilmsbert-3474994170629559-2024-03-31-07-00-42.snapshot"
 
     ECHO some cleanup
     del /f /q /a %INSTALL_DIR%\dist-qdrant.zip

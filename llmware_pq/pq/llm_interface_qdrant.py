@@ -17,9 +17,7 @@ from llmware.library import Library
 from llmware.retrieval import Query
 from llmware.prompts import Prompt
 from llmware.gguf_configs import GGUFConfigs
-
-import prompt_templates
-
+from deep_translator import GoogleTranslator
 
 import gc
 import os
@@ -31,6 +29,7 @@ class LLM_INTERFACE:
 
 
     def __init__(self):
+        self.last_context = ''
         self.settings_data = settings_io.load_settings()
         self.last_prompt = ''
         self.last_negative_prompt = ''
@@ -48,7 +47,7 @@ class LLM_INTERFACE:
 
         self.run_order_list = ["blurb1", "$context", "blurb2", "$query", "instruction"]
 
-        self.prompt_dict = prompt_templates.prompt_template_a
+        self.prompt_dict = self.settings_data['prompt_templates']['prompt_template_a']
         self.prompt_template = self.prompt_dict["blurb1"]
 
         self.model_name = 'TheBloke/Panda-7B-v0.1-GGUF'
@@ -59,7 +58,7 @@ class LLM_INTERFACE:
         self.set_pipeline()
 
 
-    def aggregate_text_by_query(self, library_name,query, top_n=5):
+    def aggregate_text_by_query(self, query, top_n=5):
 
         """ Third (Optional) function -  Takes a query as input and returns a concatenated text output
         of the top_n results"""
@@ -67,6 +66,8 @@ class LLM_INTERFACE:
         # run query
 
         query_results = Query(self.lib).semantic_query(query, result_count=top_n)
+
+        self.last_context = [s['text'].replace('\n','') for s in query_results]
 
         prompt_consolidator = ""
 
@@ -105,7 +106,34 @@ class LLM_INTERFACE:
         f.write(f"QUERY: {text} \n")
         f.close()
 
+
+    def retrieve_context(self, query):
+        query_results = Query(self.lib).semantic_query(query, result_count=self.settings_data['top_k'])
+        self.last_context = [s['text'].replace('\n','') for s in query_results]
+        return self.last_context
+
+
+    def set_top_k(self, top_k):
+        self.settings_data['top_k'] = top_k
+        self.set_pipeline()
+
+    def get_context_details(self):
+        return self.last_context
+
+    def reload_settings(self):
+        self.settings_data = settings_io.load_settings()
+
+
+    def translate(self, query):
+        tanslated = GoogleTranslator(source='auto', target='en').translate(query)
+        return tanslated
+
+
     def run_llm_response(self, query, history):
+
+
+        if self.settings_data['translate']:
+            query = self.translate(query)
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
@@ -117,7 +145,7 @@ class LLM_INTERFACE:
         if self.instruct is True:
             query = f'[INST]{query}[/INST]'
 
-        context = self.aggregate_text_by_query(self.library_name, query, top_n=self.top_k)
+        context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
 
         response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
 

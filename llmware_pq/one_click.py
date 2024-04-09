@@ -63,7 +63,7 @@ def run_cmd(cmd, assert_success=False, environment=False, capture_output=False, 
 
 
 def launch_webui():
-	run_cmd(f"python prompt_quill_ui_qdrant.py", environment=True)
+	run_cmd(f"python pq/prompt_quill_ui_qdrant.py", environment=True)
 
 
 # Install/update the project requirements
