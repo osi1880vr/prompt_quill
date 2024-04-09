@@ -60,23 +60,16 @@ class LLM_INTERFACE:
 
     def aggregate_text_by_query(self, query, top_n=5):
 
-        """ Third (Optional) function -  Takes a query as input and returns a concatenated text output
-        of the top_n results"""
-
         # run query
-
-        query_results = Query(self.lib).semantic_query(query, result_count=top_n)
+        query_results = self.query.semantic_query(query, result_count=top_n)
 
         self.last_context = [s['text'].replace('\n','') for s in query_results]
 
         prompt_consolidator = ""
-
         for j, results in enumerate(query_results):
-
             prompt_consolidator += results["text"] + "\n"
 
         return prompt_consolidator
-
 
 
     def set_pipeline(self):
@@ -100,6 +93,8 @@ class LLM_INTERFACE:
         self.prompter = self.prompter.set_inference_parameters(temperature=self.temperature,
                                                                llm_max_output_len=self.max_tokens)
 
+        self.query =  Query(self.lib)
+
 
     def log(self,logfile, text):
         f = open(logfile, 'a')
@@ -108,7 +103,7 @@ class LLM_INTERFACE:
 
 
     def retrieve_context(self, query):
-        query_results = Query(self.lib).semantic_query(query, result_count=self.settings_data['top_k'])
+        query_results = self.query.semantic_query(query, result_count=self.settings_data['top_k'])
         self.last_context = [s['text'].replace('\n','') for s in query_results]
         return self.last_context
 
@@ -164,13 +159,18 @@ class LLM_INTERFACE:
 
         self.last_prompt = response['llm_response'].lstrip(' ')
 
+        output = self.last_prompt
+
+        if self.settings_data['translate']:
+            output = f'Your prompt was translated to: {query}\n\n\n{output}'
+
         if self.settings_data['batch']:
             batch_result = self.run_batch_response(self.last_context)
-            self.last_prompt = f'Prompt 0:\n{self.last_prompt}\n\n\n{batch_result}'
+            output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
 
-        self.log('logfile.txt',f"RESPONSE: {self.last_prompt} \n-------------\n")
+        self.log('logfile.txt',f"RESPONSE: {output} \n-------------\n")
 
-        return self.last_prompt
+        return output
 
 
     def change_model(self, model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):

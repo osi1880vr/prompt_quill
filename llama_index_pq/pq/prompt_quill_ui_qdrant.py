@@ -278,6 +278,7 @@ with gr.Blocks(css=css) as pq_ui:
 
     with gr.Tab('Deep Dive') as deep_dive:
         top_k_slider = gr.Slider(1, max_top_k, value=settings_data['top_k'], step=1, label="How many entries to retrieve:")
+        search = gr.Textbox(f"",label=f'Context search')
         textboxes = []
         visible = True
         for i in range(max_top_k-1):
@@ -294,6 +295,7 @@ with gr.Blocks(css=css) as pq_ui:
 
         deep_dive.select(get_context_details,textboxes,textboxes)
         top_k_slider.change(variable_outputs, top_k_slider, textboxes)
+        search.change(dive_into, search, textboxes)
 
     with gr.Tab("Character") as Character:
         gr.on(

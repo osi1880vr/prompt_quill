@@ -185,6 +185,9 @@ class LLM_INTERFACE:
         output = response.response.lstrip(' ')
         self.last_prompt = output
 
+        if self.settings_data['translate']:
+            output = f'Your prompt was translated to: {query}\n\n\n{output}'
+
         if self.settings_data['batch']:
             batch_result = self.run_batch_response(self.last_context)
             output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
