@@ -259,8 +259,9 @@ with gr.Blocks(css=css) as pq_ui:
         gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
     with gr.Tab("Chat") as chat:
-        translate = gr.Checkbox(label="Translate", info="Translate your native language to english?", value=settings_data['translate'])
-        batch = gr.Checkbox(label="Batch", info="Run every entry from the context as a input prompt?", value=settings_data['batch'])
+        with gr.Row():
+            translate = gr.Checkbox(label="Translate", info="Translate your native language to english?", value=settings_data['translate'])
+            batch = gr.Checkbox(label="Batch", info="Run every entry from the context as a input prompt?", value=settings_data['batch'])
         gr.ChatInterface(
             interface.run_llm_response,
             chatbot=gr.Chatbot(height=500, render=False),
