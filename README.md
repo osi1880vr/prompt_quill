@@ -33,6 +33,7 @@ There is no hardcoded need to use Docker at all, I understand this scares a lot 
 * Deep Dive, this will allow you to see the context for your input prompt. when you click a line it will fetch the context as if that would be your input, also it sets the clicked one as the prompt for prompt generation.
 * Deep dive also allows for direct search, you can type into the search field and this will trigger lookups for your entered text.
 * batch mode, this will create a prompt for each result from the context as a input prompt. this will help to give you a more broad idea of what your input could get to. Be a little patient as it will take more time to generate.
+* Image generation via the API of auto1111 or forge
 
 
 # The best feature :)
