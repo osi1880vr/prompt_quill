@@ -31,7 +31,7 @@ default = {
     "automa_CFG Scale": 7,
     "automa_Width": 768,
     "automa_Height": 512,
-
+    "automa_url": "http://localhost:7860",
     'selected_template': 'prompt_template_b',
     'model_list': {
 

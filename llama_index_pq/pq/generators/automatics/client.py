@@ -15,11 +15,14 @@ out_dir = 'api_out'
 out_dir_t2i = os.path.join(out_dir, 'txt2img')
 out_dir_i2i = os.path.join(out_dir, 'img2img')
 os.makedirs(out_dir_t2i, exist_ok=True)
-os.makedirs(out_dir_i2i, exist_ok=True)
+#os.makedirs(out_dir_i2i, exist_ok=True)
 
 
 
 class automa_client:
+
+    def __init__(self):
+        self.webui_server_url = 'http://localhost:7860'
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
 
@@ -37,7 +40,7 @@ class automa_client:
     def call_api(self,api_endpoint, **payload):
         data = json.dumps(payload).encode('utf-8')
         request = urllib.request.Request(
-            f'{webui_server_url}/{api_endpoint}',
+            f'{self.webui_server_url}/{api_endpoint}',
             headers={'Content-Type': 'application/json'},
             data=data,
         )
@@ -49,9 +52,9 @@ class automa_client:
         response = self.call_api('sdapi/v1/txt2img', **payload)
         for index, image in enumerate(response.get('images')):
             img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            self.decode_and_save_base64(image, save_path)
             return img
-            #save_path = os.path.join(out_dir_t2i, f'txt2img-{timestamp()}-{index}.png')
-            #decode_and_save_base64(image, save_path)
 
 
     def call_img2img_api(self,**payload):
@@ -63,8 +66,9 @@ class automa_client:
 
 
     def request_generation(self,prompt, negative_prompt,
-                           sampler, steps, cfg, width, heigth):
+                           sampler, steps, cfg, width, heigth, url):
 
+        self.webui_server_url=url
 
         payload = {
             "prompt": prompt,  # extra networks also in prompts
