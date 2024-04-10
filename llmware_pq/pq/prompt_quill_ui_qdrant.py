@@ -19,6 +19,7 @@ import gradio as gr
 import os
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
+from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
 from settings import io
 
@@ -86,10 +87,29 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
     settings_data['horde_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
 
+def set_automa_settings(sampler, steps, cfg, width, heigth, url,save):
+    settings_data['automa_Sampler'] = sampler
+    settings_data['automa_Steps'] = steps
+    settings_data['automa_CFG Scale'] = cfg
+    settings_data['automa_Width'] = width
+    settings_data['automa_Height'] = heigth
+    settings_data['automa_url'] = url
+    settings_data['automa_save'] = save
+    settings_io.write_settings(settings_data)
 
 def set_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
     set_llm_settings(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
     return interface.change_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
+
+def all_get_last_prompt():
+    return interface.last_prompt, interface.last_negative_prompt, settings_data['civitai_Air'], settings_data[
+        'civitai_Steps'], settings_data['civitai_CFG Scale'], settings_data['civitai_Width'], settings_data[
+        'civitai_Height'], settings_data['civitai_Clipskip'], interface.last_prompt, interface.last_negative_prompt, \
+        settings_data['horde_api_key'], settings_data['horde_Model'], settings_data['horde_Sampler'], settings_data[
+        'horde_Steps'], settings_data['horde_CFG Scale'], settings_data['horde_Width'], settings_data['horde_Height'], \
+        settings_data['horde_Clipskip'], interface.last_prompt, interface.last_negative_prompt, settings_data[
+        'automa_Sampler'], settings_data['automa_Steps'], settings_data['automa_CFG Scale'], settings_data[
+        'automa_Width'], settings_data['automa_Height'], settings_data['automa_url'], settings_data['automa_save']
 
 
 def civitai_get_last_prompt():
@@ -102,6 +122,11 @@ def hordeai_get_last_prompt():
     return interface.last_prompt, interface.last_negative_prompt, settings_data['horde_api_key'], settings_data[
         'horde_Model'], settings_data['horde_Sampler'], settings_data['horde_Steps'], settings_data['horde_CFG Scale'], \
     settings_data['horde_Width'], settings_data['horde_Height'], settings_data['horde_Clipskip']
+
+def automa_get_last_prompt():
+    return interface.last_prompt, interface.last_negative_prompt, settings_data['automa_Sampler'], settings_data[
+        'automa_Steps'], settings_data['automa_CFG Scale'], settings_data['automa_Width'], settings_data[
+        'automa_Height'], settings_data['automa_url'], settings_data['automa_save']
 
 
 def run_civitai_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
@@ -116,6 +141,11 @@ def run_hordeai_generation(api_key, prompt, negative_prompt, model, sampler, ste
     return client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
                                      sampler=sampler, model=model, steps=steps, cfg=cfg, width=width, heigth=heigth,
                                      clipskip=clipskip)
+def run_automatics_generation(prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
+    set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
+    client = automa_client()
+    return client.request_generation( prompt=prompt, negative_prompt=negative_prompt,
+                                      sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url, save=save)
 
 
 def get_last_prompt():
@@ -167,6 +197,9 @@ civitai_prompt_input = gr.TextArea(interface.last_prompt, lines=10, label="Promp
 civitai_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, lines=5, label="Negative Prompt")
 hordeai_prompt_input = gr.TextArea(interface.last_prompt, lines=10, label="Prompt")
 hordeai_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, lines=5, label="Negative Prompt")
+automa_prompt_input = gr.TextArea(interface.last_prompt, lines=10, label="Prompt")
+automa_negative_prompt_input = gr.TextArea(interface.last_negative_prompt, lines=5, label="Negative Prompt")
+
 
 LLM = gr.Dropdown(
     settings_data['model_list'].keys(), value=settings_data['LLM Model'], label="LLM Model",
@@ -198,22 +231,44 @@ civitai_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['civitai_Clipski
                              info="Choose between 1 and 10")
 
 horde_api_key = gr.TextArea(lines=1, label="API Key", value=settings_data['horde_api_key'], type='password')
-hordeai_Model = gr.Dropdown(choices=hordeai_model_list.keys(), value='Deliberate 3.0', label='Model')
-hordeai_Sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
+horde_Model = gr.Dropdown(choices=hordeai_model_list.keys(), value='Deliberate 3.0', label='Model')
+horde_Sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
                                        "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
                                        "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
-                                       ], value=settings_data['horde_Sampler'], label='Sampler')
+                                     ], value=settings_data['horde_Sampler'], label='Sampler')
 
-hordeai_Steps = gr.Slider(0, 100, step=1, value=settings_data['horde_Steps'], label="Steps",
-                          info="Choose between 1 and 100")
-hordeai_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['horde_CFG Scale'], label="CFG Scale",
-                        info="Choose between 1 and 20")
-hordeai_Width = gr.Slider(0, 1024, step=1, value=settings_data['horde_Width'], label="Width",
-                          info="Choose between 1 and 1024")
-hordeai_Height = gr.Slider(0, 1024, step=1, value=settings_data['horde_Height'], label="Height",
-                           info="Choose between 1 and 1024")
-hordeai_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['horde_Clipskip'], label="Clipskip",
-                             info="Choose between 1 and 10")
+horde_Steps = gr.Slider(0, 100, step=1, value=settings_data['horde_Steps'], label="Steps",
+                        info="Choose between 1 and 100")
+horde_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['horde_CFG Scale'], label="CFG Scale",
+                      info="Choose between 1 and 20")
+horde_Width = gr.Slider(0, 1024, step=1, value=settings_data['horde_Width'], label="Width",
+                        info="Choose between 1 and 1024")
+horde_Height = gr.Slider(0, 1024, step=1, value=settings_data['horde_Height'], label="Height",
+                         info="Choose between 1 and 1024")
+horde_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['horde_Clipskip'], label="Clipskip",
+                           info="Choose between 1 and 10")
+
+automa_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
+automa_Sampler = gr.Dropdown(
+    choices=['DPM++ 2M Karras', 'DPM++ SDE Karras', 'DPM++ 2M SDE Exponential', 'DPM++ 2M SDE Karras', 'Euler a',
+             'Euler',
+             'LMS', 'Heun', 'DPM2', 'DPM2 a', 'DPM++ 2S a',
+             'DPM++ 2M', 'DPM++ SDE', 'DPM++ 2M SDE', 'DPM++ 2M SDE Heun', 'DPM++ 2M SDE Heun Karras',
+             'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential',
+             'DPM fast',
+             'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras'
+             ], value=settings_data['automa_Sampler'], label='Sampler')
+automa_Steps = gr.Slider(0, 100, step=1, value=settings_data['automa_Steps'], label="Steps",
+                         info="Choose between 1 and 100")
+automa_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['automa_CFG Scale'], label="CFG Scale",
+                       info="Choose between 1 and 20")
+automa_Width = gr.Slider(0, 2048, step=1, value=settings_data['automa_Width'], label="Width",
+                         info="Choose between 1 and 2048")
+automa_Height = gr.Slider(0, 2048, step=1, value=settings_data['automa_Height'], label="Height",
+                          info="Choose between 1 and 2048")
+automa_save = gr.Checkbox(label="Save", info="Save the image?", value=settings_data['automa_save'])
+
+
 
 prompt_template = gr.TextArea(settings_data["prompt_templates"][settings_data["selected_template"]]["blurb1"], lines=20)
 prompt_template_select = gr.Dropdown(choices=settings_data["prompt_templates"].keys(),
@@ -375,7 +430,7 @@ with gr.Blocks(css=css) as pq_ui:
     with gr.Tab("Generator") as generator:
         gr.on(
             triggers=[generator.select],
-            fn=civitai_get_last_prompt,
+            fn=all_get_last_prompt,
             inputs=None,
             outputs=[civitai_prompt_input,
                      civitai_negative_prompt_input,
@@ -384,7 +439,25 @@ with gr.Blocks(css=css) as pq_ui:
                      civitai_CFG,
                      civitai_Width,
                      civitai_Height,
-                     civitai_Clipskip
+                     civitai_Clipskip,
+                     hordeai_prompt_input,
+                     hordeai_negative_prompt_input,
+                     horde_api_key,
+                     horde_Model,
+                     horde_Sampler,
+                     horde_Steps,
+                     horde_CFG,
+                     horde_Width,
+                     horde_Height,
+                     horde_Clipskip,
+                     automa_prompt_input,
+                     automa_negative_prompt_input,
+                     automa_Sampler,
+                     automa_Steps,
+                     automa_CFG,
+                     automa_Width,
+                     automa_Height,
+                     automa_url
                      ]
         )
         with gr.Tab("Civitai") as civitai:
@@ -414,13 +487,13 @@ with gr.Blocks(css=css) as pq_ui:
                 outputs=[hordeai_prompt_input,
                          hordeai_negative_prompt_input,
                          horde_api_key,
-                         hordeai_Model,
-                         hordeai_Sampler,
-                         hordeai_Steps,
-                         hordeai_CFG,
-                         hordeai_Width,
-                         hordeai_Height,
-                         hordeai_Clipskip]
+                         horde_Model,
+                         horde_Sampler,
+                         horde_Steps,
+                         horde_CFG,
+                         horde_Width,
+                         horde_Height,
+                         horde_Clipskip]
             )
             gr.Interface(
                 run_hordeai_generation,
@@ -428,18 +501,50 @@ with gr.Blocks(css=css) as pq_ui:
                     horde_api_key,
                     hordeai_prompt_input,
                     hordeai_negative_prompt_input,
-                    hordeai_Model,
-                    hordeai_Sampler,
-                    hordeai_Steps,
-                    hordeai_CFG,
-                    hordeai_Width,
-                    hordeai_Height,
-                    hordeai_Clipskip
+                    horde_Model,
+                    horde_Sampler,
+                    horde_Steps,
+                    horde_CFG,
+                    horde_Width,
+                    horde_Height,
+                    horde_Clipskip
                 ]
                 , outputs=gr.Image(label="Generated Image"),  # "text",
                 allow_flagging='never',
                 flagging_options=None,
                 # live=True
             )
+        with gr.Tab("Automatic 1111 / Forge") as automatic1111:
+            gr.on(
+                triggers=[automatic1111.select],
+                fn=automa_get_last_prompt,
+                inputs=None,
+                outputs=[automa_prompt_input,
+                         automa_negative_prompt_input,
+                         automa_Sampler,
+                         automa_Steps,
+                         automa_CFG,
+                         automa_Width,
+                         automa_Height,
+                         automa_url,
+                         automa_save]
+            )
+            gr.Interface(
+                run_automatics_generation,
+                [automa_prompt_input,
+                 automa_negative_prompt_input,
+                 automa_Sampler,
+                 automa_Steps,
+                 automa_CFG,
+                 automa_Width,
+                 automa_Height,
+                 automa_url,
+                 automa_save]
+                , outputs=gr.Image(label="Generated Image"),  # "text",
+                allow_flagging='never',
+                flagging_options=None,
+                # live=True
+            )
+
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True
