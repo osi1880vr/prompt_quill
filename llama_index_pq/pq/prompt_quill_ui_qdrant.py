@@ -184,10 +184,10 @@ civitai_Steps = gr.Slider(0, 100, step=1, value=settings_data['civitai_Steps'], 
                           info="Choose between 1 and 100")
 civitai_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['civitai_CFG Scale'], label="CFG Scale",
                         info="Choose between 1 and 20")
-civitai_Width = gr.Slider(0, 1024, step=1, value=settings_data['civitai_Width'], label="Width",
-                          info="Choose between 1 and 1024")
-civitai_Height = gr.Slider(0, 1024, step=1, value=settings_data['civitai_Height'], label="Height",
-                           info="Choose between 1 and 1024")
+civitai_Width = gr.Slider(0, 2048, step=1, value=settings_data['civitai_Width'], label="Width",
+                          info="Choose between 1 and 2048")
+civitai_Height = gr.Slider(0, 2048, step=1, value=settings_data['civitai_Height'], label="Height",
+                           info="Choose between 1 and 2048")
 civitai_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['civitai_Clipskip'], label="Clipskip",
                              info="Choose between 1 and 10")
 
@@ -203,10 +203,10 @@ horde_Steps = gr.Slider(0, 100, step=1, value=settings_data['horde_Steps'], labe
                         info="Choose between 1 and 100")
 horde_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['horde_CFG Scale'], label="CFG Scale",
                       info="Choose between 1 and 20")
-horde_Width = gr.Slider(0, 1024, step=1, value=settings_data['horde_Width'], label="Width",
-                        info="Choose between 1 and 1024")
-horde_Height = gr.Slider(0, 1024, step=1, value=settings_data['horde_Height'], label="Height",
-                         info="Choose between 1 and 1024")
+horde_Width = gr.Slider(0, 2048, step=1, value=settings_data['horde_Width'], label="Width",
+                        info="Choose between 1 and 2048")
+horde_Height = gr.Slider(0, 2048, step=1, value=settings_data['horde_Height'], label="Height",
+                         info="Choose between 1 and 2048")
 horde_Clipskip = gr.Slider(0, 10, step=1, value=settings_data['horde_Clipskip'], label="Clipskip",
                            info="Choose between 1 and 10")
 
@@ -221,10 +221,10 @@ automa_Steps = gr.Slider(0, 100, step=1, value=settings_data['automa_Steps'], la
                         info="Choose between 1 and 100")
 automa_CFG = gr.Slider(0, 20, step=0.1, value=settings_data['automa_CFG Scale'], label="CFG Scale",
                       info="Choose between 1 and 20")
-automa_Width = gr.Slider(0, 1024, step=1, value=settings_data['automa_Width'], label="Width",
-                        info="Choose between 1 and 1024")
-automa_Height = gr.Slider(0, 1024, step=1, value=settings_data['automa_Height'], label="Height",
-                         info="Choose between 1 and 1024")
+automa_Width = gr.Slider(0, 2048, step=1, value=settings_data['automa_Width'], label="Width",
+                        info="Choose between 1 and 2048")
+automa_Height = gr.Slider(0, 2048, step=1, value=settings_data['automa_Height'], label="Height",
+                         info="Choose between 1 and 2048")
 
 
 
