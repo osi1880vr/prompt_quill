@@ -77,13 +77,14 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
     settings_data['horde_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
 
-def set_automa_settings(sampler, steps, cfg, width, heigth, url):
+def set_automa_settings(sampler, steps, cfg, width, heigth, url,save):
     settings_data['automa_Sampler'] = sampler
     settings_data['automa_Steps'] = steps
     settings_data['automa_CFG Scale'] = cfg
     settings_data['automa_Width'] = width
     settings_data['automa_Height'] = heigth
     settings_data['automa_url'] = url
+    settings_data['automa_save'] = save
     settings_io.write_settings(settings_data)
 def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
     set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
@@ -91,13 +92,13 @@ def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instru
     return interface.change_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
 
 def all_get_last_prompt():
-    return interface.last_prompt,interface.last_negative_prompt,settings_data['civitai_Air'],settings_data['civitai_Steps'],settings_data['civitai_CFG Scale'],settings_data['civitai_Width'],settings_data['civitai_Height'],settings_data['civitai_Clipskip'],interface.last_prompt,interface.last_negative_prompt,settings_data['horde_api_key'],settings_data['horde_Model'],settings_data['horde_Sampler'],settings_data['horde_Steps'],settings_data['horde_CFG Scale'],settings_data['horde_Width'],settings_data['horde_Height'],settings_data['horde_Clipskip'],interface.last_prompt,interface.last_negative_prompt,settings_data['automa_Sampler'],settings_data['automa_Steps'],settings_data['automa_CFG Scale'],settings_data['automa_Width'],settings_data['automa_Height'],settings_data['automa_url']
+    return interface.last_prompt,interface.last_negative_prompt,settings_data['civitai_Air'],settings_data['civitai_Steps'],settings_data['civitai_CFG Scale'],settings_data['civitai_Width'],settings_data['civitai_Height'],settings_data['civitai_Clipskip'],interface.last_prompt,interface.last_negative_prompt,settings_data['horde_api_key'],settings_data['horde_Model'],settings_data['horde_Sampler'],settings_data['horde_Steps'],settings_data['horde_CFG Scale'],settings_data['horde_Width'],settings_data['horde_Height'],settings_data['horde_Clipskip'],interface.last_prompt,interface.last_negative_prompt,settings_data['automa_Sampler'],settings_data['automa_Steps'],settings_data['automa_CFG Scale'],settings_data['automa_Width'],settings_data['automa_Height'],settings_data['automa_url'],settings_data['automa_save']
 def civitai_get_last_prompt():
     return interface.last_prompt,interface.last_negative_prompt,settings_data['civitai_Air'],settings_data['civitai_Steps'],settings_data['civitai_CFG Scale'],settings_data['civitai_Width'],settings_data['civitai_Height'],settings_data['civitai_Clipskip']
 def hordeai_get_last_prompt():
     return interface.last_prompt,interface.last_negative_prompt,settings_data['horde_api_key'],settings_data['horde_Model'],settings_data['horde_Sampler'],settings_data['horde_Steps'],settings_data['horde_CFG Scale'],settings_data['horde_Width'],settings_data['horde_Height'],settings_data['horde_Clipskip']
 def automa_get_last_prompt():
-    return interface.last_prompt,interface.last_negative_prompt,settings_data['automa_Sampler'],settings_data['automa_Steps'],settings_data['automa_CFG Scale'],settings_data['automa_Width'],settings_data['automa_Height'],settings_data['automa_url']
+    return interface.last_prompt,interface.last_negative_prompt,settings_data['automa_Sampler'],settings_data['automa_Steps'],settings_data['automa_CFG Scale'],settings_data['automa_Width'],settings_data['automa_Height'],settings_data['automa_url'],settings_data['automa_save']
 
 def llm_get_settings():
     return  settings_data["LLM Model"] ,settings_data['Temperature'] ,settings_data['Context Length'],settings_data['GPU Layers'],settings_data['max output Tokens'],settings_data['top_k'],settings_data['Instruct Model']
@@ -130,11 +131,11 @@ def run_hordeai_generation(prompt, negative_prompt, api_key, model, sampler, ste
     return client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
                                      sampler=sampler, model=model, steps=steps, cfg=cfg, width=width, heigth=heigth,
                                      clipskip=clipskip)
-def run_automatics_generation(prompt, negative_prompt, sampler, steps, cfg, width, heigth, url):
-    set_automa_settings(sampler, steps, cfg, width, heigth, url)
+def run_automatics_generation(prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
+    set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
     client = automa_client()
     return client.request_generation( prompt=prompt, negative_prompt=negative_prompt,
-                                     sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url)
+                                     sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url, save=save)
 
 def run_llm_response(query, history):
     return_data = interface.run_llm_response(query, history)
@@ -227,7 +228,7 @@ automa_Width = gr.Slider(0, 2048, step=1, value=settings_data['automa_Width'], l
                         info="Choose between 1 and 2048")
 automa_Height = gr.Slider(0, 2048, step=1, value=settings_data['automa_Height'], label="Height",
                          info="Choose between 1 and 2048")
-
+automa_save = gr.Checkbox(label="Save", info="Save the image?", value=settings_data['automa_save'])
 
 
 
@@ -487,7 +488,8 @@ with gr.Blocks(css=css) as pq_ui:
                          automa_CFG,
                          automa_Width,
                          automa_Height,
-                         automa_url]
+                         automa_url,
+                         automa_save]
             )
             gr.Interface(
                 run_automatics_generation,
@@ -498,7 +500,8 @@ with gr.Blocks(css=css) as pq_ui:
                         automa_CFG,
                         automa_Width,
                         automa_Height,
-                        automa_url]
+                        automa_url,
+                        automa_save]
                 , outputs=gr.Image(label="Generated Image"),  # "text",
                 allow_flagging='never',
                 flagging_options=None,

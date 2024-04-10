@@ -52,8 +52,9 @@ class automa_client:
         response = self.call_api('sdapi/v1/txt2img', **payload)
         for index, image in enumerate(response.get('images')):
             img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-            self.decode_and_save_base64(image, save_path)
+            if self.save:
+                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                self.decode_and_save_base64(image, save_path)
             return img
 
 
@@ -66,9 +67,10 @@ class automa_client:
 
 
     def request_generation(self,prompt, negative_prompt,
-                           sampler, steps, cfg, width, heigth, url):
+                           sampler, steps, cfg, width, heigth, url, save):
 
         self.webui_server_url=url
+        self.save = save
 
         payload = {
             "prompt": prompt,  # extra networks also in prompts
