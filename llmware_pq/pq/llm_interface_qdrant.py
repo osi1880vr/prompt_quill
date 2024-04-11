@@ -136,6 +136,23 @@ class LLM_INTERFACE:
 
         return output
 
+    def run_llm_response_batch(self, query):
+
+        if self.settings_data['translate']:
+            query = self.translate(query)
+
+        if self.instruct is True:
+            query = f'[INST]{query}[/INST]'
+
+        context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
+
+        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
+
+
+        output = response['llm_response'].lstrip(' ')
+        output = output.replace('\n','')
+
+        return output
 
     def run_llm_response(self, query, history):
 
