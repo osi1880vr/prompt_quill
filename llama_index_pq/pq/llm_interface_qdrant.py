@@ -165,6 +165,24 @@ class LLM_INTERFACE:
 
         return output
 
+
+
+    def run_llm_response_batch(self, query):
+
+        if self.settings_data['translate']:
+            query = self.translate(query)
+
+        if self.instruct is True:
+            query = f'[INST]{query}[/INST]'
+
+        response = self.query_engine.query(query)
+
+        output = response.response.lstrip(' ')
+        output = output.replace('\n','')
+
+        return output
+
+
     def run_llm_response(self, query, history):
 
         if self.settings_data['translate']:

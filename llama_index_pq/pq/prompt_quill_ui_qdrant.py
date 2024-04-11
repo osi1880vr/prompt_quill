@@ -38,6 +38,11 @@ settings_data = settings_io.load_settings()
 max_top_k = 50
 
 
+out_dir = 'api_out'
+out_dir_t2t = os.path.join(out_dir, 'txt2txt')
+os.makedirs(out_dir_t2t, exist_ok=True)
+
+
 class local_mem:
     def __init__(self):
         self.context_prompt = ''
@@ -317,6 +322,22 @@ def set_batch(batch):
     settings_io.write_settings(settings_data)
     interface.reload_settings()
 
+def run_batch(files):
+    for file in files:
+        filename = os.path.basename(file)
+        file_content = []
+        f = open(file,'r',encoding='utf8',errors='ignore')
+        file_content = f.readlines()
+        f.close()
+
+        outfile = os.path.join(out_dir_t2t,filename)
+        f = open(outfile,'a',encoding='utf8',errors='ignore')
+        for query in file_content:
+            response= interface.run_llm_response_batch(query)
+            f.write(f'{response}\n')
+        f.close()
+    return 'done'
+
 
 with gr.Blocks(css=css) as pq_ui:
     with gr.Row():
@@ -367,6 +388,15 @@ with gr.Blocks(css=css) as pq_ui:
         deep_dive.select(get_context_details, textboxes, textboxes)
         top_k_slider.change(variable_outputs, top_k_slider, textboxes)
         search.change(dive_into, search, textboxes)
+
+    with gr.Tab("File2File") as batch_run:
+        input_file = gr.Files()
+        finish = gr.Textbox(f"", label=f'Wait for its done')
+
+        file_submit_button = gr.Button('Run Batch')
+
+        file_submit_button.click(run_batch,input_file,finish)
+
 
     with gr.Tab("Character") as Character:
         gr.on(
