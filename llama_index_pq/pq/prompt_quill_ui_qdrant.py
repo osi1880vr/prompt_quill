@@ -60,6 +60,7 @@ def set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k,
     settings_data['top_k'] = top_k
     settings_data['Instruct Model'] = instruct
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_civitai_settings(air, steps, cfg, width, heigth, clipskip):
@@ -70,6 +71,7 @@ def set_civitai_settings(air, steps, cfg, width, heigth, clipskip):
     settings_data['civitai_Height'] = heigth
     settings_data['civitai_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip):
@@ -82,6 +84,7 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
     settings_data['horde_Height'] = heigth
     settings_data['horde_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_automa_settings(sampler, steps, cfg, width, heigth, url, save):
@@ -93,6 +96,7 @@ def set_automa_settings(sampler, steps, cfg, width, heigth, url, save):
     settings_data['automa_url'] = url
     settings_data['automa_save'] = save
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
@@ -143,13 +147,19 @@ def get_prompt_template():
 def set_prompt_template_select(value):
     settings_data['selected_template'] = value
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
     return settings_data["prompt_templates"][value]
 
+def set_neg_prompt(value):
+    settings_data['negative_prompt'] = value
+    settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 def set_prompt_template(selection, prompt_text):
     return_data = interface.set_prompt(prompt_text)
     settings_data["prompt_templates"][selection] = prompt_text
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
     return return_data
 
 
@@ -615,6 +625,14 @@ with gr.Blocks(css=css) as pq_ui:
                     interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
                 button_interrogate.click(run_automa_interrogation_batch,[input_image_gallery,interrogate_url,save],output_interrogation)
+
+    with gr.Tab("Default") as defaults:
+        with gr.Tab('Negative Prompt') as negative_prompt:
+            neg_prompt_text = gr.Textbox(settings_data['negative_prompt'], label=f'Default Negative Prompt')
+            np_submit_button = gr.Button('Save Negative Prompt')
+
+            np_submit_button.click(set_neg_prompt,neg_prompt_text,None)
+
 
 
 

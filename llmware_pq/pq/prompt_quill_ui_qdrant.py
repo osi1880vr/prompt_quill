@@ -72,6 +72,7 @@ def set_llm_settings(model, temperature, n_ctx, max_tokens, gpu_layer, top_k, in
     settings_data['Context Length'] = n_ctx
     settings_data['GPU Layers'] = n_ctx
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_civitai_settings(air, steps, cfg, width, heigth, clipskip):
@@ -82,6 +83,7 @@ def set_civitai_settings(air, steps, cfg, width, heigth, clipskip):
     settings_data['civitai_Height'] = heigth
     settings_data['civitai_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 
 def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip):
@@ -94,6 +96,7 @@ def set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, cli
     settings_data['horde_Height'] = heigth
     settings_data['horde_Clipskip'] = clipskip
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
 
 def set_automa_settings(sampler, steps, cfg, width, heigth, url,save):
     settings_data['automa_Sampler'] = sampler
@@ -104,6 +107,13 @@ def set_automa_settings(sampler, steps, cfg, width, heigth, url,save):
     settings_data['automa_url'] = url
     settings_data['automa_save'] = save
     settings_io.write_settings(settings_data)
+    interface.reload_settings()
+
+def set_neg_prompt(value):
+    settings_data['negative_prompt'] = value
+    settings_io.write_settings(settings_data)
+    interface.reload_settings()
+
 
 def set_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
     set_llm_settings(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
@@ -625,6 +635,17 @@ with gr.Blocks(css=css) as pq_ui:
                     interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
                 button_interrogate.click(run_automa_interrogation_batch,[input_image_gallery,interrogate_url,save],output_interrogation)
+
+
+    with gr.Tab("Default") as defaults:
+        with gr.Tab('Negative Prompt') as negative_prompt:
+            neg_prompt_text = gr.Textbox(settings_data['negative_prompt'], label=f'Default Negative Prompt')
+            np_submit_button = gr.Button('Save Negative Prompt')
+
+            np_submit_button.click(set_neg_prompt,neg_prompt_text,None)
+
+
+
 
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True
