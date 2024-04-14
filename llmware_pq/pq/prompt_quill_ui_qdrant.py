@@ -583,9 +583,9 @@ with gr.Blocks(css=css) as pq_ui:
             with gr.Tab('Interrogate') as interrogate:
                 input_image = gr.Image()
                 output_interrogation = gr.Textbox()
-                automa_url
+                interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
-                button_interrogate.click(run_automa_interrogation,[input_image,automa_url],output_interrogation)
+                button_interrogate.click(run_automa_interrogation,[input_image,interrogate_url],output_interrogation)
 
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True
