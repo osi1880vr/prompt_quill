@@ -26,7 +26,8 @@ import gc
 import os
 
 settings_io = io.settings_io()
-
+out_dir = 'api_out'
+out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 
 
 
@@ -196,7 +197,7 @@ class LLM_INTERFACE:
         response = self.query_engine.query(query)
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n-------------\n")
-
+        self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f"{response.response}\n")
 
         self.last_context = [s.node.get_text() for s in response.source_nodes]
 
