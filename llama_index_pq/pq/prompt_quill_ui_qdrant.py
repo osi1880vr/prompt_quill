@@ -173,11 +173,11 @@ def run_automatics_generation(prompt, negative_prompt, sampler, steps, cfg, widt
                                      sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
                                      save=save)
 
-def run_automa_interrogation(image_filename):
+def run_automa_interrogation(image_filename,url):
     with open(image_filename, mode='rb') as fp:
         base64_image = base64.b64encode(fp.read()).decode('utf-8')
     client = automa_client()
-    return client.request_interrogation(base64_image)
+    return client.request_interrogation(base64_image,url)
 
 
 def run_llm_response(query, history):
@@ -581,8 +581,9 @@ with gr.Blocks(css=css) as pq_ui:
             with gr.Tab('Interrogate') as interrogate:
                 input_image = gr.Image(type='filepath')
                 output_interrogation = gr.Textbox()
+                automa_url
                 button_interrogate = gr.Button('Interrogate')
-                button_interrogate.click(run_automa_interrogation,input_image,output_interrogation)
+                button_interrogate.click(run_automa_interrogation,[input_image,automa_url],output_interrogation)
 
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True

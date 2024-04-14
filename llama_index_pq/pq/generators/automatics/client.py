@@ -96,8 +96,8 @@ class automa_client:
 
 
 
-    def request_interrogation(self, image):
-        self.webui_server_url='http://192.168.0.127:7860'
+    def request_interrogation(self, image,url):
+        self.webui_server_url=url
         payload = {
             "image": image,
             "model": "clip"
