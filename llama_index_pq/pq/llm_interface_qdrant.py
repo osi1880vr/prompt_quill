@@ -162,6 +162,7 @@ class LLM_INTERFACE:
             if query != '':
                 response = self.query_engine.query(query)
                 output = f'{output}\n\n\nPrompt {str(n)}:\n{response.response.lstrip(" ")}'
+                self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response.response.lstrip(" ")}\n')
                 n += 1
 
         return output
@@ -197,7 +198,7 @@ class LLM_INTERFACE:
         response = self.query_engine.query(query)
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n-------------\n")
-        self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f"{response.response}\n")
+        self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response.response.lstrip(" ")}\n')
 
         self.last_context = [s.node.get_text() for s in response.source_nodes]
 
