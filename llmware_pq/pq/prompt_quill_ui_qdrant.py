@@ -55,6 +55,9 @@ max_top_k = 50
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 os.makedirs(out_dir_t2t, exist_ok=True)
+out_dir_i2t = os.path.join(out_dir, 'img2txt')
+os.makedirs(out_dir_i2t, exist_ok=True)
+
 
 class local_mem:
     def __init__(self):
@@ -160,6 +163,32 @@ def run_automa_interrogation(image_filename,url):
     response = client.request_interrogation(base64_image,url)
     local_globals.context_prompt = response
     return response
+
+
+def run_automa_interrogation_batch(image_filenames,url, save):
+
+    all_response = ''
+
+    for file in image_filenames:
+        response = run_automa_interrogation(file[0],url)
+        if all_response == '':
+            all_response = response
+        else:
+            all_response = f'{all_response}\n{response}'
+
+    if save:
+        import time
+        filename = f'{time.strftime("%Y%m%d-%H%M%S")}.txt'
+        outfile = os.path.join(out_dir_i2t,filename)
+        f = open(outfile,'a',encoding='utf8',errors='ignore')
+        f.write(f'{all_response}\n')
+        f.close()
+
+    return all_response
+
+
+
+
 
 def get_last_prompt():
     return interface.last_prompt, interface.last_negative_prompt
@@ -588,6 +617,14 @@ with gr.Blocks(css=css) as pq_ui:
                 interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
                 button_interrogate.click(run_automa_interrogation,[input_image,interrogate_url],output_interrogation)
+            with gr.Tab('Interrogate Batch') as interrogate_batch:
+                input_image_gallery = gr.Gallery()
+                output_interrogation = gr.Textbox()
+                with gr.Row():
+                    save = gr.Checkbox(label="Save to File", info="Save the whole to a file?",value=True)
+                    interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
+                button_interrogate = gr.Button('Interrogate')
+                button_interrogate.click(run_automa_interrogation_batch,[input_image_gallery,interrogate_url,save],output_interrogation)
 
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True
