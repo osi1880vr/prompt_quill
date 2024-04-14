@@ -177,7 +177,9 @@ def run_automa_interrogation(image_filename,url):
     with open(image_filename, mode='rb') as fp:
         base64_image = base64.b64encode(fp.read()).decode('utf-8')
     client = automa_client()
-    return client.request_interrogation(base64_image,url)
+    response = client.request_interrogation(base64_image,url)
+    local_globals.context_prompt = response
+    return response
 
 
 def run_llm_response(query, history):
