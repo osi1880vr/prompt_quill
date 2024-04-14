@@ -22,6 +22,7 @@ from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
 from settings import io
+import base64
 
 settings_io = io.settings_io()
 settings_data = settings_io.load_settings()
@@ -151,6 +152,12 @@ def run_automatics_generation(prompt, negative_prompt, sampler, steps, cfg, widt
     return client.request_generation( prompt=prompt, negative_prompt=negative_prompt,
                                       sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url, save=save)
 
+
+def run_automa_interrogation(image_filename):
+    with open(image_filename, mode='rb') as fp:
+        base64_image = base64.b64encode(fp.read()).decode('utf-8')
+    client = automa_client()
+    return client.request_interrogation(base64_image)
 
 def get_last_prompt():
     return interface.last_prompt, interface.last_negative_prompt
@@ -542,36 +549,42 @@ with gr.Blocks(css=css) as pq_ui:
                 # live=True
             )
         with gr.Tab("Automatic 1111 / Forge") as automatic1111:
-            gr.on(
-                triggers=[automatic1111.select],
-                fn=automa_get_last_prompt,
-                inputs=None,
-                outputs=[automa_prompt_input,
-                         automa_negative_prompt_input,
-                         automa_Sampler,
-                         automa_Steps,
-                         automa_CFG,
-                         automa_Width,
-                         automa_Height,
-                         automa_url,
-                         automa_save]
-            )
-            gr.Interface(
-                run_automatics_generation,
-                [automa_prompt_input,
-                 automa_negative_prompt_input,
-                 automa_Sampler,
-                 automa_Steps,
-                 automa_CFG,
-                 automa_Width,
-                 automa_Height,
-                 automa_url,
-                 automa_save]
-                , outputs=gr.Image(label="Generated Image"),  # "text",
-                allow_flagging='never',
-                flagging_options=None,
-                # live=True
-            )
+            with gr.Tab('Generate') as generate:
+                gr.on(
+                    triggers=[automatic1111.select,generate.select],
+                    fn=automa_get_last_prompt,
+                    inputs=None,
+                    outputs=[automa_prompt_input,
+                             automa_negative_prompt_input,
+                             automa_Sampler,
+                             automa_Steps,
+                             automa_CFG,
+                             automa_Width,
+                             automa_Height,
+                             automa_url,
+                             automa_save]
+                )
+                gr.Interface(
+                    run_automatics_generation,
+                    [automa_prompt_input,
+                     automa_negative_prompt_input,
+                     automa_Sampler,
+                     automa_Steps,
+                     automa_CFG,
+                     automa_Width,
+                     automa_Height,
+                     automa_url,
+                     automa_save]
+                    , outputs=gr.Image(label="Generated Image"),  # "text",
+                    allow_flagging='never',
+                    flagging_options=None,
+                    # live=True
+                )
+            with gr.Tab('Interrogate') as interrogate:
+                input_image = gr.Image()
+                output_interrogation = gr.Textbox()
+                button_interrogate = gr.Button('Interrogate')
+                button_interrogate.click(run_automa_interrogation,input_image,output_interrogation)
 
 if __name__ == "__main__":
     pq_ui.launch(inbrowser=True)  # share=True

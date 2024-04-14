@@ -44,9 +44,12 @@ class automa_client:
             headers={'Content-Type': 'application/json'},
             data=data,
         )
-        response = urllib.request.urlopen(request)
-        return json.loads(response.read().decode('utf-8'))
-
+        try:
+            response = urllib.request.urlopen(request)
+            return json.loads(response.read().decode('utf-8'))
+        except Exception as e:
+            print(e)
+            return ''
 
     def call_txt2img_api(self,**payload):
         response = self.call_api('sdapi/v1/txt2img', **payload)
@@ -64,6 +67,10 @@ class automa_client:
             save_path = os.path.join(out_dir_i2i, f'img2img-{self.timestamp()}-{index}.png')
             self.decode_and_save_base64(image, save_path)
 
+
+    def call_interrogation_api(self,**payload):
+        response = self.call_api('sdapi/v1/interrogate', **payload)
+        return response['caption']
 
 
     def request_generation(self,prompt, negative_prompt,
@@ -89,9 +96,13 @@ class automa_client:
 
 
 
-
-
-
+    def request_interrogation(self, image):
+        self.webui_server_url='http://192.168.0.127:7860'
+        payload = {
+            "image": image,
+            "model": "clip"
+        }
+        return self.call_interrogation_api(**payload)
 
 
 
