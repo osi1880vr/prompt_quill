@@ -200,17 +200,21 @@ class LLM_INTERFACE:
             return  target_dict[max(target_dict.keys())]
 
 
-    def run_t2t_sail(self,query,sail_width,sail_target):
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target):
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
+        sail_retriever = self.vector_index.as_retriever(similarity_top_k=sail_depth)
         if self.settings_data['translate']:
             query = self.translate(query)
 
         for n in range(sail_width):
             response = self.query_engine.query(query)
             self.log_raw(filename,f'{response.response.lstrip(" ")}')
+            self.log_raw(filename,f'----------')
             sail_log = sail_log + f'{response.response.lstrip(" ")}\n'
-            query = self.get_next_target(response.source_nodes,sail_target)
+            sail_log = sail_log + f'----------\n'
+            nodes = sail_retriever.retrieve(query)
+            query = self.get_next_target(nodes,sail_target)
 
         return sail_log
 
