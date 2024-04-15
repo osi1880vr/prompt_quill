@@ -21,6 +21,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import qdrant_client
 from settings import io
 from deep_translator import GoogleTranslator
+from generators.automatics import client as auto_client
 
 import gc
 import os
@@ -29,7 +30,7 @@ import time
 settings_io = io.settings_io()
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
-
+automa_client = auto_client.automa_client()
 
 
 
@@ -200,23 +201,38 @@ class LLM_INTERFACE:
             return  target_dict[max(target_dict.keys())]
 
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target):
+    def sail_automa_gen(self, query):
+        return automa_client.request_generation(query,
+                                         self.settings_data['negative_prompt'],
+                                         self.settings_data['automa_Sampler'],
+                                         self.settings_data['automa_Steps'],
+                                         self.settings_data['automa_CFG Scale'],
+                                         self.settings_data['automa_Width'],
+                                         self.settings_data['automa_Height'],
+                                         self.settings_data['automa_url'], True)
+
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate):
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
         sail_retriever = self.vector_index.as_retriever(similarity_top_k=sail_depth)
         if self.settings_data['translate']:
             query = self.translate(query)
 
+        images = []
+
         for n in range(sail_width):
             response = self.query_engine.query(query)
             self.log_raw(filename,f'{response.response.lstrip(" ")}')
-            self.log_raw(filename,f'----------')
+            self.log_raw(filename,f'{n} ----------')
             sail_log = sail_log + f'{response.response.lstrip(" ")}\n'
-            sail_log = sail_log + f'----------\n'
+            sail_log = sail_log + f'{n} ----------\n'
             nodes = sail_retriever.retrieve(query)
+            if sail_generate:
+                img = self.sail_automa_gen(query)
+                images.append(img)
             query = self.get_next_target(nodes,sail_target)
 
-        return sail_log
+        return sail_log,images
 
 
     def run_llm_response(self, query, history):
