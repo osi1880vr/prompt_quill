@@ -24,6 +24,7 @@ from deep_translator import GoogleTranslator
 
 import gc
 import os
+import time
 
 settings_io = io.settings_io()
 out_dir = 'api_out'
@@ -131,7 +132,10 @@ class LLM_INTERFACE:
         f = open(logfile, 'a')
         f.write(f"QUERY: {text} \n")
         f.close()
-
+    def log_raw(self,logfile, text):
+        f = open(logfile, 'a')
+        f.write(f"{text}\n")
+        f.close()
 
     def retrieve_context(self, prompt):
         nodes = self.retriever.retrieve(prompt)
@@ -183,6 +187,32 @@ class LLM_INTERFACE:
         output = output.replace('\n','')
 
         return output
+
+    def get_next_target(self, nodes, sail_target):
+        target_dict = {}
+
+        for node in nodes:
+            target_dict[node.score] = node.text
+
+        if sail_target:
+            return  target_dict[min(target_dict.keys())]
+        else:
+            return  target_dict[max(target_dict.keys())]
+
+
+    def run_t2t_sail(self,query,sail_width,sail_target):
+        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        sail_log = ''
+        if self.settings_data['translate']:
+            query = self.translate(query)
+
+        for n in range(sail_width):
+            response = self.query_engine.query(query)
+            self.log_raw(filename,f'{response.response.lstrip(" ")}')
+            sail_log = sail_log + f'{response.response.lstrip(" ")}\n'
+            query = self.get_next_target(response.source_nodes,sail_target)
+
+        return sail_log
 
 
     def run_llm_response(self, query, history):

@@ -217,6 +217,16 @@ def run_llm_response(query, history):
     return_data = interface.run_llm_response(query, history)
     return return_data
 
+def run_t2t_sail(sail_text,sail_width,sail_target):
+    return interface.run_t2t_sail(sail_text,sail_width,sail_target)
+
+
+
+
+
+
+
+
 
 css = """
 .gr-image {
@@ -625,6 +635,19 @@ with gr.Blocks(css=css) as pq_ui:
                     interrogate_url = gr.TextArea(lines=1, label="API URL", value=settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
                 button_interrogate.click(run_automa_interrogation_batch,[input_image_gallery,interrogate_url,save],output_interrogation)
+
+
+    with gr.Tab("Sail the data ocean") as sailor:
+        with gr.Tab("Text 2 text sail") as sail_t2t:
+            sail_text = gr.Textbox("", label=f'Start your journey with',placeholder="Where do we set our sails")
+            sail_width = gr.Slider(1, 2048, step=1, value=10, label="Sail steps",info="Choose between 1 and 2048")
+            sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=True)
+
+            sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
+            sail_submit_button = gr.Button('Start your journey')
+            sail_submit_button.click(run_t2t_sail,[sail_text,sail_width,sail_target],sail_result)
+
+
 
     with gr.Tab("Default") as defaults:
         with gr.Tab('Negative Prompt') as negative_prompt:
