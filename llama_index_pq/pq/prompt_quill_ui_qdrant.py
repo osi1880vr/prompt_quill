@@ -129,14 +129,11 @@ def hordeai_get_last_prompt():
 
 
 def automa_get_last_prompt():
-    return interface.last_prompt, interface.last_negative_prompt, settings_data['automa_Sampler'], settings_data[
-        'automa_Steps'], settings_data['automa_CFG Scale'], settings_data['automa_Width'], settings_data[
-        'automa_Height'], settings_data['automa_url'], settings_data['automa_save']
+    return interface.last_prompt, interface.last_negative_prompt, settings_data['automa_Sampler'], settings_data['automa_Steps'], settings_data['automa_CFG Scale'], settings_data['automa_Width'], settings_data['automa_Height'], settings_data['automa_url'], settings_data['automa_save']
 
 
 def llm_get_settings():
-    return settings_data["LLM Model"], settings_data['Temperature'], settings_data['Context Length'], settings_data[
-        'GPU Layers'], settings_data['max output Tokens'], settings_data['top_k'], settings_data['Instruct Model']
+    return settings_data["LLM Model"], settings_data['Temperature'], settings_data['Context Length'], settings_data['GPU Layers'], settings_data['max output Tokens'], settings_data['top_k'], settings_data['Instruct Model']
 
 
 def get_prompt_template():
