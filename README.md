@@ -34,6 +34,7 @@ There is no hardcoded need to use Docker at all, I understand this scares a lot 
 * Deep dive also allows for direct search, you can type into the search field and this will trigger lookups for your entered text.
 * batch mode, this will create a prompt for each result from the context as a input prompt. this will help to give you a more broad idea of what your input could get to. Be a little patient as it will take more time to generate.
 * Image generation via the API of auto1111 or forge
+* Sail the data Ocean, this allowes you to sail along the vector distance through the ocean of prompts. It allowes you to take a automated journey and see the seven seas of data pushing out nice prompts you may not had the idea to even think about. It also alowes you to direct create images using the a1111/Forge API. Ahoy sailor, fair winds and following seas.
 
 
 # The best feature :)
