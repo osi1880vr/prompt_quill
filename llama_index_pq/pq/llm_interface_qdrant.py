@@ -228,7 +228,7 @@ class LLM_INTERFACE:
             sail_log = sail_log + f'{n} ----------\n'
             nodes = sail_retriever.retrieve(query)
             if sail_generate:
-                img = self.sail_automa_gen(query)
+                img = self.sail_automa_gen(response.response.lstrip(" "))
                 images.append(img)
             query = self.get_next_target(nodes,sail_target)
 
