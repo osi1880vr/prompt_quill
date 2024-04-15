@@ -131,11 +131,17 @@ class LLM_INTERFACE:
 
     def log(self,logfile, text):
         f = open(logfile, 'a')
-        f.write(f"QUERY: {text} \n")
+        try:
+            f.write(f"QUERY: {text} \n")
+        except:
+            pass
         f.close()
     def log_raw(self,logfile, text):
         f = open(logfile, 'a')
-        f.write(f"{text}\n")
+        try:
+            f.write(f"{text}\n")
+        except:
+            pass
         f.close()
 
     def retrieve_context(self, prompt):
