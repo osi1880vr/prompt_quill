@@ -198,9 +198,15 @@ class LLM_INTERFACE:
     def get_next_target(self, nodes, sail_target):
         target_dict = {}
 
+
         for node in nodes:
             if node.text not in self.sail_history:
                 target_dict[node.score] = node.text
+
+
+        if len(target_dict.keys()) < self.sail_depth:
+            self.sail_depth = self.sail_depth + (self.sail_depth - len(target_dict.keys()))
+
 
         if len(target_dict.keys()) > 0:
 
@@ -228,15 +234,17 @@ class LLM_INTERFACE:
 
     def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate):
         self.sail_history = []
+        self.sail_depth = sail_depth
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
-        sail_retriever = self.vector_index.as_retriever(similarity_top_k=sail_depth)
+
         if self.settings_data['translate']:
             query = self.translate(query)
 
         images = []
 
         for n in range(sail_width):
+            sail_retriever = self.vector_index.as_retriever(similarity_top_k=self.sail_depth)
             response = self.query_engine.query(query)
             self.log_raw(filename,f'{response.response.lstrip(" ")}')
             self.log_raw(filename,f'{n} ----------')
