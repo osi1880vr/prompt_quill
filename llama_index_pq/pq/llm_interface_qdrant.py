@@ -205,9 +205,13 @@ class LLM_INTERFACE:
         if len(target_dict.keys()) > 0:
 
             if sail_target:
-                return  target_dict[min(target_dict.keys())]
+                out =  target_dict[min(target_dict.keys())]
+                self.sail_history.append(out)
+                return out
             else:
-                return  target_dict[max(target_dict.keys())]
+                out =  target_dict[max(target_dict.keys())]
+                self.sail_history.append(out)
+                return out
         else:
             return -1
 
@@ -223,7 +227,7 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_url'], True)
 
     def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate):
-        self.sail_history = {}
+        self.sail_history = []
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
         sail_retriever = self.vector_index.as_retriever(similarity_top_k=sail_depth)
