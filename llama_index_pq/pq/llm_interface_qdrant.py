@@ -199,12 +199,17 @@ class LLM_INTERFACE:
         target_dict = {}
 
         for node in nodes:
-            target_dict[node.score] = node.text
+            if node.text not in self.sail_history:
+                target_dict[node.score] = node.text
 
-        if sail_target:
-            return  target_dict[min(target_dict.keys())]
+        if len(target_dict.keys()) > 0:
+
+            if sail_target:
+                return  target_dict[min(target_dict.keys())]
+            else:
+                return  target_dict[max(target_dict.keys())]
         else:
-            return  target_dict[max(target_dict.keys())]
+            return -1
 
 
     def sail_automa_gen(self, query):
@@ -218,6 +223,7 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_url'], True)
 
     def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate):
+        self.sail_history = {}
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
         sail_retriever = self.vector_index.as_retriever(similarity_top_k=sail_depth)
@@ -237,6 +243,9 @@ class LLM_INTERFACE:
                 img = self.sail_automa_gen(response.response.lstrip(" "))
                 images.append(img)
             query = self.get_next_target(nodes,sail_target)
+            if query == -1:
+                self.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                break
 
         return sail_log,images
 
