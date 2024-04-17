@@ -9,6 +9,9 @@ class settings_io:
         self.default = default
         self.settings = self.default
 
+    def update_settings_with_defaults(self):
+        self.settings['model_list'] = self.default['model_list']
+        self.write_settings(self.settings)
 
     def check_missing_seettings(self):
         missing = 0
@@ -19,6 +22,12 @@ class settings_io:
 
         if missing != 0:
             self.write_settings(self.settings)
+
+        self.update_settings_with_defaults()
+
+
+
+
 
     def load_settings(self):
         if os.path.isfile('pq/settings/settings.dat'):
