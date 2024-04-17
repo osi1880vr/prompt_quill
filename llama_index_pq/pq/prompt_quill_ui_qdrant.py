@@ -214,8 +214,8 @@ def run_llm_response(query, history):
     return_data = interface.run_llm_response(query, history)
     return return_data
 
-def run_t2t_sail(sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range):
-    return interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range)
+def run_t2t_sail(sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq):
+    return interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq)
 
 
 
@@ -644,10 +644,11 @@ with gr.Blocks(css=css) as pq_ui:
             sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=True)
             sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=False)
             sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=False)
+            sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=0.1, label="Sinus Frequency",info="Choose between 0.1 and 10")
             sail_sinus_range = gr.Slider(1, 500, step=1, value=10, label="Sinus Multiplier",info="Choose between 1 and 500")
         sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
         sail_result_images = gr.Gallery(label='output images')
-        sail_submit_button.click(run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range],[sail_result,sail_result_images])
+        sail_submit_button.click(run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq],[sail_result,sail_result_images])
 
 
 

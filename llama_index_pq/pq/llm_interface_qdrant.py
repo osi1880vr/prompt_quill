@@ -197,7 +197,7 @@ class LLM_INTERFACE:
 
         return output
 
-    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range):
+    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
         target_dict = {}
 
         for node in nodes:
@@ -209,7 +209,7 @@ class LLM_INTERFACE:
 
         if sail_sinus:
             sinus = int(math.sin(self.sail_sinus_count/10.0)*sail_sinus_range)
-            self.sail_sinus_count += 1
+            self.sail_sinus_count += sail_sinus_freq
             self.sail_depth += sinus
             if self.sail_depth < 0:
                 self.sail_depth = 1
@@ -238,7 +238,7 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_Height'],
                                          self.settings_data['automa_url'], True)
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range):
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq):
         self.sail_history = []
         self.sail_depth = sail_depth
         self.sail_depth_start = sail_depth
@@ -262,7 +262,7 @@ class LLM_INTERFACE:
             if sail_generate:
                 img = self.sail_automa_gen(response.response.lstrip(" "))
                 images.append(img)
-            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range)
+            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
             if query == -1:
                 self.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
