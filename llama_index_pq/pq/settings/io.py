@@ -19,19 +19,13 @@ class settings_io:
             if key not in self.settings:
                 self.settings[key] = self.default[key]
                 missing += 1
-
         if missing != 0:
             self.write_settings(self.settings)
-
         self.update_settings_with_defaults()
 
-
-
-
-
     def load_settings(self):
-        self.check_missing_seettings()
         if os.path.isfile('pq/settings/settings.dat'):
+            self.check_missing_seettings()
             f = open('pq/settings/settings.dat','r')
             self.settings = json.loads(f.read())
             f.close()
