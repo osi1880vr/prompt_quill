@@ -26,6 +26,8 @@ from generators.automatics import client as auto_client
 import gc
 import os
 import time
+import math
+
 
 settings_io = io.settings_io()
 out_dir = 'api_out'
@@ -195,7 +197,7 @@ class LLM_INTERFACE:
 
         return output
 
-    def get_next_target(self, nodes, sail_target):
+    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range):
         target_dict = {}
 
         for node in nodes:
@@ -204,6 +206,13 @@ class LLM_INTERFACE:
 
         if len(target_dict.keys()) < self.sail_depth:
             self.sail_depth = self.sail_depth_start + len(self.sail_history)
+
+        if sail_sinus:
+            sinus = int(math.sin(self.sail_sinus_count/10.0)*sail_sinus_range)
+            self.sail_sinus_count += 1
+            self.sail_depth += sinus
+            if self.sail_depth < 0:
+                self.sail_depth = 1
 
         if len(target_dict.keys()) > 0:
 
@@ -229,10 +238,11 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_Height'],
                                          self.settings_data['automa_url'], True)
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate):
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range):
         self.sail_history = []
         self.sail_depth = sail_depth
         self.sail_depth_start = sail_depth
+        self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
 
@@ -252,7 +262,7 @@ class LLM_INTERFACE:
             if sail_generate:
                 img = self.sail_automa_gen(response.response.lstrip(" "))
                 images.append(img)
-            query = self.get_next_target(nodes,sail_target)
+            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range)
             if query == -1:
                 self.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
