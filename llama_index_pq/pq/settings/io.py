@@ -30,11 +30,11 @@ class settings_io:
 
 
     def load_settings(self):
+        self.check_missing_seettings()
         if os.path.isfile('pq/settings/settings.dat'):
             f = open('pq/settings/settings.dat','r')
             self.settings = json.loads(f.read())
             f.close()
-            self.check_missing_seettings()
         return self.settings
 
 
