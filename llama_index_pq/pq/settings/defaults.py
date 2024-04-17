@@ -68,6 +68,21 @@ default = {
                 'name': 'TheBloke/Panda-7B-v0.1-GGUF',
                 'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q4_K_M.gguf'
             },
+        'TheBloke/Panda-7B-v0.1-GGUF-Q2':
+            {
+                'name': 'TheBloke/Panda-7B-v0.1-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q2_K.gguf'
+            },
+        'TheBloke/Panda-7B-v0.1-GGUF-Q3':
+            {
+                'name': 'TheBloke/Panda-7B-v0.1-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q3_K_M.gguf'
+            },
+        'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF':
+            {
+                'name': 'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF',
+                'path': 'https://huggingface.co/TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF/resolve/main/bling-stable-lm-3b-4e1t-v0.Q5_0.gguf'
+            },
         'TheBloke/Sonya-7B-GGUF':
             {
                 'name': 'TheBloke/Sonya-7B-GGUF',
