@@ -214,8 +214,8 @@ def run_llm_response(query, history):
     return_data = interface.run_llm_response(query, history)
     return return_data
 
-def run_t2t_sail(sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style):
-    return interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style)
+def run_t2t_sail(sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+    return interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
 
 
 
@@ -648,11 +648,15 @@ with gr.Blocks(css=css) as pq_ui:
             sail_sinus_range = gr.Slider(1, 500, step=1, value=10, label="Sinus Multiplier",info="Choose between 1 and 500")
         with gr.Row():
             sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=False)
-            sail_style = gr.Textbox("", label=f'Style SPec', placeholder="Enter your hardcoded style")
-
+            sail_style = gr.Textbox("", label=f'Style Spec', placeholder="Enter your hardcoded style")
+        with gr.Row():
+            sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=False)
+            sail_search = gr.Textbox("", label=f'search Spec', placeholder="Enter your hardcoded search")
         sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
         sail_result_images = gr.Gallery(label='output images')
-        sail_submit_button.click(run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style],[sail_result,sail_result_images])
+        sail_submit_button.click(run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
+                                               sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
+                                               sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
 
 
 

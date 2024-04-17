@@ -238,7 +238,7 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_Height'],
                                          self.settings_data['automa_url'], True)
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style):
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
         self.sail_history = []
         self.sail_depth = sail_depth
         self.sail_depth_start = sail_depth
@@ -253,7 +253,8 @@ class LLM_INTERFACE:
 
         for n in range(sail_width):
             sail_retriever = self.vector_index.as_retriever(similarity_top_k=self.sail_depth)
-
+            if sail_add_search:
+                query = f'{sail_search}, {query}'
             response = self.query_engine.query(query)
             prompt = response.response.lstrip(" ")
             if sail_add_style:
