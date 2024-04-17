@@ -238,7 +238,7 @@ class LLM_INTERFACE:
                                          self.settings_data['automa_Height'],
                                          self.settings_data['automa_url'], True)
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq):
+    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style):
         self.sail_history = []
         self.sail_depth = sail_depth
         self.sail_depth_start = sail_depth
@@ -253,14 +253,19 @@ class LLM_INTERFACE:
 
         for n in range(sail_width):
             sail_retriever = self.vector_index.as_retriever(similarity_top_k=self.sail_depth)
+
             response = self.query_engine.query(query)
-            self.log_raw(filename,f'{response.response.lstrip(" ")}')
+            prompt = response.response.lstrip(" ")
+            if sail_add_style:
+                prompt = f'{sail_style}, {prompt}'
+
+            self.log_raw(filename,f'{prompt}')
             self.log_raw(filename,f'{n} ----------')
-            sail_log = sail_log + f'{response.response.lstrip(" ")}\n'
+            sail_log = sail_log + f'{prompt}\n'
             sail_log = sail_log + f'{n} ----------\n'
             nodes = sail_retriever.retrieve(query)
             if sail_generate:
-                img = self.sail_automa_gen(response.response.lstrip(" "))
+                img = self.sail_automa_gen(prompt)
                 images.append(img)
             query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
             if query == -1:
