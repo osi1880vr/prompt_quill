@@ -468,7 +468,7 @@ class ui_staff:
                                  info="Choose between 1 and 2048")
         self.automa_Height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
                                   info="Choose between 1 and 2048")
-        self.automa_Batch = gr.Slider(1, 50, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
+        self.automa_Batch = gr.Slider(1, 250, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
                                        info="The number of simultaneous images in each batch, range from 1-50.")
         self.automa_n_iter = gr.Slider(1, 500, step=1, value=self.g.settings_data['automa_n_iter'], label="Iterations",
                                       info="The number of sequential batches to be run, range from 1-500.")
