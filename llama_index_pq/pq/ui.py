@@ -180,7 +180,7 @@ class ui_actions:
                 save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
                 self.automa_client.decode_and_save_base64(image, save_path)
             images.append(img)
-            yield images
+        yield images
 
     
     def run_automa_interrogation(self, image_filename,url):
