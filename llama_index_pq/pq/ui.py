@@ -24,6 +24,7 @@ class ui_actions:
     def __init__(self):
 
         self.g = globals.get_globals()
+        self.g.context_prompt = ''
         self.interface = llm_interface_qdrant.LLM_INTERFACE()
         self.settings_io = settings_io()
 
