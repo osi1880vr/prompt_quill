@@ -255,7 +255,7 @@ class ui_actions:
                                                 self.g.settings_data['automa_CFG Scale'],
                                                 self.g.settings_data['automa_Width'],
                                                 self.g.settings_data['automa_Height'],
-                                                self.g.settings_data['automa_url'], True,20,1,False)
+                                                self.g.settings_data['automa_url'], True,self.g.settings_data['automa_batch'],1,False)
 
 
 
