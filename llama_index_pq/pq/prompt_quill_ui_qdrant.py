@@ -312,7 +312,7 @@ with gr.Blocks(css=css) as pq_ui:
                                                sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
                                                sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
 
-        sail_stop_button.click(lambda: None,None,None, queue=False)
+        sail_stop_button.click(lambda: None,None,None, batch=True)
 
 
 
