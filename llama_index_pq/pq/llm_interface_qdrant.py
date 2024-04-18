@@ -183,6 +183,8 @@ class LLM_INTERFACE:
         images = []
 
         for n in range(sail_width):
+            if self.g.sail_running is False:
+                break
             sail_retriever = self.adapter.get_retriever(similarity_top_k=self.sail_depth)
             if sail_add_search:
                 query = f'{sail_search}, {query}'

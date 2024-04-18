@@ -191,8 +191,11 @@ class ui_actions:
         return all_response
 
     def run_t2t_sail(self, sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+        self.g.sail_running = True
         return self.interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
 
+    def stop_t2t_sail(self):
+        self.g.sail_running = False
 
     def variable_outputs(self, k):
         self.g.settings_data['top_k'] = int(k)
