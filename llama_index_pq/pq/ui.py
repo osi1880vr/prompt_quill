@@ -2,6 +2,8 @@ import globals
 import os
 import gradio as gr
 import base64
+import time
+import math
 
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
@@ -26,6 +28,7 @@ class ui_actions:
         self.g = globals.get_globals()
         self.interface = llm_interface_qdrant.LLM_INTERFACE()
         self.settings_io = settings_io()
+        self.automa_client = automa_client()
 
 
     def run_llm_response(self,query, history):
@@ -156,16 +159,14 @@ class ui_actions:
     
     def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
         self.set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
-        client = automa_client()
-        return client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
+        return self.automa_client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
                                          save=save)
     
     def run_automa_interrogation(self, image_filename,url):
         with open(image_filename, mode='rb') as fp:
             base64_image = base64.b64encode(fp.read()).decode('utf-8')
-        client = automa_client()
-        response = client.request_interrogation(base64_image,url)
+        response = self.automa_client.request_interrogation(base64_image,url)
         self.g.context_prompt = response
         return response
     
@@ -190,9 +191,94 @@ class ui_actions:
     
         return all_response
 
-    def run_t2t_sail(self, sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
+        target_dict = {}
+
+        for node in nodes:
+            if node.text not in self.sail_history:
+                target_dict[node.score] = node.text
+
+        if len(target_dict.keys()) < self.sail_depth:
+            self.sail_depth = self.sail_depth_start + len(self.sail_history)
+
+        if sail_sinus:
+            sinus = int(math.sin(self.sail_sinus_count/10.0)*sail_sinus_range)
+            self.sail_sinus_count += sail_sinus_freq
+            self.sail_depth += sinus
+            if self.sail_depth < 0:
+                self.sail_depth = 1
+
+        if len(target_dict.keys()) > 0:
+
+            if sail_target:
+                out =  target_dict[min(target_dict.keys())]
+                self.sail_history.append(out)
+                return out
+            else:
+                out =  target_dict[max(target_dict.keys())]
+                self.sail_history.append(out)
+                return out
+        else:
+            return -1
+
+    def check_api_avail(self):
+        return self.automa_client.check_avail(self.g.settings_data['automa_url'])
+
+    def sail_automa_gen(self, query):
+        return self.automa_client.request_generation(query,
+                                                self.g.settings_data['negative_prompt'],
+                                                self.g.settings_data['automa_Sampler'],
+                                                self.g.settings_data['automa_Steps'],
+                                                self.g.settings_data['automa_CFG Scale'],
+                                                self.g.settings_data['automa_Width'],
+                                                self.g.settings_data['automa_Height'],
+                                                self.g.settings_data['automa_url'], True)
+
+
+    def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
         self.g.sail_running = True
-        return self.interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
+
+
+        self.sail_history = []
+        self.sail_depth = sail_depth
+        self.sail_depth_start = sail_depth
+        self.sail_sinus_count = 1.0
+        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        sail_log = ''
+
+        if self.g.settings_data['translate']:
+            query = self.interface.translate(query)
+
+        images = []
+
+        for n in range(sail_width):
+            if self.g.sail_running is False:
+                break
+            sail_retriever = self.interface.get_retriever(similarity_top_k=self.sail_depth)
+            if sail_add_search:
+                query = f'{sail_search}, {query}'
+            response = self.interface.retrieve_query(query)
+            prompt = response.response.lstrip(" ")
+            if sail_add_style:
+                prompt = f'{sail_style}, {prompt}'
+
+            self.interface.log_raw(filename,f'{prompt}')
+            self.interface.log_raw(filename,f'{n} ----------')
+            sail_log = sail_log + f'{prompt}\n'
+            sail_log = sail_log + f'{n} ----------\n'
+            nodes = sail_retriever.retrieve(query)
+            if sail_generate:
+                img = self.sail_automa_gen(prompt)
+                images.append((img,''))
+                yield sail_log,images
+            else:
+                yield sail_log,[]
+            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
+            if query == -1:
+                self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                break
+
+
 
     def stop_t2t_sail(self):
         self.g.sail_running = False
@@ -351,7 +437,6 @@ class ui_staff:
         self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),
                                              value=self.g.settings_data["selected_template"], label='Template', interactive=True)
-
 
 
 

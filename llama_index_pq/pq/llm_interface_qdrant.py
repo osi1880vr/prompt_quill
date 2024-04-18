@@ -25,18 +25,18 @@ from llama_index_interface import adapter
 
 from settings import io
 from deep_translator import GoogleTranslator
-from generators.automatics import client as auto_client
+
 
 import gc
 import os
 import time
-import math
+
 
 
 settings_io = io.settings_io()
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
-automa_client = auto_client.automa_client()
+
 
 
 
@@ -128,47 +128,16 @@ class LLM_INTERFACE:
 
         return output
 
-    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
-        target_dict = {}
-
-        for node in nodes:
-            if node.text not in self.sail_history:
-                target_dict[node.score] = node.text
-
-        if len(target_dict.keys()) < self.sail_depth:
-            self.sail_depth = self.sail_depth_start + len(self.sail_history)
-
-        if sail_sinus:
-            sinus = int(math.sin(self.sail_sinus_count/10.0)*sail_sinus_range)
-            self.sail_sinus_count += sail_sinus_freq
-            self.sail_depth += sinus
-            if self.sail_depth < 0:
-                self.sail_depth = 1
-
-        if len(target_dict.keys()) > 0:
-
-            if sail_target:
-                out =  target_dict[min(target_dict.keys())]
-                self.sail_history.append(out)
-                return out
-            else:
-                out =  target_dict[max(target_dict.keys())]
-                self.sail_history.append(out)
-                return out
-        else:
-            return -1
 
 
-    def sail_automa_gen(self, query):
-        return automa_client.request_generation(query,
-                                         self.g.settings_data['negative_prompt'],
-                                         self.g.settings_data['automa_Sampler'],
-                                         self.g.settings_data['automa_Steps'],
-                                         self.g.settings_data['automa_CFG Scale'],
-                                         self.g.settings_data['automa_Width'],
-                                         self.g.settings_data['automa_Height'],
-                                         self.g.settings_data['automa_url'], True)
 
+
+
+    def get_retriever(self,similarity_top_k):
+        return  self.adapter.get_retriever(similarity_top_k=similarity_top_k)
+
+    def retrieve_query(self, query):
+        return self.adapter.retrieve_query(query)
     def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
         self.sail_history = []
         self.sail_depth = sail_depth
@@ -200,7 +169,10 @@ class LLM_INTERFACE:
             nodes = sail_retriever.retrieve(query)
             if sail_generate:
                 img = self.sail_automa_gen(prompt)
+                yield prompt,img
                 images.append(img)
+            else:
+                yield prompt,[]
             query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
             if query == -1:
                 self.log_raw(filename,f'{n} sail is finished early due to rotating context')

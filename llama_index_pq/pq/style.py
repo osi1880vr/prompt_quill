@@ -9,4 +9,5 @@ style = """
 .app-title {
   font-size: 50px;
 }
+
 """

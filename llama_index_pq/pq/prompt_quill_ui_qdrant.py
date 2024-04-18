@@ -288,32 +288,42 @@ with gr.Blocks(css=css) as pq_ui:
 
     with gr.Tab("Sail the data ocean") as sailor:
         with gr.Row():
-            sail_submit_button = gr.Button('Start your journey')
-            sail_stop_button = gr.Button('Interrupt your journey')
+            with gr.Column(scale=3):
+                sail_text = gr.Textbox("", label=f'Start your journey with',placeholder="Where do we set our sails",elem_id='sail-input-text')
+            with gr.Column(scale=1):
+                with gr.Row():
+                    sail_submit_button = gr.Button('Start your journey')
+                    sail_stop_button = gr.Button('Interrupt your journey')
+        with gr.Row():
+            with gr.Column(scale=3):
+                with gr.Row():
+                    sail_width = gr.Slider(1, 2048, step=1, value=10, label="Sail steps",info="Choose between 1 and 2048")
+                    sail_depth = gr.Slider(1, 2048, step=1, value=10, label="Sail depth",info="Choose between 1 and 2048")
+                with gr.Row():
+                    sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=False)
+                    sail_check_connect_button = gr.Button('Check API Available')
+                    sail_api_avail_ok = gr.Textbox("", label=f'API OK', placeholder="not checked yet")
+                    sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=True)
+                with gr.Row():
+                    sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=False)
+                    sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=0.1, label="Sinus Frequency",info="Choose between 0.1 and 10")
+                    sail_sinus_range = gr.Slider(1, 500, step=1, value=10, label="Sinus Multiplier",info="Choose between 1 and 500")
+                with gr.Row():
+                    sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=False)
+                    sail_style = gr.Textbox("", label=f'Style Spec', placeholder="Enter your hardcoded style")
+                with gr.Row():
+                    sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=False)
+                    sail_search = gr.Textbox("", label=f'Search Spec', placeholder="Enter your hardcoded search")
+            with gr.Column(scale=1):
+                sail_result_images = gr.Gallery(label='output images')
+        with gr.Row():
+            sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
 
-        sail_text = gr.Textbox("", label=f'Start your journey with',placeholder="Where do we set our sails")
-
-        with gr.Row():
-            sail_width = gr.Slider(1, 2048, step=1, value=10, label="Sail steps",info="Choose between 1 and 2048")
-            sail_depth = gr.Slider(1, 2048, step=1, value=10, label="Sail depth",info="Choose between 1 and 2048")
-        with gr.Row():
-            sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=True)
-            sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=False)
-            sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=False)
-            sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=0.1, label="Sinus Frequency",info="Choose between 0.1 and 10")
-            sail_sinus_range = gr.Slider(1, 500, step=1, value=10, label="Sinus Multiplier",info="Choose between 1 and 500")
-        with gr.Row():
-            sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=False)
-            sail_style = gr.Textbox("", label=f'Style Spec', placeholder="Enter your hardcoded style")
-        with gr.Row():
-            sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=False)
-            sail_search = gr.Textbox("", label=f'Search Spec', placeholder="Enter your hardcoded search")
-        sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
-        sail_result_images = gr.Gallery(label='output images')
         start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
                                                sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
                                                sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
         sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
+        sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
 
 
     with gr.Tab("Default") as defaults:

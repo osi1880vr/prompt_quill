@@ -93,6 +93,12 @@ class automa_client:
             "sampler_name": sampler,
             "n_iter": 1,
             "batch_size": 1,
+            #"override_settings": {
+            # "sd_model_checkpoint": "v1-5-pruned-emaonly.safetensors",
+            # "sd_vae": "sd-vae-ft-mse.safetensors"
+            #
+            # },
+            #"override_settings_restore_afterwards": true,
         }
 
         return self.call_txt2img_api(**payload)
@@ -108,6 +114,49 @@ class automa_client:
         return self.call_interrogation_api(**payload)
 
 
+    def get_api_endpoint(self,api_endpoint):
+        request = urllib.request.Request(
+            f'{self.webui_server_url}/{api_endpoint}',
+            headers={'Content-Type': 'application/json'}
+        )
+
+        try:
+            response = urllib.request.urlopen(request)
+            return json.loads(response.read().decode('utf-8'))
+        except Exception as e:
+            print(e)
+            return ''
 
 
+    def get_samplers(self, url):
+        self.webui_server_url = url
+        samplers = self.get_api_endpoint('sdapi/v1/samplers')
+        if samplers != '':
+            sampler_array = []
+            for sampler in samplers:
+                sampler_array.append(sampler['name'])
 
+            return sampler_array
+        else:
+            return -1
+
+    def get_checkpoints(self, url):
+        self.webui_server_url = url
+        models = self.get_api_endpoint('sdapi/v1/sd-models')
+        if models != '':
+            model_array = []
+            for model in models:
+                model_array.append(model['model_name'])
+
+            return model_array
+        else:
+            return -1
+
+
+    def check_avail(self, url):
+        self.webui_server_url = url
+        vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
+        if vaes != '':
+            return 'API OK'
+        else:
+            return 'API NOT OK'
