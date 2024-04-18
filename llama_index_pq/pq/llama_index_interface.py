@@ -28,9 +28,9 @@ class adapter:
         self.llm = self.set_llm()
         self.set_pipeline()
 
-    def get_instruct(self):
+    async def get_instruct(self):
         return self.g.settings_data['Instruct Model']
-    def get_document_store(self):
+    async def get_document_store(self):
         return self.document_store
 
     def set_document_store(self):
@@ -45,7 +45,7 @@ class adapter:
             # api_key="<qdrant-api-key>",
         )
 
-    def get_llm(self):
+    async def get_llm(self):
         return self.llm
     def set_llm(self):
 
@@ -75,7 +75,7 @@ class adapter:
             verbose=True,
         )
 
-    def get_retriever(self, similarity_top_k):
+    async def get_retriever(self, similarity_top_k):
         return self.vector_index.as_retriever(similarity_top_k=similarity_top_k)
 
     def set_pipeline(self):
@@ -100,13 +100,13 @@ class adapter:
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
         )
 
-    def retrieve_context(self, prompt):
+    async def retrieve_context(self, prompt):
         return self.retriever.retrieve(prompt)
 
-    def retrieve_query(self, query):
+    async def retrieve_query(self, query):
         return self.query_engine.query(query)
 
-    def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
+    async def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
 
         self.g.settings_data["Context Length"] = n_ctx
         self.g.settings_data["GPU Layers"] = n_gpu_layers
@@ -125,7 +125,7 @@ class adapter:
         self.set_pipeline()
         return f'Model set to {model["name"]}'
 
-    def set_prompt(self,prompt_text):
+    async def set_prompt(self,prompt_text):
 
         self.g.settings_data['prompt_templates']['prompt_template_b'] = prompt_text
 
@@ -137,7 +137,7 @@ class adapter:
         # delete the model from Ram
         gc.collect()
 
-        self.llm = self.set_llm()
+        self.llm = await self.set_llm()
 
-        self.set_pipeline()
+        await self.set_pipeline()
         return f'Magic Prompt set to:\n {prompt_text}'

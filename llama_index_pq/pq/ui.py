@@ -20,7 +20,7 @@ os.makedirs(out_dir_i2t, exist_ok=True)
 max_top_k = 50
 
 
-class ui_actions:
+class ui_actions(object):
     def __init__(self):
 
         self.g = globals.get_globals()
@@ -28,10 +28,10 @@ class ui_actions:
         self.settings_io = settings_io()
 
 
-    def run_llm_response(self,query, history):
-        return self.interface.run_llm_response(query, history)
+    async def run_llm_response(self,query, history):
+        return await self.interface.run_llm_response(query, history)
 
-    def set_llm_settings(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    async def set_llm_settings(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.g.settings_data['LLM Model'] = model
         self.g.settings_data['Temperature'] = temperature
         self.g.settings_data['Context Length'] = n_ctx
@@ -39,22 +39,22 @@ class ui_actions:
         self.g.settings_data['max output Tokens'] = max_tokens
         self.g.settings_data['top_k'] = top_k
         self.g.settings_data['Instruct Model'] = instruct
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
-    
-    def set_civitai_settings(self, air, steps, cfg, width, heigth, clipskip):
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
+
+
+    async def set_civitai_settings(self, air, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['civitai_Air'] = air
         self.g.settings_data['civitai_Steps'] = steps
         self.g.settings_data['civitai_CFG Scale'] = cfg
         self.g.settings_data['civitai_Width'] = width
         self.g.settings_data['civitai_Height'] = heigth
         self.g.settings_data['civitai_Clipskip'] = clipskip
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
     
     
-    def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
+    async def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['horde_api_key'] = api_key
         self.g.settings_data['horde_Model'] = model
         self.g.settings_data['horde_Sampler'] = sampler
@@ -63,11 +63,11 @@ class ui_actions:
         self.g.settings_data['horde_Width'] = width
         self.g.settings_data['horde_Height'] = heigth
         self.g.settings_data['horde_Clipskip'] = clipskip
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
     
     
-    def set_automa_settings(self, sampler, steps, cfg, width, heigth, url, save):
+    async def set_automa_settings(self, sampler, steps, cfg, width, heigth, url, save):
         self.g.settings_data['automa_Sampler'] = sampler
         self.g.settings_data['automa_Steps'] = steps
         self.g.settings_data['automa_CFG Scale'] = cfg
@@ -75,14 +75,14 @@ class ui_actions:
         self.g.settings_data['automa_Height'] = heigth
         self.g.settings_data['automa_url'] = url
         self.g.settings_data['automa_save'] = save
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
     
     
-    def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
-        self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
+    async def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+        await self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
         model = self.g.settings_data['model_list'][model]
-        return self.interface.change_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
+        return await self.interface.change_model(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
     
     
     def all_get_last_prompt(self):
@@ -106,9 +106,19 @@ class ui_actions:
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde_api_key'], self.g.settings_data[
             'horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data['horde_Steps'], self.g.settings_data['horde_CFG Scale'], \
             self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], self.g.settings_data['horde_Clipskip']
-    
-    
-    def automa_get_last_prompt(self):
+
+
+    async def automa_get_last_prompt(self):
+        client = automa_client()
+        samplers = await client.get_samplers(self.g.settings_data['automa_url'])
+        if samplers != -1:
+            self.g.settings_data['automa_Sampler'] = samplers
+
+        checkpoints = await client.get_checkpoints(self.g.settings_data['automa_url'])
+        if checkpoints != -1:
+            self.g.settings_data['automa_checkpoints'] = checkpoints
+
+
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save']
     
     
@@ -121,60 +131,60 @@ class ui_actions:
         return self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
     
     
-    def set_prompt_template_select(self, value):
+    async def set_prompt_template_select(self, value):
         self.g.settings_data['selected_template'] = value
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
         return self.g.settings_data["prompt_templates"][value]
     
-    def set_neg_prompt(self, value):
+    async def set_neg_prompt(self, value):
         self.g.settings_data['negative_prompt'] = value
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
     
-    def set_prompt_template(self, selection, prompt_text):
-        return_data = self.interface.set_prompt(prompt_text)
+    async def set_prompt_template(self, selection, prompt_text):
+        return_data = await self.interface.set_prompt(prompt_text)
         self.g.settings_data["prompt_templates"][selection] = prompt_text
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
         return return_data
     
     
-    def run_civitai_generation(self, air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
-        self.set_civitai_settings(air, steps, cfg, width, heigth, clipskip)
+    async def run_civitai_generation(self, air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
+        await self.set_civitai_settings(air, steps, cfg, width, heigth, clipskip)
         client = civitai_client()
-        return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
+        return await client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
     
     
-    def run_hordeai_generation(self, prompt, negative_prompt, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
-        self.set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip)
+    async def run_hordeai_generation(self, prompt, negative_prompt, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
+        await self.set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip)
         client = hordeai_client()
-        return client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
+        return await client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, model=model, steps=steps, cfg=cfg, width=width, heigth=heigth,
                                          clipskip=clipskip)
     
     
-    def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
-        self.set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
+    async def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
+        await self.set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
         client = automa_client()
-        return client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
+        return await client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
                                          save=save)
     
-    def run_automa_interrogation(self, image_filename,url):
+    async def run_automa_interrogation(self, image_filename,url):
         with open(image_filename, mode='rb') as fp:
             base64_image = base64.b64encode(fp.read()).decode('utf-8')
         client = automa_client()
-        response = client.request_interrogation(base64_image,url)
+        response = await client.request_interrogation(base64_image,url)
         self.g.context_prompt = response
         return response
     
-    def run_automa_interrogation_batch(self, image_filenames,url, save):
+    async def run_automa_interrogation_batch(self, image_filenames,url, save):
     
         all_response = ''
     
         for file in image_filenames:
-            response = self.run_automa_interrogation(file[0],url)
+            response = await self.run_automa_interrogation(file[0],url)
             if all_response == '':
                 all_response = response
             else:
@@ -190,11 +200,14 @@ class ui_actions:
     
         return all_response
 
-    def run_t2t_sail(self, sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
-        return self.interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
+    async def run_t2t_sail(self, sail_text,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+        self.g.sailing_run = True
+        return await self.interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
 
+    async def stop_sailing(self):
+        self.g.sailing_run = False
 
-    def variable_outputs(self, k):
+    async def variable_outputs(self, k):
         self.g.settings_data['top_k'] = int(k)
         self.interface.set_top_k(self.g.settings_data['top_k'])
         k = int(k)
@@ -202,8 +215,8 @@ class ui_actions:
         return out
     
 
-    def get_context_details(self, *args):
-        context_details = self.interface.get_context_details()
+    async def get_context_details(self, *args):
+        context_details = await self.interface.get_context_details()
         textboxes = []
         for detail in context_details:
             t = gr.Textbox(f"{detail}")
@@ -215,9 +228,9 @@ class ui_actions:
         return textboxes
     
     
-    def dive_into(self, text):
+    async def dive_into(self, text):
         self.g.context_prompt = text
-        context = self.interface.retrieve_context(text)
+        context = await self.interface.retrieve_context(text)
     
         if len(context) < max_top_k - 1:
             x = range(len(context), max_top_k - 1)
@@ -226,23 +239,23 @@ class ui_actions:
     
         return context  # .append(text)
 
-    def set_prompt_input(self):
+    async def set_prompt_input(self):
         return self.g.context_prompt
 
 
-    def set_translate(self, translate):
+    async def set_translate(self, translate):
         self.g.settings_data['translate'] = translate
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
     
     
-    def set_batch(self, batch):
+    async def set_batch(self, batch):
         self.g.settings_data['batch'] = batch
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
+        await self.settings_io.write_settings(self.g.settings_data)
+        await self.interface.reload_settings()
 
 
-    def run_batch(self, files):
+    async def run_batch(self, files):
         for file in files:
             filename = os.path.basename(file)
             file_content = []
@@ -253,7 +266,7 @@ class ui_actions:
             outfile = os.path.join(out_dir_t2t,filename)
             f = open(outfile,'a',encoding='utf8',errors='ignore')
             for query in file_content:
-                response= self.interface.run_llm_response_batch(query)
+                response= await self.interface.run_llm_response_batch(query)
                 f.write(f'{response}\n')
             f.close()
         return 'done'

@@ -44,27 +44,24 @@ automa_client = auto_client.automa_client()
 
 class LLM_INTERFACE:
 
-
     def __init__(self):
-
         self.g = globals.get_globals()
         self.g.settings_data = settings_io.load_settings()
-
-
         self.adapter = adapter()
-
         self.document_store = self.adapter.get_document_store()
 
 
 
-    def log(self,logfile, text):
+    async def log(self,logfile, text):
         f = open(logfile, 'a')
         try:
             f.write(f"QUERY: {text} \n")
         except:
             pass
         f.close()
-    def log_raw(self,logfile, text):
+
+
+    async def log_raw(self,logfile, text):
         f = open(logfile, 'a')
         try:
             f.write(f"{text}\n")
@@ -72,39 +69,39 @@ class LLM_INTERFACE:
             pass
         f.close()
 
-    def retrieve_context(self, prompt):
-        nodes = self.adapter.retrieve_context(prompt)
+    async def retrieve_context(self, prompt):
+        nodes = await self.adapter.retrieve_context(prompt)
         self.g.last_context = [s.node.get_text() for s in nodes]
         return self.g.last_context
 
 
-    def set_top_k(self, top_k):
+    async def set_top_k(self, top_k):
         self.g.settings_data['top_k'] = top_k
-        self.adapter.set_pipeline()
+        await self.adapter.set_pipeline()
 
-    def get_context_details(self):
+    async def get_context_details(self):
         return self.g.last_context
 
-    def reload_settings(self):
-        self.g.settings_data = settings_io.load_settings()
+    async def reload_settings(self):
+        self.g.settings_data = await settings_io.load_settings()
 
-    def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
-        return self.adapter.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct)
+    async def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
+        return await self.adapter.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct)
 
-    def set_prompt(self,prompt_text):
-        return self.adapter.set_prompt(prompt_text)
+    async def set_prompt(self,prompt_text):
+        return await self.adapter.set_prompt(prompt_text)
 
-    def translate(self, query):
+    async def translate(self, query):
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
 
 
-    def run_batch_response(self,context):
+    async def run_batch_response(self,context):
         output = ''
         n = 1
         for query in context:
             if query != '':
-                response = self.adapter.retrieve_query(query)
+                response = await self.adapter.retrieve_query(query)
                 output = f'{output}\n\n\nPrompt {str(n)}:\n{response.response.lstrip(" ")}'
                 self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response.response.lstrip(" ")}\n')
                 n += 1
@@ -113,7 +110,7 @@ class LLM_INTERFACE:
 
 
 
-    def run_llm_response_batch(self, query):
+    async def run_llm_response_batch(self, query):
 
         if self.g.settings_data['translate']:
             query = self.translate(query)
@@ -121,14 +118,14 @@ class LLM_INTERFACE:
         if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        response = self.adapter.retrieve_query(query)
+        response = await self.adapter.retrieve_query(query)
 
         output = response.response.lstrip(' ')
         output = output.replace('\n','')
 
         return output
 
-    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
+    async def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
         target_dict = {}
 
         for node in nodes:
@@ -159,8 +156,8 @@ class LLM_INTERFACE:
             return -1
 
 
-    def sail_automa_gen(self, query):
-        return automa_client.request_generation(query,
+    async def sail_automa_gen(self, query):
+        return await automa_client.request_generation(query,
                                          self.g.settings_data['negative_prompt'],
                                          self.g.settings_data['automa_Sampler'],
                                          self.g.settings_data['automa_Steps'],
@@ -169,7 +166,7 @@ class LLM_INTERFACE:
                                          self.g.settings_data['automa_Height'],
                                          self.g.settings_data['automa_url'], True)
 
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+    async def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
         self.sail_history = []
         self.sail_depth = sail_depth
         self.sail_depth_start = sail_depth
@@ -183,10 +180,12 @@ class LLM_INTERFACE:
         images = []
 
         for n in range(sail_width):
-            sail_retriever = self.adapter.get_retriever(similarity_top_k=self.sail_depth)
+            if self.g.sailing_run == False:
+                break
+            sail_retriever = await self.adapter.get_retriever(similarity_top_k=self.sail_depth)
             if sail_add_search:
                 query = f'{sail_search}, {query}'
-            response = self.adapter.retrieve_query(query)
+            response = await self.adapter.retrieve_query(query)
             prompt = response.response.lstrip(" ")
             if sail_add_style:
                 prompt = f'{sail_style}, {prompt}'
@@ -197,9 +196,9 @@ class LLM_INTERFACE:
             sail_log = sail_log + f'{n} ----------\n'
             nodes = sail_retriever.retrieve(query)
             if sail_generate:
-                img = self.sail_automa_gen(prompt)
+                img = await self.sail_automa_gen(prompt)
                 images.append(img)
-            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
+            query = await self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
             if query == -1:
                 self.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
@@ -207,17 +206,17 @@ class LLM_INTERFACE:
         return sail_log,images
 
 
-    def run_llm_response(self, query, history):
+    async def run_llm_response(self, query, history):
 
         if self.g.settings_data['translate']:
-            query = self.translate(query)
+            query = await self.translate(query)
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
         if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        response = self.adapter.retrieve_query(query)
+        response = await self.adapter.retrieve_query(query)
 
         self.log('logfile.txt',f"RESPONSE: {response.response} \n-------------\n")
         self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response.response.lstrip(" ")}\n')
@@ -231,7 +230,7 @@ class LLM_INTERFACE:
             output = f'Your prompt was translated to: {query}\n\n\n{output}'
 
         if self.g.settings_data['batch']:
-            batch_result = self.run_batch_response(self.g.last_context)
+            batch_result = await self.run_batch_response(self.g.last_context)
             output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
 
 

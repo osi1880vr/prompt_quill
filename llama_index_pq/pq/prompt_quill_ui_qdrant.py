@@ -287,7 +287,9 @@ with gr.Blocks(css=css) as pq_ui:
 
 
     with gr.Tab("Sail the data ocean") as sailor:
+
         sail_submit_button = gr.Button('Start your journey')
+        sail_stop_button = gr.Button('Stop your journey')
         sail_text = gr.Textbox("", label=f'Start your journey with',placeholder="Where do we set our sails")
         with gr.Row():
             sail_width = gr.Slider(1, 2048, step=1, value=10, label="Sail steps",info="Choose between 1 and 2048")
@@ -309,6 +311,8 @@ with gr.Blocks(css=css) as pq_ui:
         sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
                                                sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
                                                sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
+
+        sail_stop_button.click(lambda: None,None,None, queue=False)
 
 
 
