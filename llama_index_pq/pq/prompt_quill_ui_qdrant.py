@@ -345,4 +345,4 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 if __name__ == "__main__":
-    pq_ui.launch(favicon_path='favicon32x32.ico', inbrowser=True)  # share=True
+    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True)  # share=True
