@@ -24,7 +24,6 @@ class ui_actions:
     def __init__(self):
 
         self.g = globals.get_globals()
-        self.g.context_prompt = ''
         self.interface = llm_interface_qdrant.LLM_INTERFACE()
         self.settings_io = settings_io()
 
@@ -265,6 +264,7 @@ class ui_staff:
     def __init__(self):
 
         self.g = globals.get_globals()
+        self.g.context_prompt = ''
         self.hordeai_model_list = hordeai_models().read_model_list()
         self.g.last_prompt = ''
         self.g.last_negative_prompt = ''
