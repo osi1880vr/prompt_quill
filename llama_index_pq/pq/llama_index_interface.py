@@ -114,10 +114,12 @@ class adapter:
         self.g.settings_data["Temperature"] = float(temperature)
         self.g.settings_data["top_k"] = top_k
         self.g.settings_data['Instruct Model'] = instruct
-
+        self.g.settings_data['LLM Model'] = model["name"]
 
         self.llm._model = None
         del self.llm
+
+        self.llm = self.set_llm()
 
         # delete the model from Ram
         gc.collect()

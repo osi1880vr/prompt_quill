@@ -168,6 +168,7 @@ class ui_actions:
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
     def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
+        self.g.running = True
         self.set_automa_settings(sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
         response = self.automa_client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
@@ -311,7 +312,8 @@ class ui_actions:
 
     def stop_t2t_sail(self):
         self.g.sail_running = False
-
+    def stop_all(self):
+        self.g.running = False
     def variable_outputs(self, k):
         self.g.settings_data['top_k'] = int(k)
         self.interface.set_top_k(self.g.settings_data['top_k'])
@@ -466,12 +468,14 @@ class ui_staff:
                                  info="Choose between 1 and 2048")
         self.automa_Height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
                                   info="Choose between 1 and 2048")
-        self.automa_Batch = gr.Slider(1, 50, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
-                                       info="Choose between 1 and 50")
+        self.automa_Batch = gr.Slider(1, 8, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
+                                       info="The number of simultaneous images in each batch, range from 1-8.")
         self.automa_n_iter = gr.Slider(1, 500, step=1, value=self.g.settings_data['automa_n_iter'], label="Iterations",
-                                      info="Choose between 1 and 500")
+                                      info="The number of sequential batches to be run, range from 1-500.")
         self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
         self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
+
+        self.automa_stop_button = gr.Button('Stop')
 
         self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),

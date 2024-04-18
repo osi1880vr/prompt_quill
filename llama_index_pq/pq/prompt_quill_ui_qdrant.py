@@ -218,9 +218,10 @@ with gr.Blocks(css=css) as pq_ui:
                      ui.automa_save_on_api_host]
                     , outputs=gr.Gallery(label="Generated Image"),  # "text",
                     allow_flagging='never',
-                    flagging_options=None,
+                    flagging_options=None
                     # live=True
                 )
+
             with gr.Tab('Interrogate') as interrogate:
                 input_image = gr.Image(type='filepath')
                 output_interrogation = gr.Textbox()
