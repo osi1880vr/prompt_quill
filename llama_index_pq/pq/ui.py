@@ -269,6 +269,8 @@ class ui_staff:
         self.g.last_negative_prompt = ''
         self.g.last_context = []
 
+        self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7)
+
         self.civitai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
         self.civitai_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
         self.hordeai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
@@ -347,7 +349,7 @@ class ui_staff:
                                              value=self.g.settings_data["selected_template"], label='Template', interactive=True)
 
 
-        self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7, render=False)
+
 
 
 
