@@ -39,7 +39,7 @@ textboxes = []
 
 
 
-with gr.Blocks(css=css) as pq_ui:
+with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
     with gr.Row():
         # Image element (adjust width as needed)
         gr.Image(os.path.join(os.getcwd(), "logo/pq_v_small.jpg"), width="20vw", show_label=False,
@@ -345,4 +345,4 @@ with gr.Blocks(css=css) as pq_ui:
 
 
 if __name__ == "__main__":
-    pq_ui.launch(inbrowser=True)  # share=True
+    pq_ui.launch(favicon_path='favicon32x32.ico', inbrowser=True)  # share=True
