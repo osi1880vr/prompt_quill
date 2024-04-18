@@ -248,20 +248,16 @@ class ui_actions:
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
 
     def sail_automa_gen(self, query):
-        response = self.automa_client.request_generation(query,
+        return self.automa_client.request_generation(query,
                                                 self.g.settings_data['negative_prompt'],
                                                 self.g.settings_data['automa_Sampler'],
                                                 self.g.settings_data['automa_Steps'],
                                                 self.g.settings_data['automa_CFG Scale'],
                                                 self.g.settings_data['automa_Width'],
                                                 self.g.settings_data['automa_Height'],
-                                                self.g.settings_data['automa_url'], True,1,1,False)
+                                                self.g.settings_data['automa_url'], True,20,1,False)
 
-        for index, image in enumerate(response.get('images')):
-            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-            self.automa_client.decode_and_save_base64(image, save_path)
-            return img
+
 
 
 
@@ -297,8 +293,14 @@ class ui_actions:
             sail_log = sail_log + f'{n} ----------\n'
             nodes = sail_retriever.retrieve(query)
             if sail_generate:
-                img = self.sail_automa_gen(prompt)
-                images.append((img,''))
+                response = self.sail_automa_gen(prompt)
+
+                for index, image in enumerate(response.get('images')):
+                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                    self.automa_client.decode_and_save_base64(image, save_path)
+                    images.append(img)
+
                 yield sail_log,images
             else:
                 yield sail_log,[]
