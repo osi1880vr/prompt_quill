@@ -332,6 +332,7 @@ class ui_actions:
 
 
     def run_batch(self, files):
+        output = ''
         for file in files:
             filename = os.path.basename(file)
             file_content = []
@@ -344,8 +345,9 @@ class ui_actions:
             for query in file_content:
                 response= self.interface.run_llm_response_batch(query)
                 f.write(f'{response}\n')
+                output = f'{output}{response}\n'
             f.close()
-        return 'done'
+        return output
 
 
 class ui_staff:

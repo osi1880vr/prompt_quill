@@ -91,66 +91,11 @@ with gr.Blocks(css=css) as pq_ui:
 
     with gr.Tab("File2File") as batch_run:
         input_file = gr.Files()
-        finish = gr.Textbox(f"", label=f'Wait for its done')
+        finish = gr.Textbox(f"", label=f'Wait for its done',placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
 
         file_submit_button = gr.Button('Run Batch')
 
         file_submit_button.click(ui_code.run_batch,input_file,finish)
-
-
-    with gr.Tab("Character") as Character:
-        gr.on(
-            triggers=[Character.select],
-            fn=ui_code.get_prompt_template,
-            inputs=None,
-            outputs=[ui.prompt_template]
-        )
-        gr.on(
-            triggers=[ui.prompt_template_select.select],
-            fn=ui_code.set_prompt_template_select,
-            inputs=ui.prompt_template_select,
-            outputs=[ui.prompt_template]
-        )
-        gr.Interface(
-            ui_code.set_prompt_template,
-            [ui.prompt_template_select, ui.prompt_template, ]
-            , outputs=None,
-            allow_flagging='never',
-            flagging_options=None
-
-        )
-
-    with gr.Tab("Model Settings") as llm_settings:
-        gr.on(
-            triggers=[llm_settings.select],
-            fn=ui_code.llm_get_settings,
-            inputs=None,
-            outputs=[ui.LLM,
-                     ui.Temperature,
-                     ui.Context,
-                     ui.GPU,
-                     ui.max,
-                     ui.top_k,
-                     ui.Instruct
-                     ]
-        )
-
-        gr.Interface(
-            ui_code.set_model,
-            [
-                ui.LLM,
-                ui.Temperature,
-                ui.Context,
-                ui.GPU,
-                ui.max,
-                ui.top_k,
-                ui.Instruct
-            ]
-            , outputs="text",
-            allow_flagging='never',
-            flagging_options=None
-
-        )
 
     with gr.Tab("Generator") as generator:
         gr.on(
@@ -320,18 +265,74 @@ with gr.Blocks(css=css) as pq_ui:
             sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
 
         start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
-                                               sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
-                                               sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
+                                                                    sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
+                                                                    sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
         sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
         sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
 
+    with gr.Tab('Settings'):
+        with gr.Tab("Character") as Character:
+            gr.on(
+                triggers=[Character.select],
+                fn=ui_code.get_prompt_template,
+                inputs=None,
+                outputs=[ui.prompt_template]
+            )
+            gr.on(
+                triggers=[ui.prompt_template_select.select],
+                fn=ui_code.set_prompt_template_select,
+                inputs=ui.prompt_template_select,
+                outputs=[ui.prompt_template]
+            )
+            gr.Interface(
+                ui_code.set_prompt_template,
+                [ui.prompt_template_select, ui.prompt_template, ]
+                , outputs=None,
+                allow_flagging='never',
+                flagging_options=None
 
-    with gr.Tab("Default") as defaults:
-        with gr.Tab('Negative Prompt') as negative_prompt:
-            neg_prompt_text = gr.Textbox(g.settings_data['negative_prompt'], label=f'Default Negative Prompt')
-            np_submit_button = gr.Button('Save Negative Prompt')
+            )
 
-            np_submit_button.click(ui_code.set_neg_prompt,neg_prompt_text,None)
+
+        with gr.Tab("Model Settings") as llm_settings:
+            gr.on(
+                triggers=[llm_settings.select],
+                fn=ui_code.llm_get_settings,
+                inputs=None,
+                outputs=[ui.LLM,
+                         ui.Temperature,
+                         ui.Context,
+                         ui.GPU,
+                         ui.max,
+                         ui.top_k,
+                         ui.Instruct
+                         ]
+            )
+
+            gr.Interface(
+                ui_code.set_model,
+                [
+                    ui.LLM,
+                    ui.Temperature,
+                    ui.Context,
+                    ui.GPU,
+                    ui.max,
+                    ui.top_k,
+                    ui.Instruct
+                ]
+                , outputs="text",
+                allow_flagging='never',
+                flagging_options=None
+
+            )
+
+
+        with gr.Tab("Default") as defaults:
+            with gr.Tab('Negative Prompt') as negative_prompt:
+                neg_prompt_text = gr.Textbox(g.settings_data['negative_prompt'], label=f'Default Negative Prompt')
+                np_submit_button = gr.Button('Save Negative Prompt')
+
+                np_submit_button.click(ui_code.set_neg_prompt,neg_prompt_text,None)
 
     #pq_ui.queue(max_size=20)
 
