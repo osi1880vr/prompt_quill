@@ -204,9 +204,6 @@ class ui_actions(object):
         self.g.sailing_run = True
         return await self.interface.run_t2t_sail(sail_text,sail_width,sail_depth,sail_target, sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search)
 
-    async def stop_sailing(self):
-        self.g.sailing_run = False
-
     async def variable_outputs(self, k):
         self.g.settings_data['top_k'] = int(k)
         self.interface.set_top_k(self.g.settings_data['top_k'])

@@ -308,11 +308,13 @@ with gr.Blocks(css=css) as pq_ui:
             sail_search = gr.Textbox("", label=f'Search Spec', placeholder="Enter your hardcoded search")
         sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
         sail_result_images = gr.Gallery(label='output images')
-        sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
+        start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
                                                sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
                                                sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
 
-        sail_stop_button.click(lambda: None,None,None, batch=True)
+        sail_stop_button.click(fn=None, inputs=None, outputs=None, cancels=[start_sail])
+
+
 
 
 
@@ -327,4 +329,4 @@ with gr.Blocks(css=css) as pq_ui:
 
 
 if __name__ == "__main__":
-    pq_ui.launch(inbrowser=True)  # share=True
+    pq_ui.queue().launch(inbrowser=True)  # share=True
