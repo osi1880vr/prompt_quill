@@ -2,8 +2,11 @@ import globals
 import os
 import gradio as gr
 import base64
-import time
+from datetime import datetime
 import math
+from PIL import Image
+from io import BytesIO
+import time
 
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
@@ -18,7 +21,9 @@ out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 os.makedirs(out_dir_t2t, exist_ok=True)
 out_dir_i2t = os.path.join(out_dir, 'img2txt')
 os.makedirs(out_dir_i2t, exist_ok=True)
-
+out_dir_t2i = os.path.join(out_dir, 'txt2img')
+out_dir_i2i = os.path.join(out_dir, 'img2img')
+os.makedirs(out_dir_t2i, exist_ok=True)
 max_top_k = 50
 
 
@@ -70,14 +75,17 @@ class ui_actions:
         self.interface.reload_settings()
     
     
-    def set_automa_settings(self, sampler, steps, cfg, width, heigth, url, save):
+    def set_automa_settings(self, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
         self.g.settings_data['automa_Sampler'] = sampler
         self.g.settings_data['automa_Steps'] = steps
         self.g.settings_data['automa_CFG Scale'] = cfg
         self.g.settings_data['automa_Width'] = width
         self.g.settings_data['automa_Height'] = heigth
+        self.g.settings_data['automa_batch'] = batch
+        self.g.settings_data['automa_n_iter'] = n_iter
         self.g.settings_data['automa_url'] = url
         self.g.settings_data['automa_save'] = save
+        self.g.settings_data['automa_save_on_api_host'] = save_api
         self.settings_io.write_settings(self.g.settings_data)
         self.interface.reload_settings()
     
@@ -112,7 +120,7 @@ class ui_actions:
     
     
     def automa_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save']
+        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
     
     
     def llm_get_settings(self):
@@ -155,13 +163,24 @@ class ui_actions:
         return client.request_generation(api_key=api_key, prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, model=model, steps=steps, cfg=cfg, width=width, heigth=heigth,
                                          clipskip=clipskip)
+
+    def timestamp(self):
+        return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
-    
-    def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, url, save):
-        self.set_automa_settings(sampler, steps, cfg, width, heigth, url, save)
-        return self.automa_client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
+    def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
+        self.set_automa_settings(sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
+        response = self.automa_client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
                                          sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
-                                         save=save)
+                                         save=save, batch=batch,n_iter=n_iter, save_api=save_api)
+        images = []
+        for index, image in enumerate(response.get('images')):
+            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            if save:
+                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                self.automa_client.decode_and_save_base64(image, save_path)
+            images.append(img)
+            yield images
+
     
     def run_automa_interrogation(self, image_filename,url):
         with open(image_filename, mode='rb') as fp:
@@ -173,13 +192,17 @@ class ui_actions:
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
         all_response = ''
-    
+        output = ''
+        n = 0
         for file in image_filenames:
             response = self.run_automa_interrogation(file[0],url)
             if all_response == '':
                 all_response = response
             else:
                 all_response = f'{all_response}\n{response}'
+            output = f'{output}{response}\n{n} ---------\n'
+            n += 1
+            yield output
     
         if save:
             import time
@@ -188,8 +211,7 @@ class ui_actions:
             f = open(outfile,'a',encoding='utf8',errors='ignore')
             f.write(f'{all_response}\n')
             f.close()
-    
-        return all_response
+
 
     def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
         target_dict = {}
@@ -225,14 +247,21 @@ class ui_actions:
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
 
     def sail_automa_gen(self, query):
-        return self.automa_client.request_generation(query,
+        response = self.automa_client.request_generation(query,
                                                 self.g.settings_data['negative_prompt'],
                                                 self.g.settings_data['automa_Sampler'],
                                                 self.g.settings_data['automa_Steps'],
                                                 self.g.settings_data['automa_CFG Scale'],
                                                 self.g.settings_data['automa_Width'],
                                                 self.g.settings_data['automa_Height'],
-                                                self.g.settings_data['automa_url'], True)
+                                                self.g.settings_data['automa_url'], True,1,1,False)
+
+        for index, image in enumerate(response.get('images')):
+            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            self.automa_client.decode_and_save_base64(image, save_path)
+            return img
+
 
 
     def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
@@ -252,8 +281,7 @@ class ui_actions:
         images = []
 
         for n in range(sail_width):
-            if self.g.sail_running is False:
-                break
+
             sail_retriever = self.interface.get_retriever(similarity_top_k=self.sail_depth)
             if sail_add_search:
                 query = f'{sail_search}, {query}'
@@ -277,7 +305,8 @@ class ui_actions:
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
-
+            if self.g.sail_running is False:
+                break
 
 
     def stop_t2t_sail(self):
@@ -342,12 +371,15 @@ class ui_actions:
     
             outfile = os.path.join(out_dir_t2t,filename)
             f = open(outfile,'a',encoding='utf8',errors='ignore')
+            n = 0
             for query in file_content:
                 response= self.interface.run_llm_response_batch(query)
                 f.write(f'{response}\n')
-                output = f'{output}{response}\n'
+                output = f'{output}{response}\n{n} ---------\n'
+                n += 1
+                yield output
             f.close()
-        return output
+
 
 
 class ui_staff:
@@ -426,15 +458,20 @@ class ui_staff:
                      'DPM fast',
                      'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras'
                      ], value=self.g.settings_data['automa_Sampler'], label='Sampler')
-        self.automa_Steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
+        self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
                                  info="Choose between 1 and 100")
         self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_CFG Scale'], label="CFG Scale",
                                info="Choose between 1 and 20")
-        self.automa_Width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_Width'], label="Width",
+        self.automa_Width = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Width'], label="Width",
                                  info="Choose between 1 and 2048")
-        self.automa_Height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
+        self.automa_Height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
                                   info="Choose between 1 and 2048")
+        self.automa_Batch = gr.Slider(1, 50, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
+                                       info="Choose between 1 and 50")
+        self.automa_n_iter = gr.Slider(1, 500, step=1, value=self.g.settings_data['automa_n_iter'], label="Iterations",
+                                      info="Choose between 1 and 500")
         self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
+        self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
 
         self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),

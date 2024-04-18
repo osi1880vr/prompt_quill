@@ -138,48 +138,6 @@ class LLM_INTERFACE:
 
     def retrieve_query(self, query):
         return self.adapter.retrieve_query(query)
-    def run_t2t_sail(self,query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
-        self.sail_history = []
-        self.sail_depth = sail_depth
-        self.sail_depth_start = sail_depth
-        self.sail_sinus_count = 1.0
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
-        sail_log = ''
-
-        if self.g.settings_data['translate']:
-            query = self.translate(query)
-
-        images = []
-
-        for n in range(sail_width):
-            if self.g.sail_running is False:
-                break
-            sail_retriever = self.adapter.get_retriever(similarity_top_k=self.sail_depth)
-            if sail_add_search:
-                query = f'{sail_search}, {query}'
-            response = self.adapter.retrieve_query(query)
-            prompt = response.response.lstrip(" ")
-            if sail_add_style:
-                prompt = f'{sail_style}, {prompt}'
-
-            self.log_raw(filename,f'{prompt}')
-            self.log_raw(filename,f'{n} ----------')
-            sail_log = sail_log + f'{prompt}\n'
-            sail_log = sail_log + f'{n} ----------\n'
-            nodes = sail_retriever.retrieve(query)
-            if sail_generate:
-                img = self.sail_automa_gen(prompt)
-                yield prompt,img
-                images.append(img)
-            else:
-                yield prompt,[]
-            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
-            if query == -1:
-                self.log_raw(filename,f'{n} sail is finished early due to rotating context')
-                break
-
-        return sail_log,images
-
 
     def run_llm_response(self, query, history):
 

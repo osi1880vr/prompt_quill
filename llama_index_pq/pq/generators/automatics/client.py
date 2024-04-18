@@ -4,8 +4,7 @@ import base64
 import json
 import time
 import os
-from PIL import Image
-from io import BytesIO
+
 
 
 
@@ -54,12 +53,7 @@ class automa_client:
     def call_txt2img_api(self,**payload):
         response = self.call_api('sdapi/v1/txt2img', **payload)
         if response != '':
-            for index, image in enumerate(response.get('images')):
-                img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-                if self.save:
-                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                    self.decode_and_save_base64(image, save_path)
-                return img
+            return response
         else:
             return ''
 
@@ -77,7 +71,7 @@ class automa_client:
 
 
     def request_generation(self,prompt, negative_prompt,
-                           sampler, steps, cfg, width, heigth, url, save):
+                           sampler, steps, cfg, width, heigth, url, save, batch, n_iter,save_api):
 
         self.webui_server_url=url
         self.save = save
@@ -91,8 +85,9 @@ class automa_client:
             "height": heigth,
             "cfg_scale": cfg,
             "sampler_name": sampler,
-            "n_iter": 1,
-            "batch_size": 1,
+            "n_iter": n_iter,
+            "batch_size": batch,
+            "save_images":save_api,
             #"override_settings": {
             # "sd_model_checkpoint": "v1-5-pruned-emaonly.safetensors",
             # "sd_vae": "sd-vae-ft-mse.safetensors"

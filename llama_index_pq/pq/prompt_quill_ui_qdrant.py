@@ -196,8 +196,11 @@ with gr.Blocks(css=css) as pq_ui:
                              ui.automa_CFG,
                              ui.automa_Width,
                              ui.automa_Height,
+                             ui.automa_Batch,
+                             ui.automa_n_iter,
                              ui.automa_url,
-                             ui.automa_save]
+                             ui.automa_save,
+                             ui.automa_save_on_api_host]
                 )
                 gr.Interface(
                     ui_code.run_automatics_generation,
@@ -208,9 +211,12 @@ with gr.Blocks(css=css) as pq_ui:
                      ui.automa_CFG,
                      ui.automa_Width,
                      ui.automa_Height,
+                     ui.automa_Batch,
+                     ui.automa_n_iter,
                      ui.automa_url,
-                     ui.automa_save]
-                    , outputs=gr.Image(label="Generated Image"),  # "text",
+                     ui.automa_save,
+                     ui.automa_save_on_api_host]
+                    , outputs=gr.Gallery(label="Generated Image"),  # "text",
                     allow_flagging='never',
                     flagging_options=None,
                     # live=True
