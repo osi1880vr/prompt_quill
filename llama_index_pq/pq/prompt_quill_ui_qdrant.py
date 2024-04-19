@@ -186,6 +186,29 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
         with gr.Tab("Automatic 1111 / Forge") as automatic1111:
             with gr.Tab('Generate') as generate:
                 gr.on(
+                    triggers=[ui.automa_Sampler.change,
+                              ui.automa_Steps.change,
+                              ui.automa_CFG.change,
+                              ui.automa_Width.change,
+                              ui.automa_Height.change,
+                              ui.automa_Batch.change,
+                              ui.automa_n_iter.change,
+                              ui.automa_url.change,
+                              ui.automa_save.change,
+                              ui.automa_save_on_api_host.change],
+                    fn=ui_code.set_automa_settings,
+                    inputs=[ui.automa_Sampler,
+                            ui.automa_Steps,
+                            ui.automa_CFG,
+                            ui.automa_Width,
+                            ui.automa_Height,
+                            ui.automa_Batch,
+                            ui.automa_n_iter,
+                            ui.automa_url,
+                            ui.automa_save,
+                            ui.automa_save_on_api_host],
+                    outputs=None)
+                gr.on(
                     triggers=[automatic1111.select,generate.select],
                     fn=ui_code.automa_get_last_prompt,
                     inputs=None,
