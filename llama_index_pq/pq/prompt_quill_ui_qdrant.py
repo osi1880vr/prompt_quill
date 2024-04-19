@@ -290,13 +290,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=False)
                     sail_search = gr.Textbox("", label=f'Search Spec', placeholder="Enter your hardcoded search")
             with gr.Column(scale=1):
+                sail_max_gallery_size = gr.Slider(1, 500, step=1, value=10, label="Max Gallery size",info="Limit the number of images keept in the gallery choose between 1 and 500")
                 sail_result_images = gr.Gallery(label='output images')
         with gr.Row():
             sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
 
         start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
                                                                     sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
-                                                                    sail_add_style,sail_style,sail_add_search,sail_search],[sail_result,sail_result_images])
+                                                                    sail_add_style,sail_style,sail_add_search,sail_search,sail_max_gallery_size],[sail_result,sail_result_images])
         sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
         sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
 

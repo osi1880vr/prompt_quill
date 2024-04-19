@@ -7,6 +7,7 @@ import math
 from PIL import Image
 from io import BytesIO
 import time
+from collections import deque
 
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
@@ -261,7 +262,7 @@ class ui_actions:
 
 
 
-    def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search):
+    def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search,sail_max_gallery_size):
         self.g.sail_running = True
 
 
@@ -275,7 +276,8 @@ class ui_actions:
         if self.g.settings_data['translate']:
             query = self.interface.translate(query)
 
-        images = []
+
+        images = deque(maxlen=int(sail_max_gallery_size))
 
         for n in range(sail_width):
 
@@ -301,7 +303,7 @@ class ui_actions:
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
 
-                yield sail_log,images
+                yield sail_log,list(images)
             else:
                 yield sail_log,[]
             query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
