@@ -35,6 +35,7 @@ class ui_actions:
         self.interface = llm_interface_qdrant.LLM_INTERFACE()
         self.settings_io = settings_io()
         self.automa_client = automa_client()
+        self.set_sailing_settings('',1,1,False,'',False,0.1,1,False,'',False,'')
 
 
     def run_llm_response(self,query, history):
@@ -89,8 +90,24 @@ class ui_actions:
         self.g.settings_data['automa_save_on_api_host'] = save_api
         self.settings_io.write_settings(self.g.settings_data)
         self.interface.reload_settings()
-    
-    
+
+    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_sinus,
+                             sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
+                             sail_search):
+        self.g.settings_data['sail_text'] = sail_text
+        self.g.settings_data['sail_width'] = sail_width
+        self.g.settings_data['sail_depth'] = sail_depth
+        self.g.settings_data['sail_generate'] = sail_generate
+        self.g.settings_data['sail_target'] = sail_target
+        self.g.settings_data['sail_sinus'] = sail_sinus
+        self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
+        self.g.settings_data['sail_sinus_range'] = sail_sinus_range
+        self.g.settings_data['sail_add_style'] = sail_add_style
+        self.g.settings_data['sail_style'] = sail_style
+        self.g.settings_data['sail_add_search'] = sail_add_search
+        self.g.settings_data['sail_search'] = sail_search
+
+
     def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
         model = self.g.settings_data['model_list'][model]
@@ -256,7 +273,11 @@ class ui_actions:
                                                 self.g.settings_data['automa_CFG Scale'],
                                                 self.g.settings_data['automa_Width'],
                                                 self.g.settings_data['automa_Height'],
-                                                self.g.settings_data['automa_url'], True,self.g.settings_data['automa_batch'],1,False)
+                                                self.g.settings_data['automa_url'],
+                                                self.g.settings_data['automa_save'],
+                                                self.g.settings_data['automa_batch'],
+                                                self.g.settings_data['automa_n_iter'],
+                                                self.g.settings_data['automa_save_on_api_host'])
 
 
 
@@ -303,9 +324,9 @@ class ui_actions:
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
 
-                yield sail_log,list(images)
+                yield prompt,list(images)
             else:
-                yield sail_log,[]
+                yield prompt,[]
             query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
@@ -313,6 +334,52 @@ class ui_actions:
             if self.g.sail_running is False:
                 break
 
+    def run_t2t_show_sail(self):
+        self.g.sail_running = True
+        self.g.settings_data['automa_batch'] = 1
+        self.g.settings_data['automa_n_iter'] = 1
+
+        self.sail_history = []
+        self.sail_depth = self.g.settings_data['sail_depth']
+        self.sail_depth_start = self.g.settings_data['sail_depth']
+        self.sail_sinus_count = 1.0
+        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        sail_log = ''
+        query = self.g.settings_data['sail_text']
+        if self.g.settings_data['translate']:
+            query = self.interface.translate(query)
+
+        for n in range(self.g.settings_data['sail_width']):
+
+            sail_retriever = self.interface.get_retriever(similarity_top_k=self.sail_depth)
+            if self.g.settings_data['sail_add_search']:
+                query = f"{self.g.settings_data['sail_search']}, {query}"
+            response = self.interface.retrieve_query(query)
+            prompt = response.response.lstrip(" ")
+            if self.g.settings_data['sail_add_style']:
+                prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+
+            self.interface.log_raw(filename,f'{prompt}')
+            self.interface.log_raw(filename,f'{n} ----------')
+            sail_log = sail_log + f'{prompt}\n'
+            sail_log = sail_log + f'{n} ----------\n'
+            nodes = sail_retriever.retrieve(query)
+            if self.g.settings_data['sail_generate']:
+                response = self.sail_automa_gen(prompt)
+
+                for index, image in enumerate(response.get('images')):
+                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                    self.automa_client.decode_and_save_base64(image, save_path)
+                    yield prompt,img
+            else:
+                yield prompt,None
+            query = self.get_next_target(nodes,self.g.settings_data['sail_target'],self.g.settings_data['sail_sinus'],self.g.settings_data['sail_sinus_range'],self.g.settings_data['sail_sinus_freq'])
+            if query == -1:
+                self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                break
+            if self.g.sail_running is False:
+                break
 
     def stop_t2t_sail(self):
         self.g.sail_running = False
@@ -485,7 +552,7 @@ class ui_staff:
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),
                                              value=self.g.settings_data["selected_template"], label='Template', interactive=True)
 
-
+        self.sail_result_last_image = gr.Image(label='last Image')
 
 
 
