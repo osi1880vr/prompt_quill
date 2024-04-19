@@ -7,13 +7,13 @@
 [![fazier](https://fazier.com/api/v1/public/badges/embed_image.svg?launch_id=229&badge_type=daily)](https://fazier.com/launches/prompt-quill)
 
 
-The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 3.2 million prompts in the vector store. This number will keep growing as I plan to release ever-growing vector stores when they are available.
-
-Prompt Quill was created to help users make better prompts for creating images. 
-
-It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using models like Stable Diffusion or other image generators. 
+Prompt Quill was created to help users make better prompts for creating AI images.
 
 Even if you are an expert, it could still be used to inspire other prompts.
+
+It is useful for poor prompt engineers like me who struggle with coming up with all the detailed instructions that are needed to create beautiful images using models like Stable Diffusion or other image generators.
+
+The **world's first RAG driven prompt engineer** helper at this large scale. Use it with more than 3.2 million prompts in the vector store. This number will keep growing as I plan to release ever-growing vector stores when they are available.
 
 The Gradio UI will also help you to create more sophisticated text to image prompts.
 
@@ -21,6 +21,7 @@ Here you find just the code to run the UI or to insert data into your instance o
 
 There is no hardcoded need to use Docker at all, I understand this scares a lot of people. Docker is only here as it is a convenient way to run the vector stores, but it is easy to run them without docker too. Prompt Quill itself does not need Docker to run.
 
+With the latest faeture added it also adds a way for automated model testing if you are into training models.
 
 # Features
 
