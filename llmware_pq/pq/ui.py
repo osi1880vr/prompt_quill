@@ -11,7 +11,7 @@ from collections import deque
 
 from settings.io import settings_io
 
-from llm_interface_qdrant import LLM_INTERFACE
+from llmware_pq.pq.llm_fw.llm_interface_qdrant import LLM_INTERFACE
 
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client

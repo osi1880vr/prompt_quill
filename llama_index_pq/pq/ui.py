@@ -15,7 +15,7 @@ from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
 
-import llm_interface_qdrant
+from llama_index_pq.pq.llm_fw import llm_interface_qdrant
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')

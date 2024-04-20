@@ -40,7 +40,7 @@ GGUFConfigs().set_config("n_gpu_layers", 50)
 import torch
 test = torch.cuda.is_available()
 
-import llm_interface_milvus
+from llmware_pq.pq.llm_fw import llm_interface_milvus
 
 interface = llm_interface_milvus.LLM_INTERFACE()
 def set_model(model, temperature, max_tokens, gpu_layer, top_k, instruct):

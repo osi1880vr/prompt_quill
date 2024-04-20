@@ -13,7 +13,7 @@
 # permissions and limitations under the License.
 
 import globals
-from llmware_interface import adapter
+from llm_fw.llmware_interface import adapter
 
 from settings.io import settings_io
 from deep_translator import GoogleTranslator

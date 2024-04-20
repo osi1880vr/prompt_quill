@@ -21,7 +21,7 @@ g.settings_data = settings_io().load_settings()
 
 import gradio as gr
 
-from llama_cpp_hijack import llama_cpp_hijack
+from llama_index_pq.pq.llm_fw.llama_cpp_hijack import llama_cpp_hijack
 
 hijack = llama_cpp_hijack()
 
