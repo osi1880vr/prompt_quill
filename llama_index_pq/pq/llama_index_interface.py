@@ -27,6 +27,7 @@ class adapter:
         self.document_store = self.set_document_store()
         self.llm = self.set_llm()
         self.set_pipeline()
+        self.last_context = []
 
     def get_instruct(self):
         return self.g.settings_data['Instruct Model']
@@ -103,8 +104,31 @@ class adapter:
     def retrieve_context(self, prompt):
         return self.retriever.retrieve(prompt)
 
+
+    def get_context_text(self, query):
+        nodes = self.retrieve_context(query)
+        return [s.node.get_text() for s in nodes]
+
+
+    def prepare_meta_data(self, response):
+        self.g.negative_prompt_list = []
+        self.g.models_list = []
+        negative_prompts = []
+        for key in response.metadata.keys():
+            if 'negative_prompt' in response.metadata[key]:
+                negative_prompts = negative_prompts + response.metadata[key]['negative_prompt'].split(',')
+                self.g.models_list.append(f'{response.metadata[key]["model_name"]}')
+
+            if len(negative_prompts) > 0:
+                self.g.negative_prompt_list = set(negative_prompts)
+
+
+
     def retrieve_query(self, query):
-        return self.query_engine.query(query)
+        response =  self.query_engine.query(query)
+        self.g.last_context = [s.node.get_text() for s in response.source_nodes]
+        return response.response.lstrip(" ")
+
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
 

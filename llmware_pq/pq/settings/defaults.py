@@ -32,6 +32,9 @@ default = {
     "automa_Height": 512,
     "automa_url": "http://localhost:7860",
     "automa_save": True,
+    "automa_batch": 1,
+    "automa_n_iter":1,
+    "automa_save_on_api_host":False,
 
     'selected_template': 'prompt_template_a',
     'model_list': {

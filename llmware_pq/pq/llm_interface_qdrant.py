@@ -12,225 +12,150 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
+import globals
+from llmware_interface import adapter
 
-from llmware.library import Library
-from llmware.retrieval import Query
-from llmware.prompts import Prompt
-from llmware.gguf_configs import GGUFConfigs
+from settings.io import settings_io
 from deep_translator import GoogleTranslator
-
-import gc
 import os
-from settings import io
-settings_io = io.settings_io()
 
+out_dir = 'api_out'
+out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 
 class LLM_INTERFACE:
 
-
     def __init__(self):
-        self.last_context = ''
-        self.settings_data = settings_io.load_settings()
-        self.last_prompt = ''
-        self.last_negative_prompt = ''
-        self.instruct = False
-
-        self.max_tokens=self.settings_data['max output Tokens']
-        self.temperature=self.settings_data['Temperature']
-        self.top_k=self.settings_data['top_k']
-        self.n_ctx=self.settings_data['Context Length']
-
-        self.embedding_model_name = 'mini-lm-sbert' #'nomic-embed-text-v1' #'mini-lm-sbert'
-
-        self.library_name = 'llmware_meta_qdrant'
-        self.lib = Library().load_library(self.library_name)
-
-        self.run_order_list = ["blurb1", "$context", "blurb2", "$query", "instruction"]
-
-        self.prompt_dict = self.settings_data['prompt_templates']['prompt_template_a']
-        self.prompt_template = self.prompt_dict["blurb1"]
-
-        self.model_name = 'TheBloke/Panda-7B-v0.1-GGUF'
-        self.hf_repo_name = self.settings_data['model_list'][self.model_name]['repo_name']
-        self.model_file = self.settings_data['model_list'][self.model_name]['file']
-        self.model_type = 'deep_link'
-
-        self.set_pipeline()
+        self.g = globals.get_globals()
+        self.adapter = adapter()
+        self.g.negative_prompt_list = []
+        self.g.models_list = []
 
 
-    def aggregate_text_by_query(self, query, top_n=5):
+    def change_model(self, model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
+        return self.adapter.change_model(model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct)
 
-        # run query
-        query_results = self.query.semantic_query(query, result_count=top_n)
-
-        self.last_context = [s['text'].replace('\n','') for s in query_results]
-
-        prompt_consolidator = ""
-        for j, results in enumerate(query_results):
-            prompt_consolidator += results["text"] + "\n"
-
-        return prompt_consolidator
-
-
-    def set_pipeline(self):
-
-        self.prompter = Prompt()
-
-        if self.model_type == 'deep_link':
-            self.prompter.model_catalog.register_gguf_model(self.model_name,
-                                                            self.hf_repo_name,
-                                                            self.model_file,
-                                                            prompt_wrapper="open_chat",
-                                                            context_window=self.n_ctx)
-
-        self.prompter.load_model(self.model_name)
-        self.prompter.pc.add_custom_prompt_card("image_prompt",
-                                                self.run_order_list,
-                                                self.prompt_dict,
-                                                prompt_description="Image Gen Search")
-
-        #  the temperatures are from 0-1, and lower number is closer to the text and reduces hallucinations
-        self.prompter = self.prompter.set_inference_parameters(temperature=self.temperature,
-                                                               llm_max_output_len=self.max_tokens)
-
-        self.query =  Query(self.lib)
-
+    def set_prompt(self,prompt_text):
+        return self.adapter.set_prompt(prompt_text)
 
     def log(self,logfile, text):
         f = open(logfile, 'a')
-        f.write(f"QUERY: {text} \n")
+        try:
+            f.write(f"QUERY: {text} \n")
+        except:
+            pass
+        f.close()
+    def log_raw(self,logfile, text):
+        f = open(logfile, 'a')
+        try:
+            f.write(f"{text}\n")
+        except:
+            pass
         f.close()
 
 
     def retrieve_context(self, query):
-        query_results = self.query.semantic_query(query, result_count=self.settings_data['top_k'])
-        self.last_context = [s['text'].replace('\n','') for s in query_results]
-        return self.last_context
+        self.g.last_context = self.adapter.get_context_text(query)
+        return self.g.last_context
 
 
     def set_top_k(self, top_k):
-        self.settings_data['top_k'] = top_k
-        self.set_pipeline()
+        self.g.settings_data['top_k'] = top_k
+        self.adapter.set_pipeline()
+
 
     def get_context_details(self):
-        return self.last_context
+        return self.g.last_context
+
 
     def reload_settings(self):
-        self.settings_data = settings_io.load_settings()
+        self.g.settings_data = settings_io().load_settings()
 
 
     def translate(self, query):
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
 
+
     def run_batch_response(self,context):
         output = ''
         n = 1
         for query in context:
             if query != '':
-                context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
-
-                response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
-                output = f'{output}\n\n\nPrompt {str(n)}:\n{response["llm_response"].lstrip(" ")}'
+                response = self.adapter.retrieve_query(query)
+                output = f'{output}\n\n\nPrompt {str(n)}:\n{response}'
                 n += 1
 
         return output
 
     def run_llm_response_batch(self, query):
 
-        if self.settings_data['translate']:
+        if self.g.settings_data['translate']:
             query = self.translate(query)
 
-        if self.instruct is True:
+        if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
+        response = self.adapter.retrieve_query(query)
 
-        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
-
-
-        output = response['llm_response'].lstrip(' ')
+        output = response
         output = output.replace('\n','')
 
         return output
 
+    def get_retriever(self,similarity_top_k):
+        return self.adapter.get_retriever(similarity_top_k=similarity_top_k)
+    def retrieve_query(self, query):
+        return self.adapter.retrieve_query(query)
+
+    def retrieve_top_k_query(self, query, top_k):
+        return self.adapter.retrieve_top_k_query(query, top_k)
+
+    def get_query_texts(self, query_results):
+        return self.adapter.get_query_texts(query_results)
+
     def run_llm_response(self, query, history):
 
-
-        if self.settings_data['translate']:
+        if self.g.settings_data['translate']:
             query = self.translate(query)
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
-        if 'instruct' in query.lower():
-            res = 'I only follow one master and thats not you :P'
-            self.log('logfile.txt',f"RESPONSE: {res} \n-------------\n")
-            return res
-
-        if self.instruct is True:
+        if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        context = self.aggregate_text_by_query(query, top_n=self.settings_data['top_k'])
+        response = self.adapter.retrieve_query(query)
 
-        response = self.prompter.prompt_main(query, prompt_name="image_prompt",context=context)
+        self.log('logfile.txt',f"RESPONSE: {response} \n-------------\n")
+        self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response}\n')
 
-        self.last_prompt = response['llm_response'].lstrip(' ')
+        self.g.last_prompt = response
 
-        output = self.last_prompt
+        output = self.g.last_prompt
 
-        if self.settings_data['translate']:
+        if self.g.settings_data['translate']:
             output = f'Your prompt was translated to: {query}\n\n\n{output}'
 
-        if self.settings_data['batch']:
-            batch_result = self.run_batch_response(self.last_context)
+        if self.g.settings_data['batch']:
+            batch_result = self.run_batch_response(self.g.last_context)
             output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
 
-        self.log('logfile.txt',f"RESPONSE: {output} \n-------------\n")
+
+        if len(self.g.negative_prompt_list) > 0:
+            self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
+            if len(self.g.last_negative_prompt) < 30:
+                self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
+            if self.g.last_negative_prompt != '':
+                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.g.last_negative_prompt}'
+        else:
+            self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
+            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.g.last_negative_prompt}'
+
+        if len(self.g.models_list) > 0:
+            models_out = "\n".join(self.g.models_list)
+            if models_out != '':
+                output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
+
 
         return output
 
 
-    def change_model(self, model, temperature, n_ctx, max_tokens, gpu_layers, top_k, instruct):
-
-        GGUFConfigs().set_config("n_gpu_layers", gpu_layers)
-        GGUFConfigs().set_config("n_ctx", n_ctx)
-
-        self.temperature=float(temperature)
-        self.top_k=top_k
-        self.max_tokens=max_tokens
-        self.instruct = instruct
-        self.n_ctx = n_ctx
-        self.model_name = model
-        self.model_type = self.settings_data['model_list'][self.model_name]['type']
-        if self.model_type == 'deep_link':
-            self.hf_repo_name = self.settings_data['model_list'][self.model_name]['repo_name']
-            self.model_file = self.settings_data['model_list'][self.model_name]['file']
-        else:
-            self.hf_repo_name = None
-            self.model_file = None
-
-
-        del self.prompter
-
-
-        # delete the model from Ram
-        gc.collect()
-
-        self.set_pipeline()
-        return f'Model set to {model}'
-
-    def set_prompt(self,prompt_text):
-        self.prompt_template = prompt_text
-
-        self.log('magic_prompt_logfile.txt',f"Magic Prompt: \n{prompt_text} \n")
-
-
-        self.prompt_dict["blurb1"] = prompt_text
-
-        del self.prompter
-
-        # delete the model from Ram
-        gc.collect()
-
-        self.set_pipeline()
-        return f'Magic Prompt set to:\n {prompt_text}'

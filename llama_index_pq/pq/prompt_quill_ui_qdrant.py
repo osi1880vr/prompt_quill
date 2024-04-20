@@ -127,7 +127,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                      ui.automa_CFG,
                      ui.automa_Width,
                      ui.automa_Height,
-                     ui.automa_url
+                     ui.automa_Batch,
+                     ui.automa_n_iter,
+                     ui.automa_url,
+                     ui.automa_save,
+                     ui.automa_save_on_api_host
                      ]
         )
         with gr.Tab("Automatic 1111 / Forge") as automatic1111:
@@ -260,8 +264,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 # live=True
             )
 
-
-
     with gr.Tab("Sail the data ocean") as sailor:
 
 
@@ -337,14 +339,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             with gr.Row():
                 sail_show_submit_button = gr.Button('Start your journey')
             with gr.Row():
-                sail_show_image = gr.Image(height=1024,width=1024)
+                sail_show_image = gr.Image(height=1024,width=1624)
             with gr.Row():
                 sail_show_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",lines=4)
 
             start_sail_show = sail_show_submit_button.click(ui_code.run_t2t_show_sail,None,
                     [sail_show_result,sail_show_image])
-
-
 
     with gr.Tab('Settings'):
         with gr.Tab("Character") as Character:

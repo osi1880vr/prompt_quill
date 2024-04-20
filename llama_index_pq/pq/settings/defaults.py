@@ -1,5 +1,4 @@
 default = {
-
     'translate': False,
     'batch': False,
     "LLM Model": 'TheBloke/Panda-7B-v0.1-GGUF',
