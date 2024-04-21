@@ -298,6 +298,7 @@ class ui_actions:
         self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
+        query = ''
 
 
         if self.g.settings_data['translate']:
@@ -333,8 +334,8 @@ class ui_actions:
                 yield prompt,list(images)
             else:
                 yield prompt,[]
-            query = self.get_next_target(nodes)
-            if query == -1:
+            self.g.settings_data['sail_text'] = self.get_next_target(nodes)
+            if self.g.settings_data['sail_text'] == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
             if self.g.sail_running is False:
