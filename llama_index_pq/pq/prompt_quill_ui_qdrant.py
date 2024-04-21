@@ -328,7 +328,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 with gr.Column(scale=3):
                     with gr.Row():
                         sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'], label="Sail steps",info="Choose between 1 and 10000")
-                        sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'], label="Sail distance",info="Choose between 1 and 2048")
+                        sail_depth = gr.Slider(1, 2000, step=1, value=g.settings_data['sail_depth'], label="Sail distance",info="Choose between 1 and 2048")
                     with gr.Row():
                         sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=g.settings_data['sail_generate'])
                         sail_check_connect_button = gr.Button('Check API Available')
