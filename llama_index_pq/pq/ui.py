@@ -36,8 +36,6 @@ class ui_actions:
         self.settings_io = settings_io()
         self.max_top_k = 50
         self.automa_client = automa_client()
-        self.set_sailing_settings('',1,1,False,'',False,0.1,1,False,'',False,'')
-
 
     def run_llm_response(self,query, history):
         return self.interface.run_llm_response(query, history)
@@ -78,7 +76,9 @@ class ui_actions:
         self.interface.reload_settings()
     
     
-    def set_automa_settings(self, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
+        self.g.last_prompt = prompt
+        self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_Sampler'] = sampler
         self.g.settings_data['automa_Steps'] = steps
         self.g.settings_data['automa_CFG Scale'] = cfg
@@ -92,9 +92,26 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
         self.interface.reload_settings()
 
+    def set_automa_adetailer(self, automa_adetailer_enable,
+                             automa_ad_use_inpaint_width_height,
+                             automa_ad_model,
+                             automa_ad_denoising_strength,
+                             automa_ad_clip_skip,
+                             automa_ad_confidence):
+        self.g.settings_data['automa_adetailer_enable'] = automa_adetailer_enable
+        self.g.settings_data['automa_ad_use_inpaint_width_height'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa_ad_model'] = automa_ad_model
+        self.g.settings_data['automa_ad_denoising_strength'] = automa_ad_denoising_strength
+        self.g.settings_data['automa_ad_clip_skip'] = automa_ad_clip_skip
+        self.g.settings_data['automa_ad_confidence'] = automa_ad_confidence
+        self.settings_io.write_settings(self.g.settings_data)
+        self.interface.reload_settings()
+
+
+
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
-                             sail_search):
+                             sail_search,sail_max_gallery_size):
         self.g.settings_data['sail_text'] = sail_text
         self.g.settings_data['sail_width'] = sail_width
         self.g.settings_data['sail_depth'] = sail_depth
@@ -107,7 +124,8 @@ class ui_actions:
         self.g.settings_data['sail_style'] = sail_style
         self.g.settings_data['sail_add_search'] = sail_add_search
         self.g.settings_data['sail_search'] = sail_search
-
+        self.g.settings_data['sail_max_gallery_size'] = sail_max_gallery_size
+        self.settings_io.write_settings(self.g.settings_data)
 
     def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
@@ -188,10 +206,11 @@ class ui_actions:
     
     def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
         self.g.running = True
-        self.set_automa_settings(sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
-        response = self.automa_client.request_generation(prompt=prompt, negative_prompt=negative_prompt,
-                                         sampler=sampler, steps=steps, cfg=cfg, width=width, heigth=heigth, url=url,
-                                         save=save, batch=batch,n_iter=n_iter, save_api=save_api)
+        self.set_automa_settings(prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
+        self.g.last_prompt = prompt
+        self.g.last_negative_prompt = negative_prompt
+
+        response = self.automa_client.request_generation(prompt, negative_prompt, self.g.settings_data)
         images = []
         for index, image in enumerate(response.get('images')):
             img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
@@ -233,22 +252,22 @@ class ui_actions:
             f.close()
 
 
-    def get_next_target(self, nodes, sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq):
+    def get_next_target(self, nodes):
         target_dict = self.interface.get_query_texts(nodes)
 
-        if len(target_dict.keys()) < self.sail_depth:
-            self.sail_depth = self.sail_depth_start + len(self.g.sail_history)
+        if len(target_dict.keys()) < self.g.settings_data['sail_depth']:
+            self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
 
-        if sail_sinus:
-            sinus = int(math.sin(self.sail_sinus_count/10.0)*sail_sinus_range)
-            self.sail_sinus_count += sail_sinus_freq
-            self.sail_depth += sinus
-            if self.sail_depth < 0:
-                self.sail_depth = 1
+        if self.g.settings_data['sail_sinus']:
+            sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
+            self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
+            self.g.settings_data['sail_depth'] += sinus
+            if self.g.settings_data['sail_depth'] < 0:
+                self.g.settings_data['sail_depth'] = 1
 
         if len(target_dict.keys()) > 0:
 
-            if sail_target:
+            if self.g.settings_data['sail_target']:
                 out =  target_dict[min(target_dict.keys())]
                 self.g.sail_history.append(out)
                 return out
@@ -265,50 +284,44 @@ class ui_actions:
     def sail_automa_gen(self, query):
         return self.automa_client.request_generation(query,
                                                 self.g.settings_data['negative_prompt'],
-                                                self.g.settings_data['automa_Sampler'],
-                                                self.g.settings_data['automa_Steps'],
-                                                self.g.settings_data['automa_CFG Scale'],
-                                                self.g.settings_data['automa_Width'],
-                                                self.g.settings_data['automa_Height'],
-                                                self.g.settings_data['automa_url'],
-                                                self.g.settings_data['automa_save'],
-                                                self.g.settings_data['automa_batch'],
-                                                self.g.settings_data['automa_n_iter'],
-                                                self.g.settings_data['automa_save_on_api_host'])
+                                                self.g.settings_data)
 
-    def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search,sail_max_gallery_size):
+
+
+    def run_t2t_sail(self):
         self.g.sail_running = True
 
 
         self.g.sail_history = []
-        self.sail_depth = sail_depth
-        self.sail_depth_start = sail_depth
+        self.sail_depth = self.g.settings_data['sail_depth']
+        self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
 
+
         if self.g.settings_data['translate']:
-            query = self.interface.translate(query)
+            query = self.interface.translate(self.g.settings_data['sail_text'])
+
+        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
 
-        images = deque(maxlen=int(sail_max_gallery_size))
+        for n in range(self.g.settings_data['sail_width']):
 
-        for n in range(sail_width):
-
-            if sail_add_search:
-                query = f'{sail_search}, {query}'
-            prompt = self.interface.retrieve_query(query)
-            if sail_add_style:
-                prompt = f'{sail_style}, {prompt}'
+            if self.g.settings_data['sail_add_search']:
+                query = f'{self.g.settings_data["sail_search"]}, {self.g.settings_data["sail_text"]}'
+            prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
+            if self.g.settings_data['sail_add_style']:
+                prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
             self.interface.log_raw(filename,f'{prompt}')
             self.interface.log_raw(filename,f'{n} ----------')
             sail_log = sail_log + f'{prompt}\n'
             sail_log = sail_log + f'{n} ----------\n'
 
-            nodes = self.interface.retrieve_top_k_query(query, self.sail_depth)
+            nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
-            if sail_generate:
+            if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)
 
                 for index, image in enumerate(response.get('images')):
@@ -320,7 +333,7 @@ class ui_actions:
                 yield prompt,list(images)
             else:
                 yield prompt,[]
-            query = self.get_next_target(nodes,sail_target,sail_sinus,sail_sinus_range,sail_sinus_freq)
+            query = self.get_next_target(nodes)
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
@@ -365,7 +378,7 @@ class ui_actions:
                     yield prompt,img
             else:
                 yield prompt,None
-            query = self.get_next_target(nodes,self.g.settings_data['sail_target'],self.g.settings_data['sail_sinus'],self.g.settings_data['sail_sinus_range'],self.g.settings_data['sail_sinus_freq'])
+            query = self.get_next_target(nodes)
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
@@ -537,6 +550,10 @@ class ui_staff:
                                       info="The number of sequential batches to be run, range from 1-500.")
         self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
         self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
+
+
+
+
 
         self.automa_stop_button = gr.Button('Stop')
 

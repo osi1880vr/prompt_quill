@@ -70,24 +70,41 @@ class automa_client:
         return response['caption']
 
 
-    def request_generation(self,prompt, negative_prompt,
-                           sampler, steps, cfg, width, heigth, url, save, batch, n_iter,save_api):
+    def request_generation(self,prompt, negative_prompt,settings_data):
 
-        self.webui_server_url=url
-        self.save = save
+
+        self.webui_server_url=settings_data["automa_url"]
+        self.save = settings_data["automa_save"]
+
+
+        ADetailer = {}
+        alwayson_scripts = {}
+        if settings_data['automa_adetailer_enable']:
+            ADetailer['args'] = [{
+                'ad_model': settings_data['automa_ad_model'],
+                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height'],
+                'ad_denoising_strength': settings_data['automa_ad_denoising_strength'],
+                "ad_clip_skip": settings_data['automa_ad_clip_skip'],
+                "ad_confidence": settings_data['automa_ad_confidence'],
+            }]
+
+        if len(ADetailer) > 0:
+            alwayson_scripts["ADetailer"] = ADetailer
+
 
         payload = {
+            "alwayson_scripts": alwayson_scripts,
             "prompt": prompt,  # extra networks also in prompts
             "negative_prompt": negative_prompt,
             "seed": -1,
-            "steps": steps,
-            "width": width,
-            "height": heigth,
-            "cfg_scale": cfg,
-            "sampler_name": sampler,
-            "n_iter": n_iter,
-            "batch_size": batch,
-            "save_images":save_api,
+            "steps": settings_data["automa_Steps"],
+            "width": settings_data["automa_Width"],
+            "height": settings_data["automa_Height"],
+            "cfg_scale": settings_data["automa_CFG Scale"],
+            "sampler_name": settings_data['automa_Sampler'],
+            "n_iter": settings_data["automa_n_iter"],
+            "batch_size": settings_data["automa_batch"],
+            "save_images":settings_data["automa_save_on_api_host"],
             #"override_settings": {
             # "sd_model_checkpoint": "v1-5-pruned-emaonly.safetensors",
             # "sd_vae": "sd-vae-ft-mse.safetensors"

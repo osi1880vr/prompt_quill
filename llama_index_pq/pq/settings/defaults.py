@@ -35,6 +35,27 @@ default = {
     "automa_batch": 1,
     "automa_n_iter":1,
     "automa_save_on_api_host":False,
+    "automa_adetailer_enable":False,
+    'automa_ad_use_inpaint_width_height':False,
+    'automa_ad_model':'face_yolov8n.pt',
+    'automa_ad_denoising_strength':0.2,
+    'automa_ad_clip_skip':1,
+    'automa_ad_confidence':0.7,
+
+    "sail_text":"",
+    "sail_width":10,
+    "sail_depth":10,
+    "sail_generate":False,
+    "sail_target":True,
+    "sail_sinus":False,
+    "sail_sinus_freq":0.1,
+    "sail_sinus_range":10,
+    "sail_add_style":False,
+    "sail_style":"",
+    "sail_add_search":False,
+    "sail_search":"",
+    "sail_max_gallery_size":10,
+
 
     'selected_template': 'prompt_template_b',
     'model_list': {

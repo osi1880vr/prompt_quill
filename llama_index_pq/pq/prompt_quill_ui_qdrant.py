@@ -137,7 +137,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
         with gr.Tab("Automatic 1111 / Forge") as automatic1111:
             with gr.Tab('Generate') as generate:
                 gr.on(
-                    triggers=[ui.automa_Sampler.change,
+                    triggers=[ui.automa_prompt_input.change,
+                              ui.automa_negative_prompt_input.change,
+                              ui.automa_Sampler.change,
                               ui.automa_Steps.change,
                               ui.automa_CFG.change,
                               ui.automa_Width.change,
@@ -148,7 +150,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                               ui.automa_save.change,
                               ui.automa_save_on_api_host.change],
                     fn=ui_code.set_automa_settings,
-                    inputs=[ui.automa_Sampler,
+                    inputs=[ui.automa_prompt_input,
+                            ui.automa_negative_prompt_input,
+                            ui.automa_Sampler,
                             ui.automa_Steps,
                             ui.automa_CFG,
                             ui.automa_Width,
@@ -210,6 +214,50 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
                 button_interrogate.click(ui_code.run_automa_interrogation_batch,[input_image_gallery,interrogate_url,save],output_interrogation)
+            with gr.Tab('Extensions') as extensions:
+                with gr.Tab('Adetailer') as adetailer:
+
+                    automa_adetailer_enable = gr.Checkbox(label="Enable Adetailer", value=g.settings_data['automa_adetailer_enable'])
+
+                    automa_ad_use_inpaint_width_height = gr.Checkbox(label="Use inpaint with height", value=g.settings_data['automa_ad_use_inpaint_width_height'])
+
+                    automa_ad_model = gr.Dropdown(
+                        choices=["face_yolov8n.pt",
+                                 "face_yolov8s.pt",
+                                 "hand_yolov8n.pt",
+                                 "person_yolov8n-seg.pt",
+                                 "person_yolov8s-seg.pt"], value=g.settings_data['automa_ad_model'], label='Model')
+
+                    automa_ad_denoising_strength = gr.Slider(0, 1, step=0.1, value=g.settings_data['automa_ad_denoising_strength'], label="Denoising strength",
+                                                                  info="Denoising strength 0-1.")
+
+                    automa_ad_clip_skip = gr.Slider(1, 5, step=1, value=g.settings_data['automa_ad_clip_skip'], label="Clipskip",
+                                                         info="Clipskip 1-5.")
+
+                    automa_ad_confidence = gr.Slider(0, 1, step=0.1, value=g.settings_data['automa_ad_confidence'], label="Confidence",
+                                                          info="Level of confidence 0-1.")
+
+                    gr.on(
+                        triggers=[automa_adetailer_enable.change,
+                                  automa_ad_use_inpaint_width_height.change,
+                                  automa_ad_model.change,
+                                  automa_ad_denoising_strength.change,
+                                  automa_ad_clip_skip.change,
+                                  automa_ad_confidence.change],
+                        fn=ui_code.set_automa_adetailer,
+                        inputs=[automa_adetailer_enable,
+                                automa_ad_use_inpaint_width_height,
+                                automa_ad_model,
+                                automa_ad_denoising_strength,
+                                automa_ad_clip_skip,
+                                automa_ad_confidence],
+                        outputs=None
+                    )
+
+
+
+
+
         with gr.Tab("Civitai") as civitai:
             gr.Interface(
                 ui_code.run_civitai_generation,
@@ -271,7 +319,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
             with gr.Row():
                 with gr.Column(scale=3):
-                    sail_text = gr.Textbox("", label=f'Start your journey with',placeholder="Where do we set our sails",elem_id='sail-input-text')
+                    sail_text = gr.Textbox(g.settings_data['sail_text'], label=f'Start your journey with',placeholder="Where do we set our sails",elem_id='sail-input-text')
                 with gr.Column(scale=1):
                     with gr.Row():
                         sail_submit_button = gr.Button('Start your journey')
@@ -279,25 +327,25 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             with gr.Row():
                 with gr.Column(scale=3):
                     with gr.Row():
-                        sail_width = gr.Slider(1, 2048, step=1, value=10, label="Sail steps",info="Choose between 1 and 2048")
-                        sail_depth = gr.Slider(1, 2048, step=1, value=10, label="Sail depth",info="Choose between 1 and 2048")
+                        sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'], label="Sail steps",info="Choose between 1 and 10000")
+                        sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'], label="Sail distance",info="Choose between 1 and 2048")
                     with gr.Row():
-                        sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=False)
+                        sail_generate = gr.Checkbox(label="Generate with A1111", info="Do you want to directly generate the images?", value=g.settings_data['sail_generate'])
                         sail_check_connect_button = gr.Button('Check API Available')
                         sail_api_avail_ok = gr.Textbox("", label=f'API OK', placeholder="not checked yet")
-                        sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=True)
+                        sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=g.settings_data['sail_target'])
                     with gr.Row():
-                        sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=False)
-                        sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=0.1, label="Sinus Frequency",info="Choose between 0.1 and 10")
-                        sail_sinus_range = gr.Slider(1, 500, step=1, value=10, label="Sinus Multiplier",info="Choose between 1 and 500")
+                        sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=g.settings_data['sail_sinus'])
+                        sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
+                        sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'], label="Sinus Multiplier",info="Choose between 1 and 500")
                     with gr.Row():
-                        sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=False)
-                        sail_style = gr.Textbox("", label=f'Style Spec', placeholder="Enter your hardcoded style")
+                        sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=g.settings_data['sail_add_style'])
+                        sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec', placeholder="Enter your hardcoded style")
                     with gr.Row():
-                        sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=False)
-                        sail_search = gr.Textbox("", label=f'Search Spec', placeholder="Enter your hardcoded search")
+                        sail_add_search = gr.Checkbox(label="Hard search specification", info="Add a text to each search", value=g.settings_data['sail_add_search'])
+                        sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec', placeholder="Enter your hardcoded search")
                 with gr.Column(scale=1):
-                    sail_max_gallery_size = gr.Slider(1, 500, step=1, value=10, label="Max Gallery size",info="Limit the number of images keept in the gallery choose between 1 and 500")
+                    sail_max_gallery_size = gr.Slider(1, 500, step=1, value=g.settings_data['sail_max_gallery_size'], label="Max Gallery size",info="Limit the number of images keept in the gallery choose between 1 and 500")
                     sail_result_images = gr.Gallery(label='output images')
             with gr.Row():
                 sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
@@ -315,7 +363,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                           sail_add_style.change,
                           sail_style.change,
                           sail_add_search.change,
-                          sail_search.change],
+                          sail_search.change,
+                          sail_max_gallery_size.change],
                 fn=ui_code.set_sailing_settings,
                 inputs=[sail_text,
                         sail_width,
@@ -328,11 +377,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_add_style,
                         sail_style,
                         sail_add_search,
-                        sail_search],
+                        sail_search,
+                        sail_max_gallery_size],
                 outputs = None)
-            start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[sail_text,sail_width,sail_depth,sail_target,
-                                                                        sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,
-                                                                        sail_add_style,sail_style,sail_add_search,sail_search,sail_max_gallery_size],[sail_result,sail_result_images])
+            start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[],[sail_result,sail_result_images])
             sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
             sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
         with gr.Tab('Show'):
@@ -414,4 +462,4 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 if __name__ == "__main__":
-    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True)  # share=True
+    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name="0.0.0.0")  # share=True
