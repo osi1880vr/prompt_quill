@@ -338,9 +338,9 @@ class ui_actions:
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
 
-                yield prompt,list(images)
+                yield sail_log,list(images)
             else:
-                yield prompt,[]
+                yield sail_log,[]
             self.g.settings_data['sail_text'] = self.get_next_target(nodes)
             if self.g.settings_data['sail_text'] == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
