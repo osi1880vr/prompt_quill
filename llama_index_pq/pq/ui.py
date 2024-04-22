@@ -302,7 +302,7 @@ class ui_actions:
         self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
-        query = ''
+        query = self.g.settings_data['sail_text']
 
 
         if self.g.settings_data['translate']:
