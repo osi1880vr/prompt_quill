@@ -45,7 +45,6 @@ class automa_client:
         )
         try:
             response = urllib.request.urlopen(request)
-            print(f'api responsecode: {response.getcode()}')
             return json.loads(response.read().decode('utf-8'))
         except Exception as e:
             print(e)

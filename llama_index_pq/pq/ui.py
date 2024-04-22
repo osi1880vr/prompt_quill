@@ -327,8 +327,6 @@ class ui_actions:
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
             if self.g.settings_data['sail_generate']:
-                print('start generate')
-
                 response = self.sail_automa_gen(prompt)
 
                 for index, image in enumerate(response.get('images')):
@@ -336,10 +334,12 @@ class ui_actions:
                     save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
-                print(f'generated {len(list(images))} images')
+
                 yield prompt,list(images)
+
             else:
                 yield sail_log,[]
+
             self.g.settings_data['sail_text'] = self.get_next_target(nodes)
             if self.g.settings_data['sail_text'] == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
