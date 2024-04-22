@@ -154,6 +154,9 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
 call python one_click.py
 
+pause
+exit
+
 :PrintBigMessage
 echo. && echo.
 echo *******************************************************************
@@ -161,3 +164,7 @@ for %%M in (%*) do echo * %%~M
 echo *******************************************************************
 echo. && echo.
 exit /b
+
+:end
+pause
+exit

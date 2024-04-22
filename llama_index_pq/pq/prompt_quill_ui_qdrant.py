@@ -21,7 +21,7 @@ g.settings_data = settings_io().load_settings()
 
 import gradio as gr
 
-from llama_index_pq.pq.llm_fw.llama_cpp_hijack import llama_cpp_hijack
+from llm_fw.llama_cpp_hijack import llama_cpp_hijack
 
 hijack = llama_cpp_hijack()
 
@@ -387,7 +387,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             with gr.Row():
                 sail_show_submit_button = gr.Button('Start your journey')
             with gr.Row():
-                sail_show_image = gr.Image(height=1024,width=1624)
+                sail_show_image = gr.Image(height=800,width=1300)
             with gr.Row():
                 sail_show_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",lines=4)
 

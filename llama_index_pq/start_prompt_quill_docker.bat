@@ -17,3 +17,7 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( 
 start /W "" python pq/check_qdrant_up.py
 
 call python prompt_quill_ui_qdrant.py
+
+
+pause
+exit

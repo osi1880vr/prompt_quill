@@ -17,3 +17,7 @@ if exist "%INSTALL_DIR%\bin" (
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
 call python pg\prompt_quill_ui_qdrant.py
+
+
+pause
+exit

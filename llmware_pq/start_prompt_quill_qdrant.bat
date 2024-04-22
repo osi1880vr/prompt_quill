@@ -33,3 +33,6 @@ ping 127.0.0.1 -n 6 > nul
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 
 call python pq\prompt_quill_ui_qdrant.py
+
+pause
+exit

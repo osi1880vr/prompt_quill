@@ -7,6 +7,7 @@ import math
 from PIL import Image
 from io import BytesIO
 import time
+import re
 from collections import deque
 
 from generators.civitai.client import civitai_client
@@ -15,7 +16,7 @@ from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
 
-from llama_index_pq.pq.llm_fw import llm_interface_qdrant
+from llm_fw import llm_interface_qdrant
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
@@ -112,6 +113,9 @@ class ui_actions:
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search,sail_max_gallery_size):
+        if self.g.sail_running:
+            self.sail_depth_start = sail_depth
+
         self.g.settings_data['sail_text'] = sail_text
         self.g.settings_data['sail_width'] = sail_width
         self.g.settings_data['sail_depth'] = sail_depth
@@ -293,7 +297,7 @@ class ui_actions:
 
 
         self.g.sail_history = []
-        self.sail_depth = self.g.settings_data['sail_depth']
+
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
@@ -312,6 +316,9 @@ class ui_actions:
             if self.g.settings_data['sail_add_search']:
                 query = f'{self.g.settings_data["sail_search"]}, {self.g.settings_data["sail_text"]}'
             prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
+            if '\n' in prompt:
+                prompt = re.sub(r'.*\n', '', prompt)
+
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
@@ -347,7 +354,7 @@ class ui_actions:
         self.g.settings_data['automa_n_iter'] = 1
 
         self.g.sail_history = []
-        self.sail_depth = self.g.settings_data['sail_depth']
+
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
         filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
@@ -361,6 +368,10 @@ class ui_actions:
             if self.g.settings_data['sail_add_search']:
                 query = f"{self.g.settings_data['sail_search']}, {query}"
             prompt = self.interface.retrieve_query(query)
+
+            if '\n' in prompt:
+                prompt = re.sub(r'.*\n', '', prompt)
+
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
@@ -368,7 +379,7 @@ class ui_actions:
             self.interface.log_raw(filename,f'{n} ----------')
             sail_log = sail_log + f'{prompt}\n'
             sail_log = sail_log + f'{n} ----------\n'
-            nodes = self.interface.retrieve_top_k_query(query, self.sail_depth)
+            nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)
 
