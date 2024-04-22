@@ -294,42 +294,41 @@ class ui_actions:
 
     def run_t2t_sail(self):
         self.g.sail_running = True
-
-
         self.g.sail_history = []
-
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
         query = self.g.settings_data['sail_text']
+        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
+        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
-
-        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
 
         for n in range(self.g.settings_data['sail_width']):
 
             if self.g.settings_data['sail_add_search']:
                 query = f'{self.g.settings_data["sail_search"]}, {self.g.settings_data["sail_text"]}'
+
             prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
+
             if '\n' in prompt:
                 prompt = re.sub(r'.*\n', '', prompt)
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}')
-            self.interface.log_raw(filename,f'{n} ----------')
-            sail_log = sail_log + f'{prompt}\n'
-            sail_log = sail_log + f'{n} ----------\n'
+            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+
+            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
             if self.g.settings_data['sail_generate']:
+                print('start generate')
+
                 response = self.sail_automa_gen(prompt)
 
                 for index, image in enumerate(response.get('images')):
@@ -337,8 +336,8 @@ class ui_actions:
                     save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
-
-                yield sail_log,list(images)
+                print(f'generated {len(list(images))} images')
+                yield prompt,list(images)
             else:
                 yield sail_log,[]
             self.g.settings_data['sail_text'] = self.get_next_target(nodes)
@@ -352,21 +351,23 @@ class ui_actions:
         self.g.sail_running = True
         self.g.settings_data['automa_batch'] = 1
         self.g.settings_data['automa_n_iter'] = 1
-
         self.g.sail_history = []
-
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         sail_log = ''
         query = self.g.settings_data['sail_text']
+
+        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+
         if self.g.settings_data['translate']:
             query = self.interface.translate(query)
+
 
         for n in range(self.g.settings_data['sail_width']):
 
             if self.g.settings_data['sail_add_search']:
                 query = f"{self.g.settings_data['sail_search']}, {query}"
+
             prompt = self.interface.retrieve_query(query)
 
             if '\n' in prompt:
@@ -375,10 +376,9 @@ class ui_actions:
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}')
-            self.interface.log_raw(filename,f'{n} ----------')
-            sail_log = sail_log + f'{prompt}\n'
-            sail_log = sail_log + f'{n} ----------\n'
+            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+
+            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)
