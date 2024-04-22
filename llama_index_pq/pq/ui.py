@@ -335,7 +335,7 @@ class ui_actions:
                     self.automa_client.decode_and_save_base64(image, save_path)
                     images.append(img)
 
-                yield prompt,list(images)
+                yield sail_log,list(images)
 
             else:
                 yield sail_log,[]
