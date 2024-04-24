@@ -263,9 +263,9 @@ class ui_actions:
             self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
 
         if self.g.settings_data['sail_sinus']:
-            sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
+            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
             self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
-            self.g.settings_data['sail_depth'] += sinus
+            self.g.settings_data['sail_depth'] += self.sinus
             if self.g.settings_data['sail_depth'] < 0:
                 self.g.settings_data['sail_depth'] = 1
 
@@ -297,6 +297,7 @@ class ui_actions:
         self.g.sail_history = []
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
+        self.sinus = 0
         sail_log = ''
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
@@ -320,9 +321,12 @@ class ui_actions:
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-
-            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+            if self.g.settings_data['sail_sinus']:
+                self.interface.log_raw(filename,f'{prompt} sinus {self.sinus}\n{n} ----------')
+                sail_log = sail_log + f'{prompt} sinus {self.sinus}\n{n} ----------\n'
+            else:
+                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
@@ -376,9 +380,13 @@ class ui_actions:
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+            if self.g.settings_data['sail_sinus']:
+                self.interface.log_raw(filename,f'{prompt} sinus {self.sinus}\n{n} ----------')
+                sail_log = sail_log + f'{prompt} sinus {self.sinus}\n{n} ----------\n'
+            else:
+                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
-            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)
