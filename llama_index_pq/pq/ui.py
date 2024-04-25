@@ -381,8 +381,8 @@ class ui_actions:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
             if self.g.settings_data['sail_sinus']:
-                self.interface.log_raw(filename,f'{prompt} sinus {self.sinus}\n{n} ----------')
-                sail_log = sail_log + f'{prompt} sinus {self.sinus}\n{n} ----------\n'
+                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
             else:
                 self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
                 sail_log = sail_log + f'{prompt}\n{n} ----------\n'
