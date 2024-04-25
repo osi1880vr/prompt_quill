@@ -24,6 +24,11 @@ import time
 import re
 from collections import deque
 
+import nltk
+
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
@@ -124,7 +129,7 @@ class ui_actions:
 
 
 
-    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_sinus,
+    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_summary, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search,sail_max_gallery_size):
         if self.g.sail_running:
@@ -135,6 +140,7 @@ class ui_actions:
         self.g.settings_data['sail_depth'] = sail_depth
         self.g.settings_data['sail_generate'] = sail_generate
         self.g.settings_data['sail_target'] = sail_target
+        self.g.settings_data['sail_summary'] = sail_summary
         self.g.settings_data['sail_sinus'] = sail_sinus
         self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
         self.g.settings_data['sail_sinus_range'] = sail_sinus_range
@@ -277,9 +283,9 @@ class ui_actions:
             self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
 
         if self.g.settings_data['sail_sinus']:
-            sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
+            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
             self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
-            self.g.settings_data['sail_depth'] += sinus
+            self.g.settings_data['sail_depth'] += self.sinus
             if self.g.settings_data['sail_depth'] < 0:
                 self.g.settings_data['sail_depth'] = 1
 
@@ -305,12 +311,54 @@ class ui_actions:
                                                 self.g.settings_data)
 
 
+        # Sentence scoring (replace with your chosen criteria)
+    def sentence_score(self, sentence):
+        # Example: Score based on word count and POS tags (optional)
+        word_count = len(nltk.word_tokenize(sentence))
+        important_words = sum(1 for word, pos in nltk.pos_tag(nltk.word_tokenize(sentence))
+                              if pos in ['NN', 'VB', 'JJ'])  # Nouns, verbs, adjectives (optional)
+        return word_count + important_words  # Simple scoring example
+    def extractive_summary(self, text, num_sentences=3):
+        """
+        Creates a simple extractive summary of the text.
+
+        Args:
+            text: The input text to summarize.
+            num_sentences: The desired number of sentences in the summary (default: 3).
+
+        Returns:
+            A string containing the extractive summary.
+        """
+        # Sentence tokenization
+        sentences = nltk.sent_tokenize(text)
+
+
+
+        scores = [self.sentence_score(sentence) for sentence in sentences]
+
+        # Sort sentences by score (descending) and select top ones
+        ranked_sentences = sorted(zip(sentences, scores), key=lambda x: x[1], reverse=True)[:num_sentences]
+
+        # Generate summary string
+        summary = "\n".join([sentence for sentence, _ in ranked_sentences])
+        return summary
+
+    def clean_llm_artefacts(self, prompt):
+
+        if '\n' in prompt:
+            prompt = re.sub(r'.*\n', '', prompt)
+        if 'Answer: ' in prompt:
+            prompt = re.sub(r'.*Answer: ', '', prompt)
+        return prompt
+
+
 
     def run_t2t_sail(self):
         self.g.sail_running = True
         self.g.sail_history = []
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
+        self.sinus = 0
         sail_log = ''
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
@@ -328,15 +376,21 @@ class ui_actions:
 
             prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
 
-            if '\n' in prompt:
-                prompt = re.sub(r'.*\n', '', prompt)
+            prompt = self.clean_llm_artefacts(prompt)
+
+            if self.g.settings_data['sail_summary']:
+                prompt = self.extractive_summary(prompt)
+
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-
-            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+            if self.g.settings_data['sail_sinus']:
+                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
+            else:
+                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
@@ -384,15 +438,21 @@ class ui_actions:
 
             prompt = self.interface.retrieve_query(query)
 
-            if '\n' in prompt:
-                prompt = re.sub(r'.*\n', '', prompt)
+            prompt = self.clean_llm_artefacts(prompt)
+
+            if self.g.settings_data['sail_summary']:
+                prompt = self.extractive_summary(prompt)
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+            if self.g.settings_data['sail_sinus']:
+                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
+            else:
+                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
-            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)

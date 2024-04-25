@@ -55,6 +55,7 @@ default = {
     "sail_add_search":False,
     "sail_search":"",
     "sail_max_gallery_size":10,
+    "sail_summary":False,
 
 
     'selected_template': 'prompt_template_b',
