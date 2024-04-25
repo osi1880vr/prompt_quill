@@ -335,6 +335,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_api_avail_ok = gr.Textbox("", label=f'API OK', placeholder="not checked yet")
                         sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=g.settings_data['sail_target'])
                     with gr.Row():
+                        sail_summary = gr.Checkbox(label="Do summary of LLM prompt", info="The prompt will get reduced to a summary", value=g.settings_data['sail_summary'])
                         sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=g.settings_data['sail_sinus'])
                         sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
                         sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'], label="Sinus Multiplier",info="Choose between 1 and 500")
@@ -357,6 +358,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                           sail_depth.change,
                           sail_generate.change,
                           sail_target.change,
+                          sail_summary.change,
                           sail_sinus.change,
                           sail_sinus_freq.change,
                           sail_sinus_range.change,
@@ -371,6 +373,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_depth,
                         sail_generate,
                         sail_target,
+                        sail_summary,
                         sail_sinus,
                         sail_sinus_freq,
                         sail_sinus_range,
