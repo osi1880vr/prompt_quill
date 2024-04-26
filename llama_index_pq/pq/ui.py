@@ -328,7 +328,20 @@ class ui_actions:
 
 
     def clean_llm_artefacts(self, prompt):
+        """
+        Cleans potential artefacts (artifacts) left behind by large language models (LLMs) from a given prompt.
 
+        This function specifically removes two common artefacts:
+
+            * Newline character at the beginning: This can occur when LLMs generate text that starts on a new line.
+            * "Answer: " prefix: This might be added by some LLMs as a prefix to their generated response.
+
+        Args:
+            prompt (str): The prompt text to be cleaned.
+
+        Returns:
+            str: The cleaned prompt text without the identified artefacts.
+        """
         if '\n' in prompt:
             prompt = re.sub(r'.*\n', '', prompt)
         if 'Answer: ' in prompt:
@@ -338,6 +351,51 @@ class ui_actions:
 
 
     def run_t2t_sail(self):
+
+        """
+        Runs a Text-to-Text (T2T) SAIL (possibly referring to a creative text generation process) loop based on user-provided settings.
+
+        This function iterates through a specified number of "sails" (iterations) as defined by the `sail_width` setting.
+        In each sail, it performs the following actions:
+
+            1. Initializes variables based on user settings:
+                * Sets a flag indicating SAIL is running.
+                * Initializes an empty history list.
+                * Records starting depth for text generation.
+                * Initializes counters and variables for sinusoidal variations (purpose unclear based on provided code).
+                * Initializes variables for logging and image storage.
+
+            2. Prepares the query based on settings:
+                * Fetches the query text from settings.
+                * Optionally translates the query if enabled in settings.
+                * Optionally adds a search prefix to the query if enabled.
+
+            3. Iterates through each "sail" step:
+                * Retrieves a query based on settings (potentially using an interface).
+                * Cleans potential artefacts from the retrieved query using the `clean_llm_artefacts` function.
+                * Optionally summarizes the query using an external `extractive_summary` function (if enabled).
+                * Optionally adds a style prefix to the query if enabled.
+                * Logs the query with additional information (sinusoidal value, step number) based on settings.
+                * Retrieves top-k most relevant nodes based on the current query and depth (using an interface).
+
+                * (Optional) Generates creative text:
+                    * If generation is enabled, calls the `sail_automa_gen` function to generate text (implementation not provided).
+                    * Processes and saves any generated images from the response.
+
+            4. Yields results after each sail:
+                * Yields the accumulated log and a list of generated images (if any) for each sail.
+
+            5. Updates query for next sail:
+                * Extracts the next target text from retrieved nodes using the `get_next_target` function (implementation not provided).
+                * Handles potential early termination due to context rotation or user interruption.
+
+        Args:
+            self: Reference to the class instance (likely holds configuration and state).
+
+        Yields:
+            tuple: A tuple containing the accumulated log for the sail and a list of generated images (if any).
+        """
+
         self.g.sail_running = True
         self.g.sail_history = []
         self.sail_depth_start = self.g.settings_data['sail_depth']
