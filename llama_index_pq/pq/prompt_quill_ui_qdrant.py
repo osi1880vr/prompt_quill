@@ -254,8 +254,30 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         outputs=None
                     )
 
+                with gr.Tab('ControlNet') as control_net:
+                    automa_controlnet_enable = gr.Checkbox(label="Enable ControlNet", value=g.settings_data['automa_controlnet_enable'])
+                    automa_controlnet_image = gr.Image('ControlNet Image')
+                    automa_controlnet_mask = gr.Image('ControlNet Image')
 
+                    self.horde_Sampler = gr.Dropdown(choices=["Blur", "Canny", "Depth", "IP-Adapter", "Inpaint", "Instant-ID",
+                                                              "Lineart", "MLSD", "NormalMap", "OpenPose", "PhotoMaker",
+                                                              "Recolor", "Reference", "Revision", "Scribble", "Segmentation"
+                                                              "Shuffle", "Sketch", "SoftEdge", "T2I-Adapter", "Tile"],
+                                                     value=self.g.settings_data['horde_Sampler'], label='Sampler')
 
+        module: str = "none",
+        model: str = "None",
+        weight: float = 1.0,
+        resize_mode: str = "Resize and Fill",
+        lowvram: bool = False,
+        processor_res: int = 512,
+        threshold_a: float = 64,
+        threshold_b: float = 64,
+        guidance_start: float = 0.0,
+        guidance_end: float = 1.0,
+        control_mode: int = 0,
+        pixel_perfect: bool = False,
+        hr_option: str = "Both", # Both, Low res only, High res only
 
 
         with gr.Tab("Civitai") as civitai:

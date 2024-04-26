@@ -84,6 +84,57 @@ class automa_client:
         return response['caption']
 
 
+    def get_control_net(self, settings_data, image, mask):
+
+        # https://github.com/Mikubill/sd-webui-controlnet
+
+        input_image: Image = None,
+        mask: Image = None,
+        module: str = "none",
+        model: str = "None",
+        weight: float = 1.0,
+        resize_mode: str = "Resize and Fill",
+        lowvram: bool = False,
+        processor_res: int = 512,
+        threshold_a: float = 64,
+        threshold_b: float = 64,
+        guidance_start: float = 0.0,
+        guidance_end: float = 1.0,
+        control_mode: int = 0,
+        pixel_perfect: bool = False,
+        hr_option: str = "Both", # Both, Low res only, High res only
+
+
+
+
+        return {
+            "input_image": raw_b64_img(self.input_image) if self.input_image else "",
+            "mask": raw_b64_img(self.mask) if self.mask is not None else None,
+            "module": module,
+            "model": model,
+            "weight": weight,
+            "resize_mode": resize_mode,
+            "lowvram": lowvram,
+            "processor_res": processor_res,
+            "threshold_a": threshold_a,
+            "threshold_b": threshold_b,
+            "guidance": guidance_end,
+            "guidance_start": guidance_start,
+            "guidance_end": guidance_end,
+            "control_mode": control_mode,
+            "pixel_perfect": pixel_perfect,
+            "hr_option": hr_option,
+        }
+
+    def get_adetailer(self, settings_data):
+        return {
+            'ad_model': settings_data['automa_ad_model'],
+            'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height'],
+            'ad_denoising_strength': settings_data['automa_ad_denoising_strength'],
+            "ad_clip_skip": settings_data['automa_ad_clip_skip'],
+            "ad_confidence": settings_data['automa_ad_confidence'],
+        }
+
     def request_generation(self,prompt, negative_prompt,settings_data):
 
 
@@ -91,19 +142,17 @@ class automa_client:
         self.save = settings_data["automa_save"]
 
 
-        ADetailer = {}
+
         alwayson_scripts = {}
         if settings_data['automa_adetailer_enable']:
-            ADetailer['args'] = [{
-                'ad_model': settings_data['automa_ad_model'],
-                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height'],
-                'ad_denoising_strength': settings_data['automa_ad_denoising_strength'],
-                "ad_clip_skip": settings_data['automa_ad_clip_skip'],
-                "ad_confidence": settings_data['automa_ad_confidence'],
-            }]
-
-        if len(ADetailer) > 0:
+            ADetailer = {}
+            ADetailer['args'] = [self.get_adetailer(settings_data)]
             alwayson_scripts["ADetailer"] = ADetailer
+
+        if settings_data['automa_adetailer_enable']:
+            ControlNet = {}
+            ControlNet['args'] = [self.get_control_net(settings_data)]
+            alwayson_scripts["ControlNet"] = ControlNet
 
 
         payload = {
@@ -128,6 +177,9 @@ class automa_client:
         }
 
         return self.call_txt2img_api(**payload)
+
+
+
 
 
 
