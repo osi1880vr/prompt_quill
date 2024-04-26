@@ -330,18 +330,21 @@ class ui_actions:
             A string containing the extractive summary.
         """
         # Sentence tokenization
-        sentences = nltk.sent_tokenize(text)
+        try:
+            sentences = nltk.sent_tokenize(text)
 
 
 
-        scores = [self.sentence_score(sentence) for sentence in sentences]
+            scores = [self.sentence_score(sentence) for sentence in sentences]
 
-        # Sort sentences by score (descending) and select top ones
-        ranked_sentences = sorted(zip(sentences, scores), key=lambda x: x[1], reverse=True)[:num_sentences]
+            # Sort sentences by score (descending) and select top ones
+            ranked_sentences = sorted(zip(sentences, scores), key=lambda x: x[1], reverse=True)[:num_sentences]
 
-        # Generate summary string
-        summary = "\n".join([sentence for sentence, _ in ranked_sentences])
-        return summary
+            # Generate summary string
+            summary = "\n".join([sentence for sentence, _ in ranked_sentences])
+            return summary
+        except:
+            return text
 
     def clean_llm_artefacts(self, prompt):
 
@@ -379,10 +382,8 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                try:
-                    prompt = self.extractive_summary(prompt)
-                except:
-                    pass
+                prompt = self.extractive_summary(prompt)
+
 
 
             if self.g.settings_data['sail_add_style']:
@@ -444,10 +445,8 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                try:
-                    prompt = self.extractive_summary(prompt)
-                except:
-                    pass
+                prompt = self.extractive_summary(prompt)
+
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
