@@ -54,6 +54,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                                     value=g.settings_data['translate'])
             batch = gr.Checkbox(label="Batch", info="Run every entry from the context as a input prompt?",
                                 value=g.settings_data['batch'])
+            summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
+                                value=g.settings_data['summary'])
         gr.ChatInterface(
             ui_code.run_llm_response,
             textbox=ui.prompt_input,
@@ -66,6 +68,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
         chat.select(ui_code.set_prompt_input, None, ui.prompt_input)
         translate.change(ui_code.set_translate, translate, None)
         batch.change(ui_code.set_batch, batch, None)
+        summary.change(ui_code.set_summary, summary, None)
 
     with gr.Tab('Deep Dive') as deep_dive:
         top_k_slider = gr.Slider(1, max_top_k, value=g.settings_data['top_k'], step=1,
@@ -91,11 +94,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
     with gr.Tab("File2File") as batch_run:
         input_file = gr.Files()
-        finish = gr.Textbox(f"", label=f'Wait for its done',placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
+        with gr.Row():
+            f2f_summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
+                                  value=g.settings_data['summary'])
+            finish = gr.Textbox(f"", label=f'Wait for its done',placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
 
         file_submit_button = gr.Button('Run Batch')
 
         file_submit_button.click(ui_code.run_batch,input_file,finish)
+        f2f_summary.change(ui_code.set_summary, f2f_summary, None)
 
     with gr.Tab("Generator") as generator:
         gr.on(

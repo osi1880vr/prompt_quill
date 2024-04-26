@@ -15,7 +15,7 @@
 import globals
 from llm_fw.llama_index_interface import adapter
 
-from settings.io import settings_io
+from post_process.summary import extractive_summary
 from deep_translator import GoogleTranslator
 import os
 
@@ -30,8 +30,6 @@ class LLM_INTERFACE:
         self.adapter = adapter()
         self.g.negative_prompt_list = []
         self.g.models_list = []
-
-
 
 
     def change_model(self,model,temperature,n_ctx,max_tokens,n_gpu_layers, top_k, instruct):
@@ -67,11 +65,6 @@ class LLM_INTERFACE:
     def get_context_details(self):
         return self.g.last_context
 
-
-    def reload_settings(self):
-        self.g.settings_data = settings_io().load_settings()
-
-
     def translate(self, query):
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
@@ -102,8 +95,11 @@ class LLM_INTERFACE:
         response = self.adapter.retrieve_query(query)
 
         output = response
-        output = output.replace('\n','')
 
+        if self.g.settings_data['summary']:
+            output = extractive_summary(output)
+
+        output = output.replace('\n',' ')
         return output
 
 
@@ -139,12 +135,16 @@ class LLM_INTERFACE:
 
         response = self.adapter.retrieve_query(query)
 
+        self.g.last_prompt = response
+
         self.log('logfile.txt',f"RESPONSE: {response} \n-------------\n")
         self.log(os.path.join(out_dir_t2t,'WildcardReady.txt'),f'{response}\n')
 
-        self.g.last_prompt = response
+        output = response
 
-        output = self.g.last_prompt
+        if self.g.settings_data['summary']:
+            output = extractive_summary(output)
+
 
         if self.g.settings_data['translate']:
             output = f'Your prompt was translated to: {query}\n\n\n{output}'

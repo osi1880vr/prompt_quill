@@ -25,9 +25,11 @@ import re
 from collections import deque
 
 import nltk
-
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
+
+from post_process.summary import extractive_summary
+
 
 from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
@@ -60,6 +62,7 @@ class ui_actions:
     def run_llm_response(self,query, history):
         return self.interface.run_llm_response(query, history)
 
+
     def set_llm_settings(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.g.settings_data['LLM Model'] = model
         self.g.settings_data['Temperature'] = temperature
@@ -69,8 +72,7 @@ class ui_actions:
         self.g.settings_data['top_k'] = top_k
         self.g.settings_data['Instruct Model'] = instruct
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
+
     
     def set_civitai_settings(self, air, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['civitai_Air'] = air
@@ -80,8 +82,7 @@ class ui_actions:
         self.g.settings_data['civitai_Height'] = heigth
         self.g.settings_data['civitai_Clipskip'] = clipskip
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
+
     
     def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['horde_api_key'] = api_key
@@ -93,8 +94,7 @@ class ui_actions:
         self.g.settings_data['horde_Height'] = heigth
         self.g.settings_data['horde_Clipskip'] = clipskip
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
+
     
     def set_automa_settings(self,prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
         self.g.last_prompt = prompt
@@ -110,7 +110,6 @@ class ui_actions:
         self.g.settings_data['automa_save'] = save
         self.g.settings_data['automa_save_on_api_host'] = save_api
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
 
     def set_automa_adetailer(self, automa_adetailer_enable,
                              automa_ad_use_inpaint_width_height,
@@ -125,8 +124,6 @@ class ui_actions:
         self.g.settings_data['automa_ad_clip_skip'] = automa_ad_clip_skip
         self.g.settings_data['automa_ad_confidence'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-
 
 
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_summary, sail_sinus,
@@ -150,6 +147,26 @@ class ui_actions:
         self.g.settings_data['sail_search'] = sail_search
         self.g.settings_data['sail_max_gallery_size'] = sail_max_gallery_size
         self.settings_io.write_settings(self.g.settings_data)
+
+
+    def set_prompt_input(self):
+        return self.g.context_prompt
+
+
+    def set_translate(self, translate):
+        self.g.settings_data['translate'] = translate
+        self.settings_io.write_settings(self.g.settings_data)
+
+
+    def set_batch(self, batch):
+        self.g.settings_data['batch'] = batch
+        self.settings_io.write_settings(self.g.settings_data)
+
+
+    def set_summary(self, summary):
+        self.g.settings_data['summary'] = summary
+        self.settings_io.write_settings(self.g.settings_data)
+
 
     def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
@@ -196,19 +213,16 @@ class ui_actions:
     def set_prompt_template_select(self, value):
         self.g.settings_data['selected_template'] = value
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
         return self.g.settings_data["prompt_templates"][value]
     
     def set_neg_prompt(self, value):
         self.g.settings_data['negative_prompt'] = value
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
+
     def set_prompt_template(self, selection, prompt_text):
         return_data = self.interface.set_prompt(prompt_text)
         self.g.settings_data["prompt_templates"][selection] = prompt_text
         self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
         return return_data
     
     
@@ -311,38 +325,7 @@ class ui_actions:
                                                 self.g.settings_data)
 
 
-        # Sentence scoring (replace with your chosen criteria)
-    def sentence_score(self, sentence):
-        # Example: Score based on word count and POS tags (optional)
-        word_count = len(nltk.word_tokenize(sentence))
-        important_words = sum(1 for word, pos in nltk.pos_tag(nltk.word_tokenize(sentence))
-                              if pos in ['NN', 'VB', 'JJ'])  # Nouns, verbs, adjectives (optional)
-        return word_count + important_words  # Simple scoring example
-    def extractive_summary(self, text, num_sentences=3):
-        """
-        Creates a simple extractive summary of the text.
 
-        Args:
-            text: The input text to summarize.
-            num_sentences: The desired number of sentences in the summary (default: 3).
-
-        Returns:
-            A string containing the extractive summary.
-        """
-        # Sentence tokenization
-        try:
-            sentences = nltk.sent_tokenize(text)
-
-            scores = [self.sentence_score(sentence) for sentence in sentences]
-
-            # Sort sentences by score (descending) and select top ones
-            ranked_sentences = sorted(zip(sentences, scores), key=lambda x: x[1], reverse=True)[:num_sentences]
-
-            # Generate summary string
-            summary = "\n".join([sentence for sentence, _ in ranked_sentences])
-            return summary
-        except:
-            return text
 
     def clean_llm_artefacts(self, prompt):
 
@@ -380,7 +363,7 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                prompt = self.extractive_summary(prompt)
+                prompt = extractive_summary(prompt)
 
 
 
@@ -510,20 +493,6 @@ class ui_actions:
     
         return context  # .append(text)
 
-    def set_prompt_input(self):
-        return self.g.context_prompt
-
-
-    def set_translate(self, translate):
-        self.g.settings_data['translate'] = translate
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
-    
-    
-    def set_batch(self, batch):
-        self.g.settings_data['batch'] = batch
-        self.settings_io.write_settings(self.g.settings_data)
-        self.interface.reload_settings()
 
 
     def run_batch(self, files):
