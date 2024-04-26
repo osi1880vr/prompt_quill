@@ -365,7 +365,10 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                prompt = self.extractive_summary(prompt)
+                try:
+                    prompt = self.extractive_summary(prompt)
+                except:
+                    pass
 
 
             if self.g.settings_data['sail_add_style']:
@@ -427,7 +430,10 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                prompt = self.extractive_summary(prompt)
+                try:
+                    prompt = self.extractive_summary(prompt)
+                except:
+                    pass
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
