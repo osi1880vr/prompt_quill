@@ -333,8 +333,6 @@ class ui_actions:
         try:
             sentences = nltk.sent_tokenize(text)
 
-
-
             scores = [self.sentence_score(sentence) for sentence in sentences]
 
             # Sort sentences by score (descending) and select top ones
