@@ -23,6 +23,7 @@ from io import BytesIO
 import time
 import re
 from collections import deque
+from api import v1
 
 import nltk
 nltk.download('punkt')
@@ -54,10 +55,12 @@ class ui_actions:
     def __init__(self):
 
         self.g = globals.get_globals()
-        self.interface = llm_interface_qdrant.LLM_INTERFACE()
+        self.interface = llm_interface_qdrant.get_interface()
         self.settings_io = settings_io()
         self.max_top_k = 50
         self.automa_client = automa_client()
+        self.api = v1
+        self.api.run_api()
 
     def run_llm_response(self,query, history):
         return self.interface.run_llm_response(query, history)

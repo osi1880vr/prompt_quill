@@ -21,15 +21,18 @@ import os
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
-
+import threading
 class LLM_INTERFACE:
+    interface = None
 
     def __init__(self):
+        if LLM_INTERFACE.interface == None:
+            LLM_INTERFACE.interface = self
 
-        self.g = globals.get_globals()
-        self.adapter = adapter()
-        self.g.negative_prompt_list = []
-        self.g.models_list = []
+            self.g = globals.get_globals()
+            self.adapter = adapter()
+            self.g.negative_prompt_list = []
+            self.g.models_list = []
 
 
     def change_model(self,model,temperature,n_ctx,max_tokens,n_gpu_layers, top_k, instruct):
@@ -123,6 +126,40 @@ class LLM_INTERFACE:
     def retrieve_query(self, query):
         return self.adapter.retrieve_query(query)
 
+    def run_api_llm_response(self, query):
+
+
+        negative_out = ''
+
+
+        output = self.adapter.retrieve_query(query)
+
+        if self.g.settings_data['summary']:
+            output = extractive_summary(output)
+
+
+        if self.g.settings_data['translate']:
+            output = f'Your prompt was translated to: {query}\n\n\n{output}'
+
+
+        if len(self.g.negative_prompt_list) > 0:
+            self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
+            if len(self.g.last_negative_prompt) < 30:
+                self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
+            if self.g.last_negative_prompt != '':
+                negative_out = self.g.last_negative_prompt
+        else:
+            negative_out = self.g.settings_data['negative_prompt']
+
+        out_dict = {
+            "prompt":output,
+            "neg_prompt":negative_out
+
+        }
+
+        return out_dict
+
+
     def run_llm_response(self, query, history):
 
         if self.g.settings_data['translate']:
@@ -174,3 +211,9 @@ class LLM_INTERFACE:
 
 
 
+def get_interface():
+    if LLM_INTERFACE.interface == None:
+        with threading.Lock():
+            if LLM_INTERFACE.interface == None:
+                LLM_INTERFACE()
+    return  LLM_INTERFACE.interface
