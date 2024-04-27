@@ -63,9 +63,10 @@ class ui_actions:
         return self.interface.run_llm_response(query, history)
 
 
-    def set_llm_settings(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_llm_settings(self, model, temperature,repeat_penalty, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.g.settings_data['LLM Model'] = model
         self.g.settings_data['Temperature'] = temperature
+        self.g.settings_data['repeat_penalty'] = repeat_penalty
         self.g.settings_data['Context Length'] = n_ctx
         self.g.settings_data['GPU Layers'] = n_gpu_layers
         self.g.settings_data['max output Tokens'] = max_tokens
@@ -168,10 +169,10 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
-        self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
+    def set_model(self, model, temperature,repeat_penalty, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+        self.set_llm_settings(model, temperature,repeat_penalty, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
         model = self.g.settings_data['model_list'][model]
-        return self.interface.change_model(model, temperature, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
+        return self.interface.change_model(model, temperature,repeat_penalty, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
     
     
     def all_get_last_prompt(self):
@@ -202,7 +203,7 @@ class ui_actions:
     
     
     def llm_get_settings(self):
-        return self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
+        return self.g.settings_data["LLM Model"],self.g.settings_data['Temperature'],  self.g.settings_data['repeat_penalty'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
     
     def get_prompt_template(self):
@@ -611,6 +612,9 @@ class ui_staff:
         self.top_k = gr.Slider(0, self.max_top_k, step=1, value=self.g.settings_data['top_k'],
                           label="how many entrys to be fetched from the vector store",
                           info="Choose between 1 and 50 be careful not to overload the context window of the LLM")
+        self.repeat_penalty = gr.Slider(0, self.max_top_k, step=1, value=self.g.settings_data['repeat_penalty'],
+                               label="repeat penalty for the LLM, higher value should make it repeat less",
+                               info="Choose between 1 and 5 its still an experiment as I dont know how large the number should get max")
         self.Instruct = gr.Checkbox(label='Instruct Model', value=self.g.settings_data['Instruct Model'])
 
         self.civitai_Air = gr.TextArea(self.g.settings_data['civitai_Air'], lines=1, label="Air")

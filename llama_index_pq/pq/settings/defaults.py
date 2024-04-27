@@ -9,6 +9,7 @@ default = {
     "max output Tokens": 200,
     "top_k": 5,
     'Instruct Model': False,
+    'repeat_penalty':1.0,
 
     'civitai_Air': 'urn:air:sd1:checkpoint:civitai:4201@130072',
     "civitai_Steps": 20,

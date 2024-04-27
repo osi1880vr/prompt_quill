@@ -435,6 +435,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 inputs=None,
                 outputs=[ui.LLM,
                          ui.Temperature,
+                         ui.repeat_penalty,
                          ui.Context,
                          ui.GPU,
                          ui.max,
@@ -448,6 +449,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 [
                     ui.LLM,
                     ui.Temperature,
+                    ui.repeat_penalty,
                     ui.Context,
                     ui.GPU,
                     ui.max,

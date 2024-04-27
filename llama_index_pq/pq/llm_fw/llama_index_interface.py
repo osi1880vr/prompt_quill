@@ -72,6 +72,8 @@ class adapter:
             model_path=None,
 
             temperature=self.g.settings_data["Temperature"],
+            repeat_penalty = self.g.settings_data["repeat_penalty"],
+
             max_new_tokens=self.g.settings_data["max output Tokens"],
 
             # llama2 has a context window of 4096 tokens, but we set it lower to allow for some wiggle room
@@ -82,7 +84,8 @@ class adapter:
 
             # kwargs to pass to __init__()
             # set to at least 1 to use GPU, check with your model the number need to fully run on GPU might be way higher than 1
-            model_kwargs={"n_gpu_layers": self.g.settings_data["GPU Layers"]}, # I need to play with this and see if it actually helps
+            model_kwargs={"n_gpu_layers": self.g.settings_data["GPU Layers"],
+                          "repeat_penalty":self.g.settings_data["repeat_penalty"],}, # I need to play with this and see if it actually helps
 
             # transform inputs into Llama2 format
             messages_to_prompt=messages_to_prompt,
@@ -144,12 +147,13 @@ class adapter:
         return response.response.lstrip(" ")
 
 
-    def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
+    def change_model(self,model,temperature,repeat_penalty,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
 
         self.g.settings_data["Context Length"] = n_ctx
         self.g.settings_data["GPU Layers"] = n_gpu_layers
         self.g.settings_data["max output Tokens"] = max_tokens
         self.g.settings_data["Temperature"] = float(temperature)
+        self.g.settings_data["repeat_penalty"] = float(repeat_penalty)
         self.g.settings_data["top_k"] = top_k
         self.g.settings_data['Instruct Model'] = instruct
         self.g.settings_data['LLM Model'] = model["name"]

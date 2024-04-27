@@ -32,8 +32,8 @@ class LLM_INTERFACE:
         self.g.models_list = []
 
 
-    def change_model(self,model,temperature,n_ctx,max_tokens,n_gpu_layers, top_k, instruct):
-        return self.adapter.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct)
+    def change_model(self,model,temperature,repeat_penalty,n_ctx,max_tokens,n_gpu_layers, top_k, instruct):
+        return self.adapter.change_model(model,temperature,repeat_penalty,n_ctx,n_gpu_layers,max_tokens,top_k, instruct)
 
     def set_prompt(self,prompt_text):
         return self.adapter.set_prompt(prompt_text)
