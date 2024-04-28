@@ -344,7 +344,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     with gr.Row():
                         sail_summary = gr.Checkbox(label="Do summary of LLM prompt", info="The prompt will get reduced to a summary", value=g.settings_data['sail_summary'])
                         sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt", info="The prompt gets rephrased based on the rephrase prompt", value=g.settings_data['sail_rephrase'])
-                        sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'], label=f'Style Spec', placeholder="Enter your hardcoded style")
+                        sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'], label=f'Rephrase Prompt', placeholder="Enter your rephrase prompt")
                     with gr.Row():
                         sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=g.settings_data['sail_sinus'])
                         sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
