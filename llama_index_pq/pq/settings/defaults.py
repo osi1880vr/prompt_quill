@@ -9,6 +9,10 @@ default = {
     "max output Tokens": 200,
     "top_k": 5,
     'Instruct Model': False,
+    'sail_rephrase_prompt': '',
+    'sail_rephrase': False,
+    "rephrase_instruction": """create a text to image prompt based on the context and the query,
+You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",
 
     'civitai_Air': 'urn:air:sd1:checkpoint:civitai:4201@130072',
     "civitai_Steps": 20,
@@ -165,7 +169,7 @@ Answer: High-quality digital art, blending fantasy and reality, ((artificial int
 Query: futuristic combat zone
 Answer: cinematic photo, masterpiece, in the style of Blade Runner, futuristic combat zone, at dusk, showcasing a high-tech battlefield with neon lights illuminating the scene, filled with advanced mechs and soldiers engaged in an intense fight, the air filled with stunning lighting effects, on eye level, dramatic, masterpiece, ultra high resolution, dynamic anime-style fight scene, with a focus on the sleek design of the combat gear and the fluidity of the movements, capturing the essence of sci-fi action in a visually stunning manner.
 Query: {query_str}
-Answer: "
+Answer: 
 """,
 
         'custom_template': ''

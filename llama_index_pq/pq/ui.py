@@ -126,7 +126,8 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_summary, sail_sinus,
+    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target,
+                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search,sail_max_gallery_size):
         if self.g.sail_running:
@@ -138,6 +139,8 @@ class ui_actions:
         self.g.settings_data['sail_generate'] = sail_generate
         self.g.settings_data['sail_target'] = sail_target
         self.g.settings_data['sail_summary'] = sail_summary
+        self.g.settings_data['sail_rephrase'] = sail_rephrase
+        self.g.settings_data['sail_rephrase_prompt'] = sail_rephrase_prompt
         self.g.settings_data['sail_sinus'] = sail_sinus
         self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
         self.g.settings_data['sail_sinus_range'] = sail_sinus_range
@@ -217,6 +220,10 @@ class ui_actions:
     
     def set_neg_prompt(self, value):
         self.g.settings_data['negative_prompt'] = value
+        self.settings_io.write_settings(self.g.settings_data)
+
+    def set_rephrase_instruction(self, value):
+        self.g.settings_data['rephrase_instruction'] = value
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_prompt_template(self, selection, prompt_text):
@@ -424,15 +431,22 @@ class ui_actions:
                 prompt = extractive_summary(prompt)
 
 
+            orig_prompt = prompt
+            if self.g.settings_data['sail_rephrase']:
+                prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
             if self.g.settings_data['sail_sinus']:
                 self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+                if self.g.settings_data['sail_rephrase']:
+                    self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
                 sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
             else:
                 self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+                if self.g.settings_data['sail_rephrase']:
+                    self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
                 sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])

@@ -343,6 +343,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=g.settings_data['sail_target'])
                     with gr.Row():
                         sail_summary = gr.Checkbox(label="Do summary of LLM prompt", info="The prompt will get reduced to a summary", value=g.settings_data['sail_summary'])
+                        sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt", info="The prompt gets rephrased based on the rephrase prompt", value=g.settings_data['sail_rephrase'])
+                        sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'], label=f'Style Spec', placeholder="Enter your hardcoded style")
+                    with gr.Row():
                         sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=g.settings_data['sail_sinus'])
                         sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
                         sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'], label="Sinus Multiplier",info="Choose between 1 and 500")
@@ -366,6 +369,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                           sail_generate.change,
                           sail_target.change,
                           sail_summary.change,
+                          sail_rephrase.change,
+                          sail_rephrase_prompt.change,
                           sail_sinus.change,
                           sail_sinus_freq.change,
                           sail_sinus_range.change,
@@ -381,6 +386,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_generate,
                         sail_target,
                         sail_summary,
+                        sail_rephrase,
+                        sail_rephrase_prompt,
                         sail_sinus,
                         sail_sinus_freq,
                         sail_sinus_range,
@@ -426,7 +433,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 flagging_options=None
 
             )
+        with gr.Tab('Rephrase instruction') as negative_prompt:
+            rephrase_instruction_text = gr.Textbox(g.settings_data['rephrase_instruction'], label=f'Rephrase instruction')
+            rephrase_instruction_submit_button = gr.Button('Save Rephrase instruction')
 
+            rephrase_instruction_submit_button.click(ui_code.set_rephrase_instruction,rephrase_instruction_text,None)
 
         with gr.Tab("Model Settings") as llm_settings:
             gr.on(
@@ -467,6 +478,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 np_submit_button = gr.Button('Save Negative Prompt')
 
                 np_submit_button.click(ui_code.set_neg_prompt,neg_prompt_text,None)
+
+
+
 
     #pq_ui.queue(max_size=20)
 

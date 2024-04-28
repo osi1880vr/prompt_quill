@@ -22,6 +22,10 @@ import os
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 
+
+
+
+
 class LLM_INTERFACE:
 
     def __init__(self):
@@ -123,6 +127,10 @@ class LLM_INTERFACE:
     def retrieve_query(self, query):
         return self.adapter.retrieve_query(query)
 
+    def rephrase(self,prompt, query):
+
+        return self.adapter.retrieve_rephrase_query(query, prompt)
+
     def run_llm_response(self, query, history):
 
         if self.g.settings_data['translate']:
@@ -144,7 +152,6 @@ class LLM_INTERFACE:
 
         if self.g.settings_data['summary']:
             output = extractive_summary(output)
-
 
         if self.g.settings_data['translate']:
             output = f'Your prompt was translated to: {query}\n\n\n{output}'

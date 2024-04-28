@@ -23,6 +23,7 @@ from llama_index.llms.llama_cpp.llama_utils import messages_to_prompt, completio
 from llama_index.core import VectorStoreIndex
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.core.schema import TextNode
 import qdrant_client
 
 
@@ -100,7 +101,6 @@ class adapter:
             del self.vector_index
             del self.query_engine
 
-
         self.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
         self.vector_store = QdrantVectorStore(client=self.document_store, collection_name=self.index)
         self.vector_index = VectorStoreIndex.from_vector_store( vector_store=self.vector_store, embed_model=self.embed_model)
@@ -114,6 +114,38 @@ class adapter:
         self.query_engine.update_prompts(
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
         )
+
+    def set_rephrase_pipeline(self, context):
+        if hasattr(self,'query_rephrase_engine'):
+            del self.query_rephrase_engine
+
+
+        node1 = TextNode(text=context, id_="<node_id>")
+
+        nodes = [node1]
+        index = VectorStoreIndex(nodes,embed_model=self.embed_model)
+
+        test = index.as_retriever(similarity_top_k=1)
+
+        check = test.retrieve('hello world')
+
+        print(check)
+
+
+        self.query_rephrase_engine = index.as_query_engine(similarity_top_k=1,llm=self.llm)
+        rephrase_prompt = """Context information is below.
+---------------------
+{context_str}
+---------------------
+Given the context information and not prior knowledge,\n""" + self.g.settings_data['rephrase_instruction'] + "\nQuery: {query_str}\nAnswer: "
+
+        qa_prompt_tmpl = PromptTemplate(rephrase_prompt)
+
+        self.query_rephrase_engine.update_prompts(
+            {"response_synthesizer:text_qa_template": qa_prompt_tmpl}
+        )
+
+
 
     def retrieve_context(self, prompt):
         return self.retriever.retrieve(prompt)
@@ -143,6 +175,10 @@ class adapter:
         self.g.last_context = [s.node.get_text() for s in response.source_nodes]
         return response.response.lstrip(" ")
 
+    def retrieve_rephrase_query(self, query, context):
+        self.set_rephrase_pipeline(context)
+        response =  self.query_rephrase_engine.query(query)
+        return response.response.lstrip(" ")
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
 
