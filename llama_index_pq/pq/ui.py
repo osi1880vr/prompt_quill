@@ -355,6 +355,20 @@ class ui_actions:
             prompt = re.sub(r'.*Answer: ', '', prompt)
         return prompt
 
+    def log_prompt(self, filename, prompt, orig_prompt, n, sail_log):
+
+        if self.g.settings_data['sail_sinus']:
+            self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+            if self.g.settings_data['sail_rephrase']:
+                self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
+            sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
+        else:
+            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+            if self.g.settings_data['sail_rephrase']:
+                self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
+            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+
+        return sail_log
 
 
     def run_t2t_sail(self):
@@ -430,7 +444,6 @@ class ui_actions:
             if self.g.settings_data['sail_summary']:
                 prompt = extractive_summary(prompt)
 
-
             orig_prompt = prompt
             if self.g.settings_data['sail_rephrase']:
                 prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
@@ -438,16 +451,7 @@ class ui_actions:
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            if self.g.settings_data['sail_sinus']:
-                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
-                if self.g.settings_data['sail_rephrase']:
-                    self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
-                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
-            else:
-                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-                if self.g.settings_data['sail_rephrase']:
-                    self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
-                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+            sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
@@ -498,18 +502,16 @@ class ui_actions:
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                prompt = self.extractive_summary(prompt)
+                prompt = extractive_summary(prompt)
 
+            orig_prompt = prompt
+            if self.g.settings_data['sail_rephrase']:
+                prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            if self.g.settings_data['sail_sinus']:
-                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
-                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
-            else:
-                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+            sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
