@@ -8,9 +8,8 @@ default = {
     "GPU Layers": 50,
     "max output Tokens": 200,
     "top_k": 5,
-    'Instruct Model': False,
-    'sail_rephrase_prompt': '',
-    'sail_rephrase': False,
+    "Instruct Model": False,
+
     "rephrase_instruction": """create a text to image prompt based on the context and the query,
 You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",
 
@@ -61,7 +60,9 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_search":"",
     "sail_max_gallery_size":10,
     "sail_summary":False,
-
+    "sail_rephrase_prompt": "",
+    "sail_rephrase": False,
+    "sail_gen_rephrase":False,
 
     'selected_template': 'prompt_template_b',
     'model_list': {

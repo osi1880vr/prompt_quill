@@ -127,7 +127,7 @@ class ui_actions:
 
 
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target,
-                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_sinus,
+                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search,sail_max_gallery_size):
         if self.g.sail_running:
@@ -141,6 +141,7 @@ class ui_actions:
         self.g.settings_data['sail_summary'] = sail_summary
         self.g.settings_data['sail_rephrase'] = sail_rephrase
         self.g.settings_data['sail_rephrase_prompt'] = sail_rephrase_prompt
+        self.g.settings_data['sail_gen_rephrase'] = sail_gen_rephrase
         self.g.settings_data['sail_sinus'] = sail_sinus
         self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
         self.g.settings_data['sail_sinus_range'] = sail_sinus_range
@@ -371,6 +372,19 @@ class ui_actions:
         return sail_log
 
 
+
+    def automa_gen(self, prompt, images):
+
+        response = self.sail_automa_gen(prompt)
+
+        for index, image in enumerate(response.get('images')):
+            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            self.automa_client.decode_and_save_base64(image, save_path)
+            images.append(img)
+
+        return images
+
     def run_t2t_sail(self):
 
         """
@@ -456,15 +470,16 @@ class ui_actions:
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             
             if self.g.settings_data['sail_generate']:
-                response = self.sail_automa_gen(prompt)
 
-                for index, image in enumerate(response.get('images')):
-                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                    self.automa_client.decode_and_save_base64(image, save_path)
-                    images.append(img)
+                if self.g.settings_data['sail_gen_rephrase']:
+                    images = self.automa_gen(orig_prompt, images)
+                    yield sail_log,list(images)
 
+                images = self.automa_gen(prompt, images)
                 yield sail_log,list(images)
+
+
+
 
             else:
                 yield sail_log,[]
