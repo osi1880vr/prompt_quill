@@ -13,6 +13,10 @@ default = {
     "rephrase_instruction": """create a text to image prompt based on the context and the query,
 You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",
 
+    "preset_list":[],
+    "selected_preset":'',
+
+
     'civitai_Air': 'urn:air:sd1:checkpoint:civitai:4201@130072',
     "civitai_Steps": 20,
     "civitai_CFG Scale": 7,

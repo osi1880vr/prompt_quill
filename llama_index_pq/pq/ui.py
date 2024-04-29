@@ -604,6 +604,16 @@ class ui_actions:
                 yield output
             f.close()
 
+    def load_preset(self,name):
+        self.g.settings_data = settings_io().load_preset(name)
+
+    def save_preset(self, name):
+        settings_io().save_preset(name,self.g.settings_data)
+
+    def load_preset_list(self):
+        self.g.settings_data['preset_list'] = settings_io().load_preset_list()
+        return gr.Dropdown(choices=self.g.settings_data['preset_list'])
+
 
 
 class ui_staff:

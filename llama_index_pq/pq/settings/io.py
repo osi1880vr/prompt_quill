@@ -38,5 +38,23 @@ class settings_io:
         f.close()
 
 
+    def load_preset_list(self):
+        filelist = os.listdir('pq/settings/presets')
+        out_list = []
+        for file in filelist:
+            out_list.append(file.replace('_preset.dat', ''))
+        return out_list
 
+    def load_preset(self, name):
+        if os.path.isfile('pq/settings/settings.dat'):
+            f = open(f'pq/settings/presets/{name}_preset.dat','r')
+            self.settings = json.loads(f.read())
+            f.close()
+            self.check_missing_seettings()
+        return self.settings
+
+    def save_preset(self, name, settings):
+        f = open(f'pq/settings/presets/{name}_preset.dat','w')
+        f.write(json.dumps(settings))
+        f.close()
 

@@ -482,10 +482,27 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
                 np_submit_button.click(ui_code.set_neg_prompt,neg_prompt_text,None)
 
+        with gr.Tab("Presets") as presets:
+            with gr.Row():
+                preset_select = gr.Dropdown(choices=g.settings_data['preset_list'], value=g.settings_data['selected_preset'], label='Preset')
 
+                preset_load_button = gr.Button('Load preset')
+                preset_save_button = gr.Button('Save preset')
+                preset_reload_button = gr.Button('Reload presets')
+            with gr.Row():
+                preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
+                preset_create_button = gr.Button('Create new preset')
+            gr.on(
+                triggers=[presets.select],
+                fn=ui_code.load_preset_list,
+                inputs=None,
+                outputs=[preset_select]
+            )
+            preset_load_button.click(ui_code.load_preset,preset_select,None)
+            preset_save_button.click(ui_code.save_preset,preset_select,None)
+            preset_create_button.click(ui_code.save_preset,preset_name,None)
+            preset_reload_button.click(ui_code.load_preset_list,None,preset_select)
 
-
-    #pq_ui.queue(max_size=20)
 
 
 if __name__ == "__main__":
