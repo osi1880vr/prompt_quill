@@ -400,6 +400,29 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_search,
                         sail_max_gallery_size],
                 outputs = None)
+
+            gr.on(
+                triggers=[sailor.select],
+                fn=ui_code.get_sailing_settings,
+                inputs=None,
+                outputs=[sail_text,
+                         sail_width,
+                         sail_depth,
+                         sail_generate,
+                         sail_target,
+                         sail_summary,
+                         sail_rephrase,
+                         sail_rephrase_prompt,
+                         sail_gen_rephrase,
+                         sail_sinus,
+                         sail_sinus_freq,
+                         sail_sinus_range,
+                         sail_add_style,
+                         sail_style,
+                         sail_add_search,
+                         sail_search,
+                         sail_max_gallery_size])
+
             start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[],[sail_result,sail_result_images])
             sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
             sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
@@ -445,7 +468,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
         with gr.Tab("Model Settings") as llm_settings:
             gr.on(
                 triggers=[llm_settings.select],
-                fn=ui_code.llm_get_settings,
+                fn=ui_code.get_llm_settings,
                 inputs=None,
                 outputs=[ui.LLM,
                          ui.Temperature,
@@ -492,15 +515,16 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             with gr.Row():
                 preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
                 preset_create_button = gr.Button('Create new preset')
+                preset_status = gr.TextArea('', lines=1, label="Status")
             gr.on(
                 triggers=[presets.select],
                 fn=ui_code.load_preset_list,
                 inputs=None,
                 outputs=[preset_select]
             )
-            preset_load_button.click(ui_code.load_preset,preset_select,None)
-            preset_save_button.click(ui_code.save_preset,preset_select,None)
-            preset_create_button.click(ui_code.save_preset,preset_name,None)
+            preset_load_button.click(ui_code.load_preset,preset_select,preset_status)
+            preset_save_button.click(ui_code.save_preset,preset_select,preset_status)
+            preset_create_button.click(ui_code.save_preset,preset_name,preset_status)
             preset_reload_button.click(ui_code.load_preset_list,None,preset_select)
 
 

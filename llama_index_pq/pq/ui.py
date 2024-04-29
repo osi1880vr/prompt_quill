@@ -205,10 +205,18 @@ class ui_actions:
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
     
     
-    def llm_get_settings(self):
+    def get_llm_settings(self):
         return self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
-    
+    def get_sailing_settings(self):
+        return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
+        ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_target"],self.g.settings_data["sail_summary"
+        ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
+        ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
+        ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
+        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"]
+
+
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
         return self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -606,9 +614,11 @@ class ui_actions:
 
     def load_preset(self,name):
         self.g.settings_data = settings_io().load_preset(name)
+        return 'OK'
 
     def save_preset(self, name):
-        settings_io().save_preset(name,self.g.settings_data)
+        status = settings_io().save_preset(name,self.g.settings_data)
+        return status
 
     def load_preset_list(self):
         self.g.settings_data['preset_list'] = settings_io().load_preset_list()

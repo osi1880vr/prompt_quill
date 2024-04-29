@@ -1,7 +1,7 @@
 import json
 import os
 from settings.defaults import default
-
+from settings.check_file_name import is_path_exists_or_creatable_portable
 class settings_io:
 
 
@@ -42,7 +42,8 @@ class settings_io:
         filelist = os.listdir('pq/settings/presets')
         out_list = []
         for file in filelist:
-            out_list.append(file.replace('_preset.dat', ''))
+            if file != 'presets_go_here.txt':
+                out_list.append(file.replace('_preset.dat', ''))
         return out_list
 
     def load_preset(self, name):
@@ -54,7 +55,15 @@ class settings_io:
         return self.settings
 
     def save_preset(self, name, settings):
-        f = open(f'pq/settings/presets/{name}_preset.dat','w')
-        f.write(json.dumps(settings))
-        f.close()
+        filename = f'pq/settings/presets/{name}_preset.dat'
+        check = is_path_exists_or_creatable_portable(filename)
+
+        if check:
+
+            f = open(filename,'w')
+            f.write(json.dumps(settings))
+            f.close()
+            return 'OK'
+        else:
+            return 'Filename not OK'
 
