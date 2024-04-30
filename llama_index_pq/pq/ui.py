@@ -31,7 +31,6 @@ nltk.download('averaged_perceptron_tagger')
 from post_process.summary import extractive_summary
 
 
-from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
@@ -241,13 +240,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
         return return_data
     
-    
-    def run_civitai_generation(self, air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
-        self.set_civitai_settings(air, steps, cfg, width, heigth, clipskip)
-        client = civitai_client()
-        return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
-    
-    
+
     def run_hordeai_generation(self, prompt, negative_prompt, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip)
         client = hordeai_client()

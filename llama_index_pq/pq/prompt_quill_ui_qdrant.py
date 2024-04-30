@@ -262,27 +262,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     )
 
 
-
-
-
-        with gr.Tab("Civitai") as civitai:
-            gr.Interface(
-                ui_code.run_civitai_generation,
-                [
-                    ui.civitai_Air,
-                    ui.civitai_prompt_input,
-                    ui.civitai_negative_prompt_input,
-                    ui.civitai_Steps,
-                    ui.civitai_CFG,
-                    ui.civitai_Width,
-                    ui.civitai_Height,
-                    ui.civitai_Clipskip
-                ]
-                , outputs=gr.Image(label="Generated Image"),  # "text",
-                allow_flagging='never',
-                flagging_options=None,
-                # live=True
-            )
         with gr.Tab("HordeAI") as hordeai:
             gr.on(
                 triggers=[hordeai.select],

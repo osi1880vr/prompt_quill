@@ -59,7 +59,6 @@ class settings_io:
         check = is_path_exists_or_creatable_portable(filename)
 
         if check:
-
             f = open(filename,'w')
             f.write(json.dumps(settings))
             f.close()
