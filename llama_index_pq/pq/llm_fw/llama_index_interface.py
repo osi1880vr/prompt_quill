@@ -178,7 +178,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def retrieve_rephrase_query(self, query, context):
         self.set_rephrase_pipeline(context)
         response =  self.query_rephrase_engine.query(query)
-        return response.response.lstrip(" ")
+        response = response.response.lstrip(" ")
+        return response.replace('"','')
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
 

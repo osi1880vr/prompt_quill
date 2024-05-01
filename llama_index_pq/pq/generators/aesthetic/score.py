@@ -109,8 +109,10 @@ class aestetic_score:
     def get_single_aestetics_score(self, pil_image):
         score = self.get_aestetics_score(pil_image)
         yield "{:.5f}".format(float(score[0][0]))
-        self.models = None
+        self.models = {}
         gc.collect()
+
+
     def get_aestetics_score(self, pil_image):
         self.load_aestetics_prediction_model()
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -126,7 +128,6 @@ class aestetic_score:
         prediction = self.models['apm'](torch.from_numpy(im_emb_arr).to(device).type(torch.cuda.FloatTensor))
 
         return prediction
-
 
 
     def run_aestetic_prediction(self, fileList, min_aestetics_level, aesthetics_keep_folder_structure, aestetics_output_folder):
@@ -149,7 +150,7 @@ class aestetic_score:
                     shutil.copyfile(file, dst)
 
         yield 'Aestetics calculation finished'
-        self.models = None
+        self.models = {}
         gc.collect()
 
 
