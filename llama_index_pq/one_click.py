@@ -21,11 +21,16 @@ import platform
 import subprocess
 import time
 import site
+import importlib.util
 
 # Define the required PyTorch version
 TORCH_VERSION = "2.2.1"
 TORCHVISION_VERSION = "0.17.1"
 TORCHAUDIO_VERSION = "2.2.1"
+
+index_url = os.environ.get('INDEX_URL', "")
+python = sys.executable
+clip_package = os.environ.get('CLIP_PACKAGE', "git+https://github.com/openai/CLIP.git@a1d071733d7111c9c014f024669f959182114e33")
 
 script_dir = os.getcwd()
 conda_env_path = os.path.join(script_dir, "installer_files", "env")
@@ -249,9 +254,42 @@ def get_user_choice(question, options_dict):
 
 	return choice
 
+def run(command, desc=None, errdesc=None):
+	if desc is not None:
+		print(desc)
+
+	result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+	if result.returncode != 0:
+
+		message = f"""{errdesc or 'Error running command'}.
+Command: {command}
+Error code: {result.returncode}
+stdout: {result.stdout.decode(encoding="utf8", errors="ignore") if len(result.stdout)>0 else '<empty>'}
+stderr: {result.stderr.decode(encoding="utf8", errors="ignore") if len(result.stderr)>0 else '<empty>'}
+"""
+		raise RuntimeError(message)
+
+	return result.stdout.decode(encoding="utf8", errors="ignore")
+def run_pip(args, desc=None):
+	index_url_line = f' --index-url {index_url}' if index_url != '' else ''
+	return run(f'"{python}" -m pip {args} --prefer-binary{index_url_line}', desc=f"Installing {desc}", errdesc=f"Couldn't install {desc}")
+
+def is_installed(package):
+	try:
+		spec = importlib.util.find_spec(package)
+	except ModuleNotFoundError:
+		return False
+
+	return spec is not None
+
 def install_webui():
 
 	run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
+
+	if not is_installed("clip"):
+		run_pip(f"install {clip_package}", "clip")
+
 
 	# Ask the user for the GPU vendor
 	if "GPU_CHOICE" in os.environ:
