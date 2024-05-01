@@ -361,11 +361,15 @@ class ui_actions:
             self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
             if self.g.settings_data['sail_rephrase']:
                 self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
+                sail_log = sail_log + f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------\n'
+
             sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
         else:
             self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
             if self.g.settings_data['sail_rephrase']:
                 self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
+                sail_log = sail_log + f'original prompt: {orig_prompt}\n{n} ----------\n'
+
             sail_log = sail_log + f'{prompt}\n{n} ----------\n'
 
         return sail_log
