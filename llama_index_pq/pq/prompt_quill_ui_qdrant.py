@@ -410,6 +410,22 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             start_sail_show = sail_show_submit_button.click(ui_code.run_t2t_show_sail,None,
                     [sail_show_result,sail_show_image])
 
+    with gr.Tab('Image Scoring'):
+        with gr.Tab('Single Image'):
+            score_image = gr.Image(label='Image',type='pil')
+            score_button = gr.Button('Score Image')
+            score_result = gr.Textbox("", label=f'Image Score', placeholder="The Score of your Image",lines=1)
+            score_button.click(image_score.get_single_aestetics_score,score_image,score_result)
+
+        with gr.Tab('Image Folder'):
+            score_images_button = gr.Button('Score Image')
+            score_min_aestetics_level = gr.Slider(0, 10, step=0.1, value=7, label="Minimum Score",info="Choose between 1 and 10")
+            score_keep_structure = gr.Checkbox(label="Create new Folder", value=False)
+            score_output_folder = gr.Textbox("", label=f'Where to store the scored images', lines=1)
+            score_images_result = gr.Textbox("", label=f'Status', placeholder="Status",lines=1)
+            score_images =  gr.File(file_count='directory')
+            score_images_button.click(image_score.run_aestetic_prediction,[score_images,score_min_aestetics_level,score_keep_structure,score_output_folder],score_images_result)
+
     with gr.Tab('Settings'):
         with gr.Tab("Character") as Character:
             gr.on(
@@ -500,21 +516,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             preset_create_button.click(ui_code.save_preset,preset_name,preset_status)
             preset_reload_button.click(ui_code.load_preset_list,None,preset_select)
 
-    with gr.Tab('Image Scoring'):
-        with gr.Tab('Single Image'):
-            score_image = gr.Image(label='Image',type='pil')
-            score_button = gr.Button('Score Image')
-            score_result = gr.Textbox("", label=f'Image Score', placeholder="The Score of your Image",lines=1)
-            score_button.click(image_score.get_single_aestetics_score,score_image,score_result)
-
-        with gr.Tab('Image Folder'):
-            score_images_button = gr.Button('Score Image')
-            score_min_aestetics_level = gr.Slider(0, 10, step=0.1, value=7, label="Minimum Score",info="Choose between 1 and 10")
-            score_keep_structure = gr.Checkbox(label="Create new Folder", value=False)
-            score_output_folder = gr.Textbox("", label=f'Where to store the scored images', lines=1)
-            score_images_result = gr.Textbox("", label=f'Status', placeholder="Status",lines=1)
-            score_images =  gr.File(file_count='directory')
-            score_images_button.click(image_score.run_aestetic_prediction,[score_images,score_min_aestetics_level,score_keep_structure,score_output_folder],score_images_result)
 
 
 if __name__ == "__main__":
