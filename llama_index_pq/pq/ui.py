@@ -178,9 +178,7 @@ class ui_actions:
     
     
     def all_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['civitai_Air'], self.g.settings_data[
-            'civitai_Steps'], self.g.settings_data['civitai_CFG Scale'], self.g.settings_data['civitai_Width'], self.g.settings_data[
-            'civitai_Height'], self.g.settings_data['civitai_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, \
+        return self.g.last_prompt, self.g.last_negative_prompt, \
             self.g.settings_data['horde_api_key'], self.g.settings_data['horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data[
             'horde_Steps'], self.g.settings_data['horde_CFG Scale'], self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], \
             self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data[
@@ -465,6 +463,7 @@ class ui_actions:
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+                orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
 
             sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
@@ -694,7 +693,8 @@ class ui_staff:
                      'DPM++ 2M', 'DPM++ SDE', 'DPM++ 2M SDE', 'DPM++ 2M SDE Heun', 'DPM++ 2M SDE Heun Karras',
                      'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential',
                      'DPM fast',
-                     'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras'
+                     'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras', 'UniPC',
+                     'DDPM','DDPM Karras','Euler A Turbo','DPM++ 2M Turbo','DPM++ 2M SDE Turbo','LCM Karras'
                      ], value=self.g.settings_data['automa_Sampler'], label='Sampler')
         self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
                                  info="Choose between 1 and 100")
