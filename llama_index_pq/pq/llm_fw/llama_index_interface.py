@@ -25,7 +25,7 @@ from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.schema import TextNode
 import qdrant_client
-
+from settings.io import settings_io
 
 
 
@@ -200,7 +200,16 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         gc.collect()
 
         self.set_pipeline()
+        settings_io().write_settings(self.g.settings_data)
         return f'Model set to {model["name"]}'
+
+    def log(self,logfile, text):
+        f = open(logfile, 'a')
+        try:
+            f.write(f"{text}\n")
+        except:
+            pass
+        f.close()
 
     def set_prompt(self,prompt_text):
 
@@ -217,4 +226,4 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.llm = self.set_llm()
 
         self.set_pipeline()
-        return f'Magic Prompt set to:\n {prompt_text}'
+        return f'Magic Prompt set'

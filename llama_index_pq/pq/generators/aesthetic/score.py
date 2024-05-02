@@ -132,24 +132,26 @@ class aestetic_score:
 
     def run_aestetic_prediction(self, fileList, min_aestetics_level, aesthetics_keep_folder_structure, aestetics_output_folder):
         yield 'Aestetics calculation started'
-        matcher = re.compile(r'(.*?)(\..*)')
 
-        out_folder = os.path.join('api_out','scored')
+        outfolder = os.path.join('api_out','scored')
         if len(fileList) > 0:
             for file in fileList:
                 pil_image = Image.open(file)
                 score = self.get_aestetics_score(pil_image)
                 if score[0][0] > min_aestetics_level:
-                    # "{:.1f}".format(number)
+
+                    out_folder = os.path.join(outfolder, "{:.1f}".format(float(score[0][0])))
                     if aesthetics_keep_folder_structure:
-                        out_folder = os.path.join('api_out','scored',aestetics_output_folder)
-                    out_folder = os.path.join(out_folder, "{:.1f}".format(float(score[0][0])))
+                        out_folder = os.path.join(outfolder,aestetics_output_folder, "{:.1f}".format(float(score[0][0])))
+
                     os.makedirs(out_folder, exist_ok=True)
                     filename = os.path.basename(file)
-                    dst = os.path.join(out_folder, filename)
+                    dst = os.path.join(out_folder, "{:.5f}".format(float(score[0][0])) + '_' + filename)
                     shutil.copyfile(file, dst)
 
-        yield 'Aestetics calculation finished'
+            yield 'Aestetics calculation finished'
+        else:
+            yield 'No Files found'
         self.models = {}
         gc.collect()
 

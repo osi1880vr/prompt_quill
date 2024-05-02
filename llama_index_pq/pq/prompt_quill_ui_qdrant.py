@@ -437,16 +437,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             gr.on(
                 triggers=[ui.prompt_template_select.select],
                 fn=ui_code.set_prompt_template_select,
-                inputs=ui.prompt_template_select,
+                inputs=[ui.prompt_template_select],
                 outputs=[ui.prompt_template]
             )
             gr.Interface(
-                ui_code.set_prompt_template,
-                [ui.prompt_template_select, ui.prompt_template, ]
-                , outputs=None,
+                fn=ui_code.set_prompt_template,
+                inputs = [ui.prompt_template_select, ui.prompt_template,],
+                outputs = [ui.prompt_template_status],
                 allow_flagging='never',
                 flagging_options=None
-
             )
         with gr.Tab('Rephrase instruction') as negative_prompt:
             rephrase_instruction_text = gr.Textbox(g.settings_data['rephrase_instruction'], label=f'Rephrase instruction')

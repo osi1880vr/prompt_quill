@@ -715,15 +715,12 @@ class ui_staff:
         self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
         self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
 
-
-
-
-
         self.automa_stop_button = gr.Button('Stop')
 
         self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),
                                              value=self.g.settings_data["selected_template"], label='Template', interactive=True)
+        self.prompt_template_status = gr.TextArea(lines=1, label="Refresh Status", placeholder='Status')
 
         self.sail_result_last_image = gr.Image(label='last Image')
 
