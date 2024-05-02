@@ -14,7 +14,7 @@
 
 
 import re
-import os, shutil, gc
+import os, shutil, gc, time
 
 import clip
 import pytorch_lightning as pl
@@ -132,7 +132,7 @@ class aestetic_score:
 
     def run_aestetic_prediction(self, fileList, min_aestetics_level, aesthetics_keep_folder_structure, aestetics_output_folder):
         yield 'Aestetics calculation started'
-
+        start_time = time.time()
         outfolder = os.path.join('api_out','scored')
         if len(fileList) > 0:
             for file in fileList:
@@ -148,8 +148,9 @@ class aestetic_score:
                     filename = os.path.basename(file)
                     dst = os.path.join(out_folder, "{:.5f}".format(float(score[0][0])) + '_' + filename)
                     shutil.copyfile(file, dst)
-
-            yield 'Aestetics calculation finished'
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            yield f'Aestetics calculation finished, it took {elapsed_time} seconds'
         else:
             yield 'No Files found'
         self.models = {}
