@@ -388,6 +388,34 @@ class ui_actions:
 
         return images
 
+
+    def shorten_string(self, text, max_bytes=1000):
+        """Shortens a string to a maximum of 1000 bytes.
+
+        Args:
+          text: The string to shorten.
+          max_bytes: The maximum number of bytes allowed (default: 1000).
+
+        Returns:
+          The shortened string, truncated at the last whole word before reaching
+          max_bytes.
+        """
+        if len(text) <= max_bytes:
+            return text
+
+        # Encode the text as UTF-8 to get byte length
+        encoded_text = text.encode('utf-8')
+
+        # Truncate the string while staying under the byte limit
+        while len(encoded_text) > max_bytes:
+            # Split text by words on space
+            words = text.rsplit()
+            # Remove the last word and try again
+            text = ' '.join(words[:-1])
+            encoded_text = text.encode('utf-8')
+
+        return text
+
     def run_t2t_sail(self):
 
         """
@@ -451,10 +479,18 @@ class ui_actions:
 
         for n in range(self.g.settings_data['sail_width']):
 
-            if self.g.settings_data['sail_add_search']:
-                query = f'{self.g.settings_data["sail_search"]}, {self.g.settings_data["sail_text"]}'
 
-            prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
+            query = self.g.settings_data["sail_text"]
+
+            if self.g.settings_data['sail_add_search']:
+                query = f'{self.g.settings_data["sail_search"]}, {query}'
+
+            if len(query) > 1000:
+                query = extractive_summary(query,num_sentences=2)
+                if len(query) > 1000:
+                    query = self.shorten_string(query)
+
+            prompt = self.interface.retrieve_query(query)
 
             prompt = self.clean_llm_artefacts(prompt)
 
@@ -515,6 +551,12 @@ class ui_actions:
 
             if self.g.settings_data['sail_add_search']:
                 query = f"{self.g.settings_data['sail_search']}, {query}"
+
+
+            if len(query) > 1000:
+                query = extractive_summary(query,num_sentences=2)
+                if len(query) > 1000:
+                    query = self.shorten_string(query)
 
             prompt = self.interface.retrieve_query(query)
 

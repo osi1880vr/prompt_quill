@@ -171,9 +171,12 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
 
     def retrieve_query(self, query):
-        response =  self.query_engine.query(query)
-        self.g.last_context = [s.node.get_text() for s in response.source_nodes]
-        return response.response.lstrip(" ")
+        try:
+            response =  self.query_engine.query(query)
+            self.g.last_context = [s.node.get_text() for s in response.source_nodes]
+            return response.response.lstrip(" ")
+        except:
+            return 'something went wrong'
 
     def retrieve_rephrase_query(self, query, context):
         self.set_rephrase_pipeline(context)
