@@ -53,7 +53,7 @@ class ui_actions:
     def __init__(self):
 
         self.g = globals.get_globals()
-        self.interface = llm_interface_qdrant.LLM_INTERFACE()
+        self.interface = llm_interface_qdrant.get_interface()
         self.settings_io = settings_io()
         self.max_top_k = 50
         self.automa_client = automa_client()
@@ -518,8 +518,8 @@ class ui_actions:
             else:
                 yield sail_log,[]
 
-            self.g.settings_data['sail_text'] = self.get_next_target(nodes)
-            if self.g.settings_data['sail_text'] == -1:
+            query = self.get_next_target(nodes)
+            if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
             if self.g.sail_running is False:

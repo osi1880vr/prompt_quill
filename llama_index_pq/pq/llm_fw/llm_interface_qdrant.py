@@ -13,6 +13,8 @@
 # permissions and limitations under the License.
 
 import globals
+import threading
+
 from llm_fw.llama_index_interface import adapter
 
 from post_process.summary import extractive_summary
@@ -23,17 +25,19 @@ out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 
 
-
-
-
-class LLM_INTERFACE:
+class _LLM_INTERFACE:
+    interface = None
 
     def __init__(self):
+
+        if _LLM_INTERFACE.interface == None:
+            _LLM_INTERFACE.interface = self
 
         self.g = globals.get_globals()
         self.adapter = adapter()
         self.g.negative_prompt_list = []
         self.g.models_list = []
+
 
 
     def change_model(self,model,temperature,n_ctx,max_tokens,n_gpu_layers, top_k, instruct):
@@ -180,4 +184,9 @@ class LLM_INTERFACE:
         return output
 
 
-
+def get_interface():
+    if _LLM_INTERFACE.interface == None:
+        with threading.Lock():
+            if _LLM_INTERFACE.interface == None:
+                _LLM_INTERFACE()
+    return _LLM_INTERFACE.interface
