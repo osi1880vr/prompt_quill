@@ -471,16 +471,13 @@ class ui_actions:
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
 
 
         for n in range(self.g.settings_data['sail_width']):
-
-
-            query = self.g.settings_data["sail_text"]
 
             if self.g.settings_data['sail_add_search']:
                 query = f'{self.g.settings_data["sail_search"]}, {query}'
@@ -518,9 +515,6 @@ class ui_actions:
                 images = self.automa_gen(prompt, images)
                 yield sail_log,list(images)
 
-
-
-
             else:
                 yield sail_log,[]
 
@@ -541,7 +535,7 @@ class ui_actions:
         sail_log = ''
         query = self.g.settings_data['sail_text']
 
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(query)
