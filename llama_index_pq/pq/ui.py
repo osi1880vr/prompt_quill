@@ -527,7 +527,8 @@ class ui_actions:
                 if self.g.sail_running is False:
                     break
             except Exception as e:
-                print('some error happend: ',e)
+                print('some error happend: ',str(e))
+                time.sleep(5)
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True
