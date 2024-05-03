@@ -479,51 +479,55 @@ class ui_actions:
 
         for n in range(self.g.settings_data['sail_width']):
 
-            if self.g.settings_data['sail_add_search']:
-                query = f'{self.g.settings_data["sail_search"]}, {query}'
+            try:
 
-            if len(query) > 1000:
-                query = extractive_summary(query,num_sentences=2)
+                if self.g.settings_data['sail_add_search']:
+                    query = f'{self.g.settings_data["sail_search"]}, {query}'
+
                 if len(query) > 1000:
-                    query = self.shorten_string(query)
+                    query = extractive_summary(query,num_sentences=2)
+                    if len(query) > 1000:
+                        query = self.shorten_string(query)
 
-            prompt = self.interface.retrieve_query(query)
+                prompt = self.interface.retrieve_query(query)
 
-            prompt = self.clean_llm_artefacts(prompt)
+                prompt = self.clean_llm_artefacts(prompt)
 
-            if self.g.settings_data['sail_summary']:
-                prompt = extractive_summary(prompt)
+                if self.g.settings_data['sail_summary']:
+                    prompt = extractive_summary(prompt)
 
-            orig_prompt = prompt
-            if self.g.settings_data['sail_rephrase']:
-                prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
+                orig_prompt = prompt
+                if self.g.settings_data['sail_rephrase']:
+                    prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
-            if self.g.settings_data['sail_add_style']:
-                prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
-                orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
+                if self.g.settings_data['sail_add_style']:
+                    prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+                    orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
 
-            sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
+                sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
-            nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
-            
-            if self.g.settings_data['sail_generate']:
+                nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
 
-                if self.g.settings_data['sail_gen_rephrase']:
-                    images = self.automa_gen(orig_prompt, images)
+                if self.g.settings_data['sail_generate']:
+
+                    if self.g.settings_data['sail_gen_rephrase']:
+                        images = self.automa_gen(orig_prompt, images)
+                        yield sail_log,list(images)
+
+                    images = self.automa_gen(prompt, images)
                     yield sail_log,list(images)
 
-                images = self.automa_gen(prompt, images)
-                yield sail_log,list(images)
+                else:
+                    yield sail_log,[]
 
-            else:
-                yield sail_log,[]
-
-            query = self.get_next_target(nodes)
-            if query == -1:
-                self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
-                break
-            if self.g.sail_running is False:
-                break
+                query = self.get_next_target(nodes)
+                if query == -1:
+                    self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                    break
+                if self.g.sail_running is False:
+                    break
+            except Exception as e:
+                print('some error happend: ',e)
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True
