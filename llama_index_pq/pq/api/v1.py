@@ -14,10 +14,19 @@ app = Flask(__name__)
 
 
 @app.route('/get_prompt', methods=['POST'])
-def hello_world():
+def get_prompt():
     try:
         data = request.json
         return json.dumps(interface.run_api_llm_response(data['query']))
+    except:
+        return jsonify({'error': 'Invalid JSON format'}), 400
+
+
+@app.route('/get_next_prompt', methods=['POST'])
+def get_next_prompt():
+    try:
+        data = request.json
+        return json.dumps(interface.run_api_sail(data))
     except:
         return jsonify({'error': 'Invalid JSON format'}), 400
 
