@@ -32,7 +32,6 @@ nltk.download('averaged_perceptron_tagger')
 from post_process.summary import extractive_summary
 
 
-from generators.civitai.client import civitai_client
 from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
@@ -129,7 +128,8 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target, sail_summary, sail_sinus,
+    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target,
+                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search,sail_max_gallery_size):
         if self.g.sail_running:
@@ -141,6 +141,9 @@ class ui_actions:
         self.g.settings_data['sail_generate'] = sail_generate
         self.g.settings_data['sail_target'] = sail_target
         self.g.settings_data['sail_summary'] = sail_summary
+        self.g.settings_data['sail_rephrase'] = sail_rephrase
+        self.g.settings_data['sail_rephrase_prompt'] = sail_rephrase_prompt
+        self.g.settings_data['sail_gen_rephrase'] = sail_gen_rephrase
         self.g.settings_data['sail_sinus'] = sail_sinus
         self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
         self.g.settings_data['sail_sinus_range'] = sail_sinus_range
@@ -178,9 +181,7 @@ class ui_actions:
     
     
     def all_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['civitai_Air'], self.g.settings_data[
-            'civitai_Steps'], self.g.settings_data['civitai_CFG Scale'], self.g.settings_data['civitai_Width'], self.g.settings_data[
-            'civitai_Height'], self.g.settings_data['civitai_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, \
+        return self.g.last_prompt, self.g.last_negative_prompt, \
             self.g.settings_data['horde_api_key'], self.g.settings_data['horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data[
             'horde_Steps'], self.g.settings_data['horde_CFG Scale'], self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], \
             self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data[
@@ -204,10 +205,18 @@ class ui_actions:
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
     
     
-    def llm_get_settings(self):
+    def get_llm_settings(self):
         return self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
-    
+    def get_sailing_settings(self):
+        return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
+        ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_target"],self.g.settings_data["sail_summary"
+        ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
+        ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
+        ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
+        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"]
+
+
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
         return self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -222,19 +231,17 @@ class ui_actions:
         self.g.settings_data['negative_prompt'] = value
         self.settings_io.write_settings(self.g.settings_data)
 
+    def set_rephrase_instruction(self, value):
+        self.g.settings_data['rephrase_instruction'] = value
+        self.settings_io.write_settings(self.g.settings_data)
+
     def set_prompt_template(self, selection, prompt_text):
         return_data = self.interface.set_prompt(prompt_text)
         self.g.settings_data["prompt_templates"][selection] = prompt_text
         self.settings_io.write_settings(self.g.settings_data)
         return return_data
     
-    
-    def run_civitai_generation(self, air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip):
-        self.set_civitai_settings(air, steps, cfg, width, heigth, clipskip)
-        client = civitai_client()
-        return client.request_generation(air, prompt, negative_prompt, steps, cfg, width, heigth, clipskip)
-    
-    
+
     def run_hordeai_generation(self, prompt, negative_prompt, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.set_hordeai_settings(api_key, model, sampler, steps, cfg, width, heigth, clipskip)
         client = hordeai_client()
@@ -351,7 +358,66 @@ class ui_actions:
             prompt = re.sub(r'.*Answer: ', '', prompt)
         return prompt
 
+    def log_prompt(self, filename, prompt, orig_prompt, n, sail_log):
 
+        if self.g.settings_data['sail_sinus']:
+            self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
+            if self.g.settings_data['sail_rephrase']:
+                self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
+                sail_log = sail_log + f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------\n'
+
+            sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
+        else:
+            self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
+            if self.g.settings_data['sail_rephrase']:
+                self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
+                sail_log = sail_log + f'original prompt: {orig_prompt}\n{n} ----------\n'
+
+            sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+
+        return sail_log
+
+
+
+    def automa_gen(self, prompt, images):
+
+        response = self.sail_automa_gen(prompt)
+
+        for index, image in enumerate(response.get('images')):
+            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            self.automa_client.decode_and_save_base64(image, save_path)
+            images.append(img)
+
+        return images
+
+
+    def shorten_string(self, text, max_bytes=1000):
+        """Shortens a string to a maximum of 1000 bytes.
+
+        Args:
+          text: The string to shorten.
+          max_bytes: The maximum number of bytes allowed (default: 1000).
+
+        Returns:
+          The shortened string, truncated at the last whole word before reaching
+          max_bytes.
+        """
+        if len(text) <= max_bytes:
+            return text
+
+        # Encode the text as UTF-8 to get byte length
+        encoded_text = text.encode('utf-8')
+
+        # Truncate the string while staying under the byte limit
+        while len(encoded_text) > max_bytes:
+            # Split text by words on space
+            words = text.rsplit()
+            # Remove the last word and try again
+            text = ' '.join(words[:-1])
+            encoded_text = text.encode('utf-8')
+
+        return text
 
     def run_t2t_sail(self):
 
@@ -408,7 +474,7 @@ class ui_actions:
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
@@ -416,50 +482,56 @@ class ui_actions:
 
         for n in range(self.g.settings_data['sail_width']):
 
-            if self.g.settings_data['sail_add_search']:
-                query = f'{self.g.settings_data["sail_search"]}, {self.g.settings_data["sail_text"]}'
+            try:
 
-            prompt = self.interface.retrieve_query(self.g.settings_data['sail_text'])
+                if self.g.settings_data['sail_add_search']:
+                    query = f'{self.g.settings_data["sail_search"]}, {query}'
 
-            prompt = self.clean_llm_artefacts(prompt)
+                if len(query) > 1000:
+                    query = extractive_summary(query,num_sentences=2)
+                    if len(query) > 1000:
+                        query = self.shorten_string(query)
 
-            if self.g.settings_data['sail_summary']:
-                prompt = extractive_summary(prompt)
+                prompt = self.interface.retrieve_query(query)
 
+                prompt = self.clean_llm_artefacts(prompt)
 
+                if self.g.settings_data['sail_summary']:
+                    prompt = extractive_summary(prompt)
 
-            if self.g.settings_data['sail_add_style']:
-                prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+                orig_prompt = prompt
+                if self.g.settings_data['sail_rephrase']:
+                    prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
-            if self.g.settings_data['sail_sinus']:
-                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
-                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
-            else:
-                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+                if self.g.settings_data['sail_add_style']:
+                    prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+                    orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
 
-            nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
-            
-            if self.g.settings_data['sail_generate']:
-                response = self.sail_automa_gen(prompt)
+                sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
-                for index, image in enumerate(response.get('images')):
-                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                    self.automa_client.decode_and_save_base64(image, save_path)
-                    images.append(img)
+                nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
 
-                yield sail_log,list(images)
+                if self.g.settings_data['sail_generate']:
 
-            else:
-                yield sail_log,[]
+                    if self.g.settings_data['sail_gen_rephrase']:
+                        images = self.automa_gen(orig_prompt, images)
+                        yield sail_log,list(images)
 
-            self.g.settings_data['sail_text'] = self.get_next_target(nodes)
-            if self.g.settings_data['sail_text'] == -1:
-                self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
-                break
-            if self.g.sail_running is False:
-                break
+                    images = self.automa_gen(prompt, images)
+                    yield sail_log,list(images)
+
+                else:
+                    yield sail_log,[]
+
+                query = self.get_next_target(nodes)
+                if query == -1:
+                    self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                    break
+                if self.g.sail_running is False:
+                    break
+            except Exception as e:
+                print('some error happened: ',str(e))
+                time.sleep(5)
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True
@@ -471,7 +543,7 @@ class ui_actions:
         sail_log = ''
         query = self.g.settings_data['sail_text']
 
-        filename = os.path.join(out_dir_t2t, f'Journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(query)
@@ -482,23 +554,27 @@ class ui_actions:
             if self.g.settings_data['sail_add_search']:
                 query = f"{self.g.settings_data['sail_search']}, {query}"
 
+
+            if len(query) > 1000:
+                query = extractive_summary(query,num_sentences=2)
+                if len(query) > 1000:
+                    query = self.shorten_string(query)
+
             prompt = self.interface.retrieve_query(query)
 
             prompt = self.clean_llm_artefacts(prompt)
 
             if self.g.settings_data['sail_summary']:
-                prompt = self.extractive_summary(prompt)
+                prompt = extractive_summary(prompt)
 
+            orig_prompt = prompt
+            if self.g.settings_data['sail_rephrase']:
+                prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
             if self.g.settings_data['sail_add_style']:
                 prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            if self.g.settings_data['sail_sinus']:
-                self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
-                sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
-            else:
-                self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-                sail_log = sail_log + f'{prompt}\n{n} ----------\n'
+            sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
             nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
             if self.g.settings_data['sail_generate']:
@@ -575,6 +651,18 @@ class ui_actions:
                 n += 1
                 yield output
             f.close()
+
+    def load_preset(self,name):
+        self.g.settings_data = settings_io().load_preset(name)
+        return 'OK'
+
+    def save_preset(self, name):
+        status = settings_io().save_preset(name,self.g.settings_data)
+        return status
+
+    def load_preset_list(self):
+        self.g.settings_data['preset_list'] = settings_io().load_preset_list()
+        return gr.Dropdown(choices=self.g.settings_data['preset_list'])
 
 
 
@@ -653,7 +741,8 @@ class ui_staff:
                      'DPM++ 2M', 'DPM++ SDE', 'DPM++ 2M SDE', 'DPM++ 2M SDE Heun', 'DPM++ 2M SDE Heun Karras',
                      'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential',
                      'DPM fast',
-                     'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras'
+                     'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras', 'UniPC',
+                     'DDPM','DDPM Karras','Euler A Turbo','DPM++ 2M Turbo','DPM++ 2M SDE Turbo','LCM Karras'
                      ], value=self.g.settings_data['automa_Sampler'], label='Sampler')
         self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
                                  info="Choose between 1 and 100")
@@ -670,15 +759,12 @@ class ui_staff:
         self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
         self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
 
-
-
-
-
         self.automa_stop_button = gr.Button('Stop')
 
         self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
         self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),
                                              value=self.g.settings_data["selected_template"], label='Template', interactive=True)
+        self.prompt_template_status = gr.TextArea(lines=1, label="Refresh Status", placeholder='Status')
 
         self.sail_result_last_image = gr.Image(label='last Image')
 

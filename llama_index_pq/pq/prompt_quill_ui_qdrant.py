@@ -28,11 +28,13 @@ hijack = llama_cpp_hijack()
 
 
 from ui import ui_actions,ui_staff
+from generators.aesthetic import score
 from style import style
 css = style
 
 ui = ui_staff()
 ui_code = ui_actions()
+image_score = score.aestetic_score()
 
 max_top_k = 50
 textboxes = []
@@ -109,15 +111,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             triggers=[generator.select],
             fn=ui_code.all_get_last_prompt,
             inputs=None,
-            outputs=[ui.civitai_prompt_input,
-                     ui.civitai_negative_prompt_input,
-                     ui.civitai_Air,
-                     ui.civitai_Steps,
-                     ui.civitai_CFG,
-                     ui.civitai_Width,
-                     ui.civitai_Height,
-                     ui.civitai_Clipskip,
-                     ui.hordeai_prompt_input,
+            outputs=[ui.hordeai_prompt_input,
                      ui.hordeai_negative_prompt_input,
                      ui.horde_api_key,
                      ui.horde_Model,
@@ -262,27 +256,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     )
 
 
-
-
-
-        with gr.Tab("Civitai") as civitai:
-            gr.Interface(
-                ui_code.run_civitai_generation,
-                [
-                    ui.civitai_Air,
-                    ui.civitai_prompt_input,
-                    ui.civitai_negative_prompt_input,
-                    ui.civitai_Steps,
-                    ui.civitai_CFG,
-                    ui.civitai_Width,
-                    ui.civitai_Height,
-                    ui.civitai_Clipskip
-                ]
-                , outputs=gr.Image(label="Generated Image"),  # "text",
-                allow_flagging='never',
-                flagging_options=None,
-                # live=True
-            )
         with gr.Tab("HordeAI") as hordeai:
             gr.on(
                 triggers=[hordeai.select],
@@ -343,6 +316,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_target = gr.Checkbox(label="Follow high distance", info="Which context to follow, the most near or the most distance?", value=g.settings_data['sail_target'])
                     with gr.Row():
                         sail_summary = gr.Checkbox(label="Do summary of LLM prompt", info="The prompt will get reduced to a summary", value=g.settings_data['sail_summary'])
+                        sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt", info="The prompt gets rephrased based on the rephrase prompt", value=g.settings_data['sail_rephrase'])
+                        sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too", info="To see the effect of the rephrasing you can check here to get both prompts generated", value=g.settings_data['sail_gen_rephrase'])
+                        sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'], label=f'Rephrase Prompt', placeholder="Enter your rephrase prompt")
+                    with gr.Row():
                         sail_sinus = gr.Checkbox(label="Add a sinus to the distance", info="This will create a sinus wave based movement along the distance", value=g.settings_data['sail_sinus'])
                         sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
                         sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'], label="Sinus Multiplier",info="Choose between 1 and 500")
@@ -366,6 +343,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                           sail_generate.change,
                           sail_target.change,
                           sail_summary.change,
+                          sail_rephrase.change,
+                          sail_rephrase_prompt.change,
+                          sail_gen_rephrase.change,
                           sail_sinus.change,
                           sail_sinus_freq.change,
                           sail_sinus_range.change,
@@ -381,6 +361,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_generate,
                         sail_target,
                         sail_summary,
+                        sail_rephrase,
+                        sail_rephrase_prompt,
+                        sail_gen_rephrase,
                         sail_sinus,
                         sail_sinus_freq,
                         sail_sinus_range,
@@ -390,6 +373,29 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_search,
                         sail_max_gallery_size],
                 outputs = None)
+
+            gr.on(
+                triggers=[sailor.select],
+                fn=ui_code.get_sailing_settings,
+                inputs=None,
+                outputs=[sail_text,
+                         sail_width,
+                         sail_depth,
+                         sail_generate,
+                         sail_target,
+                         sail_summary,
+                         sail_rephrase,
+                         sail_rephrase_prompt,
+                         sail_gen_rephrase,
+                         sail_sinus,
+                         sail_sinus_freq,
+                         sail_sinus_range,
+                         sail_add_style,
+                         sail_style,
+                         sail_add_search,
+                         sail_search,
+                         sail_max_gallery_size])
+
             start_sail = sail_submit_button.click(ui_code.run_t2t_sail,[],[sail_result,sail_result_images])
             sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
             sail_check_connect_button.click(ui_code.check_api_avail,None,sail_api_avail_ok)
@@ -404,6 +410,22 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             start_sail_show = sail_show_submit_button.click(ui_code.run_t2t_show_sail,None,
                     [sail_show_result,sail_show_image])
 
+    with gr.Tab('Image Scoring'):
+        with gr.Tab('Single Image'):
+            score_image = gr.Image(label='Image',type='pil')
+            score_button = gr.Button('Score Image')
+            score_result = gr.Textbox("", label=f'Image Score', placeholder="The Score of your Image",lines=1)
+            score_button.click(image_score.get_single_aestetics_score,score_image,score_result)
+
+        with gr.Tab('Image Folder'):
+            score_images_button = gr.Button('Score Image')
+            score_min_aestetics_level = gr.Slider(0, 10, step=0.1, value=7, label="Minimum Score",info="Choose between 1 and 10")
+            score_keep_structure = gr.Checkbox(label="Create new Folder", value=False)
+            score_output_folder = gr.Textbox("", label=f'Where to store the scored images', lines=1)
+            score_images_result = gr.Textbox("", label=f'Status', placeholder="Status",lines=1)
+            score_images =  gr.File(file_count='directory')
+            score_images_button.click(image_score.run_aestetic_prediction,[score_images,score_min_aestetics_level,score_keep_structure,score_output_folder],score_images_result)
+
     with gr.Tab('Settings'):
         with gr.Tab("Character") as Character:
             gr.on(
@@ -415,23 +437,26 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
             gr.on(
                 triggers=[ui.prompt_template_select.select],
                 fn=ui_code.set_prompt_template_select,
-                inputs=ui.prompt_template_select,
+                inputs=[ui.prompt_template_select],
                 outputs=[ui.prompt_template]
             )
             gr.Interface(
-                ui_code.set_prompt_template,
-                [ui.prompt_template_select, ui.prompt_template, ]
-                , outputs=None,
+                fn=ui_code.set_prompt_template,
+                inputs = [ui.prompt_template_select, ui.prompt_template,],
+                outputs = [ui.prompt_template_status],
                 allow_flagging='never',
                 flagging_options=None
-
             )
+        with gr.Tab('Rephrase instruction') as negative_prompt:
+            rephrase_instruction_text = gr.Textbox(g.settings_data['rephrase_instruction'], label=f'Rephrase instruction')
+            rephrase_instruction_submit_button = gr.Button('Save Rephrase instruction')
 
+            rephrase_instruction_submit_button.click(ui_code.set_rephrase_instruction,rephrase_instruction_text,None)
 
         with gr.Tab("Model Settings") as llm_settings:
             gr.on(
                 triggers=[llm_settings.select],
-                fn=ui_code.llm_get_settings,
+                fn=ui_code.get_llm_settings,
                 inputs=None,
                 outputs=[ui.LLM,
                          ui.Temperature,
@@ -462,14 +487,38 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
         with gr.Tab("Default") as defaults:
-            with gr.Tab('Negative Prompt') as negative_prompt:
+            with gr.Tab('Negative Prompt'):
                 neg_prompt_text = gr.Textbox(g.settings_data['negative_prompt'], label=f'Default Negative Prompt')
                 np_submit_button = gr.Button('Save Negative Prompt')
 
                 np_submit_button.click(ui_code.set_neg_prompt,neg_prompt_text,None)
 
-    #pq_ui.queue(max_size=20)
+        with gr.Tab("Presets") as presets:
+            with gr.Row():
+                preset_select = gr.Dropdown(choices=g.settings_data['preset_list'], value=g.settings_data['selected_preset'], label='Preset')
+
+                preset_load_button = gr.Button('Load preset')
+                preset_save_button = gr.Button('Save preset')
+                preset_reload_button = gr.Button('Reload presets')
+            with gr.Row():
+                preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
+                preset_create_button = gr.Button('Create new preset')
+                preset_status = gr.TextArea('', lines=1, label="Status")
+            gr.on(
+                triggers=[presets.select],
+                fn=ui_code.load_preset_list,
+                inputs=None,
+                outputs=[preset_select]
+            )
+            preset_load_button.click(ui_code.load_preset,preset_select,preset_status)
+            preset_save_button.click(ui_code.save_preset,preset_select,preset_status)
+            preset_create_button.click(ui_code.save_preset,preset_name,preset_status)
+            preset_reload_button.click(ui_code.load_preset_list,None,preset_select)
+
 
 
 if __name__ == "__main__":
-    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name="0.0.0.0")  # share=True
+    server_name = "localhost"
+    if os.getenv("SERVER_NAME") is not None:
+        server_name = os.getenv("SERVER_NAME")
+    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name=server_name, server_port=49152)  # share=True

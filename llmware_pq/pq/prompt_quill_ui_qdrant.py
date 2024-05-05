@@ -405,4 +405,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 if __name__ == "__main__":
-    pq_ui.launch(favicon_path='logo/favicon32x32.ico',inbrowser=True)  # share=True
+    server_name = "localhost"
+    if os.getenv("SERVER_NAME") is not None:
+        server_name = os.getenv("SERVER_NAME")
+    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name=server_name, server_port=49152)
