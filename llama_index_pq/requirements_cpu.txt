@@ -2,3 +2,5 @@ torch
 llama-cpp-python
 deep_translator
 pytorch_lightning
+Flask
+jsonify

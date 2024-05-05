@@ -15,3 +15,5 @@ opencv-python
 horde_sdk
 deep_translator
 pytorch_lightning
+Flask
+jsonify
