@@ -121,7 +121,6 @@ class api_sail:
 			self.last_api_sail_query = self.get_next_target(nodes)
 
 			negative_out = ''
-			print(f'we found so many negatives: {len(self.g.negative_prompt_list)}')
 
 			if len(self.g.negative_prompt_list) > 0:
 				self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
@@ -129,12 +128,8 @@ class api_sail:
 					self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
 				if self.g.last_negative_prompt != '':
 					negative_out = self.g.last_negative_prompt
-					print('set dynamic neg')
 				else:
 					negative_out = self.g.settings_data['negative_prompt']
-					print('set static neg')
-
-
 
 
 			if query == -1:
