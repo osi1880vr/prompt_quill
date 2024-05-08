@@ -19,7 +19,7 @@ from llm_fw.llama_index_interface import adapter
 
 from post_process.summary import extractive_summary
 from deep_translator import GoogleTranslator
-import os, re
+import os
 
 
 
@@ -39,10 +39,7 @@ class _LLM_INTERFACE:
         self.adapter = adapter()
         self.g.negative_prompt_list = []
         self.g.models_list = []
-        self.last_api_sail_query = None
-        self.api_sail_depth_start = 0
-        self.api_sail_depth = 0
-        self.api_sail_history = []
+        self.g.api_sail_history = []
 
 
 
@@ -129,7 +126,7 @@ class _LLM_INTERFACE:
     def get_query_texts(self, nodes):
         target_dict = {}
         for node in nodes:
-            if node.text not in self.api_sail_history:
+            if node.text not in self.g.api_sail_history:
                 target_dict[node.score] = node.text
         return target_dict
 
@@ -177,135 +174,7 @@ class _LLM_INTERFACE:
         return out_dict
 
 
-    def shorten_string(self, text, max_bytes=1000):
-        """Shortens a string to a maximum of 1000 bytes.
 
-        Args:
-          text: The string to shorten.
-          max_bytes: The maximum number of bytes allowed (default: 1000).
-
-        Returns:
-          The shortened string, truncated at the last whole word before reaching
-          max_bytes.
-        """
-        if len(text) <= max_bytes:
-            return text
-
-        # Encode the text as UTF-8 to get byte length
-        encoded_text = text.encode('utf-8')
-
-        # Truncate the string while staying under the byte limit
-        while len(encoded_text) > max_bytes:
-            # Split text by words on space
-            words = text.rsplit()
-            # Remove the last word and try again
-            text = ' '.join(words[:-1])
-            encoded_text = text.encode('utf-8')
-
-        return text
-    def clean_llm_artefacts(self, prompt):
-        """
-        Cleans potential artefacts (artifacts) left behind by large language models (LLMs) from a given prompt.
-
-        This function specifically removes two common artefacts:
-
-            * Newline character at the beginning: This can occur when LLMs generate text that starts on a new line.
-            * "Answer: " prefix: This might be added by some LLMs as a prefix to their generated response.
-
-        Args:
-            prompt (str): The prompt text to be cleaned.
-
-        Returns:
-            str: The cleaned prompt text without the identified artefacts.
-        """
-        if '\n' in prompt:
-            prompt = re.sub(r'.*\n', '', prompt)
-        if 'Answer: ' in prompt:
-            prompt = re.sub(r'.*Answer: ', '', prompt)
-        return prompt
-
-    def get_next_target(self, nodes):
-        target_dict = self.interface.get_query_texts(nodes)
-
-        if len(target_dict.keys()) < self.api_sail_depth:
-            self.api_sail_depth = self.api_sail_depth_start + len(self.api_sail_history)
-
-        if len(target_dict.keys()) > 0:
-            out =  target_dict[min(target_dict.keys())]
-            self.api_sail_history.append(out)
-            return out
-
-        else:
-            return -1
-
-    def run_api_sail(self, data):
-
-        if data['reset_journey']  != 'false':
-            self.last_api_sail_query = None
-            self.api_sail_depth_start = 0
-            self.api_sail_history = []
-
-        if self.last_api_sail_query is None:
-            self.last_api_sail_query = data['query']
-
-        if self.api_sail_depth_start == 0:
-            self.api_sail_depth_start = data['distance']
-            self.api_sail_depth = data['distance']
-
-        query = self.last_api_sail_query
-
-        #if self.g.settings_data['translate']:
-        #    query = self.interface.translate(self.g.settings_data['sail_text'])
-
-        try:
-
-            if data['add_search'] != 'false':
-                query = f'{data["search"]}, {query}'
-
-            if len(query) > 1000:
-                query = extractive_summary(query,num_sentences=2)
-                if len(query) > 1000:
-                    query = self.shorten_string(query)
-
-            prompt = self.interface.retrieve_query(query)
-
-            prompt = self.clean_llm_artefacts(prompt)
-
-            if data['summary'] != 'false':
-                prompt = extractive_summary(prompt)
-
-            if data['rephrase'] != 'false':
-                prompt = self.interface.rephrase(prompt, data['rephrase_prompt'])
-
-            if data['add_style'] != 'false':
-                prompt = f'{data["style"]}, {prompt}'
-
-            nodes = self.interface.retrieve_top_k_query(query, self.api_sail_depth)
-
-            self.last_api_sail_query = self.get_next_target(nodes)
-
-            if query == -1:
-                out_dict = {
-                    "prompt":f'sail is finished early due to rotating context',
-                    "neg_prompt":''
-
-                }
-                return out_dict
-            else:
-                out_dict = {
-                    "prompt":prompt,
-                    "neg_prompt":self.g.settings_data['negative_prompt']
-
-                }
-                return out_dict
-        except Exception as e:
-
-            out_dict = {
-                "prompt":'some error happened: ' + str(e),
-                "neg_prompt":''
-
-            }
-            return out_dict
 
     def run_llm_response(self, query, history):
 

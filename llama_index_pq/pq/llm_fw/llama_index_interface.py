@@ -173,6 +173,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def retrieve_query(self, query):
         try:
             response =  self.query_engine.query(query)
+            self.prepare_meta_data(response)
             self.g.last_context = [s.node.get_text() for s in response.source_nodes]
             return response.response.lstrip(" ")
         except:

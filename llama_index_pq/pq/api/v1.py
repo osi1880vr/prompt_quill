@@ -2,14 +2,13 @@ import time
 import threading
 import json
 from flask import Flask, request, jsonify
-
-
+from api.sailing import api_sail
 from llm_fw import llm_interface_qdrant
-interface = llm_interface_qdrant.get_interface()
+
 app = Flask(__name__)
 
-
-
+sail_api = api_sail()
+interface = llm_interface_qdrant.get_interface()
 
 
 
@@ -26,8 +25,8 @@ def get_prompt():
 def get_next_prompt():
     try:
         data = request.json
-        return json.dumps(interface.run_api_sail(data))
-    except:
+        return json.dumps(sail_api.run_api_sail(data))
+    except Exception as e:
         return jsonify({'error': 'Invalid JSON format'}), 400
 
 
