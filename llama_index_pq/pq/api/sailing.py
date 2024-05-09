@@ -76,7 +76,7 @@ class api_sail:
 
 	def run_api_sail(self, data):
 
-		if data['reset_journey']  != 'false':
+		if data['reset_journey'] is True:
 			self.last_api_sail_query = None
 			self.api_sail_depth_start = 0
 			self.g.api_sail_history = []
