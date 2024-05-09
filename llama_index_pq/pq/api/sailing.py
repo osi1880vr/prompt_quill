@@ -95,7 +95,7 @@ class api_sail:
 
 		try:
 
-			if data['add_search'] != 'false':
+			if data['add_search'] is True:
 				query = f'{data["search"]}, {query}'
 
 			if len(query) > 1000:
@@ -107,13 +107,13 @@ class api_sail:
 
 			prompt = self.clean_llm_artefacts(prompt)
 
-			if data['summary'] != 'false':
+			if data['summary'] is True:
 				prompt = extractive_summary(prompt)
 
-			if data['rephrase'] != 'false':
+			if data['rephrase'] is True:
 				prompt = self.interface.rephrase(prompt, data['rephrase_prompt'])
 
-			if data['add_style'] != 'false':
+			if data['add_style'] is True:
 				prompt = f'{data["style"]}, {prompt}'
 
 			nodes = self.interface.retrieve_top_k_query(query, self.api_sail_depth)
