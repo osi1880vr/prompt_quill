@@ -67,7 +67,7 @@ class api_sail:
 			self.api_sail_depth = self.api_sail_depth_start + len(self.g.api_sail_history)
 
 		if len(target_dict.keys()) > 0:
-			out =  target_dict[min(target_dict.keys())]
+			out =  target_dict[max(target_dict.keys())]
 			self.g.api_sail_history.append(out)
 			return out
 
