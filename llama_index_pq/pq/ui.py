@@ -98,7 +98,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api, checkpoint):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_Sampler'] = sampler
@@ -111,6 +111,7 @@ class ui_actions:
         self.g.settings_data['automa_url'] = url
         self.g.settings_data['automa_save'] = save
         self.g.settings_data['automa_save_on_api_host'] = save_api
+        self.g.settings_data['automa_Checkpoint'] = checkpoint
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer(self, automa_adetailer_enable,
@@ -181,19 +182,22 @@ class ui_actions:
     
     
     def all_get_last_prompt(self):
+        if self.g.settings_data['automa_checkpoints'] == []:
+            self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+            self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+
+
         return self.g.last_prompt, self.g.last_negative_prompt, \
             self.g.settings_data['horde_api_key'], self.g.settings_data['horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data[
             'horde_Steps'], self.g.settings_data['horde_CFG Scale'], self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], \
-            self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data[
-            'automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
-            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
+            self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']
+            ), self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
+            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data[
+            'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
+            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
     
     
-    def civitai_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['civitai_Air'], self.g.settings_data[
-            'civitai_Steps'], self.g.settings_data['civitai_CFG Scale'], self.g.settings_data['civitai_Width'], self.g.settings_data[
-            'civitai_Height'], self.g.settings_data['civitai_Clipskip']
-    
+
     
     def hordeai_get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde_api_key'], self.g.settings_data[
@@ -202,13 +206,24 @@ class ui_actions:
     
     
     def automa_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
+        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']
+                                                                          ), self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
+            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
+            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
     
     
     def get_llm_settings(self):
         return self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
     def get_sailing_settings(self):
+        if self.g.settings_data['automa_checkpoints'] == []:
+            self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+            self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+        if self.g.settings_data['automa_Sampler'] == '':
+            self.g.settings_data['automa_Sampler'] = self.g.settings_data['automa_samplers'][0]
+        if self.g.settings_data['automa_Checkpoint'] == '':
+            self.g.settings_data['automa_Checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
+
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
         ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_target"],self.g.settings_data["sail_summary"
         ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
@@ -299,6 +314,24 @@ class ui_actions:
             f.write(f'{all_response}\n')
             f.close()
 
+
+    def get_automa_sampler(self):
+        samplers = self.automa_client.get_samplers(self.g.settings_data['automa_url'])
+        if samplers != -1:
+            if self.g.settings_data['automa_Sampler'] == '':
+                self.g.settings_data['automa_Sampler'] = samplers[0]
+            return samplers
+        else:
+            return []
+
+    def get_automa_checkpoints(self):
+        checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa_url'])
+        if checkpoints != -1:
+            if self.g.settings_data['automa_Checkpoint'] == '':
+                self.g.settings_data['automa_Checkpoint'] = checkpoints[0]
+            return checkpoints
+        else:
+            return []
 
     def get_next_target(self, nodes):
         target_dict = self.interface.get_query_texts(nodes)
@@ -678,6 +711,7 @@ class ui_staff:
         self.g.last_context = []
         self.max_top_k = 50
 
+
         self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7)
 
         self.civitai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
@@ -735,15 +769,9 @@ class ui_staff:
 
         self.automa_url = gr.TextArea(lines=1, label="API URL", value=self.g.settings_data['automa_url'])
         self.automa_Sampler = gr.Dropdown(
-            choices=['DPM++ 2M Karras', 'DPM++ SDE Karras', 'DPM++ 2M SDE Exponential', 'DPM++ 2M SDE Karras', 'Euler a',
-                     'Euler',
-                     'LMS', 'Heun', 'DPM2', 'DPM2 a', 'DPM++ 2S a',
-                     'DPM++ 2M', 'DPM++ SDE', 'DPM++ 2M SDE', 'DPM++ 2M SDE Heun', 'DPM++ 2M SDE Heun Karras',
-                     'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential',
-                     'DPM fast',
-                     'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras', 'UniPC',
-                     'DDPM','DDPM Karras','Euler A Turbo','DPM++ 2M Turbo','DPM++ 2M SDE Turbo','LCM Karras'
-                     ], value=self.g.settings_data['automa_Sampler'], label='Sampler')
+            choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler'], label='Sampler')
+        self.automa_Checkpoint = gr.Dropdown(
+            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'], label='Sampler')
         self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
                                  info="Choose between 1 and 100")
         self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_CFG Scale'], label="CFG Scale",

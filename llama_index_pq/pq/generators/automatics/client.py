@@ -119,12 +119,11 @@ class automa_client:
             "n_iter": settings_data["automa_n_iter"],
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
-            #"override_settings": {
-            # "sd_model_checkpoint": "v1-5-pruned-emaonly.safetensors",
-            # "sd_vae": "sd-vae-ft-mse.safetensors"
-            #
-            # },
-            #"override_settings_restore_afterwards": true,
+            "override_settings": {
+                "sd_model_checkpoint": settings_data['automa_Checkpoint'],
+                # "sd_vae": "sd-vae-ft-mse.safetensors"
+            },
+            "override_settings_restore_afterwards": True,
         }
 
         return self.call_txt2img_api(**payload)

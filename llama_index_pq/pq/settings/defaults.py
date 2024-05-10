@@ -16,14 +16,6 @@ You mix a new prompt based on the context and the query. The query is just addin
     "preset_list":[],
     "selected_preset":'',
 
-
-    'civitai_Air': 'urn:air:sd1:checkpoint:civitai:4201@130072',
-    "civitai_Steps": 20,
-    "civitai_CFG Scale": 7,
-    "civitai_Width": 512,
-    "civitai_Height": 512,
-    "civitai_Clipskip": 2,
-
     'horde_api_key': "0000000000",
     'horde_Model': 'Deliberate 3.0',
     'horde_Sampler': "k_dpmpp_2s_a",
@@ -34,6 +26,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     "horde_Clipskip": 2,
 
     'automa_Sampler': "DPM++ 2M Karras",
+    'automa_Checkpoint': '',
     "automa_Steps": 20,
     "automa_CFG Scale": 7,
     "automa_Width": 768,
@@ -49,6 +42,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     'automa_ad_denoising_strength':0.2,
     'automa_ad_clip_skip':1,
     'automa_ad_confidence':0.7,
+    'automa_checkpoints': [],
+    'automa_samplers': [],
 
     "sail_text":"",
     "sail_width":10,

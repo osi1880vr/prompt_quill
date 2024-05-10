@@ -17,7 +17,8 @@ import globals
 from settings.io import settings_io
 g = globals.get_globals()
 g.settings_data = settings_io().load_settings()
-
+g.settings_data['automa_checkpoints'] = [] # bad hack for now, this should later be updateable via a button
+g.settings_data['automa_samplers'] = []
 
 import gradio as gr
 
@@ -132,7 +133,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                      ui.automa_n_iter,
                      ui.automa_url,
                      ui.automa_save,
-                     ui.automa_save_on_api_host
+                     ui.automa_save_on_api_host,
+                     ui.automa_Checkpoint
                      ]
         )
         with gr.Tab("Automatic 1111 / Forge") as automatic1111:
@@ -149,7 +151,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                               ui.automa_n_iter.change,
                               ui.automa_url.change,
                               ui.automa_save.change,
-                              ui.automa_save_on_api_host.change],
+                              ui.automa_save_on_api_host.change,
+                              ui.automa_Checkpoint.change],
                     fn=ui_code.set_automa_settings,
                     inputs=[ui.automa_prompt_input,
                             ui.automa_negative_prompt_input,
@@ -162,7 +165,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                             ui.automa_n_iter,
                             ui.automa_url,
                             ui.automa_save,
-                            ui.automa_save_on_api_host],
+                            ui.automa_save_on_api_host,
+                            ui.automa_Checkpoint],
                     outputs=None)
                 gr.on(
                     triggers=[automatic1111.select,generate.select],
@@ -179,13 +183,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                              ui.automa_n_iter,
                              ui.automa_url,
                              ui.automa_save,
-                             ui.automa_save_on_api_host]
+                             ui.automa_save_on_api_host,
+                             ui.automa_Checkpoint]
                 )
                 gr.Interface(
                     ui_code.run_automatics_generation,
                     [ui.automa_prompt_input,
                      ui.automa_negative_prompt_input,
                      ui.automa_Sampler,
+                     ui.automa_Checkpoint,
                      ui.automa_Steps,
                      ui.automa_CFG,
                      ui.automa_Width,
