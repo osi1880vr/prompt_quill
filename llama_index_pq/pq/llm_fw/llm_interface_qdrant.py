@@ -173,7 +173,8 @@ class _LLM_INTERFACE:
 
         return out_dict
 
-
+    def direct_search(self,query,limit,offset):
+        return self.adapter.direct_search(query,limit,offset)
 
 
     def run_llm_response(self, query, history):

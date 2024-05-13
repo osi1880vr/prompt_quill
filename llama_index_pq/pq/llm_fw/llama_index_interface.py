@@ -115,6 +115,17 @@ class adapter:
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
         )
 
+    def direct_search(self,query,limit,offset):
+
+        vector = self.embed_model.get_text_embedding(query)
+        result = self.document_store.search(collection_name=self.index,
+                                   query_vector=vector,
+                                   limit=limit,
+                                   offset=offset
+                                   )
+        return result
+
+
     def set_rephrase_pipeline(self, context):
         if hasattr(self,'query_rephrase_engine'):
             del self.query_rephrase_engine
@@ -172,6 +183,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def retrieve_query(self, query):
         try:
+            self.llm._model.reset()
             response =  self.query_engine.query(query)
             self.prepare_meta_data(response)
             self.g.last_context = [s.node.get_text() for s in response.source_nodes]
@@ -181,6 +193,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def retrieve_rephrase_query(self, query, context):
         self.set_rephrase_pipeline(context)
+        self.llm._model.reset()
         response =  self.query_rephrase_engine.query(query)
         response = response.response.lstrip(" ")
         return response.replace('"','')

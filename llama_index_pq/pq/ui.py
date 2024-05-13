@@ -22,6 +22,7 @@ from PIL import Image
 from io import BytesIO
 import time
 import re
+import json
 from collections import deque
 from api import v1
 
@@ -359,6 +360,35 @@ class ui_actions:
         else:
             return -1
 
+
+    def get_next_target_new(self, nodes):
+
+        if len(nodes) < self.g.settings_data['sail_depth']:
+            self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
+
+        if self.g.settings_data['sail_sinus']:
+            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
+            self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
+            self.g.settings_data['sail_depth'] += self.sinus
+            if self.g.settings_data['sail_depth'] < 0:
+                self.g.settings_data['sail_depth'] = 1
+
+        if len(nodes) > 0:
+
+            if self.g.settings_data['sail_target']:
+                node = nodes[len(nodes)-1]
+                payload = json.loads(node.payload['_node_content'])
+                out = payload['text']
+                self.g.sail_history.append(out)
+                return out
+            else:
+                node = nodes[0]
+                payload = json.loads(node.payload['_node_content'])
+                out = payload['text']
+                self.g.sail_history.append(out)
+                return out
+        else:
+            return -1
     def check_api_avail(self):
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
 
@@ -542,7 +572,7 @@ class ui_actions:
 
                 sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
-                nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
                 if self.g.settings_data['sail_generate']:
 
@@ -556,7 +586,7 @@ class ui_actions:
                 else:
                     yield sail_log,[]
 
-                query = self.get_next_target(nodes)
+                query = self.get_next_target_new(new_nodes)
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                     break
@@ -609,7 +639,7 @@ class ui_actions:
 
             sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
-            nodes = self.interface.retrieve_top_k_query(query, self.g.settings_data['sail_depth'])
+            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
             if self.g.settings_data['sail_generate']:
                 response = self.sail_automa_gen(prompt)
 
@@ -620,7 +650,7 @@ class ui_actions:
                     yield prompt,img
             else:
                 yield prompt,None
-            query = self.get_next_target(nodes)
+            query = self.get_next_target_new(new_nodes)
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
