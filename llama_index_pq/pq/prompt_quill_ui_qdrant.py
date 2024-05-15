@@ -464,7 +464,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 triggers=[llm_settings.select],
                 fn=ui_code.get_llm_settings,
                 inputs=None,
-                outputs=[ui.LLM,
+                outputs=[ui.collection,
+                         ui.LLM,
                          ui.Temperature,
                          ui.Context,
                          ui.GPU,
@@ -476,7 +477,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
             gr.Interface(
                 ui_code.set_model,
-                [
+                [   ui.collection,
                     ui.LLM,
                     ui.Temperature,
                     ui.Context,

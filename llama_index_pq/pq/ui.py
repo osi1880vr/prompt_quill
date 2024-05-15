@@ -99,7 +99,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api, checkpoint):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_Sampler'] = sampler
@@ -176,7 +176,8 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_model(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_model(self, collection, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+        self.g.settings_data['collection'] = collection
         self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
         model = self.g.settings_data['model_list'][model]
         return self.interface.change_model(model, temperature, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
@@ -214,7 +215,7 @@ class ui_actions:
     
     
     def get_llm_settings(self):
-        return self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
+        return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
     def get_sailing_settings(self):
         if self.g.settings_data['automa_checkpoints'] == []:
@@ -268,9 +269,9 @@ class ui_actions:
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
-    def run_automatics_generation(self, prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
+    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
         self.g.running = True
-        self.set_automa_settings(prompt, negative_prompt, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
+        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
 
@@ -753,6 +754,10 @@ class ui_staff:
             self.g.settings_data['model_list'].keys(), value=self.g.settings_data['LLM Model'], label="LLM Model",
             info="Will add more LLMs later!"
         )
+        self.collection = gr.Dropdown(
+            self.g.settings_data['collections_list'], value=self.g.settings_data['collection'], label="Collection",
+            info="If you got more than one collection!"
+        )
         self.Temperature = gr.Slider(0, 1, step=0.1, value=self.g.settings_data['Temperature'], label="Temperature",
                                 info="Choose between 0 and 1")
         self.Context = gr.Slider(0, 8192, step=1, value=self.g.settings_data['Context Length'], label="Context Length",
@@ -788,7 +793,7 @@ class ui_staff:
         self.automa_Sampler = gr.Dropdown(
             choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler'], label='Sampler')
         self.automa_Checkpoint = gr.Dropdown(
-            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'], label='Sampler')
+            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'], label='Checkpoint')
         self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
                                  info="Choose between 1 and 100")
         self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_CFG Scale'], label="CFG Scale",

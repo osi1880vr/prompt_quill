@@ -9,6 +9,8 @@ default = {
     "max output Tokens": 200,
     "top_k": 5,
     "Instruct Model": False,
+    "collection": 'prompts_large_meta',
+    "collections_list": ['prompts_large_meta'],
 
     "rephrase_instruction": """create a text to image prompt based on the context and the query,
 You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",

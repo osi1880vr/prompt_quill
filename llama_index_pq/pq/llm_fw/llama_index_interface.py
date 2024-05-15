@@ -37,9 +37,8 @@ if os.getenv("QDRANT_URL") is not None:
 class adapter:
 
     def __init__(self):
-        self.index='prompts_large_meta'
         self.g = globals.get_globals()
-        self.document_store = self.set_document_store()
+        self.set_document_store()
         self.llm = self.set_llm()
         self.set_pipeline()
         self.last_context = []
@@ -49,17 +48,21 @@ class adapter:
     def get_document_store(self):
         return self.document_store
 
+
+    def get_all_collections(self):
+        try:
+            collections_list = []
+            collections = self.document_store.get_collections()
+            for collection in collections:
+                for c in list(collection[1]):
+                    collections_list.append(c.name)
+            self.g.settings_data['collections_list'] = collections_list
+        except Exception as e:
+            print(f"Error fetching collections from Qdrant: {e}")
+
     def set_document_store(self):
-        return qdrant_client.QdrantClient(
-            # you can use :memory: mode for fast and light-weight experiments,
-            # it does not require to have Qdrant deployed anywhere
-            # but requires qdrant-client >= 1.1.1
-            #location=":memory:"
-            # otherwise set Qdrant instance address with:
-            url=url
-            # set API KEY for Qdrant Cloud
-            # api_key="<qdrant-api-key>",
-        )
+        self.document_store = qdrant_client.QdrantClient(url=url)
+        self.get_all_collections()
 
     def get_llm(self):
         return self.llm
@@ -102,7 +105,7 @@ class adapter:
             del self.query_engine
 
         self.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
-        self.vector_store = QdrantVectorStore(client=self.document_store, collection_name=self.index)
+        self.vector_store = QdrantVectorStore(client=self.document_store, collection_name=self.g.settings_data['collection'])
         self.vector_index = VectorStoreIndex.from_vector_store( vector_store=self.vector_store, embed_model=self.embed_model)
 
         self.retriever = self.get_retriever(similarity_top_k=self.g.settings_data['top_k'])
@@ -118,7 +121,7 @@ class adapter:
     def direct_search(self,query,limit,offset):
 
         vector = self.embed_model.get_text_embedding(query)
-        result = self.document_store.search(collection_name=self.index,
+        result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                    query_vector=vector,
                                    limit=limit,
                                    offset=offset
@@ -174,6 +177,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         for key in response.metadata.keys():
             if 'negative_prompt' in response.metadata[key]:
                 negative_prompts = negative_prompts + response.metadata[key]['negative_prompt'].split(',')
+            if 'model_name' in response.metadata[key]:
                 self.g.models_list.append(f'{response.metadata[key]["model_name"]}')
 
             if len(negative_prompts) > 0:
@@ -188,8 +192,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             self.prepare_meta_data(response)
             self.g.last_context = [s.node.get_text() for s in response.source_nodes]
             return response.response.lstrip(" ")
-        except:
-            return 'something went wrong'
+        except Exception as e:
+            return 'something went wrong:' + str(e)
 
     def retrieve_rephrase_query(self, query, context):
         self.set_rephrase_pipeline(context)
