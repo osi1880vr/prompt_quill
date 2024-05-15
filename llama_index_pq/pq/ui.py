@@ -744,8 +744,6 @@ class ui_staff:
 
         self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7)
 
-        self.civitai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
-        self.civitai_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
         self.hordeai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
         self.hordeai_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
         self.automa_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
@@ -768,17 +766,6 @@ class ui_staff:
                           info="Choose between 1 and 50 be careful not to overload the context window of the LLM")
         self.Instruct = gr.Checkbox(label='Instruct Model', value=self.g.settings_data['Instruct Model'])
 
-        self.civitai_Air = gr.TextArea(self.g.settings_data['civitai_Air'], lines=1, label="Air")
-        self.civitai_Steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['civitai_Steps'], label="Steps",
-                                  info="Choose between 1 and 100")
-        self.civitai_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['civitai_CFG Scale'], label="CFG Scale",
-                                info="Choose between 1 and 20")
-        self.civitai_Width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['civitai_Width'], label="Width",
-                                  info="Choose between 1 and 2048")
-        self.civitai_Height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['civitai_Height'], label="Height",
-                                   info="Choose between 1 and 2048")
-        self.civitai_Clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['civitai_Clipskip'], label="Clipskip",
-                                     info="Choose between 1 and 10")
 
         self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde_api_key'], type='password')
         self.horde_Model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde_Model'], label='Model')

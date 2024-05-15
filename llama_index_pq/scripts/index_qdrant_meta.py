@@ -25,16 +25,7 @@ from llama_index.core import (
 from llama_index.core.storage.storage_context import StorageContext
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
-client = qdrant_client.QdrantClient(
-    # you can use :memory: mode for fast and light-weight experiments,
-    # it does not require to have Qdrant deployed anywhere
-    # but requires qdrant-client >= 1.1.1
-    #location=":memory:"
-    # otherwise set Qdrant instance address with:
-    url="http://192.168.0.127:6333"
-    # set API KEY for Qdrant Cloud
-    # api_key="<qdrant-api-key>",
-)
+client = qdrant_client.QdrantClient(url="http://192.168.0.127:6333")
 
 base_path = 'X:\\csv2'
 
