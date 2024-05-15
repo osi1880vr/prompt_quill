@@ -157,6 +157,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                     inputs=[ui.automa_prompt_input,
                             ui.automa_negative_prompt_input,
                             ui.automa_Sampler,
+                            ui.automa_Checkpoint,
                             ui.automa_Steps,
                             ui.automa_CFG,
                             ui.automa_Width,
@@ -165,8 +166,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                             ui.automa_n_iter,
                             ui.automa_url,
                             ui.automa_save,
-                            ui.automa_save_on_api_host,
-                            ui.automa_Checkpoint],
+                            ui.automa_save_on_api_host],
                     outputs=None)
                 gr.on(
                     triggers=[automatic1111.select,generate.select],
