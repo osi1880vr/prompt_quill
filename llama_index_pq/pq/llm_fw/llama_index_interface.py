@@ -104,7 +104,7 @@ class adapter:
             del self.vector_index
             del self.query_engine
 
-        self.embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L12-v2")
+        self.embed_model = HuggingFaceEmbedding(model_name=self.g.settings_data['embedding_model'])
         self.vector_store = QdrantVectorStore(client=self.document_store, collection_name=self.g.settings_data['collection'])
         self.vector_index = VectorStoreIndex.from_vector_store( vector_store=self.vector_store, embed_model=self.embed_model)
 

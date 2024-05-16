@@ -66,8 +66,10 @@ class ui_actions:
         return self.interface.run_llm_response(query, history)
 
 
-    def set_llm_settings(self, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_llm_settings(self, collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+        self.g.settings_data['collection'] = collection
         self.g.settings_data['LLM Model'] = model
+        self.g.settings_data['embedding_model'] = embedding_model
         self.g.settings_data['Temperature'] = temperature
         self.g.settings_data['Context Length'] = n_ctx
         self.g.settings_data['GPU Layers'] = n_gpu_layers
@@ -176,11 +178,11 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_model(self, collection, model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_model(self, collection, model,embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
         self.g.settings_data['collection'] = collection
-        self.set_llm_settings(model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
-        model = self.g.settings_data['model_list'][model]
-        return self.interface.change_model(model, temperature, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
+        self.g.settings_data['embedding_model'] = embedding_model
+        self.set_llm_settings(collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
+        return self.interface.change_model(self.g.settings_data['model_list'][model], temperature, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
     
     
     def all_get_last_prompt(self):
@@ -215,7 +217,7 @@ class ui_actions:
     
     
     def get_llm_settings(self):
-        return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
+        return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data["embedding_model"],self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
     
     def get_sailing_settings(self):
         if self.g.settings_data['automa_checkpoints'] == []:
@@ -754,6 +756,11 @@ class ui_staff:
             self.g.settings_data['model_list'].keys(), value=self.g.settings_data['LLM Model'], label="LLM Model",
             info="Will add more LLMs later!"
         )
+        self.embedding_model = gr.Dropdown(
+            self.g.settings_data['embedding_model_list'], value=self.g.settings_data['embedding_model'], label="Embedding Model",
+            info="If you dont know better, use all-MiniLM-L12-v2!"
+        )
+
         self.collection = gr.Dropdown(
             self.g.settings_data['collections_list'], value=self.g.settings_data['collection'], label="Collection",
             info="If you got more than one collection!"

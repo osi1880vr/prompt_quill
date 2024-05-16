@@ -65,6 +65,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_rephrase": False,
     "sail_gen_rephrase":False,
 
+    "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2","BAAI/bge-base-en-v1.5"],
+    "embedding_model": "sentence-transformers/all-MiniLM-L12-v2",
     'selected_template': 'prompt_template_b',
     'model_list': {
 
