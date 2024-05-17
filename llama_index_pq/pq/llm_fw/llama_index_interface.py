@@ -20,7 +20,7 @@ import os
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
 from llama_index.llms.llama_cpp.llama_utils import messages_to_prompt, completion_to_prompt
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, PromptHelper
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.schema import TextNode
@@ -112,7 +112,7 @@ class adapter:
 
         self.query_engine = self.vector_index.as_query_engine(similarity_top_k=self.g.settings_data['top_k'],llm=self.llm)
 
-        self.qa_prompt_tmpl = PromptTemplate(self.g.settings_data['prompt_templates']['prompt_template_b'])
+        self.qa_prompt_tmpl = PromptTemplate(self.g.settings_data['prompt_templates'][self.g.settings_data['selected_template']])
 
         self.query_engine.update_prompts(
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
@@ -167,7 +167,22 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def get_context_text(self, query):
         nodes = self.retrieve_context(query)
+        self.prepare_meta_data_from_nodes(nodes)
         return [s.node.get_text() for s in nodes]
+
+
+    def prepare_meta_data_from_nodes(self, nodes):
+        self.g.negative_prompt_list = []
+        self.g.models_list = []
+        negative_prompts = []
+        for node in nodes:
+            if 'negative_prompt' in node.metadata:
+                negative_prompts = negative_prompts + node.metadata['negative_prompt'].split(',')
+            if 'model_name' in node.metadata:
+                self.g.models_list.append(f'{node.metadata["model_name"]}')
+
+            if len(negative_prompts) > 0:
+                self.g.negative_prompt_list = set(negative_prompts)
 
 
     def prepare_meta_data(self, response):
@@ -184,6 +199,53 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
                 self.g.negative_prompt_list = set(negative_prompts)
 
 
+    def prepare_prompt(self,prompt,context):
+        meta_prompt = self.g.settings_data['prompt_templates'][self.g.settings_data['selected_template']]
+        meta_prompt = f"{meta_prompt}"
+        instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']
+        start_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['start_pattern']
+        assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
+        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,assistant_pattern=assistant_pattern)
+
+
+    def retrieve_llm_completion(self, prompt):
+        self.llm._model.reset()
+
+        context = self.get_context_text(prompt)
+        prompt = self.prepare_prompt(prompt,context)
+
+        completion_chunks = self.llm._model.create_completion(
+            prompt=prompt,
+            temperature=self.g.settings_data["Temperature"],
+            max_tokens=self.g.settings_data["max output Tokens"],
+            top_p=1,
+            min_p=0.05,
+            typical_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            repeat_penalty=1,
+            top_k=0,
+            stream=True,
+            seed=None,
+            tfs_z=1,
+            mirostat_mode=0,
+            mirostat_tau=5,
+            mirostat_eta=0.1,
+            grammar=None
+        )
+
+
+        output = ""
+        for completion_chunk in completion_chunks:
+            text = completion_chunk['choices'][0]['text']
+            output += text
+
+        return output
+
+
+
+
+
 
     def retrieve_query(self, query):
         try:
@@ -191,7 +253,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             response =  self.query_engine.query(query)
             self.prepare_meta_data(response)
             self.g.last_context = [s.node.get_text() for s in response.source_nodes]
-            return response.response.lstrip(" ")
+            return response.response.strip(" ")
         except Exception as e:
             return 'something went wrong:' + str(e)
 

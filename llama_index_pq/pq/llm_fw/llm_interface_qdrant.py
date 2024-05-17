@@ -177,6 +177,10 @@ class _LLM_INTERFACE:
         return self.adapter.direct_search(query,limit,offset)
 
 
+    def retrieve_llm_completion(self,query):
+        return self.adapter.retrieve_llm_completion(query)
+
+
     def run_llm_response(self, query, history):
 
         if self.g.settings_data['translate']:
@@ -187,7 +191,9 @@ class _LLM_INTERFACE:
         if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        response = self.adapter.retrieve_query(query)
+        #response = self.adapter.retrieve_query(query)
+
+        response = self.adapter.retrieve_llm_completion(query)
 
         self.g.last_prompt = response
 

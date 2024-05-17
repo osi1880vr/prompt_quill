@@ -59,7 +59,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_style":"",
     "sail_add_search":False,
     "sail_search":"",
-    "sail_max_gallery_size":10,
+    "sail_max_gallery_size":6,
     "sail_summary":False,
     "sail_rephrase_prompt": "",
     "sail_rephrase": False,
@@ -67,116 +67,189 @@ You mix a new prompt based on the context and the query. The query is just addin
 
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2","BAAI/bge-base-en-v1.5"],
     "embedding_model": "sentence-transformers/all-MiniLM-L12-v2",
-    'selected_template': 'prompt_template_b',
+    'selected_template': 'prompt_template_a',
     'model_list': {
 
-        'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf':
+        'TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF':
             {
-                'name': 'thebloke/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf',
-                'path': 'https://huggingface.co/TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF/resolve/main/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q5_K_M.gguf'
+                'name': 'TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF/resolve/main/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q4_K_M.gguf'
             },
         'TheBloke/openchat-3.5-0106-GGUF':
             {
                 'name': 'TheBloke/openchat-3.5-0106-GGUF',
-                'path': 'https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF/resolve/main/openchat-3.5-0106.Q8_0.gguf'
+                'path': 'https://huggingface.co/TheBloke/openchat-3.5-0106-GGUF/resolve/main/openchat-3.5-0106.Q8_0.gguf',
+                'instruction_start': 'GPT4 Correct User:',
+                'start_pattern': '<START>',
+                'assistant_pattern': '<|end_of_turn|>GPT4 Correct Assistant: ASSISTANT:'
             },
 
         'thebloke/llama-2-13b-chat.Q5_K_M.gguf':
             {
-                'name': 'thebloke/llama-2-13b-chat.Q5_K_M.gguf',
-                'path': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q5_K_M.gguf'
+                'name': 'TheBloke/Llama-2-13B-chat-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q4_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
             },
         'TheBloke/WestLake-7B-v2-GGUF':
             {
                 'name': 'TheBloke/WestLake-7B-v2-GGUF',
-                'path': 'https://huggingface.co/TheBloke/WestLake-7B-v2-GGUF/resolve/main/westlake-7b-v2.Q4_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/WestLake-7B-v2-GGUF/resolve/main/westlake-7b-v2.Q4_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
             },
         'TheBloke/Rosa_v2_7B-GGUF':
             {
                 'name': 'TheBloke/Rosa_v2_7B-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Rosa_v2_7B-GGUF/resolve/main/rosa_v2_7b.Q4_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/Rosa_v2_7B-GGUF/resolve/main/rosa_v2_7b.Q4_K_M.gguf',
+                'instruction_start': '[INST]',
+                'start_pattern': '',
+                'assistant_pattern': '[/INST]ASSISTANT:'
             },
         'TheBloke/Panda-7B-v0.1-GGUF':
             {
                 'name': 'TheBloke/Panda-7B-v0.1-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q4_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q4_K_M.gguf',
+                'instruction_start': '[INST]',
+                'start_pattern': '<START>',
+                'assistant_pattern': '[/INST]ASSISTANT:'
             },
         'TheBloke/Panda-7B-v0.1-GGUF-Q2':
             {
                 'name': 'TheBloke/Panda-7B-v0.1-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q2_K.gguf'
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q2_K.gguf',
+                'instruction_start': '[INST]',
+                'start_pattern': '<START>',
+                'assistant_pattern': '[/INST]ASSISTANT:'
             },
         'TheBloke/Panda-7B-v0.1-GGUF-Q3':
             {
                 'name': 'TheBloke/Panda-7B-v0.1-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q3_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/Panda-7B-v0.1-GGUF/resolve/main/panda-7b-v0.1.Q3_K_M.gguf',
+                'instruction_start': '[INST]',
+                'start_pattern': '<START>',
+                'assistant_pattern': '[/INST]ASSISTANT:'
             },
         'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF':
             {
                 'name': 'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF',
-                'path': 'https://huggingface.co/TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF/resolve/main/bling-stable-lm-3b-4e1t-v0.Q5_0.gguf'
+                'path': 'https://huggingface.co/TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF/resolve/main/bling-stable-lm-3b-4e1t-v0.Q5_0.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
             },
         'TheBloke/Sonya-7B-GGUF':
             {
                 'name': 'TheBloke/Sonya-7B-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Sonya-7B-GGUF/resolve/main/sonya-7b.Q4_K_M.gguf'
-            },
-        'TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF':
-            {
-                'name': 'TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF',
-                'path': 'https://huggingface.co/TheBloke/dolphin-2.6-mistral-7B-dpo-GGUF/resolve/main/dolphin-2.6-mistral-7b-dpo.Q4_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/Sonya-7B-GGUF/resolve/main/sonya-7b.Q4_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
             },
         'TheBloke/Lelantos-7B-GGUF':
             {
                 'name': 'TheBloke/Lelantos-7B-GGUF',
-                'path': 'https://huggingface.co/TheBloke/Lelantos-7B-GGUF/resolve/main/lelantos-7b.Q4_K_M.gguf'
+                'path': 'https://huggingface.co/TheBloke/Lelantos-7B-GGUF/resolve/main/lelantos-7b.Q4_K_M.gguf',
+                'instruction_start': '<|im_start|>user\n',
+                'start_pattern': '',
+                'assistant_pattern': '\n<|im_end|>\n<|im_start|>assistant\n ASSISTANT:'
             },
-
-
+        'TheBloke/Luna-AI-Llama2-Uncensored-GGUF':
+            {
+                'name': 'TheBloke/Luna-AI-Llama2-Uncensored-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q5_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
+            },
+        'TheBloke/Spicyboros-7B-2.2-GGUF':
+            {
+                'name': 'TheBloke/Spicyboros-7B-2.2-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Spicyboros-7B-2.2-GGUF/resolve/main/spicyboros-7b-2.2.Q5_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
+            },
+        'TheBloke/Wizard-Vicuna-7B-Uncensored-GGUF':
+            {
+                'name': 'TheBloke/Wizard-Vicuna-7B-Uncensored-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Wizard-Vicuna-7B-Uncensored-GGUF/resolve/main/Wizard-Vicuna-7B-Uncensored.Q5_K_M.gguf',
+                'instruction_start': '### Human:',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Assistant: ASSISTANT:'
+            },
+        'TheBloke/llama2_7b_chat_uncensored-GGUF':
+            {
+                'name': 'TheBloke/llama2_7b_chat_uncensored-GGUF',
+                'path': 'https://huggingface.co/TheBloke/llama2_7b_chat_uncensored-GGUF/resolve/main/llama2_7b_chat_uncensored.Q5_K_M.gguf',
+                'instruction_start': '[INST] <<SYS>>\ncreate fantastic text to image prompts.\n<</SYS>>',
+                'start_pattern': '<START>',
+                'assistant_pattern': '[/INST] ASSISTANT:'
+            },
+        'TheBloke/Guanaco-7B-Uncensored-GGUF':
+            {
+                'name': 'TheBloke/Guanaco-7B-Uncensored-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Guanaco-7B-Uncensored-GGUF/resolve/main/guanaco-7b-uncensored.Q5_K_M.gguf',
+                'instruction_start': '### Human:',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Assistant: ASSISTANT:'
+            },
+        'TheBloke/Uncensored-Jordan-7B-GGUF':
+            {
+                'name': 'TheBloke/Uncensored-Jordan-7B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Uncensored-Jordan-7B-GGUF/resolve/main/uncensored-jordan-7b.Q5_K_M.gguf',
+                'instruction_start': '### Instruction:\n',
+                'start_pattern': '<START>',
+                'assistant_pattern': '### Response:\n ASSISTANT:'
+            },
     },
 
     'prompt_templates': {
-
-        'prompt_template_a': """Context information is below.        
----------------------
-{context_str}
----------------------
-Given the context information and not prior knowledge,
-create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderfull text to image prompt.
-You also take care of describing the scene, the lighting as well as the quality improving keywords. the length of the prompt may vary depending on the complexity of the context.
-Query: beautiful female wizard in forest
-Answer: cinematic photo, masterpiece, in the style of picasso, ((beautiful female wizard)), at dusk, standing in a mystical forest, surrounded by fireflies, wearing a long flowing dress with a starry pattern, and holding a glowing wand, magical and enchanting, on eye level, scenic, masterpiece,
-Query: beautiful female scientist on frozen lake
-Answer: ultra high res, detailed, perfect face, ((beautiful female scientist)), in winter, wearing a warm fur coat, standing on a frozen lake with snow-capped mountains in the background, casting a spell with her hands, the ice cracking beneath her feet, stunning and majestic, on eye level, scenic, masterpiece
-Query: beautiful female princess in a meadow
-Answer: Best quality, masterpiece, realistic, ((beautiful female princess)), in spring, wearing a flower crown, standing in a blooming meadow, surrounded by butterflies, holding a staff with a crystal on top, the sun shining down on her, a symbol of nature's beauty and power, on eye level, scenic, masterpiece
-Query: beautiful female witch on a castle rooftop
-Answer: photorealistic, Professional photo, analog style, ((beautiful female witch)), at midnight, wearing a black cloak with a hood, standing on the rooftop of a castle, surrounded by stars and the moon, casting a spell with a dark aura, mysterious and powerful, on eye level, scenic, masterpiece
-Query: {query_str}
-Answer:""",
-
-        'prompt_template_b': """Context information is below.
+        'prompt_template_a': """{instruction_start}Context information is below.
 ---------------------
 {context_str}
 ---------------------
 Given the context information and not prior knowledge, 
 create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderfull text to image prompt.
 You also take care of describing the scene, the lighting as well as the quality improving keywords
-Query: translation in major world languages, machinery of translation in various specializations, cyberpunk style
-Answer: Cyberpunk-style illustration, featuring a futuristic translation device in various specializations, set against a backdrop of neon-lit cityscape. The device, adorned with glowing circuits and cybernetic enhancements, showcases its capabilities in translating languages such as English, Mandarin, Spanish, French, and Arabic. The scene is illuminated by the warm glow of streetlights and the pulsing neon signs, casting intricate shadows on the surrounding machinery. The artwork is rendered in high-quality, vivid colors, with detailed textures and sharp lines, evoking the gritty yet mesmerizing atmosphere of the cyberpunk world.
-Query: a man walking moon
-Answer: cinematic photo, high resolution, masterpiece, ((man walking on the moon)), in a surrealistic setting, with the moon's surface featuring vivid colors and abstract patterns, the man wearing a spacesuit with an astronaut helmet, the American flag planted on the moon's surface in the background, the Earth visible in the distance, the scene illuminated by the moon's glow, on eye level, scenic, masterpiece.
-Query: a female witch
-Answer: The scene unfolds with the beautiful female witch standing on the rooftop of an ancient castle, her black cloak billowing in the wind as she gazes out at the breathtaking view below. The midnight sky above is filled with stars and the full moon casts an eerie glow on the witch's face, highlighting her enchanting beauty. She stands tall, her hood framing her face, casting a spell with her outstretched hand, her dark aura swirling around her. The castle walls, adorned with intricate carvings and gargoyles, stand tall behind her, adding to the mystical atmosphere of the scene. The wind whispers through the rooftop's crenellations, creating an eerie yet captivating soundtrack for this magical moment. The quality of the photo is exceptional, with every detail of the witch's cloak, the castle's architecture, and the night sky captured in stunning clarity. This cinematic masterpiece invites the viewer to step into the world of magic and mystery, leaving them in awe of the beautiful female witch standing on the castle rooftop under the starry sky.
-Query: artifical intelligence and human
-Answer: High-quality digital art, blending fantasy and reality, ((artificial intelligence)) and (((human))), in a futuristic cityscape, an AI robot with glowing circuits standing alongside a confident, well-dressed human, both exuding intelligence and grace, the AI with a sleek metal body and the human with impeccable style, the cityscape filled with advanced technology and vibrant colors, dynamic lighting, surreal and thought-provoking, on eye level, scenic, masterpiece.
-Query: futuristic combat zone
-Answer: cinematic photo, masterpiece, in the style of Blade Runner, futuristic combat zone, at dusk, showcasing a high-tech battlefield with neon lights illuminating the scene, filled with advanced mechs and soldiers engaged in an intense fight, the air filled with stunning lighting effects, on eye level, dramatic, masterpiece, ultra high resolution, dynamic anime-style fight scene, with a focus on the sleek design of the combat gear and the fluidity of the movements, capturing the essence of sci-fi action in a visually stunning manner.
-Query: {query_str}
-Answer: 
+{start_pattern}
+USER: translation in major world languages, machinery of translation in various specializations, cyberpunk style
+ASSISTANT: Cyberpunk-style illustration, featuring a futuristic translation device in various specializations, set against a backdrop of neon-lit cityscape. The device, adorned with glowing circuits and cybernetic enhancements, showcases its capabilities in translating languages such as English, Mandarin, Spanish, French, and Arabic. The scene is illuminated by the warm glow of streetlights and the pulsing neon signs, casting intricate shadows on the surrounding machinery. The artwork is rendered in high-quality, vivid colors, with detailed textures and sharp lines, evoking the gritty yet mesmerizing atmosphere of the cyberpunk world.
+USER: a man walking moon
+ASSISTANT: cinematic photo, high resolution, masterpiece, ((man walking on the moon)), in a surrealistic setting, with the moon's surface featuring vivid colors and abstract patterns, the man wearing a spacesuit with an astronaut helmet, the American flag planted on the moon's surface in the background, the Earth visible in the distance, the scene illuminated by the moon's glow, on eye level, scenic, masterpiece.
+USER: a female witch
+ASSISTANT: The scene unfolds with the beautiful female witch standing on the rooftop of an ancient castle, her black cloak billowing in the wind as she gazes out at the breathtaking view below. The midnight sky above is filled with stars and the full moon casts an eerie glow on the witch's face, highlighting her enchanting beauty. She stands tall, her hood framing her face, casting a spell with her outstretched hand, her dark aura swirling around her. The castle walls, adorned with intricate carvings and gargoyles, stand tall behind her, adding to the mystical atmosphere of the scene. The wind whispers through the rooftop's crenellations, creating an eerie yet captivating soundtrack for this magical moment. The quality of the photo is exceptional, with every detail of the witch's cloak, the castle's architecture, and the night sky captured in stunning clarity. This cinematic masterpiece invites the viewer to step into the world of magic and mystery, leaving them in awe of the beautiful female witch standing on the castle rooftop under the starry sky.
+USER: artifical intelligence and human
+ASSISTANT: High-quality digital art, blending fantasy and reality, ((artificial intelligence)) and (((human))), in a futuristic cityscape, an AI robot with glowing circuits standing alongside a confident, well-dressed human, both exuding intelligence and grace, the AI with a sleek metal body and the human with impeccable style, the cityscape filled with advanced technology and vibrant colors, dynamic lighting, surreal and thought-provoking, on eye level, scenic, masterpiece.
+USER: futuristic combat zone
+ASSISTANT: cinematic photo, masterpiece, in the style of Blade Runner, futuristic combat zone, at dusk, showcasing a high-tech battlefield with neon lights illuminating the scene, filled with advanced mechs and soldiers engaged in an intense fight, the air filled with stunning lighting effects, on eye level, dramatic, masterpiece, ultra high resolution, dynamic anime-style fight scene, with a focus on the sleek design of the combat gear and the fluidity of the movements, capturing the essence of sci-fi action in a visually stunning manner.
+{start_pattern}
+USER: Create a prompt for: {query_str}
+{assistant_pattern}
 """,
-
-        'custom_template': ''
+        'custom_template': """{instruction_start}Context information is below.
+                           ---------------------
+        {context_str}
+                           ---------------------
+        Given the context information and not prior knowledge,
+        create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderfull text to image prompt.
+    You also take care of describing the scene, the lighting as well as the quality improving keywords
+{start_pattern}
+USER: translation in major world languages, machinery of translation in various specializations, cyberpunk style
+ASSISTANT: Cyberpunk-style illustration, featuring a futuristic translation device in various specializations, set against a backdrop of neon-lit cityscape. The device, adorned with glowing circuits and cybernetic enhancements, showcases its capabilities in translating languages such as English, Mandarin, Spanish, French, and Arabic. The scene is illuminated by the warm glow of streetlights and the pulsing neon signs, casting intricate shadows on the surrounding machinery. The artwork is rendered in high-quality, vivid colors, with detailed textures and sharp lines, evoking the gritty yet mesmerizing atmosphere of the cyberpunk world.
+USER: a man walking moon
+ASSISTANT: cinematic photo, high resolution, masterpiece, ((man walking on the moon)), in a surrealistic setting, with the moon's surface featuring vivid colors and abstract patterns, the man wearing a spacesuit with an astronaut helmet, the American flag planted on the moon's surface in the background, the Earth visible in the distance, the scene illuminated by the moon's glow, on eye level, scenic, masterpiece.
+USER: a female witch
+ASSISTANT: The scene unfolds with the beautiful female witch standing on the rooftop of an ancient castle, her black cloak billowing in the wind as she gazes out at the breathtaking view below. The midnight sky above is filled with stars and the full moon casts an eerie glow on the witch's face, highlighting her enchanting beauty. She stands tall, her hood framing her face, casting a spell with her outstretched hand, her dark aura swirling around her. The castle walls, adorned with intricate carvings and gargoyles, stand tall behind her, adding to the mystical atmosphere of the scene. The wind whispers through the rooftop's crenellations, creating an eerie yet captivating soundtrack for this magical moment. The quality of the photo is exceptional, with every detail of the witch's cloak, the castle's architecture, and the night sky captured in stunning clarity. This cinematic masterpiece invites the viewer to step into the world of magic and mystery, leaving them in awe of the beautiful female witch standing on the castle rooftop under the starry sky.
+USER: artifical intelligence and human
+ASSISTANT: High-quality digital art, blending fantasy and reality, ((artificial intelligence)) and (((human))), in a futuristic cityscape, an AI robot with glowing circuits standing alongside a confident, well-dressed human, both exuding intelligence and grace, the AI with a sleek metal body and the human with impeccable style, the cityscape filled with advanced technology and vibrant colors, dynamic lighting, surreal and thought-provoking, on eye level, scenic, masterpiece.
+USER: futuristic combat zone
+ASSISTANT: cinematic photo, masterpiece, in the style of Blade Runner, futuristic combat zone, at dusk, showcasing a high-tech battlefield with neon lights illuminating the scene, filled with advanced mechs and soldiers engaged in an intense fight, the air filled with stunning lighting effects, on eye level, dramatic, masterpiece, ultra high resolution, dynamic anime-style fight scene, with a focus on the sleek design of the combat gear and the fluidity of the movements, capturing the essence of sci-fi action in a visually stunning manner.
+{start_pattern}
+USER: Create a prompt for: {query_str}
+{assistant_pattern}"""
 
     },
     'negative_prompt': """out of frame, lowres, text, error, cropped, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, username, watermark, signature"""
