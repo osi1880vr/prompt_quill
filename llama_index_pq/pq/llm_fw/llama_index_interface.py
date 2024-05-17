@@ -124,7 +124,7 @@ class adapter:
         result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                    query_vector=vector,
                                    limit=limit,
-                                   offset=offset
+                                   offset=(offset+1)*limit
                                    )
         return result
 
