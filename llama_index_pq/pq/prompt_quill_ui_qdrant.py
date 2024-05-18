@@ -208,7 +208,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                 )
 
             with gr.Tab('Interrogate') as interrogate:
-                input_image = gr.Image(type='filepath')
+                input_image = gr.Image(type='filepath',height=300)
                 output_interrogation = gr.Textbox()
                 interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
                 button_interrogate = gr.Button('Interrogate')
@@ -330,6 +330,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'], label="Sinus Frequency",info="Choose between 0.1 and 10")
                         sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'], label="Sinus Multiplier",info="Choose between 1 and 500")
                     with gr.Row():
+                        sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt", info="Uses the negative if we find one, or the default", value=g.settings_data['sail_dyn_neg'])
+                        sail_add_neg = gr.Checkbox(label="Add to negative prompt", info="Add a text to each negative prompt", value=g.settings_data['sail_add_neg'])
+                        sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon', placeholder="Enter your negative prompt addon")
+                    with gr.Row():
                         sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt", value=g.settings_data['sail_add_style'])
                         sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec', placeholder="Enter your hardcoded style")
                     with gr.Row():
@@ -359,7 +363,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                           sail_style.change,
                           sail_add_search.change,
                           sail_search.change,
-                          sail_max_gallery_size.change],
+                          sail_max_gallery_size.change,
+                          sail_dyn_neg.change,
+                          sail_add_neg.change,
+                          sail_neg_prompt.change,
+
+                          ],
                 fn=ui_code.set_sailing_settings,
                 inputs=[sail_text,
                         sail_width,
@@ -377,7 +386,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
                         sail_style,
                         sail_add_search,
                         sail_search,
-                        sail_max_gallery_size],
+                        sail_max_gallery_size,
+                        sail_dyn_neg,
+                        sail_add_neg,
+                        sail_neg_prompt
+                        ],
                 outputs = None)
 
             gr.on(

@@ -146,7 +146,7 @@ class _LLM_INTERFACE:
         negative_out = ''
 
 
-        output = self.adapter.retrieve_query(query)
+        output = self.adapter.retrieve_llm_completion(query)
 
         if self.g.settings_data['summary']:
             output = extractive_summary(output)

@@ -136,7 +136,8 @@ class ui_actions:
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate, sail_target,
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
-                             sail_search,sail_max_gallery_size):
+                             sail_search, sail_max_gallery_size, sail_dyn_neg,
+                             sail_add_neg, sail_neg_prompt):
         if self.g.sail_running:
             self.sail_depth_start = sail_depth
 
@@ -157,6 +158,9 @@ class ui_actions:
         self.g.settings_data['sail_add_search'] = sail_add_search
         self.g.settings_data['sail_search'] = sail_search
         self.g.settings_data['sail_max_gallery_size'] = sail_max_gallery_size
+        self.g.settings_data['sail_dyn_neg'] = sail_dyn_neg
+        self.g.settings_data['sail_add_neg'] = sail_add_neg
+        self.g.settings_data['sail_neg_prompt'] = sail_neg_prompt
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -397,13 +401,19 @@ class ui_actions:
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
 
     def sail_automa_gen(self, query):
+
+        negative_prompt = self.g.settings_data['negative_prompt']
+
+        if self.g.settings_data['sail_dyn_neg']:
+            if len(self.g.negative_prompt_list) > 0:
+                negative_prompt = ",".join(self.g.negative_prompt_list).strip(' ')
+
+        if self.g.settings_data['sail_add_neg']:
+            negative_prompt = f"{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
+
         return self.automa_client.request_generation(query,
-                                                self.g.settings_data['negative_prompt'],
-                                                self.g.settings_data)
-
-
-
-
+                                                     negative_prompt,
+                                                     self.g.settings_data)
 
 
     def log_prompt(self, filename, prompt, orig_prompt, n, sail_log):

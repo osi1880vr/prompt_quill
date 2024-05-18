@@ -64,6 +64,10 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_rephrase_prompt": "",
     "sail_rephrase": False,
     "sail_gen_rephrase":False,
+    "sail_dyn_neg": False,
+    "sail_add_neg":False,
+    "sail_neg_prompt": "",
+
 
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2","BAAI/bge-base-en-v1.5"],
     "embedding_model": "sentence-transformers/all-MiniLM-L12-v2",
@@ -84,7 +88,7 @@ You mix a new prompt based on the context and the query. The query is just addin
                 'assistant_pattern': '<|end_of_turn|>GPT4 Correct Assistant: ASSISTANT:'
             },
 
-        'thebloke/llama-2-13b-chat.Q5_K_M.gguf':
+        'TheBloke/Llama-2-13B-chat-GGUF':
             {
                 'name': 'TheBloke/Llama-2-13B-chat-GGUF',
                 'path': 'https://huggingface.co/TheBloke/Llama-2-13B-chat-GGUF/resolve/main/llama-2-13b-chat.Q4_K_M.gguf',

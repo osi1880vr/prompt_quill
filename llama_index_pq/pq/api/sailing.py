@@ -4,7 +4,7 @@ import globals
 from post_process.summary import extractive_summary
 from llm_fw import llm_interface_qdrant
 import shared
-
+import json
 
 
 class api_sail:
@@ -15,6 +15,7 @@ class api_sail:
 		self.last_api_sail_query = None
 		self.api_sail_depth_start = 0
 		self.api_sail_depth = 0
+		self.api_sail_count = 0
 
 	def shorten_string(self, text, max_bytes=1000):
 		"""Shortens a string to a maximum of 1000 bytes.
@@ -43,16 +44,24 @@ class api_sail:
 
 		return text
 	def get_next_target(self, nodes):
-		target_dict = self.interface.get_query_texts(nodes)
 
-		if len(target_dict.keys()) < self.api_sail_depth:
+		if len(nodes) < self.api_sail_depth:
 			self.api_sail_depth = self.api_sail_depth_start + len(self.g.api_sail_history)
 
-		if len(target_dict.keys()) > 0:
-			out =  target_dict[min(target_dict.keys())]
-			self.g.api_sail_history.append(out)
-			return out
+		if len(nodes) > 0:
 
+			if self.g.settings_data['sail_target']:
+				node = nodes[len(nodes)-1]
+				payload = json.loads(node.payload['_node_content'])
+				out = payload['text']
+				self.g.api_sail_history.append(out)
+				return out
+			else:
+				node = nodes[0]
+				payload = json.loads(node.payload['_node_content'])
+				out = payload['text']
+				self.g.api_sail_history.append(out)
+				return out
 		else:
 			return -1
 
@@ -62,6 +71,7 @@ class api_sail:
 			self.last_api_sail_query = None
 			self.api_sail_depth_start = 0
 			self.g.api_sail_history = []
+			self.api_sail_count = 0
 
 		if self.last_api_sail_query is None:
 			self.last_api_sail_query = data['query']
@@ -98,7 +108,8 @@ class api_sail:
 			if data['add_style'] is True:
 				prompt = f'{data["style"]}, {prompt}'
 
-			nodes = self.interface.retrieve_top_k_query(query, self.api_sail_depth)
+			nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.api_sail_depth,self.api_sail_count)
+			self.api_sail_count += 1
 
 			self.last_api_sail_query = self.get_next_target(nodes)
 
@@ -110,8 +121,8 @@ class api_sail:
 					self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
 				if self.g.last_negative_prompt != '':
 					negative_out = self.g.last_negative_prompt
-				else:
-					negative_out = self.g.settings_data['negative_prompt']
+			else:
+				negative_out = self.g.settings_data['negative_prompt']
 
 
 			if query == -1:
