@@ -70,6 +70,11 @@ You mix a new prompt based on the context and the query. The query is just addin
     'selected_template': 'prompt_template_a',
     'model_list': {
 
+        'TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF':
+            {
+                'name': 'TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF',
+                'path': 'https://huggingface.co/TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF/resolve/main/speechless-llama2-hermes-orca-platypus-wizardlm-13b.Q4_K_M.gguf'
+            },
         'TheBloke/openchat-3.5-0106-GGUF':
             {
                 'name': 'TheBloke/openchat-3.5-0106-GGUF',

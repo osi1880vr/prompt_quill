@@ -540,9 +540,7 @@ class ui_actions:
                     if len(query) > 1000:
                         query = self.shorten_string(query)
 
-                #prompt = self.interface.retrieve_query(query)
                 prompt = self.interface.retrieve_llm_completion(query)
-
 
                 prompt = shared.clean_llm_artefacts(prompt)
 
@@ -580,6 +578,8 @@ class ui_actions:
                 if self.g.sail_running is False:
                     break
             except Exception as e:
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
 
@@ -601,49 +601,55 @@ class ui_actions:
 
         for n in range(self.g.settings_data['sail_width']):
 
-            if self.g.settings_data['sail_add_search']:
-                query = f"{self.g.settings_data['sail_search']}, {query}"
+            try:
+
+                if self.g.settings_data['sail_add_search']:
+                    query = f"{self.g.settings_data['sail_search']}, {query}"
 
 
-            if len(query) > 1000:
-                query = extractive_summary(query,num_sentences=2)
                 if len(query) > 1000:
-                    query = self.shorten_string(query)
+                    query = extractive_summary(query,num_sentences=2)
+                    if len(query) > 1000:
+                        query = self.shorten_string(query)
 
-            prompt = self.interface.retrieve_query(query)
+                prompt = self.interface.retrieve_llm_completion(query)
 
-            prompt = shared.clean_llm_artefacts(prompt)
+                prompt = shared.clean_llm_artefacts(prompt)
 
-            if self.g.settings_data['sail_summary']:
-                prompt = extractive_summary(prompt)
+                if self.g.settings_data['sail_summary']:
+                    prompt = extractive_summary(prompt)
 
-            orig_prompt = prompt
-            if self.g.settings_data['sail_rephrase']:
-                prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
+                orig_prompt = prompt
+                if self.g.settings_data['sail_rephrase']:
+                    prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
-            if self.g.settings_data['sail_add_style']:
-                prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+                if self.g.settings_data['sail_add_style']:
+                    prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
 
-            sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
+                sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
 
-            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
-            if self.g.settings_data['sail_generate']:
-                response = self.sail_automa_gen(prompt)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                if self.g.settings_data['sail_generate']:
+                    response = self.sail_automa_gen(prompt)
 
-                for index, image in enumerate(response.get('images')):
-                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                    self.automa_client.decode_and_save_base64(image, save_path)
-                    yield prompt,img
-            else:
-                yield prompt,None
-            query = self.get_next_target_new(new_nodes)
-            if query == -1:
-                self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
-                break
-            if self.g.sail_running is False:
-                break
-
+                    for index, image in enumerate(response.get('images')):
+                        img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                        save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                        self.automa_client.decode_and_save_base64(image, save_path)
+                        yield prompt,img
+                else:
+                    yield prompt,None
+                query = self.get_next_target_new(new_nodes)
+                if query == -1:
+                    self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                    break
+                if self.g.sail_running is False:
+                    break
+            except Exception as e:
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                query = self.get_next_target_new(new_nodes)
+                print('some error happened: ',str(e))
+                time.sleep(5)
     def stop_t2t_sail(self):
         self.g.sail_running = False
     def stop_all(self):
