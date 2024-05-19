@@ -175,15 +175,15 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def prepare_meta_data_from_nodes(self, nodes):
         self.g.negative_prompt_list = []
         self.g.models_list = []
-        negative_prompts = []
+        negative_prompts = ''
         for node in nodes:
             if 'negative_prompt' in node.metadata:
-                negative_prompts = negative_prompts + node.metadata['negative_prompt'].split(',')
+                negative_prompts = negative_prompts + node.metadata['negative_prompt']
             if 'model_name' in node.metadata:
                 self.g.models_list.append(f'{node.metadata["model_name"]}')
 
             if len(negative_prompts) > 0:
-                self.g.negative_prompt_list = set(negative_prompts)
+                self.g.negative_prompt_list = negative_prompts
 
 
     def prepare_meta_data(self, response):

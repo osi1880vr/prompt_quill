@@ -122,11 +122,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									label='Sampler')
 							with gr.Column(scale=2):
 								automa_Checkpoint = gr.Dropdown(
-									choices=g.settings_data['automa_checkpoints'], value=g.settings_data['automa_Checkpoint'],
+									choices=g.settings_data['automa_checkpoints'],
+									value=g.settings_data['automa_Checkpoint'],
 									label='Checkpoint')
 						with gr.Row():
 							with gr.Column(scale=3):
-								automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'], label="Steps",
+								automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
+														 label="Steps",
 														 info="Choose between 1 and 100")
 							with gr.Column(scale=1):
 								automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_CFG Scale'],
@@ -141,9 +143,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														  label="Height",
 														  info="Choose between 1 and 2048")
 							with gr.Column(scale=0):
-								automa_size_button = gr.Button('Switch size',elem_classes="gr-small-button")
+								automa_size_button = gr.Button('Switch size', elem_classes="gr-small-button")
 							with gr.Column(scale=1):
-								automa_Batch = gr.Slider(1, 250, step=1, value=g.settings_data['automa_batch'], label="Batch",
+								automa_Batch = gr.Slider(1, 250, step=1, value=g.settings_data['automa_batch'],
+														 label="Batch",
 														 info="The number of simultaneous images in each batch, range from 1-250.")
 								automa_n_iter = gr.Slider(1, 500, step=1, value=g.settings_data['automa_n_iter'],
 														  label="Iterations",
@@ -159,12 +162,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						automa_result_images = gr.Gallery(label='output images', )
 
 				automa_size_button.click(fn=ui_code.automa_switch_size,
-										 inputs=[automa_Width,automa_Height],
-										 outputs=[automa_Width,automa_Height])
+										 inputs=[automa_Width, automa_Height],
+										 outputs=[automa_Width, automa_Height])
 
 				automa_refresh_button.click(fn=ui_code.automa_refresh,
 											inputs=None,
-											outputs=[automa_Sampler,automa_Checkpoint])
+											outputs=[automa_Sampler, automa_Checkpoint])
 
 				automa_start_button.click(fn=ui_code.run_automatics_generation,
 										  inputs=[automa_prompt_input,
@@ -211,7 +214,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_save,
 							automa_save_on_api_host],
 					outputs=None)
-
 
 			with gr.Tab('Interrogate') as interrogate:
 				input_image = gr.Image(type='filepath', height=300)
@@ -275,8 +277,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						outputs=None
 					)
 
-
-
 		with gr.Tab("HordeAI") as hordeai:
 			gr.on(
 				triggers=[hordeai.select],
@@ -312,7 +312,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				flagging_options=None,
 				# live=True
 			)
-
 
 	gr.on(
 		triggers=[generator.select],
@@ -369,10 +368,18 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Column(scale=3):
 					sail_text = gr.Textbox(g.settings_data['sail_text'], label=f'Start your journey with',
 										   placeholder="Where do we set our sails", elem_id='sail-input-text')
+					with gr.Row():
+						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+													  label=f'Filter prompts with this words',
+													  placeholder="Comma separated list of words")
+						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+													  label=f'Filter prompts with not this words',
+													  placeholder="Comma separated list of words")
 				with gr.Column(scale=1):
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')
 						sail_stop_button = gr.Button('Interrupt your journey')
+						sail_prompt_discard_count = gr.Textbox('0', label=f'Discarded prompts count', placeholder="0")
 			with gr.Row():
 				with gr.Column(scale=3):
 					with gr.Row():
@@ -412,7 +419,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 													 label="Sinus Multiplier", info="Choose between 1 and 500")
 					with gr.Row():
 						sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
-												   info="Uses the negative if we find one, or the default",
+												   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
 												   value=g.settings_data['sail_dyn_neg'])
 						sail_add_neg = gr.Checkbox(label="Add to negative prompt",
 												   info="Add a text to each negative prompt",
@@ -459,6 +466,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						  sail_dyn_neg.change,
 						  sail_add_neg.change,
 						  sail_neg_prompt.change,
+						  sail_filter_text.change,
+						  sail_filter_not_text.change
 
 						  ],
 				fn=ui_code.set_sailing_settings,
@@ -481,7 +490,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_max_gallery_size,
 						sail_dyn_neg,
 						sail_add_neg,
-						sail_neg_prompt
+						sail_neg_prompt,
+						sail_filter_text,
+						sail_filter_not_text
 						],
 				outputs=None)
 
@@ -505,11 +516,22 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						 sail_style,
 						 sail_add_search,
 						 sail_search,
-						 sail_max_gallery_size])
+						 sail_max_gallery_size,
+						 sail_filter_text,
+						 sail_filter_not_text])
 
-			start_sail = sail_submit_button.click(ui_code.run_t2t_sail, [], [sail_result, sail_result_images])
-			sail_stop_button.click(fn=ui_code.stop_t2t_sail, inputs=None, outputs=None, cancels=[start_sail])
-			sail_check_connect_button.click(ui_code.check_api_avail, None, sail_api_avail_ok)
+			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
+												  inputs=[],
+												  outputs=[sail_result,
+														   sail_result_images,
+														   sail_prompt_discard_count])
+			sail_stop_button.click(fn=ui_code.stop_t2t_sail,
+								   inputs=None,
+								   outputs=None,
+								   cancels=[start_sail])
+			sail_check_connect_button.click(fn=ui_code.check_api_avail,
+											inputs=None,
+											outputs=sail_api_avail_ok)
 		with gr.Tab('Show'):
 			with gr.Row():
 				sail_show_submit_button = gr.Button('Start your journey')

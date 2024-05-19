@@ -64,7 +64,9 @@ class ui_actions:
         self.api.run_api()
 
     def run_llm_response(self,query, history):
-        return self.interface.run_llm_response(query, history)
+        prompt = self.interface.run_llm_response(query, history)
+
+        return prompt
 
 
     def set_llm_settings(self, collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
@@ -137,7 +139,7 @@ class ui_actions:
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
-                             sail_add_neg, sail_neg_prompt):
+                             sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text):
         if self.g.sail_running:
             self.sail_depth_start = sail_depth
 
@@ -161,6 +163,8 @@ class ui_actions:
         self.g.settings_data['sail_dyn_neg'] = sail_dyn_neg
         self.g.settings_data['sail_add_neg'] = sail_add_neg
         self.g.settings_data['sail_neg_prompt'] = sail_neg_prompt
+        self.g.settings_data['sail_filter_text'] = sail_filter_text
+        self.g.settings_data['sail_filter_not_text'] = sail_filter_not_text
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -238,8 +242,8 @@ class ui_actions:
         ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
         ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
         ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
-        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"]
-
+        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
+        ],self.g.settings_data["sail_filter_not_text"]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -417,10 +421,18 @@ class ui_actions:
 
         if self.g.settings_data['sail_dyn_neg']:
             if len(self.g.negative_prompt_list) > 0:
-                negative_prompt = ",".join(self.g.negative_prompt_list).strip(' ')
+                negative_prompt = self.g.negative_prompt_list.strip(' ')
+
 
         if self.g.settings_data['sail_add_neg']:
             negative_prompt = f"{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
+
+        #negative_prompt = shared.fix_brackets(negative_prompt)
+
+        if len(negative_prompt) < 30:
+            negative_prompt = self.g.settings_data['negative_prompt']
+
+
 
         return self.automa_client.request_generation(query,
                                                      negative_prompt,
@@ -548,8 +560,10 @@ class ui_actions:
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
 
+        prompt_discard_count = 0
+        n = 0
 
-        for n in range(self.g.settings_data['sail_width']):
+        while n <= self.g.settings_data['sail_width']:
 
             try:
 
@@ -561,7 +575,32 @@ class ui_actions:
                     if len(query) > 1000:
                         query = self.shorten_string(query)
 
-                prompt = self.interface.retrieve_llm_completion(query)
+                prompt = ''
+                while 1:
+                    prompt = self.interface.retrieve_llm_completion(query)
+
+                    not_check = True
+                    check = False
+                    if len(self.g.settings_data['sail_filter_not_text']) > 0:
+                        search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
+                        for word in search:
+                            if word in prompt:
+                                not_check = False
+                                break
+
+                    if len(self.g.settings_data['sail_filter_text']) > 0:
+                        search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
+                        for word in search:
+                            if word in prompt:
+                                check = True
+                                break
+
+                    if not check and not not_check:
+                        break
+                    n += 1
+                    new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                    query = self.get_next_target_new(new_nodes)
+                    prompt_discard_count += 1
 
                 prompt = shared.clean_llm_artefacts(prompt)
 
@@ -584,13 +623,13 @@ class ui_actions:
 
                     if self.g.settings_data['sail_gen_rephrase']:
                         images = self.automa_gen(orig_prompt, images)
-                        yield sail_log,list(images)
+                        yield sail_log,list(images),prompt_discard_count
 
                     images = self.automa_gen(prompt, images)
-                    yield sail_log,list(images)
+                    yield sail_log,list(images),prompt_discard_count
 
                 else:
-                    yield sail_log,[]
+                    yield sail_log,[],prompt_discard_count
 
                 query = self.get_next_target_new(new_nodes)
                 if query == -1:
@@ -603,6 +642,8 @@ class ui_actions:
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
+            finally:
+                n += 1
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True

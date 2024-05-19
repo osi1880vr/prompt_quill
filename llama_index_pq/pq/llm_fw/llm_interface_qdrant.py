@@ -14,6 +14,7 @@
 
 import globals
 import threading
+import shared
 
 from llm_fw.llama_index_interface import adapter
 
@@ -157,7 +158,7 @@ class _LLM_INTERFACE:
 
 
         if len(self.g.negative_prompt_list) > 0:
-            self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
+            self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
             if len(self.g.last_negative_prompt) < 30:
                 self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
             if self.g.last_negative_prompt != '':
@@ -191,9 +192,9 @@ class _LLM_INTERFACE:
         if self.g.settings_data['Instruct Model'] is True:
             query = f'[INST]{query}[/INST]'
 
-        #response = self.adapter.retrieve_query(query)
-
         response = self.adapter.retrieve_llm_completion(query)
+
+        response = shared.clean_llm_artefacts(response)
 
         self.g.last_prompt = response
 
@@ -214,7 +215,9 @@ class _LLM_INTERFACE:
 
 
         if len(self.g.negative_prompt_list) > 0:
-            self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
+            self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
+
+            self.g.last_negative_prompt = shared.fix_brackets(self.g.last_negative_prompt)
             if len(self.g.last_negative_prompt) < 30:
                 self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
             if self.g.last_negative_prompt != '':

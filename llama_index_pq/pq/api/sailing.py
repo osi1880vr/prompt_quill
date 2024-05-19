@@ -116,7 +116,8 @@ class api_sail:
 			negative_out = ''
 
 			if len(self.g.negative_prompt_list) > 0:
-				self.g.last_negative_prompt = ",".join(self.g.negative_prompt_list).lstrip(' ')
+				self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
+				self.g.last_negative_prompt = shared.fix_brackets(self.g.last_negative_prompt)
 				if len(self.g.last_negative_prompt) < 30:
 					self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
 				if self.g.last_negative_prompt != '':
