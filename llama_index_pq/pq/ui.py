@@ -599,6 +599,7 @@ class ui_actions:
                     if not check and not not_check:
                         break
                     n += 1
+                    self.g.settings_data['sail_width'] += 1
                     new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
                     query = self.get_next_target_new(new_nodes)
                     prompt_discard_count += 1
