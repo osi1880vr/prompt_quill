@@ -500,6 +500,73 @@ class ui_actions:
 
         return text
 
+    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename):
+        prompt = ''
+        query = self.prepare_query(query)
+        while 1:
+
+            if self.g.sail_running is False:
+                break
+
+            prompt = self.interface.retrieve_llm_completion(query)
+
+            not_check = False
+            check = False
+            if len(self.g.settings_data['sail_filter_not_text']) > 0:
+                not_check = True
+                search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
+                for word in search:
+                    if word in prompt:
+                        not_check = False
+                        break
+
+            if len(self.g.settings_data['sail_filter_text']) > 0:
+                search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
+                for word in search:
+                    if word in prompt:
+                        check = True
+                        break
+
+            if not check and not not_check and prompt not in self.g.sail_history:
+                self.g.sail_history.append(prompt)
+                break
+            n += 1
+            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+            query = self.get_next_target_new(new_nodes)
+            prompt_discard_count += 1
+            sail_steps += 1
+
+        prompt = shared.clean_llm_artefacts(prompt)
+
+
+        if self.g.settings_data['sail_summary']:
+            prompt = extractive_summary(prompt)
+
+        orig_prompt = prompt
+        if self.g.settings_data['sail_rephrase']:
+            prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
+
+        if self.g.settings_data['sail_add_style']:
+            prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
+            orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
+
+
+        self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
+
+        return prompt,orig_prompt,n,prompt_discard_count,sail_steps
+
+
+    def prepare_query(self,query):
+        if self.g.settings_data['sail_add_search']:
+            query = f'{self.g.settings_data["sail_search"]}, {query}'
+
+        if len(query) > 1000:
+            query = extractive_summary(query,num_sentences=2)
+            if len(query) > 1000:
+                query = self.shorten_string(query)
+
+        return query
+
     def run_t2t_sail(self):
 
         """
@@ -551,11 +618,11 @@ class ui_actions:
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
         self.sinus = 0
-        sail_log = ''
+        self.sail_log = ''
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
-
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
@@ -567,79 +634,32 @@ class ui_actions:
 
             try:
 
-                if self.g.settings_data['sail_add_search']:
-                    query = f'{self.g.settings_data["sail_search"]}, {query}'
-
-                if len(query) > 1000:
-                    query = extractive_summary(query,num_sentences=2)
-                    if len(query) > 1000:
-                        query = self.shorten_string(query)
-
-                prompt = ''
-                while 1:
-                    prompt = self.interface.retrieve_llm_completion(query)
-
-                    not_check = False
-                    check = False
-                    if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                        not_check = True
-                        search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
-                        for word in search:
-                            if word in prompt:
-                                not_check = False
-                                break
-
-                    if len(self.g.settings_data['sail_filter_text']) > 0:
-                        search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
-                        for word in search:
-                            if word in prompt:
-                                check = True
-                                break
-
-                    if not check and not not_check:
-                        break
-                    n += 1
-                    new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
-                    query = self.get_next_target_new(new_nodes)
-                    prompt_discard_count += 1
-                    sail_steps += 1
-
-                prompt = shared.clean_llm_artefacts(prompt)
-
-                if self.g.settings_data['sail_summary']:
-                    prompt = extractive_summary(prompt)
-
-                orig_prompt = prompt
-                if self.g.settings_data['sail_rephrase']:
-                    prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
-
-                if self.g.settings_data['sail_add_style']:
-                    prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
-                    orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
-
-                sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
 
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
-                if self.g.settings_data['sail_generate']:
 
+                if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
                         images = self.automa_gen(orig_prompt, images)
-                        yield sail_log,list(images),prompt_discard_count
-
+                        yield self.sail_log,list(images),prompt_discard_count
                     images = self.automa_gen(prompt, images)
-                    yield sail_log,list(images),prompt_discard_count
-
+                    yield self.sail_log,list(images),prompt_discard_count
                 else:
-                    yield sail_log,[],prompt_discard_count
+                    yield self.sail_log,[],prompt_discard_count
 
                 query = self.get_next_target_new(new_nodes)
+
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                     break
+
                 if self.g.sail_running is False:
                     break
+
             except Exception as e:
+                n += 1
+                sail_steps += 1
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
@@ -663,36 +683,19 @@ class ui_actions:
             query = self.interface.translate(query)
 
 
-        for n in range(self.g.settings_data['sail_width']):
+        prompt_discard_count = 0
+        n = 0
+        sail_steps = self.g.settings_data['sail_width']
+        while n < sail_steps:
 
             try:
 
-                if self.g.settings_data['sail_add_search']:
-                    query = f"{self.g.settings_data['sail_search']}, {query}"
 
 
-                if len(query) > 1000:
-                    query = extractive_summary(query,num_sentences=2)
-                    if len(query) > 1000:
-                        query = self.shorten_string(query)
-
-                prompt = self.interface.retrieve_llm_completion(query)
-
-                prompt = shared.clean_llm_artefacts(prompt)
-
-                if self.g.settings_data['sail_summary']:
-                    prompt = extractive_summary(prompt)
-
-                orig_prompt = prompt
-                if self.g.settings_data['sail_rephrase']:
-                    prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
-
-                if self.g.settings_data['sail_add_style']:
-                    prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
-
-                sail_log = self.log_prompt(filename, prompt, orig_prompt, n, sail_log)
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
 
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+
                 if self.g.settings_data['sail_generate']:
                     response = self.sail_automa_gen(prompt)
 
@@ -703,6 +706,7 @@ class ui_actions:
                         yield prompt,img
                 else:
                     yield prompt,None
+
                 query = self.get_next_target_new(new_nodes)
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
