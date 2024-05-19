@@ -9,5 +9,10 @@ style = """
 .app-title {
   font-size: 50px;
 }
-
+.gr-small-button {
+  max-width: 60px !important;
+}
+.gr-small-button-column {
+  max-width: 100px !important;
+}
 """

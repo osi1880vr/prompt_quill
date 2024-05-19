@@ -299,7 +299,18 @@ class ui_actions:
         response = self.automa_client.request_interrogation(base64_image,url)
         self.g.context_prompt = response
         return response
-    
+
+
+    def automa_switch_size(self,automa_Width,automa_Height):
+        self.g.settings_data['automa_Width'] = automa_Height
+        self.g.settings_data['automa_Height'] = automa_Width
+        return automa_Height,automa_Width
+
+    def automa_refresh(self):
+        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+        self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
+
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
         all_response = ''
