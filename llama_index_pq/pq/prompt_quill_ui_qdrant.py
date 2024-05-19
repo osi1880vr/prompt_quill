@@ -370,11 +370,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										   placeholder="Where do we set our sails", elem_id='sail-input-text')
 					with gr.Row():
 						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
-													  label=f'Filter prompts with this words',
-													  placeholder="Comma separated list of words")
+													  label=f'List of negative words',
+													  placeholder="Comma separated list of words you dont want in your prompt")
 						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
-													  label=f'Filter prompts with not this words',
-													  placeholder="Comma separated list of words")
+													  label=f'List of positive words',
+													  placeholder="Comma separated list of words that must be part of the prompt")
 				with gr.Column(scale=1):
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')

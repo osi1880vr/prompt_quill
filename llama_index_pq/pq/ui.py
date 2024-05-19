@@ -562,8 +562,8 @@ class ui_actions:
 
         prompt_discard_count = 0
         n = 0
-
-        while n <= self.g.settings_data['sail_width']:
+        sail_steps = self.g.settings_data['sail_width']
+        while n < sail_steps:
 
             try:
 
@@ -599,10 +599,10 @@ class ui_actions:
                     if not check and not not_check:
                         break
                     n += 1
-                    self.g.settings_data['sail_width'] += 1
                     new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
                     query = self.get_next_target_new(new_nodes)
                     prompt_discard_count += 1
+                    sail_steps += 1
 
                 prompt = shared.clean_llm_artefacts(prompt)
 
