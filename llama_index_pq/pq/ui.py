@@ -579,9 +579,10 @@ class ui_actions:
                 while 1:
                     prompt = self.interface.retrieve_llm_completion(query)
 
-                    not_check = True
+                    not_check = False
                     check = False
                     if len(self.g.settings_data['sail_filter_not_text']) > 0:
+                        not_check = True
                         search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
                         for word in search:
                             if word in prompt:
