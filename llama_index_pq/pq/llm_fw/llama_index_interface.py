@@ -61,7 +61,8 @@ class adapter:
             print(f"Error fetching collections from Qdrant: {e}")
 
     def set_document_store(self):
-        self.document_store = qdrant_client.QdrantClient(url=url)
+        self.document_store = qdrant_client.QdrantClient(url=url,
+                                                         timeout=60)
         self.get_all_collections()
 
     def get_llm(self):
