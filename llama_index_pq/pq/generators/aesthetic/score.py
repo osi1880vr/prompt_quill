@@ -136,18 +136,22 @@ class aestetic_score:
         outfolder = os.path.join('api_out','scored')
         if len(fileList) > 0:
             for file in fileList:
-                pil_image = Image.open(file)
-                score = self.get_aestetics_score(pil_image)
-                if score[0][0] > min_aestetics_level:
+                if not os.path.isdir(file):
+                    try:
+                        pil_image = Image.open(file)
+                        score = self.get_aestetics_score(pil_image)
+                        if score[0][0] > min_aestetics_level:
 
-                    out_folder = os.path.join(outfolder, "{:.1f}".format(float(score[0][0])))
-                    if aesthetics_keep_folder_structure:
-                        out_folder = os.path.join(outfolder,aestetics_output_folder, "{:.1f}".format(float(score[0][0])))
+                            out_folder = os.path.join(outfolder, "{:.1f}".format(float(score[0][0])))
+                            if aesthetics_keep_folder_structure:
+                                out_folder = os.path.join(outfolder,aestetics_output_folder, "{:.1f}".format(float(score[0][0])))
 
-                    os.makedirs(out_folder, exist_ok=True)
-                    filename = os.path.basename(file)
-                    dst = os.path.join(out_folder, "{:.5f}".format(float(score[0][0])) + '_' + filename)
-                    shutil.copyfile(file, dst)
+                            os.makedirs(out_folder, exist_ok=True)
+                            filename = os.path.basename(file)
+                            dst = os.path.join(out_folder, "{:.5f}".format(float(score[0][0])) + '_' + filename)
+                            shutil.copyfile(file, dst)
+                    except:
+                        pass
             end_time = time.time()
             elapsed_time = end_time - start_time
             yield f'Aestetics calculation finished, it took {elapsed_time} seconds'

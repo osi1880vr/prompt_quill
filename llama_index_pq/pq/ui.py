@@ -357,33 +357,6 @@ class ui_actions:
         else:
             return []
 
-    def get_next_target(self, nodes):
-        target_dict = self.interface.get_query_texts(nodes)
-
-        if len(target_dict.keys()) < self.g.settings_data['sail_depth']:
-            self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
-
-        if self.g.settings_data['sail_sinus']:
-            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
-            self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
-            self.g.settings_data['sail_depth'] += self.sinus
-            if self.g.settings_data['sail_depth'] < 0:
-                self.g.settings_data['sail_depth'] = 1
-
-        if len(target_dict.keys()) > 0:
-
-            if self.g.settings_data['sail_target']:
-                out =  target_dict[min(target_dict.keys())]
-                self.g.sail_history.append(out)
-                return out
-            else:
-                out =  target_dict[max(target_dict.keys())]
-                self.g.sail_history.append(out)
-                return out
-        else:
-            return -1
-
-
     def get_next_target_new(self, nodes):
 
         if len(nodes) < self.g.settings_data['sail_depth']:
