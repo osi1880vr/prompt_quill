@@ -113,17 +113,8 @@ class api_sail:
 
 			self.last_api_sail_query = self.get_next_target(nodes)
 
-			negative_out = ''
+			negative_out = shared.get_negative_prompt()
 
-			if len(self.g.negative_prompt_list) > 0:
-				self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
-				self.g.last_negative_prompt = shared.fix_brackets(self.g.last_negative_prompt)
-				if len(self.g.last_negative_prompt) < 30:
-					self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
-				if self.g.last_negative_prompt != '':
-					negative_out = self.g.last_negative_prompt
-			else:
-				negative_out = self.g.settings_data['negative_prompt']
 
 
 			if query == -1:

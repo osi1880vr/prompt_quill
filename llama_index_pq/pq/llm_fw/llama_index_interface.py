@@ -140,13 +140,6 @@ class adapter:
         nodes = [node1]
         index = VectorStoreIndex(nodes,embed_model=self.embed_model)
 
-        test = index.as_retriever(similarity_top_k=1)
-
-        check = test.retrieve('hello world')
-
-        print(check)
-
-
         self.query_rephrase_engine = index.as_query_engine(similarity_top_k=1,llm=self.llm)
         rephrase_prompt = """Context information is below.
 ---------------------
@@ -175,15 +168,15 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def prepare_meta_data_from_nodes(self, nodes):
         self.g.negative_prompt_list = []
         self.g.models_list = []
-        negative_prompts = ''
+        negative_prompts = []
         for node in nodes:
             if 'negative_prompt' in node.metadata:
-                negative_prompts = negative_prompts + node.metadata['negative_prompt']
+                negative_prompts = negative_prompts + node.metadata['negative_prompt'].split(',')
             if 'model_name' in node.metadata:
                 self.g.models_list.append(f'{node.metadata["model_name"]}')
 
             if len(negative_prompts) > 0:
-                self.g.negative_prompt_list = negative_prompts
+                self.g.negative_prompt_list = set(negative_prompts)
 
 
     def prepare_meta_data(self, response):
@@ -244,10 +237,6 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         return output
 
 
-
-
-
-
     def retrieve_query(self, query):
         try:
             self.llm._model.reset()
@@ -262,7 +251,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.set_rephrase_pipeline(context)
         self.llm._model.reset()
         response =  self.query_rephrase_engine.query(query)
-        response = response.response.lstrip(" ")
+        response = response.response.strip(" ")
         return response.replace('"','')
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):

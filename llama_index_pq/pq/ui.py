@@ -394,18 +394,14 @@ class ui_actions:
 
         if self.g.settings_data['sail_dyn_neg']:
             if len(self.g.negative_prompt_list) > 0:
-                negative_prompt = self.g.negative_prompt_list.strip(' ')
+                negative_prompt = shared.get_negative_prompt()
 
 
         if self.g.settings_data['sail_add_neg']:
             negative_prompt = f"{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
 
-        #negative_prompt = shared.fix_brackets(negative_prompt)
-
         if len(negative_prompt) < 30:
             negative_prompt = self.g.settings_data['negative_prompt']
-
-
 
         return self.automa_client.request_generation(query,
                                                      negative_prompt,

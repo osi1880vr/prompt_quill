@@ -156,15 +156,7 @@ class _LLM_INTERFACE:
         if self.g.settings_data['translate']:
             output = f'Your prompt was translated to: {query}\n\n\n{output}'
 
-
-        if len(self.g.negative_prompt_list) > 0:
-            self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
-            if len(self.g.last_negative_prompt) < 30:
-                self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
-            if self.g.last_negative_prompt != '':
-                negative_out = self.g.last_negative_prompt
-        else:
-            negative_out = self.g.settings_data['negative_prompt']
+        negative_out = shared.get_negative_prompt()
 
         out_dict = {
             "prompt":output,
@@ -214,17 +206,7 @@ class _LLM_INTERFACE:
             output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
 
 
-        if len(self.g.negative_prompt_list) > 0:
-            self.g.last_negative_prompt = self.g.negative_prompt_list.strip(' ')
-
-            self.g.last_negative_prompt = shared.fix_brackets(self.g.last_negative_prompt)
-            if len(self.g.last_negative_prompt) < 30:
-                self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
-            if self.g.last_negative_prompt != '':
-                output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.g.last_negative_prompt}'
-        else:
-            self.g.last_negative_prompt = self.g.settings_data['negative_prompt']
-            output = f'{output} \n\nMaybe helpful negative prompt:\n\n{self.g.last_negative_prompt}'
+        output = f'{output} \n\nMaybe helpful negative prompt:\n\n{shared.get_negative_prompt()}'
 
         if len(self.g.models_list) > 0:
             models_out = "\n".join(self.g.models_list)
