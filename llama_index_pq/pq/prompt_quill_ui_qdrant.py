@@ -375,6 +375,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
 													  label=f'List of positive words',
 													  placeholder="Comma separated list of words that must be part of the prompt")
+						sail_filter_context = gr.Checkbox(label="Filter on centext Level too?",
+													info="With this you filter entries from the context prior to prompt generation. It may lead to empty context",
+													value=g.settings_data['sail_filter_context'])
 				with gr.Column(scale=1):
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')
@@ -467,7 +470,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						  sail_add_neg.change,
 						  sail_neg_prompt.change,
 						  sail_filter_text.change,
-						  sail_filter_not_text.change
+						  sail_filter_not_text.change,
+						  sail_filter_context.change
 
 						  ],
 				fn=ui_code.set_sailing_settings,
@@ -492,7 +496,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_add_neg,
 						sail_neg_prompt,
 						sail_filter_text,
-						sail_filter_not_text
+						sail_filter_not_text,
+						sail_filter_context
 						],
 				outputs=None)
 
@@ -518,7 +523,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						 sail_search,
 						 sail_max_gallery_size,
 						 sail_filter_text,
-						 sail_filter_not_text])
+						 sail_filter_not_text,
+						 sail_filter_context])
 
 			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 												  inputs=[],

@@ -15,7 +15,7 @@
 import globals
 import gc
 import os
-
+import json
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
@@ -26,7 +26,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.schema import TextNode
 import qdrant_client
 from settings.io import settings_io
-
+import shared
 
 
 url = "http://localhost:6333"
@@ -119,14 +119,42 @@ class adapter:
             {"response_synthesizer:text_qa_template": self.qa_prompt_tmpl}
         )
 
-    def direct_search(self,query,limit,offset):
+
+    def filter_context(self, nodes,context_retrieve):
+        out_nodes = []
+        n = 0
+        for node in nodes:
+            payload = json.loads(node.payload['_node_content'])
+            if not shared.check_filtered(payload['text']):
+                out_nodes.append(node)
+                n += 1
+                if context_retrieve:
+                    if n == self.g.settings_data['top_k']:
+                        break
+            if self.g.sail_running is False:
+                break
+        return out_nodes
+
+
+    def direct_search(self,query,limit,offset,context_retrieve=False):
 
         vector = self.embed_model.get_text_embedding(query)
-        result = self.document_store.search(collection_name=self.g.settings_data['collection'],
-                                   query_vector=vector,
-                                   limit=limit,
-                                   offset=(offset+1)*limit
-                                   )
+
+        if self.g.settings_data['sail_filter_context']:
+            result = self.document_store.search(collection_name=self.g.settings_data['collection'],
+                                       query_vector=vector,
+                                       limit=5000,
+                                       offset=(offset+1)*limit
+                                       )
+
+            result = self.filter_context(result,context_retrieve)
+
+        else:
+            result = self.document_store.search(collection_name=self.g.settings_data['collection'],
+                                                query_vector=vector,
+                                                limit=limit,
+                                                offset=(offset+1)*limit
+                                                )
         return result
 
 
@@ -156,13 +184,18 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
 
     def retrieve_context(self, prompt):
-        return self.retriever.retrieve(prompt)
+        return self.direct_search(prompt,self.g.settings_data['top_k'],0,True)
 
 
     def get_context_text(self, query):
         nodes = self.retrieve_context(query)
         self.prepare_meta_data_from_nodes(nodes)
-        return [s.node.get_text() for s in nodes]
+        context = ''
+        for node in nodes:
+            payload = json.loads(node.payload['_node_content'])
+            context = context + payload['text']
+
+        return [context]
 
 
     def prepare_meta_data_from_nodes(self, nodes):
@@ -170,11 +203,16 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.g.models_list = []
         negative_prompts = []
         for node in nodes:
-            if 'negative_prompt' in node.metadata:
-                negative_prompts = negative_prompts + node.metadata['negative_prompt'].split(',')
-            if 'model_name' in node.metadata:
-                self.g.models_list.append(f'{node.metadata["model_name"]}')
-
+            if hasattr(node, 'metadata'):
+                if 'negative_prompt' in node.metadata:
+                    negative_prompts = negative_prompts + node.metadata['negative_prompt'].split(',')
+                if 'model_name' in node.metadata:
+                    self.g.models_list.append(f'{node.metadata["model_name"]}')
+            if hasattr(node, 'payload'):
+                if 'negative_prompt' in node.payload:
+                    negative_prompts = negative_prompts + node.payload['negative_prompt'].split(',')
+                if 'model_name' in node.payload:
+                    self.g.models_list.append(f'{node.payload["model_name"]}')
             if len(negative_prompts) > 0:
                 self.g.negative_prompt_list = set(negative_prompts)
 

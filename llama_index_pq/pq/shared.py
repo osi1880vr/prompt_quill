@@ -167,3 +167,26 @@ def get_negative_prompt():
 		negative_out = g.settings_data['negative_prompt']
 
 	return negative_out
+
+def check_filtered(prompt):
+
+	not_check = False
+	check = False
+	if len(g.settings_data['sail_filter_not_text']) > 0:
+		not_check = True
+		search = set(word.strip().lower() for word in g.settings_data['sail_filter_not_text'].split(","))
+		for word in search:
+			if word in prompt:
+				not_check = False
+				break
+
+	if len(g.settings_data['sail_filter_text']) > 0:
+		search = set(word.strip().lower() for word in g.settings_data['sail_filter_text'].split(","))
+		for word in search:
+			if word in prompt:
+				check = True
+				break
+
+	return not_check + check
+
+
