@@ -177,6 +177,9 @@ class _LLM_INTERFACE:
     def direct_search(self,query,limit,offset):
         return self.adapter.direct_search(query,limit,offset)
 
+    def direct_search_filtered(self,query,limit,offset,filters):
+        return self.adapter.direct_search_filtered(query,limit,offset,filters)
+
 
     def retrieve_llm_completion(self,query):
         return self.adapter.retrieve_llm_completion(query)

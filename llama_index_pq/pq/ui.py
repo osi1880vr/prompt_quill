@@ -40,6 +40,8 @@ from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
 
 from llm_fw import llm_interface_qdrant
+from qdrant_client.http.models import Filter, FieldCondition, MatchValue, Match, MatchText
+
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
@@ -473,6 +475,38 @@ class ui_actions:
 
         return text
 
+
+    def get_search_filter(self, must_words, not_words):
+
+        not_filter = []
+        must_filter = []
+        for word in not_words.split(','):
+            not_filter.append(FieldCondition(
+                key="text",
+                match=MatchText(
+                    text=f"{word}"
+                )
+            ))
+
+
+        for word in must_words.split(','):
+            must_filter.append(FieldCondition(
+                key="text",
+                match=MatchText(
+                    text=f"{word}"
+                )
+            ))
+
+        filters = Filter(
+            must=must_filter,
+            must_not=not_filter
+        )
+
+        return filters
+
+
+
+
     def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename):
         prompt = ''
         query = self.prepare_query(query)
@@ -485,7 +519,7 @@ class ui_actions:
 
             not_check = False
             check = False
-            if len(self.g.settings_data['sail_filter_not_text']) > 0:
+            if len(self.g.settings_data['sail_filter_not_text']) > 10000000:
                 not_check = True
                 search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
                 for word in search:
@@ -493,7 +527,7 @@ class ui_actions:
                         not_check = False
                         break
 
-            if len(self.g.settings_data['sail_filter_text']) > 0:
+            if len(self.g.settings_data['sail_filter_text']) > 1000000000:
                 search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
                 for word in search:
                     if word in prompt:
@@ -504,7 +538,11 @@ class ui_actions:
                 self.g.sail_history.append(prompt)
                 break
             n += 1
-            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+            #new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+
+
+            filters = self.get_search_filter(self.g.settings_data['sail_filter_not_text'],self.g.settings_data['sail_filter_text'])
+            new_nodes = self.interface.direct_search_filtered(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n,filters)
             query = self.get_next_target_new(new_nodes)
             prompt_discard_count += 1
             sail_steps += 1
@@ -609,6 +647,9 @@ class ui_actions:
 
                 prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
 
+
+                filters = self.get_search_filter(self.g.settings_data['sail_filter_not_text'],self.g.settings_data['sail_filter_text'])
+                #new_nodes = self.interface.direct_search_filtered(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n,filters)
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
 

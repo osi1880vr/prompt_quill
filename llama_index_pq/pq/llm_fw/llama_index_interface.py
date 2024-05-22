@@ -129,6 +129,16 @@ class adapter:
                                    )
         return result
 
+    def direct_search_filtered(self,query,limit,offset,filters):
+
+        vector = self.embed_model.get_text_embedding(query)
+        result = self.document_store.search(collection_name=self.g.settings_data['collection'],
+                                            query_vector=vector,
+                                            limit=limit,
+                                            offset=(offset+1)*limit,
+                                            query_filter= filters
+                                            )
+        return result
 
     def set_rephrase_pipeline(self, context):
         if hasattr(self,'query_rephrase_engine'):
