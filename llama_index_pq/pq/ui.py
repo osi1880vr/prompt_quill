@@ -523,7 +523,7 @@ class ui_actions:
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
 
-        return prompt.encode('utf-8'),orig_prompt.encode('utf-8'),n,prompt_discard_count,sail_steps
+        return prompt,orig_prompt,n,prompt_discard_count,sail_steps
 
 
     def prepare_query(self,query):
