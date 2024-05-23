@@ -24,6 +24,7 @@ from llama_index.core import VectorStoreIndex, PromptHelper
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.schema import TextNode
+from qdrant_client.http.models import Filter, FieldCondition, MatchText, SearchParams
 import qdrant_client
 from settings.io import settings_io
 import shared
@@ -136,15 +137,45 @@ class adapter:
         return out_nodes
 
 
+    def get_context_filter(self):
+
+        must = []
+        must_not = []
+        if len(self.g.settings_data['sail_filter_not_text']) > 0:
+            for word in self.g.settings_data['sail_filter_not_text'].split():
+                must.append(
+                    FieldCondition(
+                        key="search",
+                        match=MatchText(text=f"{word.strip()}"),
+                    )
+                )
+        if len(self.g.settings_data['sail_filter_text']) > 0:
+            for word in self.g.settings_data['sail_filter_text'].split():
+                must_not.append(
+                    FieldCondition(
+                        key="search",
+                        match=MatchText(text=f"{word.strip()}"),
+                    )
+                )
+        filter = Filter(must = must,
+                        must_not=must_not)
+        filter = Filter(must = must)
+        return filter
+
+
     def direct_search(self,query,limit,offset,context_retrieve=False):
 
         vector = self.embed_model.get_text_embedding(query)
 
+        filter = self.get_context_filter()
+
         if self.g.settings_data['sail_filter_context']:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                        query_vector=vector,
-                                       limit=5000,
-                                       offset=(offset+1)*limit
+                                       limit=limit,
+                                       offset=(offset+1)*limit,
+                                       query_filter=filter,
+                                       search_params=SearchParams(hnsw_ef=128, exact=False),
                                        )
 
             result = self.filter_context(result,context_retrieve)
