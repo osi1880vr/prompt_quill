@@ -595,6 +595,7 @@ class ui_actions:
         self.sail_sinus_count = 1.0
         self.sinus = 0
         self.sail_log = ''
+        self.images_done = 1
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
@@ -615,19 +616,21 @@ class ui_actions:
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
 
+
                 if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
                         images = self.automa_gen(orig_prompt, images)
-                        yield self.sail_log,list(images),prompt_discard_count
+                        yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                     images = self.automa_gen(prompt, images)
-                    yield self.sail_log,list(images),prompt_discard_count
+                    yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:
-                    yield self.sail_log,[],prompt_discard_count
+                    yield self.sail_log,[],f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
 
                 query = self.get_next_target_new(new_nodes)
 
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                    yield self.sail_log,list(images),f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
                     break
 
                 if self.g.sail_running is False:
@@ -642,6 +645,7 @@ class ui_actions:
                 time.sleep(5)
             finally:
                 n += 1
+                self.images_done += 1
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True

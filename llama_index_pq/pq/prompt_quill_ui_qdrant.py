@@ -387,7 +387,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')
 						sail_stop_button = gr.Button('Interrupt your journey')
-						sail_prompt_discard_count = gr.Textbox('0', label=f'Discarded prompts count', placeholder="0")
+					with gr.Row():
+						sail_status = gr.Textbox('', label=f'Status', placeholder="Nothing yet")
 			with gr.Row():
 				with gr.Column(scale=3):
 					with gr.Row():
@@ -537,7 +538,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  inputs=[],
 												  outputs=[sail_result,
 														   sail_result_images,
-														   sail_prompt_discard_count])
+														   sail_status])
 			sail_stop_button.click(fn=ui_code.stop_t2t_sail,
 								   inputs=None,
 								   outputs=None,

@@ -149,6 +149,8 @@ class adapter:
                         match=MatchText(text=f"{word.strip()}"),
                     )
                 )
+        else:
+            must = None
         if len(self.g.settings_data['sail_filter_text']) > 0:
             for word in self.g.settings_data['sail_filter_text'].split():
                 must_not.append(
@@ -157,9 +159,10 @@ class adapter:
                         match=MatchText(text=f"{word.strip()}"),
                     )
                 )
-        filter = Filter(must = must,
+        else:
+            must_not = None
+        filter = Filter(must=must,
                         must_not=must_not)
-        filter = Filter(must = must)
         return filter
 
 
@@ -177,8 +180,6 @@ class adapter:
                                        query_filter=filter,
                                        search_params=SearchParams(hnsw_ef=128, exact=False),
                                        )
-
-            result = self.filter_context(result,context_retrieve)
 
         else:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
