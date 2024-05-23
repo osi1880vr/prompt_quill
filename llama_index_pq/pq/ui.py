@@ -483,24 +483,9 @@ class ui_actions:
 
                 prompt = self.interface.retrieve_llm_completion(query)
 
-                not_check = False
-                check = False
-                if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                    not_check = True
-                    search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
-                    for word in search:
-                        if word in prompt:
-                            not_check = False
-                            break
+                filtered = shared.check_filtered(query)
 
-                if len(self.g.settings_data['sail_filter_text']) > 0:
-                    search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
-                    for word in search:
-                        if word in prompt:
-                            check = True
-                            break
-
-                if not check and not not_check and prompt not in self.g.sail_history:
+                if not filtered and prompt not in self.g.sail_history:
                     self.g.sail_history.append(prompt)
                     break
                 n += 1
@@ -545,7 +530,7 @@ class ui_actions:
 
     def count_context(self):
         result = self.interface.count_context()
-        return f'{result.count} entries are in the context'
+        return f'{result.count} entries are in the ocean'
 
     def get_context_count(self):
         result = self.interface.count_context()
@@ -617,7 +602,7 @@ class ui_actions:
 
         context_count = self.get_context_count()
 
-        yield self.sail_log,[],f'Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean'
+        yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings"
 
 
         while n < sail_steps:
@@ -659,6 +644,14 @@ class ui_actions:
             finally:
                 n += 1
                 self.images_done += 1
+        if query != -1:
+            stop_reason = 'Finished'
+            if self.g.sail_running is False:
+                stop_reason = 'Stopped'
+            if self.g.settings_data['sail_generate']:
+                yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+            else:
+                yield self.sail_log,[],f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
 
     def run_t2t_show_sail(self):
         self.g.sail_running = True

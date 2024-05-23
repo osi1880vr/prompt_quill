@@ -1,4 +1,12 @@
 style = """
+body {
+    margin: 0;
+    padding: 0;
+}
+.gr-block { /* Adjust the selector as needed */
+  width: 100vw;
+  height: 100vh;
+}
 .gr-image {
   min-width: 60px !important;
   max-width: 60px !important;

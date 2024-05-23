@@ -174,18 +174,24 @@ def check_filtered(prompt):
 	check = False
 	if len(g.settings_data['sail_filter_not_text']) > 0:
 		not_check = True
-		search = set(word.strip().lower() for word in g.settings_data['sail_filter_not_text'].split(","))
+		check_count = 0
+		search = set(word.strip().lower() for word in g.settings_data['sail_filter_not_text'].split())
 		for word in search:
 			if word in prompt:
-				not_check = False
-				break
+				check_count += 1
+		if check_count == len(search):
+			not_check = False
+
 
 	if len(g.settings_data['sail_filter_text']) > 0:
-		search = set(word.strip().lower() for word in g.settings_data['sail_filter_text'].split(","))
+		search = set(word.strip().lower() for word in g.settings_data['sail_filter_text'].split())
+		check_count = 0
 		for word in search:
 			if word in prompt:
-				check = True
-				break
+				check_count += 1
+		if check_count == len(search):
+			check = True
+
 
 	return not_check + check
 
