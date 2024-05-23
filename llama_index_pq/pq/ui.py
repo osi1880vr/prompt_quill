@@ -543,6 +543,11 @@ class ui_actions:
 
         return query
 
+    def count_context(self):
+        result = self.interface.count_context()
+        return f'{result.count} entries are in the context'
+
+
     def run_t2t_sail(self):
 
         """

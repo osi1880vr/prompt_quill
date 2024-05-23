@@ -169,6 +169,8 @@ class _LLM_INTERFACE:
     def direct_search(self,query,limit,offset):
         return self.adapter.direct_search(query,limit,offset)
 
+    def count_context(self):
+        return self.adapter.count_context()
 
     def retrieve_llm_completion(self,query):
         return self.adapter.retrieve_llm_completion(query)

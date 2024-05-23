@@ -165,6 +165,13 @@ class adapter:
                         must_not=must_not)
         return filter
 
+    def count_context(self):
+
+        filter = self.get_context_filter()
+        result = self.document_store.count(collection_name=self.g.settings_data['collection'],
+                                           count_filter=filter,
+                                            )
+        return result
 
     def direct_search(self,query,limit,offset,context_retrieve=False):
 

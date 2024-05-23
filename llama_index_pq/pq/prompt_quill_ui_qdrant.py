@@ -387,8 +387,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')
 						sail_stop_button = gr.Button('Interrupt your journey')
+						sail_count_button = gr.Button('Count possible results')
 					with gr.Row():
 						sail_status = gr.Textbox('', label=f'Status', placeholder="Nothing yet")
+					with gr.Row():
+						sail_max_gallery_size = gr.Slider(1, 500, step=1, value=g.settings_data['sail_max_gallery_size'],
+														  label="Max Gallery size",
+														  info="Limit the number of images keept in the gallery choose between 1 and 500")
 			with gr.Row():
 				with gr.Column(scale=3):
 					with gr.Row():
@@ -447,9 +452,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
 												 placeholder="Enter your hardcoded search")
 				with gr.Column(scale=1):
-					sail_max_gallery_size = gr.Slider(1, 500, step=1, value=g.settings_data['sail_max_gallery_size'],
-													  label="Max Gallery size",
-													  info="Limit the number of images keept in the gallery choose between 1 and 500")
+
 					sail_result_images = gr.Gallery(label='output images')
 			with gr.Row():
 				sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
@@ -546,6 +549,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			sail_check_connect_button.click(fn=ui_code.check_api_avail,
 											inputs=None,
 											outputs=sail_api_avail_ok)
+			sail_count_button.click(fn=ui_code.count_context,
+											inputs=None,
+											outputs=sail_status)
+
+
 		with gr.Tab('Show'):
 			with gr.Row():
 				sail_show_submit_button = gr.Button('Start your journey')
