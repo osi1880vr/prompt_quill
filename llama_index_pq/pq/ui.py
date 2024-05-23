@@ -139,7 +139,8 @@ class ui_actions:
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
-                             sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context):
+                             sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
+                             sail_filter_prompt):
         if self.g.sail_running:
             self.sail_depth_start = sail_depth
 
@@ -166,6 +167,7 @@ class ui_actions:
         self.g.settings_data['sail_filter_text'] = sail_filter_text
         self.g.settings_data['sail_filter_not_text'] = sail_filter_not_text
         self.g.settings_data['sail_filter_context'] = sail_filter_context
+        self.g.settings_data['sail_filter_prompt'] = sail_filter_prompt
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -244,7 +246,7 @@ class ui_actions:
         ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
         ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
         ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
-        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"]
+        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -473,38 +475,42 @@ class ui_actions:
     def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename):
         prompt = ''
         query = self.prepare_query(query)
-        while 1:
+        if self.g.settings_data['sail_filter_prompt']:
+            while 1:
 
-            if self.g.sail_running is False:
-                break
+                if self.g.sail_running is False:
+                    break
 
+                prompt = self.interface.retrieve_llm_completion(query)
+
+                not_check = False
+                check = False
+                if len(self.g.settings_data['sail_filter_not_text']) > 0:
+                    not_check = True
+                    search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
+                    for word in search:
+                        if word in prompt:
+                            not_check = False
+                            break
+
+                if len(self.g.settings_data['sail_filter_text']) > 0:
+                    search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
+                    for word in search:
+                        if word in prompt:
+                            check = True
+                            break
+
+                if not check and not not_check and prompt not in self.g.sail_history:
+                    self.g.sail_history.append(prompt)
+                    break
+                n += 1
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                query = self.get_next_target_new(new_nodes)
+                prompt_discard_count += 1
+                sail_steps += 1
+
+        else:
             prompt = self.interface.retrieve_llm_completion(query)
-
-            not_check = False
-            check = False
-            if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                not_check = True
-                search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_not_text'].split(","))
-                for word in search:
-                    if word in prompt:
-                        not_check = False
-                        break
-
-            if len(self.g.settings_data['sail_filter_text']) > 0:
-                search = set(word.strip().lower() for word in self.g.settings_data['sail_filter_text'].split(","))
-                for word in search:
-                    if word in prompt:
-                        check = True
-                        break
-
-            if not check and not not_check and prompt not in self.g.sail_history:
-                self.g.sail_history.append(prompt)
-                break
-            n += 1
-            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
-            query = self.get_next_target_new(new_nodes)
-            prompt_discard_count += 1
-            sail_steps += 1
 
         prompt = shared.clean_llm_artefacts(prompt)
 

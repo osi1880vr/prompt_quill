@@ -69,7 +69,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 	"sail_filter_text": "",
 	"sail_filter_not_text": "",
 	"sail_filter_context": False,
-
+	"sail_filter_prompt": False,
 	"embedding_model": "sentence-transformers/all-MiniLM-L12-v2",
 	"embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],
 	'selected_template': 'prompt_template_a',
