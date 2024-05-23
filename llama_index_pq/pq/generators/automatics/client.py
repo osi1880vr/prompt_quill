@@ -109,7 +109,11 @@ class automa_client:
             prompt = (str(prompt).encode('utf-8')).decode('utf-8')
         elif type(prompt) == bytes:
             prompt = prompt.decode('utf-8')
-        negative_prompt = (str(negative_prompt).encode('utf-8')).decode('utf-8')
+
+        if type(negative_prompt) == str:
+            negative_prompt = (str(negative_prompt).encode('utf-8')).decode('utf-8')
+        elif type(negative_prompt) == bytes:
+            negative_prompt = negative_prompt.decode('utf-8')
 
         payload = {
             "alwayson_scripts": alwayson_scripts,
