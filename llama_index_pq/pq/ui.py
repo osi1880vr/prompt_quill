@@ -612,6 +612,10 @@ class ui_actions:
         prompt_discard_count = 0
         n = 0
         sail_steps = self.g.settings_data['sail_width']
+
+        yield self.sail_log,[],f'Sailing has started please be patient for the first result to arrive'
+
+
         while n < sail_steps:
 
             try:

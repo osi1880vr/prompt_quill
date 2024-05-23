@@ -383,6 +383,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							sail_filter_context = gr.Checkbox(label="Filter on context Level?",
 														info="With this you filter entries from the context prior to prompt generation. It may lead to empty context",
 														value=g.settings_data['sail_filter_context'])
+					with gr.Row():
+						sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
+										   label="Sail steps", info="Choose between 1 and 10000")
+						sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
+										   label="Sail distance", info="Choose between 1 and 10000")
 				with gr.Column(scale=1):
 					with gr.Row():
 						sail_submit_button = gr.Button('Start your journey')
@@ -396,11 +401,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														  info="Limit the number of images keept in the gallery choose between 1 and 500")
 			with gr.Row():
 				with gr.Column(scale=3):
-					with gr.Row():
-						sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
-											   label="Sail steps", info="Choose between 1 and 10000")
-						sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
-											   label="Sail distance", info="Choose between 1 and 10000")
+
 					with gr.Row():
 						sail_generate = gr.Checkbox(label="Generate with A1111",
 													info="Do you want to directly generate the images?",
