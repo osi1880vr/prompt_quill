@@ -166,7 +166,7 @@ def get_negative_prompt():
 	else:
 		negative_out = g.settings_data['negative_prompt']
 
-	return negative_out.encode('utf-8')
+	return negative_out
 
 def check_filtered(prompt):
 
