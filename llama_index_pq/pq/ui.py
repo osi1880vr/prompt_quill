@@ -547,7 +547,9 @@ class ui_actions:
         result = self.interface.count_context()
         return f'{result.count} entries are in the context'
 
-
+    def get_context_count(self):
+        result = self.interface.count_context()
+        return result.count
     def run_t2t_sail(self):
 
         """
@@ -613,7 +615,9 @@ class ui_actions:
         n = 0
         sail_steps = self.g.settings_data['sail_width']
 
-        yield self.sail_log,[],f'Sailing has started please be patient for the first result to arrive'
+        context_count = self.get_context_count()
+
+        yield self.sail_log,[],f'Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean'
 
 
         while n < sail_steps:
