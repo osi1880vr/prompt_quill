@@ -629,7 +629,7 @@ class ui_actions:
                 query = self.get_next_target_new(new_nodes)
 
                 if query == -1:
-                    self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
+                    self.interface.log_raw(filename,f'{n} sail is finished early due to no more context')
                     yield self.sail_log,list(images),f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
                     break
 
