@@ -105,6 +105,15 @@ class automa_client:
         if len(ADetailer) > 0:
             alwayson_scripts["ADetailer"] = ADetailer
 
+        if type(prompt) == str:
+            prompt = (str(prompt).encode('utf-8')).decode('utf-8')
+        elif type(prompt) == bytes:
+            prompt = prompt.decode('utf-8')
+
+        if type(negative_prompt) == str:
+            negative_prompt = (str(negative_prompt).encode('utf-8')).decode('utf-8')
+        elif type(negative_prompt) == bytes:
+            negative_prompt = negative_prompt.decode('utf-8')
 
         payload = {
             "alwayson_scripts": alwayson_scripts,
