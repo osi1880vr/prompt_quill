@@ -71,40 +71,230 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		batch.change(ui_code.set_batch, batch, None)
 		summary.change(ui_code.set_summary, summary, None)
 
-	with gr.Tab('Deep Dive') as deep_dive:
-		top_k_slider = gr.Slider(1, max_top_k, value=g.settings_data['top_k'], step=1,
-								 label="How many entries to retrieve:")
-		search = gr.Textbox(f"", label=f'Context search')
-		textboxes = []
-		visible = True
-		for i in range(max_top_k - 1):
-			if i + 1 > g.settings_data['top_k']:
-				visible = False
-			t = gr.Textbox(f"Retrieved context {i}", label=f'Context {i + 1}', visible=visible)
-			textboxes.append(t)
+	with gr.Tab("Sail the data ocean") as sailor:
 
-		output = textboxes
-		# output.append(prompt_input)
+		with gr.Tab('Sailing') as sailing:
+			with gr.Tab('Main view'):
+				with gr.Row():
+					with gr.Column(scale=3):
+						sail_text = gr.Textbox(g.settings_data['sail_text'], label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
+											   placeholder="Where do we set our sails", elem_id='sail-input-text')
+						with gr.Row():
+							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
+												   label="Sail steps", info="Choose between 1 and 10000")
+							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
+												   label="Sail distance", info="Choose between 1 and 10000")
 
-		for text in textboxes:
-			text.focus(ui_code.dive_into, text, output)
+						with gr.Row():
+							sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
+													 info="This will create a sinus wave based movement along the distance.",
+													 value=g.settings_data['sail_sinus'])
+							sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'],
+														label="Sinus Frequency", info="Choose between 0.1 and 10")
+							sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'],
+														 label="Sinus Multiplier", info="Choose between 1 and 500")
+					with gr.Column(scale=1):
+						with gr.Row():
+							sail_submit_button = gr.Button('Start your journey')
+							sail_stop_button = gr.Button('Interrupt your journey')
+							sail_count_button = gr.Button('Count possible results')
+							sail_check_connect_button = gr.Button('Check API Available')
+						with gr.Row():
+							sail_status = gr.Textbox('', label=f'Status', placeholder="Nothing yet")
+						with gr.Row():
+							sail_max_gallery_size = gr.Slider(1, 500, step=1,
+															  value=g.settings_data['sail_max_gallery_size'],
+															  label="Max Gallery size",
+															  info="Limit the number of images keept in the gallery choose between 1 and 500")
+				with gr.Row():
+					with gr.Column(scale=1):
+						sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
+													info="Do you want to directly generate the images?",
+													value=g.settings_data['sail_generate'])
+				with gr.Row():
+					sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
+				with gr.Row():
+					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
+			with gr.Tab('Filters'):
+				with gr.Row():
+					with gr.Column(scale=1):
+						sail_filter_count_button = gr.Button('Count possible results')
+					with gr.Column(scale=3):
+						sail_filter_status = gr.Textbox('', label=f'Count', placeholder="0")
+				with gr.Row():
+					with gr.Column(scale=1):
+						sail_filter_prompt = gr.Checkbox(label="Filter on prompt Level?",
+														 info="With this you filter entries from the prompt generation. It may lead to long wait time until a prompt will match.",
+														 value=g.settings_data['sail_filter_prompt'])
+						sail_filter_context = gr.Checkbox(label="Filter on context Level?",
+														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
+														  value=g.settings_data['sail_filter_context'])
 
-		deep_dive.select(ui_code.get_context_details, textboxes, textboxes)
-		top_k_slider.change(ui_code.variable_outputs, top_k_slider, textboxes)
-		search.change(ui_code.dive_into, search, textboxes)
+					with gr.Column(scale=3):
+						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+													  label=f'List of negative words, words that are not allowed to be in context.',
+													  placeholder="Comma separated list of words you dont want in your prompt")
+						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+														  label=f'List of positive words, words that must be in context.',
+														  placeholder="Comma separated list of words that must be part of the prompt")
 
-	with gr.Tab("File2File") as batch_run:
-		input_file = gr.Files()
-		with gr.Row():
-			f2f_summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
-									  value=g.settings_data['summary'])
-			finish = gr.Textbox(f"", label=f'Wait for its done',
-								placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
+				with gr.Row():
+					with gr.Column(scale=1):
+						sail_add_search = gr.Checkbox(label="Add search specification",
+													  info="Add a text to each vector search.",
+													  value=g.settings_data['sail_add_search'])
+					with gr.Column(scale=3):
+						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
+												 placeholder="Enter your additional search")
 
-		file_submit_button = gr.Button('Run Batch')
+			with gr.Tab('Prompt manipulation'):
+				with gr.Row():
+					sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
+											   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
+											   value=g.settings_data['sail_dyn_neg'])
 
-		file_submit_button.click(ui_code.run_batch, input_file, finish)
-		f2f_summary.change(ui_code.set_summary, f2f_summary, None)
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_add_neg = gr.Checkbox(label="Add to negative prompt",
+												   info="Add a text to each negative prompt",
+												   value=g.settings_data['sail_add_neg'])
+					with gr.Column(scale=3):
+						sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
+													 placeholder="Enter your negative prompt addon")
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
+													 value=g.settings_data['sail_add_style'])
+					with gr.Column(scale=3):
+						sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
+												placeholder="Enter your hardcoded style")
+
+				with gr.Row():
+					sail_summary = gr.Checkbox(label="Do summary of LLM prompt",
+											   info="The prompt will get reduced to a summary",
+											   value=g.settings_data['sail_summary'])
+
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
+													info="The prompt gets rephrased based on the rephrase prompt",
+													value=g.settings_data['sail_rephrase'])
+						sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
+														info="To see the effect of the rephrasing you can check here to get both prompts generated",
+														value=g.settings_data['sail_gen_rephrase'])
+					with gr.Column(scale=3):
+						sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'],
+														  label=f'Rephrase Prompt',
+														  placeholder="Enter your rephrase prompt",
+														  lines=4)
+
+			gr.on(
+				triggers=[sail_text.change,
+						  sail_width.change,
+						  sail_depth.change,
+						  sail_generate.change,
+						  sail_summary.change,
+						  sail_rephrase.change,
+						  sail_rephrase_prompt.change,
+						  sail_gen_rephrase.change,
+						  sail_sinus.change,
+						  sail_sinus_freq.change,
+						  sail_sinus_range.change,
+						  sail_add_style.change,
+						  sail_style.change,
+						  sail_add_search.change,
+						  sail_search.change,
+						  sail_max_gallery_size.change,
+						  sail_dyn_neg.change,
+						  sail_add_neg.change,
+						  sail_neg_prompt.change,
+						  sail_filter_text.change,
+						  sail_filter_not_text.change,
+						  sail_filter_context.change,
+						  sail_filter_prompt.change
+						  ],
+				fn=ui_code.set_sailing_settings,
+				inputs=[sail_text,
+						sail_width,
+						sail_depth,
+						sail_generate,
+						sail_summary,
+						sail_rephrase,
+						sail_rephrase_prompt,
+						sail_gen_rephrase,
+						sail_sinus,
+						sail_sinus_freq,
+						sail_sinus_range,
+						sail_add_style,
+						sail_style,
+						sail_add_search,
+						sail_search,
+						sail_max_gallery_size,
+						sail_dyn_neg,
+						sail_add_neg,
+						sail_neg_prompt,
+						sail_filter_text,
+						sail_filter_not_text,
+						sail_filter_context,
+						sail_filter_prompt
+						],
+				outputs=None)
+
+			gr.on(
+				triggers=[sailor.select],
+				fn=ui_code.get_sailing_settings,
+				inputs=None,
+				outputs=[sail_text,
+						 sail_width,
+						 sail_depth,
+						 sail_generate,
+						 sail_summary,
+						 sail_rephrase,
+						 sail_rephrase_prompt,
+						 sail_gen_rephrase,
+						 sail_sinus,
+						 sail_sinus_freq,
+						 sail_sinus_range,
+						 sail_add_style,
+						 sail_style,
+						 sail_add_search,
+						 sail_search,
+						 sail_max_gallery_size,
+						 sail_filter_text,
+						 sail_filter_not_text,
+						 sail_filter_context,
+						 sail_filter_prompt])
+
+			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
+												  inputs=[],
+												  outputs=[sail_result,
+														   sail_result_images,
+														   sail_status])
+			sail_stop_button.click(fn=ui_code.stop_t2t_sail,
+								   inputs=None,
+								   outputs=None,
+								   cancels=[start_sail])
+			sail_check_connect_button.click(fn=ui_code.check_api_avail,
+											inputs=None,
+											outputs=sail_status)
+			sail_count_button.click(fn=ui_code.count_context,
+									inputs=None,
+									outputs=sail_status)
+			sail_filter_count_button.click(fn=ui_code.count_context,
+										   inputs=None,
+										   outputs=sail_filter_status)
+
+		with gr.Tab('Show'):
+			with gr.Row():
+				sail_show_submit_button = gr.Button('Start your journey')
+			with gr.Row():
+				sail_show_image = gr.Image(height=800, width=1300)
+			with gr.Row():
+				sail_show_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",
+											  lines=4)
+
+			start_sail_show = sail_show_submit_button.click(ui_code.run_t2t_show_sail, None,
+															[sail_show_result, sail_show_image])
 
 	with gr.Tab("Generator") as generator:
 
@@ -151,11 +341,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								automa_n_iter = gr.Slider(1, 500, step=1, value=g.settings_data['automa_n_iter'],
 														  label="Iterations",
 														  info="The number of sequential batches to be run, range from 1-500.")
-						automa_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
-						automa_save = gr.Checkbox(label="Save", info="Save the image?",
-												  value=g.settings_data['automa_save'])
-						automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?",
-															  value=g.settings_data['automa_save_on_api_host'])
+						with gr.Row():
+							automa_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
+							automa_save = gr.Checkbox(label="Save", info="Save the image?",
+													  value=g.settings_data['automa_save'])
+							automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?",
+																  value=g.settings_data['automa_save_on_api_host'])
 					with gr.Column(scale=1):
 						automa_refresh_button = gr.Button('Refresh')
 						automa_start_button = gr.Button('Generate')
@@ -313,6 +504,43 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				# live=True
 			)
 
+	with gr.Tab('Deep Dive') as deep_dive:
+		top_k_slider = gr.Slider(1, max_top_k, value=g.settings_data['top_k'], step=1,
+								 label="How many entries to retrieve:")
+		search = gr.Textbox(f"", label=f'Context search')
+		textboxes = []
+		visible = True
+		for i in range(max_top_k - 1):
+			if i + 1 > g.settings_data['top_k']:
+				visible = False
+			t = gr.Textbox(f"Retrieved context {i}", label=f'Context {i + 1}', visible=visible)
+			textboxes.append(t)
+
+		output = textboxes
+		# output.append(prompt_input)
+
+		for text in textboxes:
+			text.focus(ui_code.dive_into, text, output)
+
+		deep_dive.select(ui_code.get_context_details, textboxes, textboxes)
+		top_k_slider.change(ui_code.variable_outputs, top_k_slider, textboxes)
+		search.change(ui_code.dive_into, search, textboxes)
+
+	with gr.Tab("File2File") as batch_run:
+		input_file = gr.Files()
+		with gr.Row():
+			f2f_summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
+									  value=g.settings_data['summary'])
+			finish = gr.Textbox(f"", label=f'Wait for its done',
+								placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
+
+		file_submit_button = gr.Button('Run Batch')
+
+		file_submit_button.click(ui_code.run_batch, input_file, finish)
+		f2f_summary.change(ui_code.set_summary, f2f_summary, None)
+
+
+
 	gr.on(
 		triggers=[generator.select],
 		fn=ui_code.all_get_last_prompt,
@@ -361,233 +589,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_Checkpoint]
 	)
 
-	with gr.Tab("Sail the data ocean") as sailor:
 
-		with gr.Tab('Sailing') as sailing:
-			with gr.Tab('Main view'):
-				with gr.Row():
-					with gr.Column(scale=3):
-						sail_text = gr.Textbox(g.settings_data['sail_text'], label=f'Start your journey with',
-											   placeholder="Where do we set our sails", elem_id='sail-input-text')
-						with gr.Row():
-							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
-											   label="Sail steps", info="Choose between 1 and 10000")
-							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
-											   label="Sail distance", info="Choose between 1 and 10000")
-
-						with gr.Row():
-							sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
-													 info="This will create a sinus wave based movement along the distance",
-													 value=g.settings_data['sail_sinus'])
-							sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'],
-														label="Sinus Frequency", info="Choose between 0.1 and 10")
-							sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'],
-														 label="Sinus Multiplier", info="Choose between 1 and 500")
-					with gr.Column(scale=1):
-						with gr.Row():
-							sail_submit_button = gr.Button('Start your journey')
-							sail_stop_button = gr.Button('Interrupt your journey')
-							sail_count_button = gr.Button('Count possible results')
-							sail_check_connect_button = gr.Button('Check API Available')
-						with gr.Row():
-							sail_status = gr.Textbox('', label=f'Status', placeholder="Nothing yet")
-						with gr.Row():
-							sail_max_gallery_size = gr.Slider(1, 500, step=1, value=g.settings_data['sail_max_gallery_size'],
-															  label="Max Gallery size",
-															  info="Limit the number of images keept in the gallery choose between 1 and 500")
-				with gr.Row():
-					with gr.Column(scale=1):
-						sail_generate = gr.Checkbox(label="Generate with A1111",
-													info="Do you want to directly generate the images?",
-													value=g.settings_data['sail_generate'])
-				with gr.Row():
-					sail_result_images = gr.Gallery(label='output images',height=300,rows=1,columns=6,format='png')
-				with gr.Row():
-					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
-			with gr.Tab('Filters'):
-				with gr.Row():
-					with gr.Column(scale=1):
-						sail_filter_count_button = gr.Button('Count possible results')
-					with gr.Column(scale=3):
-						sail_filter_status = gr.Textbox('', label=f'Count', placeholder="0")
-				with gr.Row():
-					with gr.Column(scale=1):
-						sail_filter_prompt = gr.Checkbox(label="Filter on prompt Level?",
-														 info="With this you filter entries from the prompt generation. It may lead to long time until a prompt will match",
-														 value=g.settings_data['sail_filter_prompt'])
-						sail_filter_context = gr.Checkbox(label="Filter on context Level?",
-														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context",
-														  value=g.settings_data['sail_filter_context'])
-
-					with gr.Column(scale=3):
-						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
-													  label=f'List of negative words',
-													  placeholder="Comma separated list of words you dont want in your prompt")
-						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
-														  label=f'List of positive words',
-														  placeholder="Comma separated list of words that must be part of the prompt")
-
-
-				with gr.Row():
-					with gr.Column(scale=1):
-						sail_add_search = gr.Checkbox(label="Add search specification",
-												  info="Add a text to each vector search",
-												  value=g.settings_data['sail_add_search'])
-					with gr.Column(scale=3):
-						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
-											 placeholder="Enter your additional search")
-
-
-			with gr.Tab('Prompt manipulation'):
-				with gr.Row():
-					sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
-											   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
-											   value=g.settings_data['sail_dyn_neg'])
-
-
-				with gr.Row(equal_height=True):
-					with gr.Column(scale=1):
-						sail_add_neg = gr.Checkbox(label="Add to negative prompt",
-												   info="Add a text to each negative prompt",
-												   value=g.settings_data['sail_add_neg'])
-					with gr.Column(scale=3):
-						sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
-												 placeholder="Enter your negative prompt addon")
-				with gr.Row(equal_height=True):
-					with gr.Column(scale=1):
-						sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
-												 value=g.settings_data['sail_add_style'])
-					with gr.Column(scale=3):
-						sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
-											placeholder="Enter your hardcoded style")
-
-				with gr.Row():
-					sail_summary = gr.Checkbox(label="Do summary of LLM prompt",
-											   info="The prompt will get reduced to a summary",
-											   value=g.settings_data['sail_summary'])
-
-				with gr.Row(equal_height=True):
-					with gr.Column(scale=1):
-						sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
-													info="The prompt gets rephrased based on the rephrase prompt",
-													value=g.settings_data['sail_rephrase'])
-						sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
-														info="To see the effect of the rephrasing you can check here to get both prompts generated",
-														value=g.settings_data['sail_gen_rephrase'])
-					with gr.Column(scale=3):
-						sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'],
-													  label=f'Rephrase Prompt',
-													  placeholder="Enter your rephrase prompt",
-														  lines=3)
-
-
-			gr.on(
-				triggers=[sail_text.change,
-						  sail_width.change,
-						  sail_depth.change,
-						  sail_generate.change,
-						  sail_summary.change,
-						  sail_rephrase.change,
-						  sail_rephrase_prompt.change,
-						  sail_gen_rephrase.change,
-						  sail_sinus.change,
-						  sail_sinus_freq.change,
-						  sail_sinus_range.change,
-						  sail_add_style.change,
-						  sail_style.change,
-						  sail_add_search.change,
-						  sail_search.change,
-						  sail_max_gallery_size.change,
-						  sail_dyn_neg.change,
-						  sail_add_neg.change,
-						  sail_neg_prompt.change,
-						  sail_filter_text.change,
-						  sail_filter_not_text.change,
-						  sail_filter_context.change,
-						  sail_filter_prompt.change
-						  ],
-				fn=ui_code.set_sailing_settings,
-				inputs=[sail_text,
-						sail_width,
-						sail_depth,
-						sail_generate,
-						sail_summary,
-						sail_rephrase,
-						sail_rephrase_prompt,
-						sail_gen_rephrase,
-						sail_sinus,
-						sail_sinus_freq,
-						sail_sinus_range,
-						sail_add_style,
-						sail_style,
-						sail_add_search,
-						sail_search,
-						sail_max_gallery_size,
-						sail_dyn_neg,
-						sail_add_neg,
-						sail_neg_prompt,
-						sail_filter_text,
-						sail_filter_not_text,
-						sail_filter_context,
-						sail_filter_prompt
-						],
-				outputs=None)
-
-			gr.on(
-				triggers=[sailor.select],
-				fn=ui_code.get_sailing_settings,
-				inputs=None,
-				outputs=[sail_text,
-						 sail_width,
-						 sail_depth,
-						 sail_generate,
-						 sail_summary,
-						 sail_rephrase,
-						 sail_rephrase_prompt,
-						 sail_gen_rephrase,
-						 sail_sinus,
-						 sail_sinus_freq,
-						 sail_sinus_range,
-						 sail_add_style,
-						 sail_style,
-						 sail_add_search,
-						 sail_search,
-						 sail_max_gallery_size,
-						 sail_filter_text,
-						 sail_filter_not_text,
-						 sail_filter_context,
-						 sail_filter_prompt])
-
-			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
-												  inputs=[],
-												  outputs=[sail_result,
-														   sail_result_images,
-														   sail_status])
-			sail_stop_button.click(fn=ui_code.stop_t2t_sail,
-								   inputs=None,
-								   outputs=None,
-								   cancels=[start_sail])
-			sail_check_connect_button.click(fn=ui_code.check_api_avail,
-											inputs=None,
-											outputs=sail_status)
-			sail_count_button.click(fn=ui_code.count_context,
-											inputs=None,
-											outputs=sail_status)
-			sail_filter_count_button.click(fn=ui_code.count_context,
-									inputs=None,
-									outputs=sail_filter_status)
-
-		with gr.Tab('Show'):
-			with gr.Row():
-				sail_show_submit_button = gr.Button('Start your journey')
-			with gr.Row():
-				sail_show_image = gr.Image(height=800, width=1300)
-			with gr.Row():
-				sail_show_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",
-											  lines=4)
-
-			start_sail_show = sail_show_submit_button.click(ui_code.run_t2t_show_sail, None,
-															[sail_show_result, sail_show_image])
 
 	with gr.Tab('Image Scoring'):
 		with gr.Tab('Single Image'):
