@@ -374,9 +374,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 											   label="Sail steps", info="Choose between 1 and 10000")
 							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
 											   label="Sail distance", info="Choose between 1 and 10000")
-							sail_generate = gr.Checkbox(label="Generate with A1111",
-														info="Do you want to directly generate the images?",
-														value=g.settings_data['sail_generate'])
+
 						with gr.Row():
 							sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
 													 info="This will create a sinus wave based movement along the distance",
@@ -398,18 +396,21 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 															  label="Max Gallery size",
 															  info="Limit the number of images keept in the gallery choose between 1 and 500")
 				with gr.Row():
-					sail_result_images = gr.Gallery(label='output images',height=300,rows=1,columns=6)
+					with gr.Column(scale=1):
+						sail_generate = gr.Checkbox(label="Generate with A1111",
+													info="Do you want to directly generate the images?",
+													value=g.settings_data['sail_generate'])
+				with gr.Row():
+					sail_result_images = gr.Gallery(label='output images',height=300,rows=1,columns=6,format='png')
 				with gr.Row():
 					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
 			with gr.Tab('Filters'):
 				with gr.Row():
+					with gr.Column(scale=1):
+						sail_filter_count_button = gr.Button('Count possible results')
 					with gr.Column(scale=3):
-						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
-													  label=f'List of negative words',
-													  placeholder="Comma separated list of words you dont want in your prompt")
-						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
-														  label=f'List of positive words',
-														  placeholder="Comma separated list of words that must be part of the prompt")
+						sail_filter_status = gr.Textbox('', label=f'Count', placeholder="0")
+				with gr.Row():
 					with gr.Column(scale=1):
 						sail_filter_prompt = gr.Checkbox(label="Filter on prompt Level?",
 														 info="With this you filter entries from the prompt generation. It may lead to long time until a prompt will match",
@@ -418,11 +419,22 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context",
 														  value=g.settings_data['sail_filter_context'])
 
+					with gr.Column(scale=3):
+						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+													  label=f'List of negative words',
+													  placeholder="Comma separated list of words you dont want in your prompt")
+						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+														  label=f'List of positive words',
+														  placeholder="Comma separated list of words that must be part of the prompt")
+
+
 				with gr.Row():
-					sail_add_search = gr.Checkbox(label="Add search specification",
+					with gr.Column(scale=1):
+						sail_add_search = gr.Checkbox(label="Add search specification",
 												  info="Add a text to each vector search",
 												  value=g.settings_data['sail_add_search'])
-					sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
+					with gr.Column(scale=3):
+						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
 											 placeholder="Enter your additional search")
 
 
@@ -431,31 +443,42 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
 											   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
 											   value=g.settings_data['sail_dyn_neg'])
-					sail_add_neg = gr.Checkbox(label="Add to negative prompt",
-											   info="Add a text to each negative prompt",
-											   value=g.settings_data['sail_add_neg'])
-				with gr.Row():
-					sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
-												 value=g.settings_data['sail_add_style'])
-					sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
-											placeholder="Enter your hardcoded style")
-				with gr.Row():
-					sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
+
+
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_add_neg = gr.Checkbox(label="Add to negative prompt",
+												   info="Add a text to each negative prompt",
+												   value=g.settings_data['sail_add_neg'])
+					with gr.Column(scale=3):
+						sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
 												 placeholder="Enter your negative prompt addon")
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
+												 value=g.settings_data['sail_add_style'])
+					with gr.Column(scale=3):
+						sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
+											placeholder="Enter your hardcoded style")
+
 				with gr.Row():
 					sail_summary = gr.Checkbox(label="Do summary of LLM prompt",
 											   info="The prompt will get reduced to a summary",
 											   value=g.settings_data['sail_summary'])
-					sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
-												info="The prompt gets rephrased based on the rephrase prompt",
-												value=g.settings_data['sail_rephrase'])
-					sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
-													info="To see the effect of the rephrasing you can check here to get both prompts generated",
-													value=g.settings_data['sail_gen_rephrase'])
-				with gr.Row():
-					sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'],
+
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
+													info="The prompt gets rephrased based on the rephrase prompt",
+													value=g.settings_data['sail_rephrase'])
+						sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
+														info="To see the effect of the rephrasing you can check here to get both prompts generated",
+														value=g.settings_data['sail_gen_rephrase'])
+					with gr.Column(scale=3):
+						sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'],
 													  label=f'Rephrase Prompt',
-													  placeholder="Enter your rephrase prompt")
+													  placeholder="Enter your rephrase prompt",
+														  lines=3)
 
 
 			gr.on(
@@ -550,7 +573,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			sail_count_button.click(fn=ui_code.count_context,
 											inputs=None,
 											outputs=sail_status)
-
+			sail_filter_count_button.click(fn=ui_code.count_context,
+									inputs=None,
+									outputs=sail_filter_status)
 
 		with gr.Tab('Show'):
 			with gr.Row():
