@@ -417,17 +417,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_filter_context = gr.Checkbox(label="Filter on context Level?",
 														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context",
 														  value=g.settings_data['sail_filter_context'])
+
 				with gr.Row():
-					sail_add_style = gr.Checkbox(label="Hard style specification", info="Add a text to each prompt",
-												 value=g.settings_data['sail_add_style'])
-					sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
-											placeholder="Enter your hardcoded style")
-				with gr.Row():
-					sail_add_search = gr.Checkbox(label="Hard search specification",
-												  info="Add a text to each search",
+					sail_add_search = gr.Checkbox(label="Add search specification",
+												  info="Add a text to each vector search",
 												  value=g.settings_data['sail_add_search'])
 					sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
-											 placeholder="Enter your hardcoded search")
+											 placeholder="Enter your additional search")
 
 
 			with gr.Tab('Prompt manipulation'):
@@ -438,6 +434,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_add_neg = gr.Checkbox(label="Add to negative prompt",
 											   info="Add a text to each negative prompt",
 											   value=g.settings_data['sail_add_neg'])
+				with gr.Row():
+					sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
+												 value=g.settings_data['sail_add_style'])
+					sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
+											placeholder="Enter your hardcoded style")
 				with gr.Row():
 					sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
 												 placeholder="Enter your negative prompt addon")
