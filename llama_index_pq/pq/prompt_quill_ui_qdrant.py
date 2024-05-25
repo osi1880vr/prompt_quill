@@ -703,16 +703,20 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 		with gr.Tab("Presets") as presets:
 			with gr.Row():
-				preset_select = gr.Dropdown(choices=g.settings_data['preset_list'],
-											value=g.settings_data['selected_preset'], label='Preset')
-
-				preset_load_button = gr.Button('Load preset')
-				preset_save_button = gr.Button('Save preset')
-				preset_reload_button = gr.Button('Reload presets')
+				with gr.Column(scale=3):
+					preset_select = gr.Dropdown(choices=g.settings_data['preset_list'],
+												value=g.settings_data['selected_preset'], label='Preset')
+				with gr.Column(scale=1):
+					preset_load_button = gr.Button('Load preset')
+					preset_save_button = gr.Button('Save preset')
+					preset_reload_button = gr.Button('Reload presets')
+					preset_status = gr.TextArea('', lines=1, label="Status")
 			with gr.Row():
-				preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
-				preset_create_button = gr.Button('Create new preset')
-				preset_status = gr.TextArea('', lines=1, label="Status")
+				with gr.Column(scale=3):
+					preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
+				with gr.Column(scale=1):
+					preset_create_button = gr.Button('Create new preset')
+
 			gr.on(
 				triggers=[presets.select],
 				fn=ui_code.load_preset_list,
