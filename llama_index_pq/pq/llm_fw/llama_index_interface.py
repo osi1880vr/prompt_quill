@@ -141,25 +141,47 @@ class adapter:
 
         must = []
         must_not = []
-        if len(self.g.settings_data['sail_filter_not_text']) > 0:
-            for word in self.g.settings_data['sail_filter_not_text'].split():
-                must.append(
-                    FieldCondition(
-                        key="search",
-                        match=MatchText(text=f"{word.strip()}"),
+        if self.g.settings_data['sail_filter_context']:
+            if len(self.g.settings_data['sail_filter_not_text']) > 0:
+                for word in self.g.settings_data['sail_filter_not_text'].split():
+                    must.append(
+                        FieldCondition(
+                            key="search",
+                            match=MatchText(text=f"{word.strip()}"),
+                        )
                     )
-                )
-        else:
+
+            if len(self.g.settings_data['sail_filter_text']) > 0:
+                for word in self.g.settings_data['sail_filter_text'].split():
+                    must_not.append(
+                        FieldCondition(
+                            key="search",
+                            match=MatchText(text=f"{word.strip()}"),
+                        )
+                    )
+
+        if self.g.settings_data['sail_neg_filter_context']:
+            if len(self.g.settings_data['sail_neg_filter_not_text']) > 0:
+                for word in self.g.settings_data['sail_neg_filter_not_text'].split():
+                    must.append(
+                        FieldCondition(
+                            key="negative_prompt",
+                            match=MatchText(text=f"{word.strip()}"),
+                        )
+                    )
+
+            if len(self.g.settings_data['sail_neg_filter_text']) > 0:
+                for word in self.g.settings_data['sail_neg_filter_text'].split():
+                    must_not.append(
+                        FieldCondition(
+                            key="negative_prompt",
+                            match=MatchText(text=f"{word.strip()}"),
+                        )
+                    )
+
+        if len(must) < 1:
             must = None
-        if len(self.g.settings_data['sail_filter_text']) > 0:
-            for word in self.g.settings_data['sail_filter_text'].split():
-                must_not.append(
-                    FieldCondition(
-                        key="search",
-                        match=MatchText(text=f"{word.strip()}"),
-                    )
-                )
-        else:
+        if len(must_not) < 1:
             must_not = None
         filter = Filter(must=must,
                         must_not=must_not)
@@ -179,7 +201,7 @@ class adapter:
 
         filter = self.get_context_filter()
 
-        if self.g.settings_data['sail_filter_context']:
+        if self.g.settings_data['sail_filter_context'] or self.g.settings_data['sail_neg_filter_context']:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                        query_vector=vector,
                                        limit=limit,

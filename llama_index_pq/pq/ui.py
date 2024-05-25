@@ -140,7 +140,8 @@ class ui_actions:
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
                              sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
-                             sail_filter_prompt):
+                             sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
+                             sail_neg_filter_context,):
         if self.g.sail_running:
             self.sail_depth_start = sail_depth
 
@@ -167,6 +168,9 @@ class ui_actions:
         self.g.settings_data['sail_filter_not_text'] = sail_filter_not_text
         self.g.settings_data['sail_filter_context'] = sail_filter_context
         self.g.settings_data['sail_filter_prompt'] = sail_filter_prompt
+        self.g.settings_data['sail_neg_filter_text'] = sail_neg_filter_text
+        self.g.settings_data['sail_neg_filter_not_text'] = sail_neg_filter_not_text
+        self.g.settings_data['sail_neg_filter_context'] = sail_neg_filter_context
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -245,7 +249,9 @@ class ui_actions:
         ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
         ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
         ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
-        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"]
+        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"
+        ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
+        ]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]

@@ -137,6 +137,18 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
 														  label=f'List of positive words, words that must be in context.',
 														  placeholder="Comma separated list of words that must be part of the prompt")
+				with gr.Row():
+					with gr.Column(scale=1):
+						sail_neg_filter_context = gr.Checkbox(label="Filter on negative prompt context Level?",
+														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
+														  value=g.settings_data['sail_filter_context'])
+					with gr.Column(scale=3):
+						sail_neg_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+													  label=f'List of negative words, words that are not allowed to be in negative prompt context.',
+													  placeholder="Comma separated list of words you dont want in your negative prompt ")
+						sail_neg_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+														  label=f'List of positive words, words that must be in negative prompt context.',
+														  placeholder="Comma separated list of words that must be part of the negative prompt ")
 
 				with gr.Row():
 					with gr.Column(scale=1):
@@ -211,7 +223,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						  sail_filter_text.change,
 						  sail_filter_not_text.change,
 						  sail_filter_context.change,
-						  sail_filter_prompt.change
+						  sail_filter_prompt.change,
+						  sail_neg_filter_text.change,
+						  sail_neg_filter_not_text.change,
+						  sail_neg_filter_context.change,
 						  ],
 				fn=ui_code.set_sailing_settings,
 				inputs=[sail_text,
@@ -236,7 +251,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_filter_text,
 						sail_filter_not_text,
 						sail_filter_context,
-						sail_filter_prompt
+						sail_filter_prompt,
+						sail_neg_filter_text,
+						sail_neg_filter_not_text,
+						sail_neg_filter_context,
 						],
 				outputs=None)
 
@@ -263,7 +281,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						 sail_filter_text,
 						 sail_filter_not_text,
 						 sail_filter_context,
-						 sail_filter_prompt])
+						 sail_filter_prompt,
+						 sail_neg_filter_text,
+						 sail_neg_filter_not_text,
+						 sail_neg_filter_context,])
 
 			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 												  inputs=[],
