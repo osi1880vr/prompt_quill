@@ -77,7 +77,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab('Main view'):
 				with gr.Row():
 					with gr.Column(scale=3):
-						sail_text = gr.Textbox(g.settings_data['sail_text'], label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
+						sail_text = gr.Textbox(g.settings_data['sail_text'],
+											   label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
 											   placeholder="Where do we set our sails", elem_id='sail-input-text')
 						with gr.Row():
 							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
@@ -95,12 +96,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														 label="Sinus Multiplier", info="Choose between 1 and 500")
 					with gr.Column(scale=1):
 						with gr.Row():
+							sail_status = gr.Textbox('', label=f'Status', placeholder="status")
+						with gr.Row():
 							sail_submit_button = gr.Button('Start your journey')
 							sail_stop_button = gr.Button('Interrupt your journey')
 							sail_count_button = gr.Button('Count possible results')
 							sail_check_connect_button = gr.Button('Check API Available')
-						with gr.Row():
-							sail_status = gr.Textbox('', label=f'Status', placeholder="Nothing yet")
+
 						with gr.Row():
 							sail_max_gallery_size = gr.Slider(1, 500, step=1,
 															  value=g.settings_data['sail_max_gallery_size'],
@@ -140,15 +142,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Row():
 					with gr.Column(scale=1):
 						sail_neg_filter_context = gr.Checkbox(label="Filter on negative prompt context Level?",
-														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
-														  value=g.settings_data['sail_filter_context'])
+															  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
+															  value=g.settings_data['sail_filter_context'])
 					with gr.Column(scale=3):
 						sail_neg_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
-													  label=f'List of negative words, words that are not allowed to be in negative prompt context.',
-													  placeholder="Comma separated list of words you dont want in your negative prompt ")
+														  label=f'List of negative words, words that are not allowed to be in negative prompt context.',
+														  placeholder="Comma separated list of words you dont want in your negative prompt ")
 						sail_neg_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
-														  label=f'List of positive words, words that must be in negative prompt context.',
-														  placeholder="Comma separated list of words that must be part of the negative prompt ")
+															  label=f'List of positive words, words that must be in negative prompt context.',
+															  placeholder="Comma separated list of words that must be part of the negative prompt ")
 
 				with gr.Row():
 					with gr.Column(scale=1):
@@ -284,7 +286,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						 sail_filter_prompt,
 						 sail_neg_filter_text,
 						 sail_neg_filter_not_text,
-						 sail_neg_filter_context,])
+						 sail_neg_filter_context, ])
 
 			start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 												  inputs=[],
@@ -548,19 +550,20 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		search.change(ui_code.dive_into, search, textboxes)
 
 	with gr.Tab("File2File") as batch_run:
-		input_file = gr.Files()
+
 		with gr.Row():
-			f2f_summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
-									  value=g.settings_data['summary'])
-			finish = gr.Textbox(f"", label=f'Wait for its done',
-								placeholder='Here you upload a file with your input prompts, it will then generate a new prompt based on each line of your file and write that to output file')
+			with gr.Column(scale=3):
+				f2f_input_file = gr.Files()
 
-		file_submit_button = gr.Button('Run Batch')
+			with gr.Column(scale=1):
+				f2f_status = gr.Textbox(f"", label=f'Status',
+								placeholder='Status')
+				f2f_summary = gr.Checkbox(label="Summary", info="Create a summary from the LLM prompt?",
+										  value=g.settings_data['summary'])
+				f2f_submit_button = gr.Button('Run Batch')
 
-		file_submit_button.click(ui_code.run_batch, input_file, finish)
-		f2f_summary.change(ui_code.set_summary, f2f_summary, None)
-
-
+		f2f_submit_button.click(fn=ui_code.run_batch, inputs=f2f_input_file, outputs=f2f_status)
+		f2f_summary.change(fn=ui_code.set_summary, inputs=f2f_summary, outputs=None)
 
 	gr.on(
 		triggers=[generator.select],
@@ -610,112 +613,55 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_Checkpoint]
 	)
 
-
-
 	with gr.Tab('Image Scoring'):
 		with gr.Tab('Single Image'):
-			score_image = gr.Image(label='Image', type='pil')
-			score_button = gr.Button('Score Image')
-			score_result = gr.Textbox("", label=f'Image Score', placeholder="The Score of your Image", lines=1)
+			with gr.Row():
+				with gr.Column(scale=3):
+					score_image = gr.Image(label='Image', type='pil')
+				with gr.Column(scale=1):
+					score_result = gr.Textbox("", label=f'Image Score', placeholder="The Score of your Image", lines=1)
+					score_button = gr.Button('Score Image')
+
 			score_button.click(image_score.get_single_aestetics_score, score_image, score_result)
 
 		with gr.Tab('Image Folder'):
-			score_images_button = gr.Button('Score Image')
-			score_min_aestetics_level = gr.Slider(0, 10, step=0.1, value=7, label="Minimum Score",
-												  info="Choose between 1 and 10")
-			score_keep_structure = gr.Checkbox(label="Create new Folder", value=False)
-			score_output_folder = gr.Textbox("", label=f'Where to store the scored images', lines=1)
-			score_images_result = gr.Textbox("", label=f'Status', placeholder="Status", lines=1)
-			score_images = gr.File(file_count='directory')
-			score_images_button.click(image_score.run_aestetic_prediction,
-									  [score_images, score_min_aestetics_level, score_keep_structure,
-									   score_output_folder], score_images_result)
+			with gr.Row():
+				with gr.Column(scale=3):
+					score_min_aestetics_level = gr.Slider(0, 10, step=0.1, value=7, label="Minimum Score",
+														  info="Choose between 1 and 10")
+					score_keep_structure = gr.Checkbox(label="Create new Folder", value=False)
+					score_output_folder = gr.Textbox("", label=f'Where to store the scored images', lines=1)
+					score_images = gr.File(file_count='directory')
+
+				with gr.Column(scale=1):
+					score_images_result = gr.Textbox("", label=f'Status', placeholder="Status", lines=1)
+					score_images_button = gr.Button('Score Image')
+
+			score_images_button.click(fn=image_score.run_aestetic_prediction,
+									  inputs=[score_images, score_min_aestetics_level, score_keep_structure,
+											  score_output_folder],
+									  outputs=score_images_result)
 
 	with gr.Tab('Settings'):
-		with gr.Tab("Character") as Character:
-			gr.on(
-				triggers=[Character.select],
-				fn=ui_code.get_prompt_template,
-				inputs=None,
-				outputs=[ui.prompt_template]
-			)
-			gr.on(
-				triggers=[ui.prompt_template_select.select],
-				fn=ui_code.set_prompt_template_select,
-				inputs=[ui.prompt_template_select],
-				outputs=[ui.prompt_template]
-			)
-			gr.Interface(
-				fn=ui_code.set_prompt_template,
-				inputs=[ui.prompt_template_select, ui.prompt_template, ],
-				outputs=[ui.prompt_template_status],
-				allow_flagging='never',
-				flagging_options=None
-			)
-		with gr.Tab('Rephrase instruction') as negative_prompt:
-			rephrase_instruction_text = gr.Textbox(g.settings_data['rephrase_instruction'],
-												   label=f'Rephrase instruction')
-			rephrase_instruction_submit_button = gr.Button('Save Rephrase instruction')
-
-			rephrase_instruction_submit_button.click(ui_code.set_rephrase_instruction, rephrase_instruction_text, None)
-
-		with gr.Tab("Model Settings") as llm_settings:
-			gr.on(
-				triggers=[llm_settings.select],
-				fn=ui_code.get_llm_settings,
-				inputs=None,
-				outputs=[ui.collection,
-						 ui.LLM,
-						 ui.embedding_model,
-						 ui.Temperature,
-						 ui.Context,
-						 ui.GPU,
-						 ui.max,
-						 ui.top_k,
-						 ui.Instruct
-						 ]
-			)
-
-			gr.Interface(
-				ui_code.set_model,
-				[ui.collection,
-				 ui.LLM,
-				 ui.embedding_model,
-				 ui.Temperature,
-				 ui.Context,
-				 ui.GPU,
-				 ui.max,
-				 ui.top_k,
-				 ui.Instruct
-				 ]
-				, outputs="text",
-				allow_flagging='never',
-				flagging_options=None
-
-			)
-
-		with gr.Tab("Default") as defaults:
-			with gr.Tab('Negative Prompt'):
-				neg_prompt_text = gr.Textbox(g.settings_data['negative_prompt'], label=f'Default Negative Prompt')
-				np_submit_button = gr.Button('Save Negative Prompt')
-
-				np_submit_button.click(ui_code.set_neg_prompt, neg_prompt_text, None)
-
 		with gr.Tab("Presets") as presets:
 			with gr.Row():
 				with gr.Column(scale=3):
-					preset_select = gr.Dropdown(choices=g.settings_data['preset_list'],
-												value=g.settings_data['selected_preset'], label='Preset')
+					with gr.Row():
+						with gr.Column(scale=3):
+							preset_select = gr.Dropdown(choices=g.settings_data['preset_list'],
+													value=g.settings_data['selected_preset'], label='Preset')
+						with gr.Column(scale=1):
+							preset_reload_button = gr.Button('Reload presets')
+							preset_load_button = gr.Button('Load preset')
+							preset_save_button = gr.Button('Save preset')
+					with gr.Row():
+						with gr.Column(scale=3):
+							preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
+						with gr.Column(scale=1):
+							preset_create_button = gr.Button('Create new preset')
 				with gr.Column(scale=1):
-					preset_load_button = gr.Button('Load preset')
-					preset_save_button = gr.Button('Save preset')
-					preset_reload_button = gr.Button('Reload presets')
-					preset_status = gr.TextArea('', lines=1, label="Status")
-			with gr.Row():
-				with gr.Column(scale=3):
-					preset_name = gr.TextArea('', lines=1, label="Filename", placeholder='Enter preset name')
-				with gr.Column(scale=1):
-					preset_create_button = gr.Button('Create new preset')
+					with gr.Row():
+						preset_status = gr.TextArea(lines=1, label="Status", placeholder="Status")
 
 			gr.on(
 				triggers=[presets.select],
@@ -723,10 +669,132 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				inputs=None,
 				outputs=[preset_select]
 			)
-			preset_load_button.click(ui_code.load_preset, preset_select, preset_status)
-			preset_save_button.click(ui_code.save_preset, preset_select, preset_status)
-			preset_create_button.click(ui_code.save_preset, preset_name, preset_status)
-			preset_reload_button.click(ui_code.load_preset_list, None, preset_select)
+			preset_load_button.click(fn=ui_code.load_preset, inputs=preset_select, outputs=preset_status)
+			preset_save_button.click(fn=ui_code.save_preset, inputs=preset_select, outputs=preset_status)
+			preset_create_button.click(fn=ui_code.save_preset, inputs=preset_name, outputs=preset_status)
+			preset_reload_button.click(fn=ui_code.load_preset_list, inputs=None, outputs=[preset_select,preset_status])
+
+		with gr.Tab("Model Settings") as llm_settings:
+			with gr.Row():
+				with gr.Column(scale=3):
+					llm = gr.Dropdown(
+						g.settings_data['model_list'].keys(), value=g.settings_data['LLM Model'], label="LLM Model",
+						info="Will add more LLMs later!"
+					)
+					collection = gr.Dropdown(
+						g.settings_data['collections_list'], value=g.settings_data['collection'], label="Collection",
+						info="If you got more than one collection!"
+					)
+					embedding_model = gr.Dropdown(
+						g.settings_data['embedding_model_list'], value=g.settings_data['embedding_model'],
+						label="Embedding Model",
+						info="If you dont know better, use all-MiniLM-L12-v2!"
+					)
+					temperature = gr.Slider(0, 1, step=0.1, value=g.settings_data['Temperature'], label="Temperature",
+											info="Choose between 0 and 1")
+					context = gr.Slider(0, 8192, step=1, value=g.settings_data['Context Length'],
+										label="Context Length",
+										info="Choose between 1 and 8192")
+					gpu_layers = gr.Slider(0, 1024, step=1, value=g.settings_data['GPU Layers'], label="GPU Layers",
+										   info="Choose between 1 and 1024")
+					max_out_token = gr.Slider(0, 1024, step=1, value=g.settings_data['max output Tokens'],
+											  label="max output Tokens",
+											  info="Choose between 1 and 1024")
+					top_k = gr.Slider(0, g.settings_data['max_top_k'], step=1, value=g.settings_data['top_k'],
+									  label="how many entrys to be fetched from the vector store",
+									  info="Choose between 1 and 50 be careful not to overload the context window of the LLM")
+
+				with gr.Column(scale=1):
+					model_status = gr.Textbox("", label=f'Status', placeholder="Status")
+					model_save_button = gr.Button('Save model settings')
+
+			gr.on(
+				triggers=[llm_settings.select],
+				fn=ui_code.get_llm_settings,
+				inputs=None,
+				outputs=[collection,
+						 llm,
+						 embedding_model,
+						 temperature,
+						 context,
+						 gpu_layers,
+						 max_out_token,
+						 top_k
+						 ]
+			)
+
+			model_save_button.click(fn=ui_code.set_model,
+									inputs=[collection,
+											llm,
+											embedding_model,
+											temperature,
+											context,
+											gpu_layers,
+											max_out_token,
+											top_k
+											],
+									outputs=model_status
+									)
+
+		with gr.Tab("Prompting Settings") as defaults:
+			with gr.Tab('Negative Prompt'):
+				with gr.Row():
+					with gr.Column(scale=3):
+						neg_prompt_text = gr.Textbox(g.settings_data['negative_prompt'],
+													 label=f'Default Negative Prompt',
+													 lines=10)
+					with gr.Column(scale=1):
+						neg_prompt_status = gr.TextArea('', label="Status", placeholder='Status')
+						neg_prompt_submit_button = gr.Button('Save Negative Prompt')
+
+				neg_prompt_submit_button.click(fn=ui_code.set_neg_prompt, inputs=neg_prompt_text,
+											   outputs=neg_prompt_status)
+
+			with gr.Tab('Rephrase instruction') as negative_prompt:
+				with gr.Row():
+					with gr.Column(scale=3):
+						rephrase_instruction_text = gr.Textbox(g.settings_data['rephrase_instruction'],
+															   label=f'Rephrase instruction',
+															   lines=5)
+					with gr.Column(scale=1):
+						rephrase_instruction_status = gr.TextArea(lines=1, label="Status", placeholder='Status')
+						rephrase_instruction_submit_button = gr.Button('Save Rephrase instruction')
+
+				rephrase_instruction_submit_button.click(fn=ui_code.set_rephrase_instruction,
+														 inputs=rephrase_instruction_text,
+														 outputs=rephrase_instruction_status)
+
+			with gr.Tab("Character") as Character:
+				with gr.Row():
+					with gr.Column(scale=3):
+						prompt_template = gr.TextArea(
+							g.settings_data["prompt_templates"][g.settings_data["selected_template"]], lines=20)
+						prompt_template_select = gr.Dropdown(choices=g.settings_data["prompt_templates"].keys(),
+															 value=g.settings_data["selected_template"], label='Template',
+															 interactive=True)
+
+					with gr.Column(scale=1):
+						prompt_template_status = gr.TextArea(lines=1, label="Status", placeholder='Status')
+						prompt_template_submit_button = gr.Button('Save Character')
+
+				gr.on(
+					triggers=[Character.select],
+					fn=ui_code.get_prompt_template,
+					inputs=None,
+					outputs=[prompt_template]
+				)
+				gr.on(
+					triggers=[prompt_template_select.select],
+					fn=ui_code.set_prompt_template_select,
+					inputs=[prompt_template_select],
+					outputs=[prompt_template]
+				)
+
+				prompt_template_submit_button.click(fn=ui_code.set_prompt_template,
+													inputs=[prompt_template_select, prompt_template, ],
+													outputs=[prompt_template_status])
+
+
 
 if __name__ == "__main__":
 	server_name = "localhost"

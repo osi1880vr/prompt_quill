@@ -7,6 +7,7 @@ default = {
 	"GPU Layers": 50,
 	"max output Tokens": 200,
 	"top_k": 5,
+	"max_top_k": 50,
 	"Instruct Model": False,
 	"collection": 'prompts_large_meta',
 	"collections_list": ['prompts_large_meta'],

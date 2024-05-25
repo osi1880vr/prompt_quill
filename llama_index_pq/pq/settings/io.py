@@ -44,7 +44,10 @@ class settings_io:
         for file in filelist:
             if file != 'presets_go_here.txt':
                 out_list.append(file.replace('_preset.dat', ''))
-        return out_list
+        if len(out_list) > 0:
+            return out_list
+        else:
+            return None
 
     def load_preset(self, name):
         if os.path.isfile('pq/settings/settings.dat'):

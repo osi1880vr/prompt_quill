@@ -44,8 +44,6 @@ class adapter:
         self.set_pipeline()
         self.last_context = []
 
-    def get_instruct(self):
-        return self.g.settings_data['Instruct Model']
     def get_document_store(self):
         return self.document_store
 
@@ -353,14 +351,13 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         response = response.response.strip(" ")
         return response.replace('"','')
 
-    def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k, instruct):
+    def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k):
 
         self.g.settings_data["Context Length"] = n_ctx
         self.g.settings_data["GPU Layers"] = n_gpu_layers
         self.g.settings_data["max output Tokens"] = max_tokens
         self.g.settings_data["Temperature"] = float(temperature)
         self.g.settings_data["top_k"] = top_k
-        self.g.settings_data['Instruct Model'] = instruct
         self.g.settings_data['LLM Model'] = model["name"]
 
         self.llm._model = None

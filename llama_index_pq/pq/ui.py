@@ -69,7 +69,7 @@ class ui_actions:
         return prompt
 
 
-    def set_llm_settings(self, collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_llm_settings(self, collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k):
         self.g.settings_data['collection'] = collection
         self.g.settings_data['LLM Model'] = model
         self.g.settings_data['embedding_model'] = embedding_model
@@ -78,7 +78,6 @@ class ui_actions:
         self.g.settings_data['GPU Layers'] = n_gpu_layers
         self.g.settings_data['max output Tokens'] = max_tokens
         self.g.settings_data['top_k'] = top_k
-        self.g.settings_data['Instruct Model'] = instruct
         self.settings_io.write_settings(self.g.settings_data)
 
     
@@ -193,11 +192,11 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def set_model(self, collection, model,embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct):
+    def set_model(self, collection, model,embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k):
         self.g.settings_data['collection'] = collection
         self.g.settings_data['embedding_model'] = embedding_model
-        self.set_llm_settings(collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k, instruct)
-        return self.interface.change_model(self.g.settings_data['model_list'][model], temperature, n_ctx, max_tokens, n_gpu_layers, top_k, instruct)
+        self.set_llm_settings(collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k)
+        return self.interface.change_model(self.g.settings_data['model_list'][model], temperature, n_ctx, max_tokens, n_gpu_layers, top_k)
     
     
     def all_get_last_prompt(self):
@@ -232,7 +231,7 @@ class ui_actions:
     
     
     def get_llm_settings(self):
-        return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data["embedding_model"],self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k'], self.g.settings_data['Instruct Model']
+        return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data["embedding_model"],self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k']
     
     def get_sailing_settings(self):
         if self.g.settings_data['automa_checkpoints'] == []:
@@ -266,10 +265,12 @@ class ui_actions:
     def set_neg_prompt(self, value):
         self.g.settings_data['negative_prompt'] = value
         self.settings_io.write_settings(self.g.settings_data)
+        return 'Negative prompt saved'
 
     def set_rephrase_instruction(self, value):
         self.g.settings_data['rephrase_instruction'] = value
         self.settings_io.write_settings(self.g.settings_data)
+        return 'Rephrase instruction saved'
 
     def set_prompt_template(self, selection, prompt_text):
         return_data = self.interface.set_prompt(prompt_text)
@@ -749,6 +750,7 @@ class ui_actions:
 
     def run_batch(self, files):
         output = ''
+        yield 'Batch started'
         for file in files:
             filename = os.path.basename(file)
             file_content = []
@@ -768,17 +770,25 @@ class ui_actions:
             f.close()
 
     def load_preset(self,name):
-        self.g.settings_data = settings_io().load_preset(name)
-        return 'OK'
+        try:
+            self.g.settings_data = settings_io().load_preset(name)
+            return 'OK'
+        except Exception as e:
+            return str(e)
 
     def save_preset(self, name):
-        status = settings_io().save_preset(name,self.g.settings_data)
-        return status
+        try:
+            status = settings_io().save_preset(name,self.g.settings_data)
+            return status
+        except Exception as e:
+            return str(e)
 
     def load_preset_list(self):
-        self.g.settings_data['preset_list'] = settings_io().load_preset_list()
-        return gr.Dropdown(choices=self.g.settings_data['preset_list'])
-
+        try:
+            self.g.settings_data['preset_list'] = settings_io().load_preset_list()
+            return gr.update(choices=self.g.settings_data['preset_list'],value=self.g.settings_data['selected_preset']),'OK'
+        except Exception as e:
+            return gr.update(choices=[],value=''),str(e)
 
 
 class ui_staff:
@@ -800,33 +810,6 @@ class ui_staff:
         self.hordeai_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
         self.automa_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
         self.automa_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
-
-        self.LLM = gr.Dropdown(
-            self.g.settings_data['model_list'].keys(), value=self.g.settings_data['LLM Model'], label="LLM Model",
-            info="Will add more LLMs later!"
-        )
-        self.embedding_model = gr.Dropdown(
-            self.g.settings_data['embedding_model_list'], value=self.g.settings_data['embedding_model'], label="Embedding Model",
-            info="If you dont know better, use all-MiniLM-L12-v2!"
-        )
-
-        self.collection = gr.Dropdown(
-            self.g.settings_data['collections_list'], value=self.g.settings_data['collection'], label="Collection",
-            info="If you got more than one collection!"
-        )
-        self.Temperature = gr.Slider(0, 1, step=0.1, value=self.g.settings_data['Temperature'], label="Temperature",
-                                info="Choose between 0 and 1")
-        self.Context = gr.Slider(0, 8192, step=1, value=self.g.settings_data['Context Length'], label="Context Length",
-                            info="Choose between 1 and 8192")
-        self.GPU = gr.Slider(0, 1024, step=1, value=self.g.settings_data['GPU Layers'], label="GPU Layers",
-                        info="Choose between 1 and 1024")
-        self.max = gr.Slider(0, 1024, step=1, value=self.g.settings_data['max output Tokens'], label="max output Tokens",
-                        info="Choose between 1 and 1024")
-        self.top_k = gr.Slider(0, self.max_top_k, step=1, value=self.g.settings_data['top_k'],
-                          label="how many entrys to be fetched from the vector store",
-                          info="Choose between 1 and 50 be careful not to overload the context window of the LLM")
-        self.Instruct = gr.Checkbox(label='Instruct Model', value=self.g.settings_data['Instruct Model'])
-
 
         self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde_api_key'], type='password')
         self.horde_Model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde_Model'], label='Model')
@@ -867,12 +850,8 @@ class ui_staff:
 
         self.automa_stop_button = gr.Button('Stop')
 
-        self.prompt_template = gr.TextArea(self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]], lines=20)
-        self.prompt_template_select = gr.Dropdown(choices=self.g.settings_data["prompt_templates"].keys(),
-                                             value=self.g.settings_data["selected_template"], label='Template', interactive=True)
-        self.prompt_template_status = gr.TextArea(lines=1, label="Refresh Status", placeholder='Status')
 
-        self.sail_result_last_image = gr.Image(label='last Image')
+
 
 
 

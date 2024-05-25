@@ -101,9 +101,6 @@ class _LLM_INTERFACE:
         if self.g.settings_data['translate']:
             query = self.translate(query)
 
-        if self.g.settings_data['Instruct Model'] is True:
-            query = f'[INST]{query}[/INST]'
-
         response = self.adapter.retrieve_query(query)
 
         output = response
@@ -183,8 +180,7 @@ class _LLM_INTERFACE:
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
 
-        if self.g.settings_data['Instruct Model'] is True:
-            query = f'[INST]{query}[/INST]'
+
 
         response = self.adapter.retrieve_llm_completion(query)
 
