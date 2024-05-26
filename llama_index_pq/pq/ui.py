@@ -26,6 +26,7 @@ import json
 from collections import deque
 from api import v1
 import shared
+from itertools import product, combinations
 
 import nltk
 nltk.download('punkt')
@@ -38,7 +39,7 @@ from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
-
+from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
 
 out_dir = 'api_out'
@@ -62,6 +63,7 @@ class ui_actions:
         self.automa_client = automa_client()
         self.api = v1
         self.api.run_api()
+        self.prompt_iterator = prompt_iterator()
 
     def run_llm_response(self,query, history):
         prompt = self.interface.run_llm_response(query, history)
@@ -171,6 +173,8 @@ class ui_actions:
         self.g.settings_data['sail_neg_filter_not_text'] = sail_neg_filter_not_text
         self.g.settings_data['sail_neg_filter_context'] = sail_neg_filter_context
         self.settings_io.write_settings(self.g.settings_data)
+
+
 
 
     def set_prompt_input(self):
@@ -541,6 +545,117 @@ class ui_actions:
     def get_context_count(self):
         result = self.interface.count_context()
         return result.count
+
+
+    def combine_all_arrays_to_strings(self, data):
+        """
+        Combines entries from all arrays in a list of lists (strings),
+        ensuring one element from each array and returning a list of strings.
+
+        Args:
+            data (list): A list of arrays containing strings.
+
+        Returns:
+            list: A list of strings, each representing a combination.
+        """
+
+        string_combinations = []
+        for element in product(*data):
+            # Join elements with a separator to form a string
+            combination_string = " ".join(element)
+            string_combinations.append(combination_string)
+        return string_combinations
+
+
+    def combine_limited_with_single_entries_advanced(self, data):
+        # Find the length of the longest array (or use provided max_combination_size)
+        longest_array  = max(data, key=len)
+
+
+        formatted_lines = []
+
+        # Iterate for the length of the longest array
+        for i in range(len(longest_array)):
+            line = ""
+            # Loop through each sub-array
+            for arr in data:
+                # Calculate the effective index for the current sub-array
+                index = i % len(arr)
+                # Add element if it exists, otherwise pad with a space
+                if index < len(arr):
+                    line += str(arr[index]) + " "
+                else:
+                    line += "  "  # Add two spaces for padding
+            # Remove trailing space
+            formatted_lines.append(line.rstrip())
+
+        return formatted_lines
+
+
+
+    def run_test(self,model_test_list,
+                 model_test_character,
+                 model_test_creature_air,
+                 model_test_creature_land,
+                 model_test_creature_sea,
+                 model_test_character_objects,
+                 model_test_character_adj,
+                 model_test_vehicles_air,
+                 model_test_vehicles_land,
+                 model_test_vehicles_sea,
+                 model_test_vehicles_space,
+                 model_test_moving_relation,
+                 model_test_still_relation,
+                 model_test_object_adj,
+                 model_test_visual_adj,
+                 model_test_visual_qualities,
+                 model_test_settings,
+                 model_test_colors,
+                 model_test_styles,
+                 model_test_artists):
+
+
+        test_data = {
+            'Character': model_test_character,
+            'Air Creatures': model_test_creature_air,
+            'Land Cratures': model_test_creature_land,
+            'Sea Creatures': model_test_creature_sea,
+            'Character Objects': model_test_character_objects,
+            'Character Adjectives': model_test_character_adj,
+            'Air Vehicle': model_test_vehicles_air,
+            'Land Vehicle': model_test_vehicles_land,
+            'Sea Vehicle': model_test_vehicles_sea,
+            'Space Vehicle': model_test_vehicles_space,
+            'Moving relation': model_test_moving_relation,
+            'Still relation': model_test_still_relation,
+            'Object Adjectives': model_test_object_adj,
+            'Visual Adjectives': model_test_visual_adj,
+            'Visual Qualities': model_test_visual_qualities,
+            'Setup': model_test_settings,
+            'Colors': model_test_colors,
+            'Styles': model_test_styles,
+            'Artists': model_test_artists}
+
+
+
+        work_list = []
+
+        if model_test_list is not None and len(model_test_list) > 0:
+            for entry in model_test_list:
+                work_list.append(test_data[entry])
+
+            combinations = self.combine_limited_with_single_entries_advanced(work_list)
+            return "\n".join(combinations)
+
+        else:
+            return ''
+
+
+
+
+
+
+
     def run_t2t_sail(self):
 
         """

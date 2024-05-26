@@ -69,3 +69,9 @@ class settings_io:
         else:
             return 'Filename not OK'
 
+    def load_prompt_data(self):
+        if os.path.isfile('pq/settings/data.json'):
+            f = open('pq/settings/data.json','r')
+            self.prompt_iteration_raw = json.loads(f.read())
+            f.close()
+        return self.prompt_iteration_raw
