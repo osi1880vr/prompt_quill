@@ -236,7 +236,9 @@
             "next to a",
             "in front of a",
             "inside of a",
-            "outside of a"
+            "outside of a",
+            "riding a",
+            "driving a"
         ],
         "spaceobjrels": [
             "orbiting a",

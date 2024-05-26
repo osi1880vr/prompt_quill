@@ -43,12 +43,14 @@ class _LLM_INTERFACE:
         self.g.api_sail_history = []
 
 
-
     def change_model(self,model,temperature,n_ctx,max_tokens,n_gpu_layers, top_k):
         return self.adapter.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k)
 
+
     def set_prompt(self,prompt_text):
         return self.adapter.set_prompt(prompt_text)
+
+
     def log(self,logfile, text):
         f = open(logfile, 'a')
         try:
@@ -56,6 +58,8 @@ class _LLM_INTERFACE:
         except:
             pass
         f.close()
+
+
     def log_raw(self,logfile, text):
         f = open(logfile, 'a')
         try:
@@ -77,6 +81,7 @@ class _LLM_INTERFACE:
     def get_context_details(self):
         return self.g.last_context
 
+
     def translate(self, query):
         tanslated = GoogleTranslator(source='auto', target='en').translate(query)
         return tanslated
@@ -93,7 +98,6 @@ class _LLM_INTERFACE:
                 n += 1
 
         return output
-
 
 
     def run_llm_response_batch(self, query):
@@ -132,17 +136,13 @@ class _LLM_INTERFACE:
     def retrieve_query(self, query):
         return self.adapter.retrieve_query(query)
 
-    def rephrase(self,prompt, query):
 
+    def rephrase(self,prompt, query):
         return self.adapter.retrieve_rephrase_query(query, prompt)
 
 
-
     def run_api_llm_response(self, query):
-
-
         negative_out = ''
-
 
         output = self.adapter.retrieve_llm_completion(query)
 
@@ -163,17 +163,22 @@ class _LLM_INTERFACE:
 
         return out_dict
 
+
     def direct_search(self,query,limit,offset):
         return self.adapter.direct_search(query,limit,offset)
+
 
     def count_context(self):
         return self.adapter.count_context()
 
+
     def retrieve_llm_completion(self,query):
         return self.adapter.retrieve_llm_completion(query)
 
+
     def retrieve_model_test_llm_completion(self,query):
         return self.adapter.retrieve_model_test_llm_completion(query)
+
 
     def run_llm_response(self, query, history):
 
@@ -181,8 +186,6 @@ class _LLM_INTERFACE:
             query = self.translate(query)
 
         self.log('logfile.txt',f"QUERY: {query} \n-------------\n")
-
-
 
         response = self.adapter.retrieve_llm_completion(query)
 
@@ -205,14 +208,12 @@ class _LLM_INTERFACE:
             batch_result = self.run_batch_response(self.g.last_context)
             output = f'Prompt 0:\n{output}\n\n\n{batch_result}'
 
-
         output = f'{output} \n\nMaybe helpful negative prompt:\n\n{shared.get_negative_prompt()}'
 
         if len(self.g.models_list) > 0:
             models_out = "\n".join(self.g.models_list)
             if models_out != '':
                 output = f'{output} \n\nMaybe helpful models:\n\n{models_out}'
-
 
         return output
 
