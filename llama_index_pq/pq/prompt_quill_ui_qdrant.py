@@ -626,7 +626,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 		gr.on(
-			triggers=[model_test_list.change],
+			triggers=[model_test_list.change,
+					  model_test_inst_prompt.change],
 			fn=ui_code.prompt_iterator.save_test_data,
 			inputs=[model_test_list,
 					model_test_inst_prompt],

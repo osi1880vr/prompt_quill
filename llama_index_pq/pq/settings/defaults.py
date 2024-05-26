@@ -472,15 +472,14 @@ USER: futuristic combat zone
 ASSISTANT: cinematic photo, masterpiece, in the style of Blade Runner, futuristic combat zone, at dusk, showcasing a high-tech battlefield with neon lights illuminating the scene, filled with advanced mechs and soldiers engaged in an intense fight, the air filled with stunning lighting effects, on eye level, dramatic, masterpiece, ultra high resolution, dynamic anime-style fight scene, with a focus on the sleek design of the combat gear and the fluidity of the movements, capturing the essence of sci-fi action in a visually stunning manner.
 {start_pattern}
 USER: Create a prompt for: {query_str}
-{assistant_pattern}"""
-		,
-		'model_test_instruction': """{instruction_start}Context information is below.
-                           ---------------------
-        {context_str}
-                           ---------------------
-        Given the context information and not prior knowledge,
-        create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderful text to image prompt.
-    You also take care of describing the scene, the lighting as well as the quality improving keywords
+{assistant_pattern}""",
+'model_test_instruction': """{instruction_start}Context information is below.
+---------------------
+{context_str}
+---------------------
+Given the context information and not prior knowledge,
+create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderful text to image prompt.
+You also take care of describing the scene, the lighting as well as the quality improving keywords
 {start_pattern}
 USER: translation in major world languages, machinery of translation in various specializations, cyberpunk style
 ASSISTANT: Cyberpunk-style illustration, featuring a futuristic translation device in various specializations, set against a backdrop of neon-lit cityscape. The device, adorned with glowing circuits and cybernetic enhancements, showcases its capabilities in translating languages such as English, Mandarin, Spanish, French, and Arabic. The scene is illuminated by the warm glow of streetlights and the pulsing neon signs, casting intricate shadows on the surrounding machinery. The artwork is rendered in high-quality, vivid colors, with detailed textures and sharp lines, evoking the gritty yet mesmerizing atmosphere of the cyberpunk world.
