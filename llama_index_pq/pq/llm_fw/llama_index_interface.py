@@ -244,6 +244,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.llm._model.reset()
 
         context = self.get_context_text(prompt)
+        self.g.last_context = context
         prompt = self.prepare_prompt(prompt,context)
 
         completion_chunks = self.llm._model.create_completion(
@@ -278,10 +279,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def retrieve_query(self, query):
         try:
             self.llm._model.reset()
-            response =  self.query_engine.query(query)
-            self.prepare_meta_data(response)
-            self.g.last_context = [s.node.get_text() for s in response.source_nodes]
-            return response.response.strip(" ")
+            response =  self.retrieve_llm_completion(query)
+            return response
         except Exception as e:
             return 'something went wrong:' + str(e)
 
