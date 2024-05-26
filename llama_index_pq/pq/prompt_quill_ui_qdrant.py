@@ -538,8 +538,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					model_test_type = gr.Radio(['Largest List', 'Full Run'],
 											   label='Select type of test, Full run may take very long time',
 											   value='Largest List', interactive=True)
-					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
 					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
+					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
 
 				with gr.Column(scale=1):
 					model_test_status = gr.Textbox(label=f'Status', placeholder="Status", lines=1)
