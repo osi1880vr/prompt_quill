@@ -172,6 +172,8 @@ class _LLM_INTERFACE:
     def retrieve_llm_completion(self,query):
         return self.adapter.retrieve_llm_completion(query)
 
+    def retrieve_model_test_llm_completion(self,query):
+        return self.adapter.retrieve_model_test_llm_completion(query)
 
     def run_llm_response(self, query, history):
 

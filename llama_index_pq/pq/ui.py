@@ -26,7 +26,7 @@ import json
 from collections import deque
 from api import v1
 import shared
-from itertools import product, combinations
+
 
 import nltk
 nltk.download('punkt')
@@ -143,7 +143,7 @@ class ui_actions:
                              sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
                              sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
                              sail_neg_filter_context,):
-        if self.g.sail_running:
+        if self.g.job_running:
             self.sail_depth_start = sail_depth
 
         self.g.settings_data['sail_text'] = sail_text
@@ -482,13 +482,21 @@ class ui_actions:
 
         return text
 
+
+    def get_new_model_test_prompt(self,query):
+        prompt = ''
+        query = self.prepare_query(query)
+        return self.interface.retrieve_model_test_llm_completion(query)
+
+
+
     def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename):
         prompt = ''
         query = self.prepare_query(query)
         if self.g.settings_data['sail_filter_prompt']:
             while 1:
 
-                if self.g.sail_running is False:
+                if self.g.job_running is False:
                     break
 
                 prompt = self.interface.retrieve_llm_completion(query)
@@ -547,113 +555,34 @@ class ui_actions:
         return result.count
 
 
-    def combine_all_arrays_to_strings(self, data):
-        """
-        Combines entries from all arrays in a list of lists (strings),
-        ensuring one element from each array and returning a list of strings.
+    def run_test(self):
+        self.g.job_running = True
 
-        Args:
-            data (list): A list of arrays containing strings.
+        test_data = self.prompt_iterator.get_test_data()
+        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
-        Returns:
-            list: A list of strings, each representing a combination.
-        """
-
-        string_combinations = []
-        for element in product(*data):
-            # Join elements with a separator to form a string
-            combination_string = " ".join(element)
-            string_combinations.append(combination_string)
-        return string_combinations
-
-
-    def combine_limited_with_single_entries_advanced(self, data):
-        # Find the length of the longest array (or use provided max_combination_size)
-        longest_array  = max(data, key=len)
-
-
-        formatted_lines = []
-
-        # Iterate for the length of the longest array
-        for i in range(len(longest_array)):
-            line = ""
-            # Loop through each sub-array
-            for arr in data:
-                # Calculate the effective index for the current sub-array
-                index = i % len(arr)
-                # Add element if it exists, otherwise pad with a space
-                if index < len(arr):
-                    line += str(arr[index]) + " "
-                else:
-                    line += "  "  # Add two spaces for padding
-            # Remove trailing space
-            formatted_lines.append(line.rstrip())
-
-        return formatted_lines
-
-
-
-    def run_test(self,model_test_list,
-                 model_test_character,
-                 model_test_creature_air,
-                 model_test_creature_land,
-                 model_test_creature_sea,
-                 model_test_character_objects,
-                 model_test_character_adj,
-                 model_test_vehicles_air,
-                 model_test_vehicles_land,
-                 model_test_vehicles_sea,
-                 model_test_vehicles_space,
-                 model_test_moving_relation,
-                 model_test_still_relation,
-                 model_test_object_adj,
-                 model_test_visual_adj,
-                 model_test_visual_qualities,
-                 model_test_settings,
-                 model_test_colors,
-                 model_test_styles,
-                 model_test_artists):
-
-
-        test_data = {
-            'Character': model_test_character,
-            'Air Creatures': model_test_creature_air,
-            'Land Cratures': model_test_creature_land,
-            'Sea Creatures': model_test_creature_sea,
-            'Character Objects': model_test_character_objects,
-            'Character Adjectives': model_test_character_adj,
-            'Air Vehicle': model_test_vehicles_air,
-            'Land Vehicle': model_test_vehicles_land,
-            'Sea Vehicle': model_test_vehicles_sea,
-            'Space Vehicle': model_test_vehicles_space,
-            'Moving relation': model_test_moving_relation,
-            'Still relation': model_test_still_relation,
-            'Object Adjectives': model_test_object_adj,
-            'Visual Adjectives': model_test_visual_adj,
-            'Visual Qualities': model_test_visual_qualities,
-            'Setup': model_test_settings,
-            'Colors': model_test_colors,
-            'Styles': model_test_styles,
-            'Artists': model_test_artists}
-
-
-
+        yield [], 'Preparing the test data'
         work_list = []
 
-        if model_test_list is not None and len(model_test_list) > 0:
-            for entry in model_test_list:
+        if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
+            for entry in self.g.settings_data['model_test_list']:
                 work_list.append(test_data[entry])
 
-            combinations = self.combine_limited_with_single_entries_advanced(work_list)
-            return "\n".join(combinations)
+            combinations = self.prompt_iterator.combine_limited(work_list)
+
+            yield [], 'Test data ready, start image generation'
+            self.images_done = 0
+            for test_query in combinations:
+                prompt = self.get_new_model_test_prompt(test_query)
+                images = self.automa_gen(prompt, images)
+                self.images_done += 1
+                yield list(images),f'{self.images_done} image(s) done'
+                if self.g.job_running is False:
+                    yield list(images),f'Stopped.\n{self.images_done} image(s) done'
+                    break
 
         else:
             return ''
-
-
-
-
-
 
 
     def run_t2t_sail(self):
@@ -702,7 +631,7 @@ class ui_actions:
             tuple: A tuple containing the accumulated log for the sail and a list of generated images (if any).
         """
         self.g.settings_data['sail_target'] = True
-        self.g.sail_running = True
+        self.g.job_running = True
         self.g.sail_history = []
         self.sail_depth_start = self.g.settings_data['sail_depth']
         self.sail_sinus_count = 1.0
@@ -752,7 +681,7 @@ class ui_actions:
                     yield self.sail_log,list(images),f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
                     break
 
-                if self.g.sail_running is False:
+                if self.g.job_running is False:
                     break
 
             except Exception as e:
@@ -767,7 +696,7 @@ class ui_actions:
                 self.images_done += 1
         if query != -1:
             stop_reason = 'Finished'
-            if self.g.sail_running is False:
+            if self.g.job_running is False:
                 stop_reason = 'Stopped'
             if self.g.settings_data['sail_generate']:
                 yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
@@ -775,7 +704,7 @@ class ui_actions:
                 yield self.sail_log,[],f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
 
     def run_t2t_show_sail(self):
-        self.g.sail_running = True
+        self.g.job_running = True
         self.g.settings_data['automa_batch'] = 1
         self.g.settings_data['automa_n_iter'] = 1
         self.g.sail_history = []
@@ -797,8 +726,6 @@ class ui_actions:
 
             try:
 
-
-
                 prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
 
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
@@ -818,17 +745,19 @@ class ui_actions:
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                     break
-                if self.g.sail_running is False:
+                if self.g.job_running is False:
                     break
             except Exception as e:
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
-    def stop_t2t_sail(self):
-        self.g.sail_running = False
-    def stop_all(self):
-        self.g.running = False
+
+
+    def stop_job(self):
+        self.g.job_running = False
+
+
     def variable_outputs(self, k):
         self.g.settings_data['top_k'] = int(k)
         self.interface.set_top_k(self.g.settings_data['top_k'])

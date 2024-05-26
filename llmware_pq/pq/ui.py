@@ -276,7 +276,7 @@ class ui_actions:
                                                      self.g.settings_data['automa_save_on_api_host'])
 
     def run_t2t_sail(self, query,sail_width,sail_depth,sail_target,sail_generate,sail_sinus,sail_sinus_range,sail_sinus_freq,sail_add_style,sail_style,sail_add_search,sail_search,sail_max_gallery_size):
-        self.g.sail_running = True
+        self.g.job_running = True
 
 
         self.g.sail_history = []
@@ -324,11 +324,11 @@ class ui_actions:
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
-            if self.g.sail_running is False:
+            if self.g.job_running is False:
                 break
 
     def run_t2t_show_sail(self):
-        self.g.sail_running = True
+        self.g.job_running = True
         self.g.settings_data['automa_batch'] = 1
         self.g.settings_data['automa_n_iter'] = 1
 
@@ -369,12 +369,12 @@ class ui_actions:
             if query == -1:
                 self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                 break
-            if self.g.sail_running is False:
+            if self.g.job_running is False:
                 break
 
 
     def stop_t2t_sail(self):
-        self.g.sail_running = False
+        self.g.job_running = False
 
     def get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt

@@ -130,7 +130,7 @@ class adapter:
                 if context_retrieve:
                     if n == self.g.settings_data['top_k']:
                         break
-            if self.g.sail_running is False:
+            if self.g.job_running is False:
                 break
         return out_nodes
 
@@ -298,13 +298,16 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
         return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,assistant_pattern=assistant_pattern)
 
+    def prepare_model_test_prompt(self,prompt,context):
+        meta_prompt = self.g.settings_data['prompt_templates']['model_test_instruction']
+        meta_prompt = f"{meta_prompt}"
+        instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']
+        start_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['start_pattern']
+        assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
+        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,assistant_pattern=assistant_pattern)
 
-    def retrieve_llm_completion(self, prompt):
-        self.llm._model.reset()
 
-        context = self.get_context_text(prompt)
-        self.g.last_context = context
-        prompt = self.prepare_prompt(prompt,context)
+    def create_completion(self,prompt):
 
         completion_chunks = self.llm._model.create_completion(
             prompt=prompt,
@@ -332,14 +335,33 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             text = completion_chunk['choices'][0]['text']
             output += text
 
+
         return output
 
+
+    def retrieve_model_test_llm_completion(self, prompt):
+        self.llm._model.reset()
+
+        context = self.get_context_text(prompt)
+        self.g.last_context = context
+        prompt = self.prepare_model_test_prompt(prompt,context)
+
+        return self.create_completion(prompt)
+
+    def retrieve_llm_completion(self, prompt):
+        self.llm._model.reset()
+
+        context = self.get_context_text(prompt)
+        self.g.last_context = context
+        prompt = self.prepare_prompt(prompt,context)
+
+        return self.create_completion(prompt)
 
     def retrieve_query(self, query):
         try:
             self.llm._model.reset()
-            response =  self.retrieve_llm_completion(query)
-            return response
+            return self.retrieve_llm_completion(query)
+
         except Exception as e:
             return 'something went wrong:' + str(e)
 

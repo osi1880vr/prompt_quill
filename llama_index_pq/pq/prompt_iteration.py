@@ -1,9 +1,13 @@
 from settings.io import settings_io
 import gradio as gr
+import globals
+from itertools import product
+
 
 class prompt_iterator:
 
 	def __init__(self):
+		self.g = globals.get_globals()
 		self.prompt_data = settings_io().load_prompt_data()
 
 		self.character_adj = self.prompt_data['adjectives']['charadjs']
@@ -55,110 +59,122 @@ class prompt_iterator:
 						  'Artists',
 						  ]
 
-		self.test_data = {
-			'Character': [],
-			'Air Creatures': [],
-			'Land Cratures': [],
-			'Sea Creatures': [],
-			'Character Objects': [],
-			'Character Adjectives': [],
-			'Air Vehicle': [],
-			'Land Vehicle': [],
-			'Sea Vehicle': [],
-			'Space Vehicle': [],
-			'Moving relation': [],
-			'Still relation': [],
-			'Object Adjectives': [],
-			'Visual Adjectives': [],
-			'Visual Qualities': [],
-			'Setup': [],
-			'Colors': [],
-			'Styles': [],
-			'Artists': []}
 
 		print('ok')
 
-	def get_sample(self, model_test_list,
-				   model_test_character,
-				   model_test_creature_air,
-				   model_test_creature_land,
-				   model_test_creature_sea,
-				   model_test_character_objects,
-				   model_test_character_adj,
-				   model_test_vehicles_air,
-				   model_test_vehicles_land,
-				   model_test_vehicles_sea,
-				   model_test_vehicles_space,
-				   model_test_moving_relation,
-				   model_test_still_relation,
-				   model_test_object_adj,
-				   model_test_visual_adj,
-				   model_test_visual_qualities,
-				   model_test_settings,
-				   model_test_colors,
-				   model_test_styles,
-				   model_test_artists):
-		test_data = {
-			'Character': model_test_character,
-			'Air Creatures': model_test_creature_air,
-			'Land Cratures': model_test_creature_land,
-			'Sea Creatures': model_test_creature_sea,
-			'Character Objects': model_test_character_objects,
-			'Character Adjectives': model_test_character_adj,
-			'Air Vehicle': model_test_vehicles_air,
-			'Land Vehicle': model_test_vehicles_land,
-			'Sea Vehicle': model_test_vehicles_sea,
-			'Space Vehicle': model_test_vehicles_space,
-			'Moving relation': model_test_moving_relation,
-			'Still relation': model_test_still_relation,
-			'Object Adjectives': model_test_object_adj,
-			'Visual Adjectives': model_test_visual_adj,
-			'Visual Qualities': model_test_visual_qualities,
-			'Setup': model_test_settings,
-			'Colors': model_test_colors,
-			'Styles': model_test_styles,
-			'Artists': model_test_artists}
+
+	def get_test_data(self):
+		return {
+			'Character': self.g.settings_data['model_test_setup']['Character'],
+			'Air Creatures': self.g.settings_data['model_test_setup']['Air Creatures'],
+			'Land Cratures': self.g.settings_data['model_test_setup']['Land Creatures'],
+			'Sea Creatures': self.g.settings_data['model_test_setup']['Sea Creatures'],
+			'Character Objects': self.g.settings_data['model_test_setup']['Character Objects'],
+			'Character Adjectives': self.g.settings_data['model_test_setup']['Character Adjectives'],
+			'Air Vehicle': self.g.settings_data['model_test_setup']['Air Vehicle'],
+			'Land Vehicle': self.g.settings_data['model_test_setup']['Land Vehicle'],
+			'Sea Vehicle': self.g.settings_data['model_test_setup']['Sea Vehicle'],
+			'Space Vehicle': self.g.settings_data['model_test_setup']['Space Vehicle'],
+			'Moving relation': self.g.settings_data['model_test_setup']['Moving relation'],
+			'Still relation': self.g.settings_data['model_test_setup']['Still relation'],
+			'Object Adjectives': self.g.settings_data['model_test_setup']['Object Adjectives'],
+			'Visual Adjectives': self.g.settings_data['model_test_setup']['Visual Adjectives'],
+			'Visual Qualities': self.g.settings_data['model_test_setup']['Visual Qualities'],
+			'Setup': self.g.settings_data['model_test_setup']['Setup'],
+			'Colors': self.g.settings_data['model_test_setup']['Colors'],
+			'Styles': self.g.settings_data['model_test_setup']['Styles'],
+			'Artists': self.g.settings_data['model_test_setup']['Artists']}
+
+	def get_sample(self):
+
+		test_data = self.get_test_data()
 
 		test_output = ''
-		for entry in model_test_list:
+		for entry in self.g.settings_data['model_test_list']:
 			test_output = f'{test_output} {test_data[entry][0]}'
 
-		return test_output
+		yield test_output, 'OK'
+
+	def get_all_samples(self):
+
+		test_data = self.get_test_data()
+
+		yield '', 'Preparing the test data'
+		work_list = []
+
+		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
+			for entry in self.g.settings_data['model_test_list']:
+				work_list.append(test_data[entry])
+
+			combinations = self.combine_limited(work_list)
+			yield "\n".join(combinations), len(combinations)
 
 
+	def save_test_data(self,model_test_list,
+					   model_test_inst_prompt):
+		self.g.settings_data['model_test_list'] = model_test_list
+		self.g.settings_data['prompt_templates']['model_test_instruction'] = model_test_inst_prompt
+		settings_io().write_settings(self.g.settings_data)
 
 	def dropdown(self, choices, label, initial_value=None):
-		"""
-		Custom component with dropdown and "Select All" checkbox with event listener.
-
-		Args:
-			choices (list): List of options for the dropdown.
-			initial_value (list, optional): Initial selection. Defaults to None.
-
-		Returns:
-			tuple: Tuple containing selected options and a boolean for "Select All" state.
-		"""
 		with gr.Row():
 			with gr.Column(scale=1):
 				is_all_selected = gr.Checkbox(label="Select All", value=False)
 			with gr.Column(scale=3):
 				dropdown = gr.Dropdown(label=label,choices=choices, value=initial_value, multiselect=True,allow_custom_value=True)
 
-		self.test_data[label] = dropdown.value
-
-
-		def update_dropdown(is_all_selected_value):
+		def select_all_dropdown(is_all_selected_value):
+			self.g.settings_data['model_test_setup'][label] = choices
+			settings_io().write_settings(self.g.settings_data)
 			return gr.update(choices=choices, value=choices.copy() if is_all_selected_value else [])
 
+		def update_dropdown(dropdown):
+			self.g.settings_data['model_test_setup'][label] = dropdown
+			settings_io().write_settings(self.g.settings_data)
+			return gr.update(choices=choices, value=dropdown)
 
-		# Trigger update on checkbox change using event listener
 		gr.on(
 			triggers=[is_all_selected.change],
+			fn=select_all_dropdown,
+			inputs=[is_all_selected],
+			outputs=[dropdown])
+		gr.on(
+			triggers=[dropdown.change],
 			fn=update_dropdown,
-			inputs=is_all_selected,
+			inputs=[dropdown],
 			outputs=[dropdown])
 
 		dropdown.interactive = True
 
 		return dropdown
 
+	def combine_all_arrays_to_strings(self, data):
+		string_combinations = []
+		for element in product(*data):
+			# Join elements with a separator to form a string
+			combination_string = " ".join(element)
+			string_combinations.append(combination_string)
+		return string_combinations
+
+
+	def combine_limited(self, data):
+
+		longest_array  = max(data, key=len)
+		formatted_lines = []
+
+		# Iterate for the length of the longest array
+		for i in range(len(longest_array)):
+			line = ""
+			# Loop through each sub-array
+			for arr in data:
+				# Calculate the effective index for the current sub-array
+				index = i % len(arr)
+				# Add element if it exists, otherwise pad with a space
+				if index < len(arr):
+					line += str(arr[index]) + " "
+				else:
+					line += "  "  # Add two spaces for padding
+			# Remove trailing space
+			formatted_lines.append(line.rstrip())
+
+		return formatted_lines
