@@ -548,6 +548,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					model_test_run_button = gr.Button('Run test')
 					model_test_stop_button = gr.Button('Stop test')
 
+		#with gr.Tab('Generation Settings'):
+
+
 		with gr.Tab('Characters'):
 			model_test_character = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.character, 'Character',
 																	g.settings_data['model_test_setup']['Character'])

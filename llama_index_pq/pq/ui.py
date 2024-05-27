@@ -57,6 +57,7 @@ class ui_actions:
     def __init__(self):
 
         self.g = globals.get_globals()
+        self.g.job_running = False
         self.interface = llm_interface_qdrant.get_interface()
         self.settings_io = settings_io()
         self.max_top_k = 50
