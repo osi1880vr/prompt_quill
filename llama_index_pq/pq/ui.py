@@ -443,13 +443,19 @@ class ui_actions:
 
 
 
-    def automa_gen(self, prompt, images):
+    def automa_gen(self, prompt, images,folder=None):
 
         response = self.sail_automa_gen(prompt)
 
         for index, image in enumerate(response.get('images')):
             img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            if folder == None:
+                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            else:
+                save_path = os.path.join(out_dir_t2i,folder)
+                os.makedirs(save_path, exist_ok=True)
+                save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
+
             self.automa_client.decode_and_save_base64(image, save_path)
             images.append(img)
 
@@ -569,8 +575,14 @@ class ui_actions:
             yield [], 'Test data ready, start image generation'
             self.images_done = 0
             for test_query in combinations:
-                prompt = self.get_new_model_test_prompt(test_query)
-                images = self.automa_gen(prompt, images)
+
+                self.g.settings_data["automa_Steps"] = test_query[0][0]
+                self.g.settings_data["automa_Width"] = test_query[0][1][0]
+                self.g.settings_data["automa_Height"] = test_query[0][1][1]
+                self.g.settings_data["automa_CFG Scale"] = test_query[0][2]
+
+                prompt = self.get_new_model_test_prompt(test_query[1])
+                images = self.automa_gen(prompt, images,f'{test_query[0][2]}_{test_query[0][0]}_{test_query[0][1][0]}_{test_query[0][1][1]}')
                 self.images_done += 1
                 yield list(images),f'{self.images_done} image(s) done'
                 if self.g.job_running is False:

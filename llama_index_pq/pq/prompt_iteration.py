@@ -59,9 +59,7 @@ class prompt_iterator:
 						  'Artists',
 						  ]
 
-
 		print('ok')
-
 
 	def get_test_data(self):
 		return {
@@ -98,50 +96,93 @@ class prompt_iterator:
 	def get_combinations(self):
 
 		work_list = []
+		gen_list_out = []
 		test_data = self.get_test_data()
+
+		gen_list = [self.g.settings_data['model_test_steps'] if len(self.g.settings_data['model_test_steps']) > 0 else [25],
+					self.g.settings_data['model_test_dimensions'] if len(self.g.settings_data['model_test_dimensions']) > 0 else [[1024,1024]],
+					self.g.settings_data['model_test_cfg'] if len(self.g.settings_data['model_test_cfg']) > 0 else [7],
+					]
+		# remove empty arrays
+		gen_list = [sub_array for sub_array in gen_list if sub_array]
+
+		if self.g.settings_data['model_test_type'] == 'Largest List':
+			gen_list_out = self.combine_limited_arrays(gen_list)
+		elif self.g.settings_data['model_test_type'] == 'Full Run':
+			gen_list_out = self.combine_all_arrays_to_strings(gen_list)
+
 
 		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
 			for entry in self.g.settings_data['model_test_list']:
 				work_list.append(test_data[entry])
 
+			# remove empty arrays
+			work_list = [sub_array for sub_array in work_list if sub_array]
 
 			if self.g.settings_data['model_test_type'] == 'Largest List':
-					return self.combine_limited(work_list)
+				work_list = self.combine_limited(work_list)
 			elif self.g.settings_data['model_test_type'] == 'Full Run':
-				return self.combine_all_arrays_to_strings(work_list)
-		else:
-			return []
+				work_list = self.combine_all_arrays_to_strings(work_list)
 
 
+		gen_job = self.combine_limited_arrays([gen_list_out,work_list])
+
+		return gen_job
+
+	def convert_to_strings(self, array_of_arrays):
+		"""Converts each sub-array in an array of arrays to a string.
+
+		Args:
+			array_of_arrays: A list containing sub-arrays.
+
+		Returns:
+			A list containing strings, where each string represents a sub-array.
+		"""
+		string_array = []
+		for sub_array in array_of_arrays:
+			# Join elements of the sub-array with a space separator
+			string_array.append(" ".join(str(element) for element in sub_array))
+		return string_array
 
 	def get_all_samples(self):
-
 		yield '', 'Preparing the test data'
-
 		combinations = self.get_combinations()
-
+		combinations = self.convert_to_strings(combinations)
 		yield "\n".join(combinations), len(combinations)
 
 
-	def save_test_data(self,model_test_list,
+	def save_test_data(self,
+					   model_test_list,
 					   model_test_inst_prompt,
-					   model_test_type):
+					   model_test_type,
+					   model_test_steps,
+					   model_test_dimensions,
+					   model_test_gen_type,
+					   model_test_cfg):
 		self.g.settings_data['model_test_list'] = model_test_list
 		self.g.settings_data['model_test_type'] = model_test_type
+		self.g.settings_data['model_test_steps'] = model_test_steps
+		self.g.settings_data['model_test_dimensions'] = model_test_dimensions
+		self.g.settings_data['model_test_gen_type'] = model_test_gen_type
+		self.g.settings_data['model_test_cfg'] = model_test_cfg
 		self.g.settings_data['prompt_templates']['model_test_instruction'] = model_test_inst_prompt
 		settings_io().write_settings(self.g.settings_data)
 
-	def dropdown(self, choices, label, initial_value=None):
+
+	def data_dropdown(self, choices, label, initial_value=None):
 		with gr.Row():
 			with gr.Column(scale=1):
 				is_all_selected = gr.Checkbox(label="Select All", value=False)
 			with gr.Column(scale=3):
-				dropdown = gr.Dropdown(label=label,choices=choices, value=initial_value, multiselect=True,allow_custom_value=True)
+				dropdown = gr.Dropdown(label=label, choices=choices, value=initial_value, multiselect=True,
+									   allow_custom_value=True)
+
 
 		def select_all_dropdown(is_all_selected_value):
 			self.g.settings_data['model_test_setup'][label] = choices
 			settings_io().write_settings(self.g.settings_data)
 			return gr.update(choices=choices, value=choices.copy() if is_all_selected_value else [])
+
 
 		def update_dropdown(dropdown):
 			self.g.settings_data['model_test_setup'][label] = dropdown
@@ -163,6 +204,43 @@ class prompt_iterator:
 
 		return dropdown
 
+
+	def setting_dropdown(self, choices, label, initial_value=None):
+		with gr.Row():
+			with gr.Column(scale=1):
+				is_all_selected = gr.Checkbox(label="Select All", value=False)
+			with gr.Column(scale=3):
+				dropdown = gr.Dropdown(label=label, choices=choices, value=initial_value, multiselect=True,
+									   allow_custom_value=True)
+
+
+		def select_all_dropdown(is_all_selected_value):
+			self.g.settings_data[label] = choices
+			settings_io().write_settings(self.g.settings_data)
+			return gr.update(choices=choices, value=choices.copy() if is_all_selected_value else [])
+
+
+		def update_dropdown(dropdown):
+			self.g.settings_data[label] = dropdown
+			settings_io().write_settings(self.g.settings_data)
+			return gr.update(choices=choices, value=dropdown)
+
+		gr.on(
+			triggers=[is_all_selected.change],
+			fn=select_all_dropdown,
+			inputs=[is_all_selected],
+			outputs=[dropdown])
+		gr.on(
+			triggers=[dropdown.change],
+			fn=update_dropdown,
+			inputs=[dropdown],
+			outputs=[dropdown])
+
+		dropdown.interactive = True
+
+		return dropdown
+
+
 	def combine_all_arrays_to_strings(self, data):
 		string_combinations = []
 		for element in product(*data):
@@ -172,9 +250,28 @@ class prompt_iterator:
 		return string_combinations
 
 
+	def combine_limited_arrays(self, data):
+
+		longest_array = max(data, key=len)
+		formatted_lines = []
+
+		# Iterate for the length of the longest array
+		for i in range(len(longest_array)):
+			line = []
+			# Loop through each sub-array
+			for arr in data:
+				# Calculate the effective index for the current sub-array
+				index = i % len(arr)
+				# Add element if it exists, otherwise append an empty list for padding
+				line.append(arr[index] if index < len(arr) else [])
+			# No need to remove trailing space for arrays
+			formatted_lines.append(line)
+
+		return formatted_lines
+
 	def combine_limited(self, data):
 
-		longest_array  = max(data, key=len)
+		longest_array = max(data, key=len)
 		formatted_lines = []
 
 		# Iterate for the length of the longest array

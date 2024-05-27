@@ -537,7 +537,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  interactive=True)
 					model_test_type = gr.Radio(['Largest List', 'Full Run'],
 											   label='Select type of test, Full run may take very long time',
-											   value='Largest List', interactive=True)
+											   value=g.settings_data['model_test_type'], interactive=True)
+					model_test_gen_type = gr.Radio(['Largest List', 'Full Run'],
+											   label='Select type of test, Full run may take very long time',
+											   value=g.settings_data['model_test_gen_type'], interactive=True)
 					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
 					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
 
@@ -548,81 +551,87 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					model_test_run_button = gr.Button('Run test')
 					model_test_stop_button = gr.Button('Stop test')
 
-		#with gr.Tab('Generation Settings'):
-
+		with gr.Tab('Generation Settings'):
+			model_test_steps = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_steps_list'], 'Steps',
+																	 g.settings_data['model_test_steps'])
+			model_test_cfg = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_cfg_list'], 'CFG',
+																		g.settings_data['model_test_cfg'])
+			model_test_dimensions = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_dimensions_list'],
+																	   'Image Dimension',
+																		  g.settings_data['model_test_dimensions'])
 
 		with gr.Tab('Characters'):
-			model_test_character = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.character, 'Character',
-																	g.settings_data['model_test_setup']['Character'])
-			model_test_creature_air = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.creature_air,
+			model_test_character = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character, 'Character',
+																		 g.settings_data['model_test_setup']['Character'])
+			model_test_creature_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_air,
 																	   'Air Creatures',
-																	   g.settings_data['model_test_setup'][
-																		   'Air Creatures'])
-			model_test_creature_land = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.creature_land,
-																		'Land Creatures',
-																		g.settings_data['model_test_setup'][
-																			'Land Creatures'])
-			model_test_creature_sea = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.creature_sea,
-																	   'Sea Creatures',
-																	   g.settings_data['model_test_setup'][
-																		   'Sea Creatures'])
-			model_test_character_objects = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.character_objects,
-																			'Character Objects',
 																			g.settings_data['model_test_setup'][
+																		   'Air Creatures'])
+			model_test_creature_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_land,
+																		'Land Creatures',
+																			 g.settings_data['model_test_setup'][
+																			'Land Creatures'])
+			model_test_creature_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_sea,
+																	   'Sea Creatures',
+																			g.settings_data['model_test_setup'][
+																		   'Sea Creatures'])
+			model_test_character_objects = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character_objects,
+																			'Character Objects',
+																				 g.settings_data['model_test_setup'][
 																				'Character Objects'])
-			model_test_character_adj = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.character_adj,
+			model_test_character_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character_adj,
 																		'Character Adjectives',
-																		g.settings_data['model_test_setup'][
+																			 g.settings_data['model_test_setup'][
 																			'Character Adjectives'])
 		with gr.Tab('Vehicles'):
-			model_test_vehicles_air = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.vehicles_air,
+			model_test_vehicles_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_air,
 																	   'Air Vehicle',
-																	   g.settings_data['model_test_setup'][
+																			g.settings_data['model_test_setup'][
 																		   'Air Vehicle'])
-			model_test_vehicles_land = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.vehicles_land,
+			model_test_vehicles_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_land,
 																		'Land Vehicle',
-																		g.settings_data['model_test_setup'][
+																			 g.settings_data['model_test_setup'][
 																			'Land Vehicle'])
-			model_test_vehicles_sea = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.vehicles_sea,
+			model_test_vehicles_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_sea,
 																	   'Sea Vehicle',
-																	   g.settings_data['model_test_setup'][
+																			g.settings_data['model_test_setup'][
 																		   'Sea Vehicle'])
-			model_test_vehicles_space = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.vehicles_space,
+			model_test_vehicles_space = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_space,
 																		 'Space Vehicle',
-																		 g.settings_data['model_test_setup'][
+																			  g.settings_data['model_test_setup'][
 																			 'Space Vehicle'])
 		with gr.Tab('Relations'):
-			model_test_moving_relation = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.moving_relation,
+			model_test_moving_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.moving_relation,
 																		  'Moving relation',
-																		  g.settings_data['model_test_setup'][
+																			   g.settings_data['model_test_setup'][
 																			  'Moving relation'])
-			model_test_still_relation = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.still_relation,
+			model_test_still_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.still_relation,
 																		 'Still relation',
-																		 g.settings_data['model_test_setup'][
+																			  g.settings_data['model_test_setup'][
 																			 'Still relation'])
 		with gr.Tab('Adjectives'):
-			model_test_object_adj = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.object_adj,
+			model_test_object_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.object_adj,
 																	 'Object Adjectives',
-																	 g.settings_data['model_test_setup'][
+																		  g.settings_data['model_test_setup'][
 																		 'Object Adjectives'])
-			model_test_visual_adj = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.visual_adj,
+			model_test_visual_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.visual_adj,
 																	 'Visual Adjectives',
-																	 g.settings_data['model_test_setup'][
+																		  g.settings_data['model_test_setup'][
 																		 'Visual Adjectives'])
-			model_test_visual_qualities = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.visual_qualities,
+			model_test_visual_qualities = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.visual_qualities,
 																		   'Visual Qualities',
-																		   g.settings_data['model_test_setup'][
+																				g.settings_data['model_test_setup'][
 																			   'Visual Qualities'])
 		with gr.Tab('Settings'):
-			model_test_settings = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.settings, 'Setup',
-																   g.settings_data['model_test_setup']['Setup'])
+			model_test_settings = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.settings, 'Setup',
+																		g.settings_data['model_test_setup']['Setup'])
 		with gr.Tab('Style'):
-			model_test_colors = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.colors, 'Colors',
-																 g.settings_data['model_test_setup']['Colors'])
-			model_test_styles = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.styles, 'Styles',
-																 g.settings_data['model_test_setup']['Styles'])
-			model_test_artists = ui_code.prompt_iterator.dropdown(ui_code.prompt_iterator.artists, 'Artists',
-																  g.settings_data['model_test_setup']['Artists'])
+			model_test_colors = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.colors, 'Colors',
+																	  g.settings_data['model_test_setup']['Colors'])
+			model_test_styles = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.styles, 'Styles',
+																	  g.settings_data['model_test_setup']['Styles'])
+			model_test_artists = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.artists, 'Artists',
+																	   g.settings_data['model_test_setup']['Artists'])
 
 		with gr.Tab('Instruction Prompt'):
 			model_test_inst_prompt = gr.Textbox(label=f'Prompt instruction for Model test', value=g.settings_data['prompt_templates']['model_test_instruction'], lines=20)
@@ -631,11 +640,19 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		gr.on(
 			triggers=[model_test_list.change,
 					  model_test_inst_prompt.change,
-					  model_test_type.change],
+					  model_test_type.change,
+					  model_test_steps.change,
+					  model_test_dimensions.change,
+					  model_test_gen_type.change,
+					  model_test_cfg.change],
 			fn=ui_code.prompt_iterator.save_test_data,
 			inputs=[model_test_list,
 					model_test_inst_prompt,
-					model_test_type],
+					model_test_type,
+					model_test_steps,
+					model_test_dimensions,
+					model_test_gen_type,
+					model_test_cfg],
 			outputs=None)
 
 		model_test_sample_button.click(fn=ui_code.prompt_iterator.get_sample,
