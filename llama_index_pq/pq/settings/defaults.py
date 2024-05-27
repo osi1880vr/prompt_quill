@@ -76,6 +76,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 	"sail_neg_filter_context": False,
 
 	'model_test_list': 'Character',
+	'model_test_type': 'Largest List',
 	'model_test_setup': {
 		'Character': ['man'],
 		'Air Creatures': ['phoenix'],

@@ -95,24 +95,39 @@ class prompt_iterator:
 
 		yield test_output, 'OK'
 
-	def get_all_samples(self):
+	def get_combinations(self):
 
-		test_data = self.get_test_data()
-
-		yield '', 'Preparing the test data'
 		work_list = []
+		test_data = self.get_test_data()
 
 		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
 			for entry in self.g.settings_data['model_test_list']:
 				work_list.append(test_data[entry])
 
-			combinations = self.combine_limited(work_list)
-			yield "\n".join(combinations), len(combinations)
+
+			if self.g.settings_data['model_test_type'] == 'Largest List':
+					return self.combine_limited(work_list)
+			elif self.g.settings_data['model_test_type'] == 'Full Run':
+				return self.combine_all_arrays_to_strings(work_list)
+		else:
+			return []
+
+
+
+	def get_all_samples(self):
+
+		yield '', 'Preparing the test data'
+
+		combinations = self.get_combinations()
+
+		yield "\n".join(combinations), len(combinations)
 
 
 	def save_test_data(self,model_test_list,
-					   model_test_inst_prompt):
+					   model_test_inst_prompt,
+					   model_test_type):
 		self.g.settings_data['model_test_list'] = model_test_list
+		self.g.settings_data['model_test_type'] = model_test_type
 		self.g.settings_data['prompt_templates']['model_test_instruction'] = model_test_inst_prompt
 		settings_io().write_settings(self.g.settings_data)
 

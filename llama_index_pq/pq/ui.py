@@ -558,18 +558,13 @@ class ui_actions:
     def run_test(self):
         self.g.job_running = True
 
-        test_data = self.prompt_iterator.get_test_data()
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
         yield [], 'Preparing the test data'
-        work_list = []
 
-        if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
-            for entry in self.g.settings_data['model_test_list']:
-                work_list.append(test_data[entry])
+        combinations = self.prompt_iterator.get_combinations()
 
-            combinations = self.prompt_iterator.combine_limited(work_list)
-
+        if len(combinations) > 0:
             yield [], 'Test data ready, start image generation'
             self.images_done = 0
             for test_query in combinations:
@@ -582,7 +577,7 @@ class ui_actions:
                     break
 
         else:
-            return ''
+            yield [],f'Nothing to do'
 
 
     def run_t2t_sail(self):
