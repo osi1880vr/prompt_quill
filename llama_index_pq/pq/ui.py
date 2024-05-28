@@ -539,7 +539,7 @@ class ui_actions:
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
 
-        return prompt,orig_prompt,n,prompt_discard_count,sail_steps
+        return prompt.strip(),orig_prompt.strip(),n,prompt_discard_count,sail_steps
 
 
     def prepare_query(self,query):
@@ -564,12 +564,15 @@ class ui_actions:
 
     def run_test(self):
         self.g.job_running = True
+        filename = os.path.join(out_dir_t2t, f'model_test_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
         yield [], 'Preparing the test data'
 
         combinations = self.prompt_iterator.get_combinations()
+
+        n = 0
 
         if len(combinations) > 0:
             yield [], 'Test data ready, start image generation'
@@ -582,12 +585,17 @@ class ui_actions:
                 self.g.settings_data["automa_CFG Scale"] = test_query[0][2]
 
                 prompt = self.get_new_model_test_prompt(test_query[1])
-                images = self.automa_gen(prompt, images,f'{test_query[0][2]}_{test_query[0][0]}_{test_query[0][1][0]}_{test_query[0][1][1]}')
+
+                self.interface.log_raw(filename,f'Gen params: CFG = {test_query[0][2]} Steps = {test_query[0][0]} Width = {test_query[0][1][0]} Height = {test_query[0][1][1]} \n{prompt}\n{n} ----------')
+
+                images = self.automa_gen(prompt, images,folder=f'{test_query[0][2]}_{test_query[0][0]}_{test_query[0][1][0]}_{test_query[0][1][1]}')
                 self.images_done += 1
                 yield list(images),f'{self.images_done} image(s) done'
                 if self.g.job_running is False:
                     yield list(images),f'Stopped.\n{self.images_done} image(s) done'
                     break
+
+                n += 1
 
         else:
             yield [],f'Nothing to do'

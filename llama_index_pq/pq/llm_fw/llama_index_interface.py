@@ -141,7 +141,7 @@ class adapter:
         must_not = []
         if self.g.settings_data['sail_filter_context']:
             if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_filter_not_text'].split():
+                for word in self.g.settings_data['sail_filter_not_text'].split(','):
                     must.append(
                         FieldCondition(
                             key="search",
@@ -150,7 +150,7 @@ class adapter:
                     )
 
             if len(self.g.settings_data['sail_filter_text']) > 0:
-                for word in self.g.settings_data['sail_filter_text'].split():
+                for word in self.g.settings_data['sail_filter_text'].split(','):
                     must_not.append(
                         FieldCondition(
                             key="search",
@@ -160,7 +160,7 @@ class adapter:
 
         if self.g.settings_data['sail_neg_filter_context']:
             if len(self.g.settings_data['sail_neg_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_not_text'].split():
+                for word in self.g.settings_data['sail_neg_filter_not_text'].split(','):
                     must.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -169,7 +169,7 @@ class adapter:
                     )
 
             if len(self.g.settings_data['sail_neg_filter_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_text'].split():
+                for word in self.g.settings_data['sail_neg_filter_text'].split(','):
                     must_not.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -336,7 +336,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             output += text
 
 
-        return output
+        return output.strip()
 
 
     def retrieve_model_test_llm_completion(self, prompt):

@@ -106,10 +106,10 @@ class prompt_iterator:
 		# remove empty arrays
 		gen_list = [sub_array for sub_array in gen_list if sub_array]
 
-		if self.g.settings_data['model_test_type'] == 'Largest List':
+		if self.g.settings_data['model_test_gen_type'] == 'Largest List':
 			gen_list_out = self.combine_limited_arrays(gen_list)
-		elif self.g.settings_data['model_test_type'] == 'Full Run':
-			gen_list_out = self.combine_all_arrays_to_strings(gen_list)
+		elif self.g.settings_data['model_test_gen_type'] == 'Full Run':
+			gen_list_out = self.combine_all_arrays_to_arrays(gen_list)
 
 
 		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
@@ -130,14 +130,6 @@ class prompt_iterator:
 		return gen_job
 
 	def convert_to_strings(self, array_of_arrays):
-		"""Converts each sub-array in an array of arrays to a string.
-
-		Args:
-			array_of_arrays: A list containing sub-arrays.
-
-		Returns:
-			A list containing strings, where each string represents a sub-array.
-		"""
 		string_array = []
 		for sub_array in array_of_arrays:
 			# Join elements of the sub-array with a space separator
@@ -240,6 +232,12 @@ class prompt_iterator:
 
 		return dropdown
 
+
+	def combine_all_arrays_to_arrays(self, data):
+		string_combinations = []
+		for element in product(*data):
+			string_combinations.append(element)
+		return string_combinations
 
 	def combine_all_arrays_to_strings(self, data):
 		string_combinations = []

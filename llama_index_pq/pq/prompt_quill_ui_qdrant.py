@@ -535,12 +535,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  choices=ui_code.prompt_iterator.selectors,
 												  multiselect=True, value=g.settings_data['model_test_list'],
 												  interactive=True)
-					model_test_type = gr.Radio(['Largest List', 'Full Run'],
-											   label='Select type of test, Full run may take very long time',
-											   value=g.settings_data['model_test_type'], interactive=True)
-					model_test_gen_type = gr.Radio(['Largest List', 'Full Run'],
-											   label='Select type of test, Full run may take very long time',
-											   value=g.settings_data['model_test_gen_type'], interactive=True)
+					with gr.Row():
+						model_test_type = gr.Radio(['Largest List', 'Full Run'],
+												   label='Select type of test, Full run may take very long time',
+												   value=g.settings_data['model_test_type'], interactive=True)
+						model_test_gen_type = gr.Radio(['Largest List', 'Full Run'],
+												   label='Select type of test generation params, Full run may take very long time',
+												   value=g.settings_data['model_test_gen_type'], interactive=True)
 					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
 					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
 
@@ -671,6 +672,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									 inputs=None,
 									 outputs=None,
 									 cancels=[model_test_run])
+
 
 	with gr.Tab('Deep Dive') as deep_dive:
 		top_k_slider = gr.Slider(1, max_top_k, value=g.settings_data['top_k'], step=1,
