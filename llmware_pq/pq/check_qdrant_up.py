@@ -28,6 +28,8 @@ while 1:
         response = requests.get(url)
         if response.status_code == 200:
             break
+        else:
+            print(f'http status: {response.status_code}')
         time.sleep(1)
     except:
         pass
