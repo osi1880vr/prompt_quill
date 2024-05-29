@@ -338,6 +338,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									choices=g.settings_data['automa_checkpoints'],
 									value=g.settings_data['automa_Checkpoint'],
 									label='Checkpoint')
+							with gr.Column(scale=2):
+								automa_vae = gr.Dropdown(
+									choices=g.settings_data['automa_vaes'],
+									value=g.settings_data['automa_vae'],
+									label='VAE')
+
 						with gr.Row():
 							with gr.Column(scale=3):
 								automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
@@ -381,7 +387,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 				automa_refresh_button.click(fn=ui_code.automa_refresh,
 											inputs=None,
-											outputs=[automa_Sampler, automa_Checkpoint])
+											outputs=[automa_Sampler, automa_Checkpoint, automa_vae])
 
 				automa_start_button.click(fn=ui_code.run_automatics_generation,
 										  inputs=[automa_prompt_input,
@@ -396,7 +402,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  automa_n_iter,
 												  automa_url,
 												  automa_save,
-												  automa_save_on_api_host],
+												  automa_save_on_api_host,
+												  automa_vae],
 										  outputs=automa_result_images)
 
 				gr.on(
@@ -412,7 +419,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							  automa_url.change,
 							  automa_save.change,
 							  automa_save_on_api_host.change,
-							  automa_Checkpoint.change],
+							  automa_Checkpoint.change,
+							  automa_vae.change,],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
@@ -426,7 +434,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_n_iter,
 							automa_url,
 							automa_save,
-							automa_save_on_api_host],
+							automa_save_on_api_host,
+							automa_vae],
 					outputs=None)
 
 			with gr.Tab('Interrogate') as interrogate:
@@ -738,7 +747,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_url,
 				 automa_save,
 				 automa_save_on_api_host,
-				 automa_Checkpoint
+				 automa_Checkpoint,
+				 automa_vae
 				 ]
 	)
 	gr.on(

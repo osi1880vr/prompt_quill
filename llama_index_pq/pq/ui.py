@@ -106,7 +106,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_Sampler'] = sampler
@@ -120,6 +120,7 @@ class ui_actions:
         self.g.settings_data['automa_save'] = save
         self.g.settings_data['automa_save_on_api_host'] = save_api
         self.g.settings_data['automa_Checkpoint'] = checkpoint
+        self.g.settings_data['automa_vae'] = vae
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer(self, automa_adetailer_enable,
@@ -208,6 +209,7 @@ class ui_actions:
         if self.g.settings_data['automa_checkpoints'] == []:
             self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
             self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+            self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
@@ -217,7 +219,8 @@ class ui_actions:
             ), self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
             'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data[
             'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
-            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
+            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'
+        ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
     
     
 
@@ -242,11 +245,13 @@ class ui_actions:
         if self.g.settings_data['automa_checkpoints'] == []:
             self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
             self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+            self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
         if self.g.settings_data['automa_Sampler'] == '':
             self.g.settings_data['automa_Sampler'] = self.g.settings_data['automa_samplers'][0]
         if self.g.settings_data['automa_Checkpoint'] == '':
             self.g.settings_data['automa_Checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
-
+        if self.g.settings_data['automa_vae'] == '':
+            self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
         ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_summary"
         ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
@@ -294,9 +299,9 @@ class ui_actions:
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
-    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api):
+    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae):
         self.g.running = True
-        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api)
+        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae)
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
 
@@ -327,7 +332,8 @@ class ui_actions:
     def automa_refresh(self):
         self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
+        self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
 
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
@@ -370,6 +376,17 @@ class ui_actions:
             return checkpoints
         else:
             return []
+
+
+    def get_automa_vaes(self):
+        vaes = self.automa_client.get_vaes(self.g.settings_data['automa_url'])
+        if vaes != -1:
+            if self.g.settings_data['automa_vae'] == '':
+                self.g.settings_data['automa_vae'] = vaes[0]
+            return vaes
+        else:
+            return []
+
 
     def get_next_target_new(self, nodes):
 

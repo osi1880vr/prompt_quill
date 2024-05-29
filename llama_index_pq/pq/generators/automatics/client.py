@@ -115,6 +115,13 @@ class automa_client:
         elif type(negative_prompt) == bytes:
             negative_prompt = negative_prompt.decode('utf-8')
 
+        override_settings = {
+            "sd_model_checkpoint": settings_data['automa_Checkpoint'],
+        }
+
+        if settings_data['automa_vae'] != '':
+            override_settings["sd_vae"] = settings_data['automa_vae']
+
         payload = {
             "alwayson_scripts": alwayson_scripts,
             "prompt": prompt,  # extra networks also in prompts
@@ -128,10 +135,7 @@ class automa_client:
             "n_iter": settings_data["automa_n_iter"],
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
-            "override_settings": {
-                "sd_model_checkpoint": settings_data['automa_Checkpoint'],
-                # "sd_vae": "sd-vae-ft-mse.safetensors"
-            },
+            "override_settings": override_settings,
             "override_settings_restore_afterwards": True,
         }
 
@@ -186,7 +190,17 @@ class automa_client:
         else:
             return -1
 
+    def get_vaes(self, url):
+        self.webui_server_url = url
+        vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
+        if vaes != '':
+            vae_array = []
+            for model in vaes:
+                vae_array.append(model['model_name'])
 
+            return vae_array
+        else:
+            return -1
     def check_avail(self, url):
         self.webui_server_url = url
         vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
