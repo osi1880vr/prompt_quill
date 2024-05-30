@@ -114,7 +114,11 @@ class prompt_iterator:
 
 		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
 			for entry in self.g.settings_data['model_test_list']:
-				work_list.append(test_data[entry])
+				if entry == 'Artists':
+					artist_array = list(map(lambda s: 'in the style of ' + s, test_data[entry]))
+					work_list.append(artist_array)
+				else:
+					work_list.append(test_data[entry])
 
 			# remove empty arrays
 			work_list = [sub_array for sub_array in work_list if sub_array]

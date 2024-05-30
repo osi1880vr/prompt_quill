@@ -491,7 +491,8 @@ USER: Create a prompt for: {query_str}
 ---------------------
 Given the context information and not prior knowledge,
 create a text to image prompt based on the context and the Query, don't mind if the context does not match the Query, still try to create a wonderful text to image prompt.
-You also take care of describing the scene, the lighting as well as the quality improving keywords
+You try to keep the query idea as much as you can, the context is only there to add some details, but the idea of the prompt comes from the query and has to be followed as hard as possible.
+If you read "in the style of <some name>" as part of the query than that has to be added to the prompt as is, just copy it at the end of the prompt. 
 {start_pattern}
 USER: translation in major world languages, machinery of translation in various specializations, cyberpunk style
 ASSISTANT: Cyberpunk-style illustration, featuring a futuristic translation device in various specializations, set against a backdrop of neon-lit cityscape. The device, adorned with glowing circuits and cybernetic enhancements, showcases its capabilities in translating languages such as English, Mandarin, Spanish, French, and Arabic. The scene is illuminated by the warm glow of streetlights and the pulsing neon signs, casting intricate shadows on the surrounding machinery. The artwork is rendered in high-quality, vivid colors, with detailed textures and sharp lines, evoking the gritty yet mesmerizing atmosphere of the cyberpunk world.
