@@ -9,6 +9,10 @@ class settings_io:
         self.default = default
         self.settings = self.default
 
+
+    def get_defaults(self):
+        return self.default
+
     def update_settings_with_defaults(self):
         self.settings['model_list'] = self.default['model_list']
         self.write_settings(self.settings)

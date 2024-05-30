@@ -718,7 +718,7 @@ class ui_actions:
 
         context_count = self.get_context_count()
 
-        yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings"
+        yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(int(context_count / self.g.settings_data['sail_depth']))} images possible"
 
 
         while n < sail_steps:

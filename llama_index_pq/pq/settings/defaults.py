@@ -108,6 +108,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 		'Colors': ['purple'],
 		'Styles': ['Food Photography'],
 		'Artists': ['Alvar Aalto'],
+		'Things': ['Ball'],
 	},
 
 	"embedding_model": "sentence-transformers/all-MiniLM-L12-v2",

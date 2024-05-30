@@ -642,6 +642,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		with gr.Tab('Settings'):
 			model_test_settings = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.settings, 'Setup',
 																		g.settings_data['model_test_setup']['Setup'])
+			model_test_things = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.things, 'Things',
+																		g.settings_data['model_test_setup']['Things'])
 		with gr.Tab('Style'):
 			model_test_colors = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.colors, 'Colors',
 																	  g.settings_data['model_test_setup']['Colors'])
