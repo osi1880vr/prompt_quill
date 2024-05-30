@@ -623,6 +623,14 @@ class ui_actions:
 
         n = 0
 
+
+
+        automa_Steps = self.g.settings_data["automa_Steps"]
+        automa_Width = self.g.settings_data["automa_Width"]
+        automa_Height = self.g.settings_data["automa_Height"]
+        automa_CFG = self.g.settings_data["automa_CFG Scale"]
+
+
         if len(combinations) > 0:
             yield [], 'Test data ready, start image generation'
             self.images_done = 0
@@ -648,6 +656,11 @@ class ui_actions:
 
         else:
             yield [],f'Nothing to do'
+
+        self.g.settings_data["automa_Steps"] = automa_Steps
+        self.g.settings_data["automa_Width"] = automa_Width
+        self.g.settings_data["automa_Height"] = automa_Height
+        self.g.settings_data["automa_CFG Scale"] = automa_CFG
 
 
     def run_t2t_sail(self):
