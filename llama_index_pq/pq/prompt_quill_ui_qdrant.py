@@ -94,6 +94,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														label="Sinus Frequency", info="Choose between 0.1 and 10")
 							sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'],
 														 label="Sinus Multiplier", info="Choose between 1 and 500")
+						with gr.Row():
+							sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
+														info="Do you want to directly generate the images?",
+														value=g.settings_data['sail_generate'])
+							automa_alt_vae = gr.Dropdown(
+								choices=g.settings_data['automa_vaes'],
+								value=g.settings_data['automa_alt_vae'],
+								label='Alternate VAE for fixing black images')
 					with gr.Column(scale=1):
 						with gr.Row():
 							sail_status = gr.Textbox('', label=f'Status', placeholder="status")
@@ -108,11 +116,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 															  value=g.settings_data['sail_max_gallery_size'],
 															  label="Max Gallery size",
 															  info="Limit the number of images keept in the gallery choose between 1 and 500")
-				with gr.Row():
-					with gr.Column(scale=1):
-						sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
-													info="Do you want to directly generate the images?",
-													value=g.settings_data['sail_generate'])
+
 				with gr.Row():
 					sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
 				with gr.Row():
@@ -229,6 +233,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_neg_filter_text.change,
 					  sail_neg_filter_not_text.change,
 					  sail_neg_filter_context.change,
+					  automa_alt_vae.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
@@ -257,6 +262,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_neg_filter_text,
 					sail_neg_filter_not_text,
 					sail_neg_filter_context,
+					automa_alt_vae,
 					],
 			outputs=None)
 
@@ -286,7 +292,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_filter_prompt,
 					 sail_neg_filter_text,
 					 sail_neg_filter_not_text,
-					 sail_neg_filter_context, ])
+					 sail_neg_filter_context,
+					 automa_alt_vae])
 
 		start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 											  inputs=[],

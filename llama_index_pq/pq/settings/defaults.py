@@ -30,6 +30,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 	'automa_Sampler': "DPM++ 2M Karras",
 	'automa_Checkpoint': '',
 	'automa_vae': '',
+	'automa_alt_vae': '',
 	"automa_Steps": 20,
 	"automa_CFG Scale": 7,
 	"automa_Width": 768,

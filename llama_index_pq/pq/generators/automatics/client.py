@@ -115,6 +115,9 @@ class automa_client:
         elif type(negative_prompt) == bytes:
             negative_prompt = negative_prompt.decode('utf-8')
 
+
+
+
         override_settings = {
             "sd_model_checkpoint": settings_data['automa_Checkpoint'],
         }
@@ -136,7 +139,7 @@ class automa_client:
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
             "override_settings": override_settings,
-            "override_settings_restore_afterwards": True,
+            "override_settings_restore_afterwards": False,
         }
 
         return self.call_txt2img_api(**payload)

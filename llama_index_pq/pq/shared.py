@@ -1,7 +1,7 @@
 import time
 import datetime
 import re
-
+import numpy as np
 import globals
 
 g = globals.get_globals()
@@ -196,3 +196,22 @@ def check_filtered(prompt):
 	return not_check + check
 
 
+def is_image_black(image):
+	"""
+	Check if a PIL image is completely black.
+
+	Parameters:
+	image (PIL.Image): The image to check.
+
+	Returns:
+	bool: True if the image is completely black, False otherwise.
+	"""
+	# Convert the image to a NumPy array
+	image_array = np.array(image)
+
+	# If the image has an alpha channel, ignore the alpha channel in the comparison
+	if image_array.shape[-1] == 4:
+		image_array = image_array[:, :, :3]
+
+	# Check if all values in the array are 0 (black)
+	return np.all(image_array == 0)

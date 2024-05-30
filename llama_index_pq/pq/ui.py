@@ -144,7 +144,7 @@ class ui_actions:
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
                              sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
                              sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
-                             sail_neg_filter_context,):
+                             sail_neg_filter_context,automa_alt_vae):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -174,6 +174,7 @@ class ui_actions:
         self.g.settings_data['sail_neg_filter_text'] = sail_neg_filter_text
         self.g.settings_data['sail_neg_filter_not_text'] = sail_neg_filter_not_text
         self.g.settings_data['sail_neg_filter_context'] = sail_neg_filter_context
+        self.g.settings_data['automa_alt_vae'] = automa_alt_vae
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -260,7 +261,7 @@ class ui_actions:
         ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
         ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"
         ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
-        ]
+        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae'])
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -434,6 +435,8 @@ class ui_actions:
         if len(negative_prompt) < 30:
             negative_prompt = self.g.settings_data['negative_prompt']
 
+        self.g.act_neg_prompt = negative_prompt
+
         return self.automa_client.request_generation(query,
                                                      negative_prompt,
                                                      self.g.settings_data)
@@ -579,6 +582,35 @@ class ui_actions:
         return result.count
 
 
+    def check_black_images(self, prompt, images, filename):
+        checkimages = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
+
+        batch = self.g.settings_data['automa_batch']
+        iter = self.g.settings_data['automa_n_iter']
+        vae = self.g.settings_data['automa_vae']
+
+        self.g.settings_data['automa_batch'] = 1
+        self.g.settings_data['automa_n_iter'] = 1
+
+        for image in list(images):
+
+            if shared.is_image_black(image):
+                self.log_prompt(filename, prompt, self.g.act_neg_prompt, 0, '')
+                self.g.settings_data['automa_vae']  = self.g.settings_data['automa_alt_vae']
+                images = self.automa_gen(prompt, [])
+                self.g.settings_data['automa_vae'] = vae
+                checkimages = self.automa_gen(prompt, checkimages)
+            else:
+                checkimages.append(image)
+
+        self.g.settings_data['automa_vae']  = vae
+        self.g.settings_data['automa_batch'] = batch
+        self.g.settings_data['automa_n_iter'] = iter
+
+        return checkimages
+
+
+
     def run_test(self):
         self.g.job_running = True
         filename = os.path.join(out_dir_t2t, f'model_test_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
@@ -671,10 +703,11 @@ class ui_actions:
         self.sinus = 0
         self.sail_log = ''
         self.images_done = 1
+        self.g.act_neg_prompt = ''
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
-
+        black_images_filename = os.path.join(out_dir_t2t, f'black_images_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sail_text'])
@@ -701,8 +734,10 @@ class ui_actions:
                 if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
                         images = self.automa_gen(orig_prompt, images)
+                        images = self.check_black_images(prompt,images,black_images_filename)
                         yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                     images = self.automa_gen(prompt, images)
+                    images = self.check_black_images(prompt,images,black_images_filename)
                     yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:
                     yield self.sail_log,[],f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
