@@ -233,7 +233,7 @@ class prompt_iterator:
 		def update_dropdown(dropdown):
 			self.g.settings_data[label] = dropdown
 			settings_io().write_settings(self.g.settings_data)
-			return gr.update(choices=choices, value=dropdown)
+
 
 		gr.on(
 			triggers=[is_all_selected.change],
@@ -244,7 +244,7 @@ class prompt_iterator:
 			triggers=[dropdown.change],
 			fn=update_dropdown,
 			inputs=[dropdown],
-			outputs=[dropdown])
+			outputs=None)
 
 		dropdown.interactive = True
 
