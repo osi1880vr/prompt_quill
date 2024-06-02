@@ -33,6 +33,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 	'automa_alt_vae': '',
 	"automa_Steps": 20,
 	"automa_CFG Scale": 7,
+	"automa_clip_skip": 0,
 	"automa_Width": 768,
 	"automa_Height": 512,
 	"automa_url": "http://localhost:7860",
@@ -109,6 +110,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 		'Styles': ['Food Photography'],
 		'Artists': ['Alvar Aalto'],
 		'Things': ['Ball'],
+		'Celebrities': ['Albert Einstein']
 	},
 
 	"embedding_model": "sentence-transformers/all-MiniLM-L12-v2",

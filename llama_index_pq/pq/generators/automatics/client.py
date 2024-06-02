@@ -125,6 +125,9 @@ class automa_client:
         if settings_data['automa_vae'] != '':
             override_settings["sd_vae"] = settings_data['automa_vae']
 
+        if settings_data['automa_clip_skip'] > 0:
+            override_settings["CLIP_stop_at_last_layers"] = settings_data['automa_clip_skip']
+
         payload = {
             "alwayson_scripts": alwayson_scripts,
             "prompt": prompt,  # extra networks also in prompts

@@ -40,6 +40,7 @@ class prompt_iterator:
 		self.styles = list(set(self.prompt_data['style']['styles'] + self.prompt_data['visualmodifiers']['styles']))
 
 		self.things = self.prompt_data['things']
+		self.celebrities = self.prompt_data['celebrities']
 
 		self.selectors = ['Visual Qualities',
 						  'Visual Adjectives',
@@ -61,6 +62,7 @@ class prompt_iterator:
 						  'Setup',
 						  'Artists',
 						  'Things',
+						  'Celebrities'
 						  ]
 
 
@@ -93,7 +95,8 @@ class prompt_iterator:
 			'Colors': self.g.settings_data['model_test_setup']['Colors'],
 			'Styles': self.g.settings_data['model_test_setup']['Styles'],
 			'Artists': self.g.settings_data['model_test_setup']['Artists'],
-			'Things': self.g.settings_data['model_test_setup']['Things']
+			'Things': self.g.settings_data['model_test_setup']['Things'],
+			'Celebrities': self.g.settings_data['model_test_setup']['Celebrities'],
 		}
 
 

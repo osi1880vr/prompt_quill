@@ -106,7 +106,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_Sampler'] = sampler
@@ -121,6 +121,7 @@ class ui_actions:
         self.g.settings_data['automa_save_on_api_host'] = save_api
         self.g.settings_data['automa_Checkpoint'] = checkpoint
         self.g.settings_data['automa_vae'] = vae
+        self.g.settings_data['automa_clip_skip'] = clip_skip
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer(self, automa_adetailer_enable,
@@ -221,7 +222,8 @@ class ui_actions:
             'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data[
             'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
             'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'
-        ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
+        ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']),self.g.settings_data[
+            'automa_clip_skip']
     
     
 
@@ -300,9 +302,9 @@ class ui_actions:
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
-    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae):
+    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip):
         self.g.running = True
-        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae)
+        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip)
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
 

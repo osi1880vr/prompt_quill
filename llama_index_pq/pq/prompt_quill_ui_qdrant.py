@@ -352,14 +352,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									label='VAE')
 
 						with gr.Row():
-							with gr.Column(scale=3):
-								automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
+							automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
 														 label="Steps",
 														 info="Choose between 1 and 100")
-							with gr.Column(scale=1):
-								automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_CFG Scale'],
+							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_CFG Scale'],
 													   label="CFG Scale",
 													   info="Choose between 1 and 20")
+							automa_clip_skip = gr.Slider(0, 10, step=1, value=g.settings_data['automa_clip_skip'],
+													   label="Clip Skip",
+													   info="Choose between 1 and 10")
 						with gr.Row():
 							with gr.Column(scale=3):
 								automa_Width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_Width'],
@@ -410,7 +411,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  automa_url,
 												  automa_save,
 												  automa_save_on_api_host,
-												  automa_vae],
+												  automa_vae,
+												  automa_clip_skip],
 										  outputs=automa_result_images)
 
 				gr.on(
@@ -427,7 +429,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							  automa_save.change,
 							  automa_save_on_api_host.change,
 							  automa_Checkpoint.change,
-							  automa_vae.change,],
+							  automa_vae.change,
+							  automa_clip_skip.change,],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
@@ -442,7 +445,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_url,
 							automa_save,
 							automa_save_on_api_host,
-							automa_vae],
+							automa_vae,
+							automa_clip_skip],
 					outputs=None)
 
 			with gr.Tab('Interrogate') as interrogate:
@@ -580,6 +584,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		with gr.Tab('Characters'):
 			model_test_character = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character, 'Character',
 																		 g.settings_data['model_test_setup']['Character'])
+
+			model_test_celebrities = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.celebrities,
+																			 'Celebrities',
+																			 g.settings_data['model_test_setup'][
+																				 'Celebrities'])
 			model_test_creature_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_air,
 																	   'Air Creatures',
 																			g.settings_data['model_test_setup'][
@@ -600,6 +609,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 																		'Character Adjectives',
 																			 g.settings_data['model_test_setup'][
 																			'Character Adjectives'])
+
+
 		with gr.Tab('Vehicles'):
 			model_test_vehicles_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_air,
 																	   'Air Vehicle',
@@ -757,7 +768,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_save,
 				 automa_save_on_api_host,
 				 automa_Checkpoint,
-				 automa_vae
+				 automa_vae,
+				 automa_clip_skip
 				 ]
 	)
 	gr.on(
