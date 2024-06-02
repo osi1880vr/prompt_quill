@@ -164,7 +164,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=3):
 						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
 												 placeholder="Enter your additional search")
-
 			with gr.Tab('Prompt manipulation'):
 				with gr.Row():
 					sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
@@ -205,6 +204,40 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														  label=f'Rephrase Prompt',
 														  placeholder="Enter your rephrase prompt",
 														  lines=4)
+			with gr.Tab('Generation Sailing'):
+				with gr.Row():
+					with gr.Column(scale=3):
+						with gr.Row():
+							with gr.Column():
+								sail_gen_enabled = gr.Checkbox(label="Enable generation parameters", info="Enable dynamic generation parameters?",
+														  value=g.settings_data['sail_gen_enabled'])
+							with gr.Column():
+								sail_gen_type = gr.Radio(['Random', 'Linear'],
+														 label='Select type of change, Ranodm or linear after n steps',
+														 value=g.settings_data['sail_gen_type'], interactive=True)
+								sail_gen_steps = gr.Slider(1, 100, step=1, value=g.settings_data['sail_gen_steps'],
+														   label="Steps",
+														   info="Rotate after n steps")
+						with gr.Row():
+							sail_dimensions = ui_code.prompt_iterator.setting_dropdown(label='Dimensions',
+														  choices=g.settings_data['model_test_dimensions_list'],
+														initial_value=g.settings_data['sail_dimensions'])
+						with gr.Row():
+							sail_sampler = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['automa_samplers'],
+								initial_value=g.settings_data['sail_sampler'],
+								label='Sampler')
+							sail_checkpoint = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['automa_checkpoints'],
+								initial_value=g.settings_data['sail_checkpoint'],
+								label='Checkpoint')
+							sail_vae = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['automa_vaes'],
+								initial_value=g.settings_data['sail_vae'],
+								label='VAE')
+
+					with gr.Column(scale=1):
+						sail_gen_refresh_button = gr.Button('Refresh')
 
 		gr.on(
 			triggers=[sail_text.change,
@@ -233,7 +266,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_neg_filter_text.change,
 					  sail_neg_filter_not_text.change,
 					  sail_neg_filter_context.change,
-					  automa_alt_vae.change
+					  automa_alt_vae.change,
+					  sail_checkpoint.change,
+					  sail_sampler.change,
+					  sail_vae.change,
+					  sail_dimensions.change,
+					  sail_gen_type.change,
+					  sail_gen_steps.change,
+					  sail_gen_enabled.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
@@ -263,6 +303,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_neg_filter_not_text,
 					sail_neg_filter_context,
 					automa_alt_vae,
+					sail_checkpoint,
+					sail_sampler,
+					sail_vae,
+					sail_dimensions,
+					sail_gen_type,
+					sail_gen_steps,
+					sail_gen_enabled
 					],
 			outputs=None)
 
@@ -293,7 +340,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_neg_filter_text,
 					 sail_neg_filter_not_text,
 					 sail_neg_filter_context,
-					 automa_alt_vae])
+					 automa_alt_vae,
+					 sail_checkpoint,
+					 sail_sampler,
+					 sail_vae,
+					 sail_dimensions,
+					 sail_gen_type,
+					 sail_gen_steps,
+					 sail_gen_enabled])
 
 		start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 											  inputs=[],
@@ -313,6 +367,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		sail_filter_count_button.click(fn=ui_code.count_context,
 									   inputs=None,
 									   outputs=sail_filter_status)
+		sail_gen_refresh_button.click(fn=ui_code.automa_refresh,
+									inputs=None,
+									outputs=[sail_sampler, sail_checkpoint, sail_vae])
 
 		with gr.Tab('Show'):
 			with gr.Row():
@@ -353,14 +410,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 						with gr.Row():
 							automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
-														 label="Steps",
-														 info="Choose between 1 and 100")
+													 label="Steps",
+													 info="Choose between 1 and 100")
 							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_CFG Scale'],
-													   label="CFG Scale",
-													   info="Choose between 1 and 20")
+												   label="CFG Scale",
+												   info="Choose between 1 and 20")
 							automa_clip_skip = gr.Slider(0, 10, step=1, value=g.settings_data['automa_clip_skip'],
-													   label="Clip Skip",
-													   info="Choose between 1 and 10")
+														 label="Clip Skip",
+														 info="Choose between 1 and 10")
 						with gr.Row():
 							with gr.Column(scale=3):
 								automa_Width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_Width'],
@@ -430,7 +487,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							  automa_save_on_api_host.change,
 							  automa_Checkpoint.change,
 							  automa_vae.change,
-							  automa_clip_skip.change,],
+							  automa_clip_skip.change, ],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
@@ -560,9 +617,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												   label='Select type of test, Full run may take very long time',
 												   value=g.settings_data['model_test_type'], interactive=True)
 						model_test_gen_type = gr.Radio(['Largest List', 'Full Run'],
-												   label='Select type of test generation params, Full run may take very long time',
-												   value=g.settings_data['model_test_gen_type'], interactive=True)
-					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
+													   label='Select type of test generation params, Full run may take very long time',
+													   value=g.settings_data['model_test_gen_type'], interactive=True)
+					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6,
+														  format='png')
 					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
 
 				with gr.Column(scale=1):
@@ -573,88 +631,92 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					model_test_stop_button = gr.Button('Stop test')
 
 		with gr.Tab('Generation Settings'):
-			model_test_steps = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_steps_list'], 'Steps',
-																	 g.settings_data['model_test_steps'])
+			model_test_steps = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_steps_list'],
+																		'Steps',
+																		g.settings_data['model_test_steps'])
 			model_test_cfg = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_cfg_list'], 'CFG',
-																		g.settings_data['model_test_cfg'])
-			model_test_dimensions = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_dimensions_list'],
-																	   'Image Dimension',
-																		  g.settings_data['model_test_dimensions'])
+																	  g.settings_data['model_test_cfg'])
+			model_test_dimensions = ui_code.prompt_iterator.setting_dropdown(
+				g.settings_data['model_test_dimensions_list'],
+				'Image Dimension',
+				g.settings_data['model_test_dimensions'])
 
 		with gr.Tab('Characters'):
 			model_test_character = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character, 'Character',
-																		 g.settings_data['model_test_setup']['Character'])
+																		 g.settings_data['model_test_setup'][
+																			 'Character'])
 
 			model_test_celebrities = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.celebrities,
-																			 'Celebrities',
-																			 g.settings_data['model_test_setup'][
-																				 'Celebrities'])
+																		   'Celebrities',
+																		   g.settings_data['model_test_setup'][
+																			   'Celebrities'])
 			model_test_creature_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_air,
-																	   'Air Creatures',
+																			'Air Creatures',
 																			g.settings_data['model_test_setup'][
-																		   'Air Creatures'])
+																				'Air Creatures'])
 			model_test_creature_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_land,
-																		'Land Creatures',
+																			 'Land Creatures',
 																			 g.settings_data['model_test_setup'][
-																			'Land Creatures'])
+																				 'Land Creatures'])
 			model_test_creature_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_sea,
-																	   'Sea Creatures',
+																			'Sea Creatures',
 																			g.settings_data['model_test_setup'][
-																		   'Sea Creatures'])
-			model_test_character_objects = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character_objects,
-																			'Character Objects',
-																				 g.settings_data['model_test_setup'][
-																				'Character Objects'])
+																				'Sea Creatures'])
+			model_test_character_objects = ui_code.prompt_iterator.data_dropdown(
+				ui_code.prompt_iterator.character_objects,
+				'Character Objects',
+				g.settings_data['model_test_setup'][
+					'Character Objects'])
 			model_test_character_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character_adj,
-																		'Character Adjectives',
+																			 'Character Adjectives',
 																			 g.settings_data['model_test_setup'][
-																			'Character Adjectives'])
-
+																				 'Character Adjectives'])
 
 		with gr.Tab('Vehicles'):
 			model_test_vehicles_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_air,
-																	   'Air Vehicle',
+																			'Air Vehicle',
 																			g.settings_data['model_test_setup'][
-																		   'Air Vehicle'])
+																				'Air Vehicle'])
 			model_test_vehicles_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_land,
-																		'Land Vehicle',
+																			 'Land Vehicle',
 																			 g.settings_data['model_test_setup'][
-																			'Land Vehicle'])
+																				 'Land Vehicle'])
 			model_test_vehicles_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_sea,
-																	   'Sea Vehicle',
+																			'Sea Vehicle',
 																			g.settings_data['model_test_setup'][
-																		   'Sea Vehicle'])
+																				'Sea Vehicle'])
 			model_test_vehicles_space = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_space,
-																		 'Space Vehicle',
+																			  'Space Vehicle',
 																			  g.settings_data['model_test_setup'][
-																			 'Space Vehicle'])
+																				  'Space Vehicle'])
 		with gr.Tab('Relations'):
 			model_test_moving_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.moving_relation,
-																		  'Moving relation',
+																			   'Moving relation',
 																			   g.settings_data['model_test_setup'][
-																			  'Moving relation'])
+																				   'Moving relation'])
 			model_test_still_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.still_relation,
-																		 'Still relation',
+																			  'Still relation',
 																			  g.settings_data['model_test_setup'][
-																			 'Still relation'])
+																				  'Still relation'])
 		with gr.Tab('Adjectives'):
 			model_test_object_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.object_adj,
-																	 'Object Adjectives',
+																		  'Object Adjectives',
 																		  g.settings_data['model_test_setup'][
-																		 'Object Adjectives'])
+																			  'Object Adjectives'])
 			model_test_visual_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.visual_adj,
-																	 'Visual Adjectives',
+																		  'Visual Adjectives',
 																		  g.settings_data['model_test_setup'][
-																		 'Visual Adjectives'])
-			model_test_visual_qualities = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.visual_qualities,
-																		   'Visual Qualities',
-																				g.settings_data['model_test_setup'][
-																			   'Visual Qualities'])
+																			  'Visual Adjectives'])
+			model_test_visual_qualities = ui_code.prompt_iterator.data_dropdown(
+				ui_code.prompt_iterator.visual_qualities,
+				'Visual Qualities',
+				g.settings_data['model_test_setup'][
+					'Visual Qualities'])
 		with gr.Tab('Settings'):
 			model_test_settings = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.settings, 'Setup',
 																		g.settings_data['model_test_setup']['Setup'])
 			model_test_things = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.things, 'Things',
-																		g.settings_data['model_test_setup']['Things'])
+																	  g.settings_data['model_test_setup']['Things'])
 		with gr.Tab('Style'):
 			model_test_colors = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.colors, 'Colors',
 																	  g.settings_data['model_test_setup']['Colors'])
@@ -664,8 +726,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 																	   g.settings_data['model_test_setup']['Artists'])
 
 		with gr.Tab('Instruction Prompt'):
-			model_test_inst_prompt = gr.Textbox(label=f'Prompt instruction for Model test', value=g.settings_data['prompt_templates']['model_test_instruction'], lines=20)
-
+			model_test_inst_prompt = gr.Textbox(label=f'Prompt instruction for Model test',
+												value=g.settings_data['prompt_templates']['model_test_instruction'],
+												lines=20)
 
 		gr.on(
 			triggers=[model_test_list.change,
@@ -694,14 +757,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										   outputs=[model_test_sample, model_test_status])
 
 		model_test_run = model_test_run_button.click(fn=ui_code.run_test,
-									inputs=None,
-									outputs=[model_test_result_images, model_test_status])
+													 inputs=None,
+													 outputs=[model_test_result_images, model_test_status])
 
 		model_test_stop_button.click(fn=ui_code.stop_job,
 									 inputs=None,
 									 outputs=None,
 									 cancels=[model_test_run])
-
 
 	with gr.Tab('Deep Dive') as deep_dive:
 		top_k_slider = gr.Slider(1, max_top_k, value=g.settings_data['top_k'], step=1,

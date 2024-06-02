@@ -15,6 +15,7 @@ class settings_io:
 
     def update_settings_with_defaults(self):
         self.settings['model_list'] = self.default['model_list']
+        self.settings['model_test_dimensions_list'] = self.default['model_test_dimensions_list']
         self.write_settings(self.settings)
 
     def check_missing_seettings(self):

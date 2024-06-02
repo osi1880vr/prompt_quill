@@ -23,6 +23,7 @@ from io import BytesIO
 import time
 import re
 import json
+import random
 from collections import deque
 from api import v1
 import shared
@@ -65,6 +66,8 @@ class ui_actions:
         self.api = v1
         self.api.run_api()
         self.prompt_iterator = prompt_iterator()
+        self.gen_step = 0
+        self.gen_step_select = 0
 
     def run_llm_response(self,query, history):
         prompt = self.interface.run_llm_response(query, history)
@@ -145,7 +148,9 @@ class ui_actions:
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
                              sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
                              sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
-                             sail_neg_filter_context,automa_alt_vae):
+                             sail_neg_filter_context,automa_alt_vae,sail_checkpoint,
+                             sail_sampler, sail_vae, sail_dimensions, sail_gen_type,
+                             sail_gen_steps,sail_gen_enabled):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -176,6 +181,15 @@ class ui_actions:
         self.g.settings_data['sail_neg_filter_not_text'] = sail_neg_filter_not_text
         self.g.settings_data['sail_neg_filter_context'] = sail_neg_filter_context
         self.g.settings_data['automa_alt_vae'] = automa_alt_vae
+        self.g.settings_data['sail_checkpoint'] = sail_checkpoint
+        self.g.settings_data['sail_sampler'] = sail_sampler
+        self.g.settings_data['sail_vae'] = sail_vae
+        self.g.settings_data['sail_dimensions'] = sail_dimensions
+        self.g.settings_data['sail_gen_type'] = sail_gen_type
+        self.g.settings_data['sail_gen_steps'] = sail_gen_steps
+        self.g.settings_data['sail_gen_enabled'] = sail_gen_enabled
+
+
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -263,7 +277,9 @@ class ui_actions:
         ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
         ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"
         ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
-        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae'])
+        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']),self.g.settings_data["sail_checkpoint"
+        ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
+        ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -465,7 +481,32 @@ class ui_actions:
 
 
 
-    def automa_gen(self, prompt, images,folder=None):
+    def run_sail_automa_gen(self, prompt, images,folder=None):
+
+        if self.g.settings_data['sail_gen_enabled']:
+            self.step_gen_data = []
+            gen_array = [self.g.settings_data['sail_dimensions'],self.g.settings_data['sail_checkpoint'],self.g.settings_data['sail_sampler'],self.g.settings_data['sail_vae'],]
+            combinations = self.prompt_iterator.combine_all_arrays_to_arrays(gen_array)
+            if self.g.settings_data['sail_gen_type'] == 'Linear':
+                if self.gen_step == self.g.settings_data['sail_gen_steps']:
+                    self.gen_step_select += 1
+                    if self.gen_step_select > len(combinations)-1:
+                        self.gen_step_select = 0
+                    self.gen_step = 0
+                step_gen_data = combinations[self.gen_step_select]
+            else:
+                step_gen_data = combinations[random.randint(0, len(combinations)-1)]
+            self.gen_step += 1
+            if len(step_gen_data) > 0:
+
+                self.g.settings_data['automa_Width'] = step_gen_data[0].split(',')[0]
+                self.g.settings_data['automa_Height'] = step_gen_data[0].split(',')[1]
+                self.g.settings_data['automa_Checkpoint'] = step_gen_data[1]
+                self.g.settings_data['automa_Sampler'] = step_gen_data[2]
+                self.g.settings_data['automa_vae'] = step_gen_data[3]
+
+
+
 
         response = self.sail_automa_gen(prompt)
 
@@ -483,6 +524,24 @@ class ui_actions:
 
         return images
 
+
+    def automa_gen(self, prompt, images,folder=None):
+
+        response = self.sail_automa_gen(prompt)
+
+        for index, image in enumerate(response.get('images')):
+            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+            if folder == None:
+                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+            else:
+                save_path = os.path.join(out_dir_t2i,folder)
+                os.makedirs(save_path, exist_ok=True)
+                save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
+
+            self.automa_client.decode_and_save_base64(image, save_path)
+            images.append(img)
+
+        return images
 
     def shorten_string(self, text, max_bytes=1000):
         """Shortens a string to a maximum of 1000 bytes.
@@ -599,9 +658,9 @@ class ui_actions:
             if shared.is_image_black(image):
                 self.log_prompt(filename, prompt, self.g.act_neg_prompt, 0, '')
                 self.g.settings_data['automa_vae']  = self.g.settings_data['automa_alt_vae']
-                images = self.automa_gen(prompt, [])
+                images = self.run_sail_automa_gen(prompt, [])
                 self.g.settings_data['automa_vae'] = vae
-                checkimages = self.automa_gen(prompt, checkimages)
+                checkimages = self.run_sail_automa_gen(prompt, checkimages)
             else:
                 checkimages.append(image)
 
@@ -639,13 +698,13 @@ class ui_actions:
             for test_query in combinations:
 
                 self.g.settings_data["automa_Steps"] = test_query[0][0]
-                self.g.settings_data["automa_Width"] = test_query[0][1][0]
-                self.g.settings_data["automa_Height"] = test_query[0][1][1]
+                self.g.settings_data["automa_Width"] = test_query[0][1].split(',')[0]
+                self.g.settings_data["automa_Height"] = test_query[0][1].split(',')[1]
                 self.g.settings_data["automa_CFG Scale"] = test_query[0][2]
 
                 prompt = self.get_new_model_test_prompt(test_query[1])
 
-                self.interface.log_raw(filename,f'Gen params: CFG = {test_query[0][2]} Steps = {test_query[0][0]} Width = {test_query[0][1][0]} Height = {test_query[0][1][1]} \n{prompt}\n{n} ----------')
+                self.interface.log_raw(filename,f'Gen params: CFG = {test_query[0][2]} Steps = {test_query[0][0]} Width = {test_query[0][1].split(",")[0]} Height = {test_query[0][1].split(",")[1]} \n{prompt}\n{n} ----------')
 
                 images = self.automa_gen(prompt, images,folder=f'{test_query[0][2]}_{test_query[0][0]}_{test_query[0][1][0]}_{test_query[0][1][1]}')
                 self.images_done += 1
@@ -748,10 +807,10 @@ class ui_actions:
 
                 if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
-                        images = self.automa_gen(orig_prompt, images)
+                        images = self.run_sail_automa_gen(orig_prompt, images)
                         images = self.check_black_images(prompt,images,black_images_filename)
                         yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
-                    images = self.automa_gen(prompt, images)
+                    images = self.run_sail_automa_gen(prompt, images)
                     images = self.check_black_images(prompt,images,black_images_filename)
                     yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:

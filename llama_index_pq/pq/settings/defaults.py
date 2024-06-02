@@ -78,13 +78,21 @@ You mix a new prompt based on the context and the query. The query is just addin
 	"sail_neg_filter_text": "",
 	"sail_neg_filter_not_text": "",
 	"sail_neg_filter_context": False,
+	'sail_checkpoint': [],
+	'sail_sampler': [],
+	'sail_vae': [],
+	'sail_dimensions': ["1024,1024"],
+	"sail_gen_type": "Linear",
+	"sail_gen_steps": 10,
+	"sail_gen_enabled": False,
+
 
 	'model_test_steps': [20,25,30],
 	'model_test_cfg': [5, 6, 7],
-	'model_test_dimensions': [[720,1440], [1024,1024], [1024,1536]],
+	'model_test_dimensions': ["720,1440", "1024,1024", "1024,1536"],
 	'model_test_steps_list': [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
 	'model_test_cfg_list': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-	'model_test_dimensions_list': [[512,512], [768,512], [512,768], [640,1600], [1600,640], [720,1440], [1440,720], [816,1280], [1280,816], [864,1200], [1200,864], [928,1120], [1120,928], [1024,1024], [1536,1024], [1024,1536]],
+	'model_test_dimensions_list': ["512,512", "768,512", "512,768", "640,1600", "1600,640", "720,1440", "1440,720", "816,1280", "1280,816", "864,1200", "1200,864", "928,1120", "1120,928", "1024,1024", "1536,1024", "1024,1536"],
 
 	'model_test_list': 'Character',
 	'model_test_type': 'Largest List',
