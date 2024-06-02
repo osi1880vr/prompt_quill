@@ -142,7 +142,7 @@ class automa_client:
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
             "override_settings": override_settings,
-            "override_settings_restore_afterwards": False,
+            "override_settings_restore_afterwards": True,
         }
 
         return self.call_txt2img_api(**payload)
