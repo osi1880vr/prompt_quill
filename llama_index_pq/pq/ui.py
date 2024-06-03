@@ -823,8 +823,7 @@ class ui_actions:
                     yield self.sail_log,list(images),f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
                     break
 
-                if self.g.job_running is False:
-                    break
+
 
             except Exception as e:
                 n += 1
@@ -836,6 +835,11 @@ class ui_actions:
             finally:
                 n += 1
                 self.images_done += 1
+                if self.g.job_running is False:
+                    break
+
+
+
         if query != -1:
             stop_reason = 'Finished'
             if self.g.job_running is False:
@@ -887,13 +891,15 @@ class ui_actions:
                 if query == -1:
                     self.interface.log_raw(filename,f'{n} sail is finished early due to rotating context')
                     break
-                if self.g.job_running is False:
-                    break
+
             except Exception as e:
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
+            finally:
+                if self.g.job_running is False:
+                    break
 
 
     def stop_job(self):
