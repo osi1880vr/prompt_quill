@@ -56,6 +56,7 @@ class automa_client:
             f'{self.webui_server_url}/{api_endpoint}',
             headers={'Content-Type': 'application/json'},
             data=data,
+            method='POST'
         )
         try:
             response = urllib.request.urlopen(request)
@@ -115,14 +116,12 @@ class automa_client:
         elif type(negative_prompt) == bytes:
             negative_prompt = negative_prompt.decode('utf-8')
 
+        override_settings= {}
 
+        if settings_data['automa_checkpoint'] != '' and settings_data['automa_checkpoint'] != 'None':
+            override_settings["sd_model_checkpoint"] = settings_data['automa_checkpoint']
 
-
-        override_settings = {
-            "sd_model_checkpoint": settings_data['automa_Checkpoint'],
-        }
-
-        if settings_data['automa_vae'] != '':
+        if settings_data['automa_vae'] != '' and settings_data['automa_vae'] != 'None':
             override_settings["sd_vae"] = settings_data['automa_vae']
 
         if settings_data['automa_clip_skip'] > 0:
@@ -133,17 +132,22 @@ class automa_client:
             "prompt": prompt,  # extra networks also in prompts
             "negative_prompt": negative_prompt,
             "seed": -1,
-            "steps": settings_data["automa_Steps"],
-            "width": settings_data["automa_Width"],
-            "height": settings_data["automa_Height"],
-            "cfg_scale": settings_data["automa_CFG Scale"],
-            "sampler_name": settings_data['automa_Sampler'],
+            "steps": settings_data["automa_steps"],
+            "width": settings_data["automa_width"],
+            "height": settings_data["automa_height"],
+            "cfg_scale": settings_data["automa_cfg_scale"],
             "n_iter": settings_data["automa_n_iter"],
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
-            "override_settings": override_settings,
-            "override_settings_restore_afterwards": True,
+            "override_settings_restore_afterwards": settings_data['sail_override_settings_restore'],
         }
+
+        if settings_data['automa_sampler'] != 'None':
+            payload["sampler_name"] = settings_data['automa_sampler']
+
+        if override_settings != {}:
+            payload["override_settings"] = override_settings
+
 
         return self.call_txt2img_api(**payload)
 
@@ -176,7 +180,7 @@ class automa_client:
         self.webui_server_url = url
         samplers = self.get_api_endpoint('sdapi/v1/samplers')
         if samplers != '':
-            sampler_array = []
+            sampler_array = ['None']
             for sampler in samplers:
                 sampler_array.append(sampler['name'])
 
@@ -188,7 +192,7 @@ class automa_client:
         self.webui_server_url = url
         models = self.get_api_endpoint('sdapi/v1/sd-models')
         if models != '':
-            model_array = []
+            model_array = ['None']
             for model in models:
                 model_array.append(model['model_name'])
 
@@ -200,7 +204,7 @@ class automa_client:
         self.webui_server_url = url
         vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
         if vaes != '':
-            vae_array = []
+            vae_array = ['None']
             for model in vaes:
                 vae_array.append(model['model_name'])
 

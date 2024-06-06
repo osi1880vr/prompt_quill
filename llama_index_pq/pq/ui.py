@@ -99,30 +99,30 @@ class ui_actions:
     
     def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['horde_api_key'] = api_key
-        self.g.settings_data['horde_Model'] = model
-        self.g.settings_data['horde_Sampler'] = sampler
-        self.g.settings_data['horde_Steps'] = steps
-        self.g.settings_data['horde_CFG Scale'] = cfg
-        self.g.settings_data['horde_Width'] = width
-        self.g.settings_data['horde_Height'] = heigth
-        self.g.settings_data['horde_Clipskip'] = clipskip
+        self.g.settings_data['horde_model'] = model
+        self.g.settings_data['horde_sampler'] = sampler
+        self.g.settings_data['horde_steps'] = steps
+        self.g.settings_data['horde_cfg_scale'] = cfg
+        self.g.settings_data['horde_width'] = width
+        self.g.settings_data['horde_height'] = heigth
+        self.g.settings_data['horde_clipskip'] = clipskip
         self.settings_io.write_settings(self.g.settings_data)
 
     
     def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
-        self.g.settings_data['automa_Sampler'] = sampler
-        self.g.settings_data['automa_Steps'] = steps
-        self.g.settings_data['automa_CFG Scale'] = cfg
-        self.g.settings_data['automa_Width'] = width
-        self.g.settings_data['automa_Height'] = heigth
+        self.g.settings_data['automa_sampler'] = sampler
+        self.g.settings_data['automa_steps'] = steps
+        self.g.settings_data['automa_cfg_scale'] = cfg
+        self.g.settings_data['automa_width'] = width
+        self.g.settings_data['automa_height'] = heigth
         self.g.settings_data['automa_batch'] = batch
         self.g.settings_data['automa_n_iter'] = n_iter
         self.g.settings_data['automa_url'] = url
         self.g.settings_data['automa_save'] = save
         self.g.settings_data['automa_save_on_api_host'] = save_api
-        self.g.settings_data['automa_Checkpoint'] = checkpoint
+        self.g.settings_data['automa_checkpoint'] = checkpoint
         self.g.settings_data['automa_vae'] = vae
         self.g.settings_data['automa_clip_skip'] = clip_skip
         self.settings_io.write_settings(self.g.settings_data)
@@ -150,7 +150,7 @@ class ui_actions:
                              sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
                              sail_neg_filter_context,automa_alt_vae,sail_checkpoint,
                              sail_sampler, sail_vae, sail_dimensions, sail_gen_type,
-                             sail_gen_steps,sail_gen_enabled):
+                             sail_gen_steps,sail_gen_enabled,sail_override_settings_restore,sail_store_folders):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -188,8 +188,8 @@ class ui_actions:
         self.g.settings_data['sail_gen_type'] = sail_gen_type
         self.g.settings_data['sail_gen_steps'] = sail_gen_steps
         self.g.settings_data['sail_gen_enabled'] = sail_gen_enabled
-
-
+        self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
+        self.g.settings_data['sail_store_folders'] = sail_store_folders
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -229,13 +229,13 @@ class ui_actions:
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
-            self.g.settings_data['horde_api_key'], self.g.settings_data['horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data[
-            'horde_Steps'], self.g.settings_data['horde_CFG Scale'], self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], \
-            self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']
-            ), self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
-            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data[
+            self.g.settings_data['horde_api_key'], self.g.settings_data['horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data[
+            'horde_steps'], self.g.settings_data['horde_cfg_scale'], self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], \
+            self.g.settings_data['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
+            ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data[
             'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
-            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'
+            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'
         ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']),self.g.settings_data[
             'automa_clip_skip']
     
@@ -244,15 +244,15 @@ class ui_actions:
     
     def hordeai_get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde_api_key'], self.g.settings_data[
-            'horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data['horde_Steps'], self.g.settings_data['horde_CFG Scale'], \
-            self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], self.g.settings_data['horde_Clipskip']
+            'horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data['horde_steps'], self.g.settings_data['horde_cfg_scale'], \
+            self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], self.g.settings_data['horde_clipskip']
     
     
     def automa_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']
-                                                                          ), self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
-            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
-            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'])
+        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
+                                                                          ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
+            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'])
     
     
     def get_llm_settings(self):
@@ -263,10 +263,10 @@ class ui_actions:
             self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
             self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
             self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        if self.g.settings_data['automa_Sampler'] == '':
-            self.g.settings_data['automa_Sampler'] = self.g.settings_data['automa_samplers'][0]
-        if self.g.settings_data['automa_Checkpoint'] == '':
-            self.g.settings_data['automa_Checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
+        if self.g.settings_data['automa_sampler'] == '':
+            self.g.settings_data['automa_sampler'] = self.g.settings_data['automa_samplers'][0]
+        if self.g.settings_data['automa_checkpoint'] == '':
+            self.g.settings_data['automa_checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
         if self.g.settings_data['automa_vae'] == '':
             self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
@@ -279,7 +279,8 @@ class ui_actions:
         ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
         ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']),self.g.settings_data["sail_checkpoint"
         ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
-        ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"]
+        ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
+        ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -326,12 +327,17 @@ class ui_actions:
 
         response = self.automa_client.request_generation(prompt, negative_prompt, self.g.settings_data)
         images = []
-        for index, image in enumerate(response.get('images')):
-            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            if save:
-                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                self.automa_client.decode_and_save_base64(image, save_path)
-            images.append(img)
+        if response != '':
+            for index, image in enumerate(response.get('images')):
+                img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                if save:
+                    if self.g.settings_data['sail_store_folders']:
+                        sanitized_model_name = shared.sanitize_path_component(self.g.settings_data['automa_ad_model'])
+                        save_path = os.path.join(out_dir_t2i, sanitized_model_name, f'txt2img-{self.timestamp()}-{index}.png')
+                    else:
+                        save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                    self.automa_client.decode_and_save_base64(image, save_path)
+                images.append(img)
         yield images
 
     
@@ -343,16 +349,16 @@ class ui_actions:
         return response
 
 
-    def automa_switch_size(self,automa_Width,automa_Height):
-        self.g.settings_data['automa_Width'] = automa_Height
-        self.g.settings_data['automa_Height'] = automa_Width
-        return automa_Height,automa_Width
+    def automa_switch_size(self,automa_width,automa_height):
+        self.g.settings_data['automa_width'] = automa_height
+        self.g.settings_data['automa_height'] = automa_width
+        return automa_height,automa_width
 
     def automa_refresh(self):
         self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
         self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
 
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
@@ -381,8 +387,8 @@ class ui_actions:
     def get_automa_sampler(self):
         samplers = self.automa_client.get_samplers(self.g.settings_data['automa_url'])
         if samplers != -1:
-            if self.g.settings_data['automa_Sampler'] == '':
-                self.g.settings_data['automa_Sampler'] = samplers[0]
+            if self.g.settings_data['automa_sampler'] == '':
+                self.g.settings_data['automa_sampler'] = samplers[0]
             return samplers
         else:
             return []
@@ -390,8 +396,8 @@ class ui_actions:
     def get_automa_checkpoints(self):
         checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa_url'])
         if checkpoints != -1:
-            if self.g.settings_data['automa_Checkpoint'] == '':
-                self.g.settings_data['automa_Checkpoint'] = checkpoints[0]
+            if self.g.settings_data['automa_checkpoint'] == '':
+                self.g.settings_data['automa_checkpoint'] = checkpoints[0]
             return checkpoints
         else:
             return []
@@ -483,6 +489,9 @@ class ui_actions:
 
     def run_sail_automa_gen(self, prompt, images,folder=None):
 
+        if folder != None:
+            folder = shared.sanitize_path_component(folder)
+
         if self.g.settings_data['sail_gen_enabled']:
             self.step_gen_data = []
             gen_array = [self.g.settings_data['sail_dimensions'],self.g.settings_data['sail_checkpoint'],self.g.settings_data['sail_sampler'],self.g.settings_data['sail_vae'],]
@@ -499,28 +508,28 @@ class ui_actions:
             self.gen_step += 1
             if len(step_gen_data) > 0:
 
-                self.g.settings_data['automa_Width'] = step_gen_data[0].split(',')[0]
-                self.g.settings_data['automa_Height'] = step_gen_data[0].split(',')[1]
-                self.g.settings_data['automa_Checkpoint'] = step_gen_data[1]
-                self.g.settings_data['automa_Sampler'] = step_gen_data[2]
+                self.g.settings_data['automa_width'] = step_gen_data[0].split(',')[0]
+                self.g.settings_data['automa_height'] = step_gen_data[0].split(',')[1]
+                self.g.settings_data['automa_checkpoint'] = step_gen_data[1]
+                self.g.settings_data['automa_sampler'] = step_gen_data[2]
                 self.g.settings_data['automa_vae'] = step_gen_data[3]
 
-
-
+        if folder == None and self.g.settings_data['sail_store_folders']:
+            folder = shared.sanitize_path_component(self.g.settings_data['automa_checkpoint'])
 
         response = self.sail_automa_gen(prompt)
+        if response != '':
+            for index, image in enumerate(response.get('images')):
+                img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                if folder == None:
+                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                else:
+                    save_path = os.path.join(out_dir_t2i,folder)
+                    os.makedirs(save_path, exist_ok=True)
+                    save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
 
-        for index, image in enumerate(response.get('images')):
-            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            if folder == None:
-                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-            else:
-                save_path = os.path.join(out_dir_t2i,folder)
-                os.makedirs(save_path, exist_ok=True)
-                save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
-
-            self.automa_client.decode_and_save_base64(image, save_path)
-            images.append(img)
+                self.automa_client.decode_and_save_base64(image, save_path)
+                images.append(img)
 
         return images
 
@@ -528,18 +537,18 @@ class ui_actions:
     def automa_gen(self, prompt, images,folder=None):
 
         response = self.sail_automa_gen(prompt)
+        if response != '':
+            for index, image in enumerate(response.get('images')):
+                img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                if folder == None:
+                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                else:
+                    save_path = os.path.join(out_dir_t2i,folder)
+                    os.makedirs(save_path, exist_ok=True)
+                    save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
 
-        for index, image in enumerate(response.get('images')):
-            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-            if folder == None:
-                save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-            else:
-                save_path = os.path.join(out_dir_t2i,folder)
-                os.makedirs(save_path, exist_ok=True)
-                save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
-
-            self.automa_client.decode_and_save_base64(image, save_path)
-            images.append(img)
+                self.automa_client.decode_and_save_base64(image, save_path)
+                images.append(img)
 
         return images
 
@@ -572,7 +581,6 @@ class ui_actions:
 
 
     def get_new_model_test_prompt(self,query):
-        prompt = ''
         query = self.prepare_query(query)
         return self.interface.retrieve_model_test_llm_completion(query)
 
@@ -686,10 +694,10 @@ class ui_actions:
 
 
 
-        automa_Steps = self.g.settings_data["automa_Steps"]
-        automa_Width = self.g.settings_data["automa_Width"]
-        automa_Height = self.g.settings_data["automa_Height"]
-        automa_CFG = self.g.settings_data["automa_CFG Scale"]
+        automa_steps = self.g.settings_data["automa_steps"]
+        automa_width = self.g.settings_data["automa_width"]
+        automa_height = self.g.settings_data["automa_height"]
+        automa_CFG = self.g.settings_data["automa_cfg_scale"]
 
 
         if len(combinations) > 0:
@@ -697,10 +705,10 @@ class ui_actions:
             self.images_done = 0
             for test_query in combinations:
 
-                self.g.settings_data["automa_Steps"] = test_query[0][0]
-                self.g.settings_data["automa_Width"] = test_query[0][1].split(',')[0]
-                self.g.settings_data["automa_Height"] = test_query[0][1].split(',')[1]
-                self.g.settings_data["automa_CFG Scale"] = test_query[0][2]
+                self.g.settings_data["automa_steps"] = test_query[0][0]
+                self.g.settings_data["automa_width"] = test_query[0][1].split(',')[0]
+                self.g.settings_data["automa_height"] = test_query[0][1].split(',')[1]
+                self.g.settings_data["automa_cfg_scale"] = test_query[0][2]
 
                 prompt = self.get_new_model_test_prompt(test_query[1])
 
@@ -718,10 +726,10 @@ class ui_actions:
         else:
             yield [],f'Nothing to do'
 
-        self.g.settings_data["automa_Steps"] = automa_Steps
-        self.g.settings_data["automa_Width"] = automa_Width
-        self.g.settings_data["automa_Height"] = automa_Height
-        self.g.settings_data["automa_CFG Scale"] = automa_CFG
+        self.g.settings_data["automa_steps"] = automa_steps
+        self.g.settings_data["automa_width"] = automa_width
+        self.g.settings_data["automa_height"] = automa_height
+        self.g.settings_data["automa_cfg_scale"] = automa_CFG
 
 
     def run_t2t_sail(self):
@@ -803,8 +811,6 @@ class ui_actions:
 
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
-
-
                 if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
                         images = self.run_sail_automa_gen(orig_prompt, images)
@@ -878,12 +884,14 @@ class ui_actions:
 
                 if self.g.settings_data['sail_generate']:
                     response = self.sail_automa_gen(prompt)
-
-                    for index, image in enumerate(response.get('images')):
-                        img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
-                        save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
-                        self.automa_client.decode_and_save_base64(image, save_path)
-                        yield prompt,img
+                    if response != '':
+                        for index, image in enumerate(response.get('images')):
+                            img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                            save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                            self.automa_client.decode_and_save_base64(image, save_path)
+                            yield prompt,img
+                        else:
+                            yield prompt,None
                 else:
                     yield prompt,None
 
@@ -1004,34 +1012,34 @@ class ui_staff:
         self.automa_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
 
         self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde_api_key'], type='password')
-        self.horde_Model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde_Model'], label='Model')
-        self.horde_Sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
+        self.horde_model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde_model'], label='Model')
+        self.horde_sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
                                              "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
                                              "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
-                                             ], value=self.g.settings_data['horde_Sampler'], label='Sampler')
-        self.horde_Steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde_Steps'], label="Steps",
+                                             ], value=self.g.settings_data['horde_sampler'], label='Sampler')
+        self.horde_steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde_steps'], label="Steps",
                                 info="Choose between 1 and 100")
-        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde_CFG Scale'], label="CFG Scale",
+        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde_cfg_scale'], label="CFG Scale",
                               info="Choose between 1 and 20")
-        self.horde_Width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_Width'], label="Width",
+        self.horde_width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_width'], label="Width",
                                 info="Choose between 1 and 2048")
-        self.horde_Height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_Height'], label="Height",
+        self.horde_height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_height'], label="Height",
                                  info="Choose between 1 and 2048")
-        self.horde_Clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde_Clipskip'], label="Clipskip",
+        self.horde_clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde_clipskip'], label="Clipskip",
                                    info="Choose between 1 and 10")
 
         self.automa_url = gr.TextArea(lines=1, label="API URL", value=self.g.settings_data['automa_url'])
-        self.automa_Sampler = gr.Dropdown(
-            choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_Sampler'], label='Sampler')
-        self.automa_Checkpoint = gr.Dropdown(
-            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_Checkpoint'], label='Checkpoint')
-        self.automa_Steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
+        self.automa_sampler = gr.Dropdown(
+            choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler'], label='Sampler')
+        self.automa_checkpoint = gr.Dropdown(
+            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'], label='Checkpoint')
+        self.automa_steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_steps'], label="Steps",
                                  info="Choose between 1 and 100")
-        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_CFG Scale'], label="CFG Scale",
+        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_cfg_scale'], label="CFG Scale",
                                info="Choose between 1 and 20")
-        self.automa_Width = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Width'], label="Width",
+        self.automa_width = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_width'], label="Width",
                                  info="Choose between 1 and 2048")
-        self.automa_Height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
+        self.automa_height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_height'], label="Height",
                                   info="Choose between 1 and 2048")
         self.automa_Batch = gr.Slider(1, 250, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
                                        info="The number of simultaneous images in each batch, range from 1-50.")

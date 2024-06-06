@@ -211,6 +211,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							with gr.Column():
 								sail_gen_enabled = gr.Checkbox(label="Enable generation parameters", info="Enable dynamic generation parameters?",
 														  value=g.settings_data['sail_gen_enabled'])
+								sail_override_settings_restore = gr.Checkbox(label="Restore overriden Settings after each image", info="If set to true the Checkpoint and VAE will be set to the settings in SD Forge/Auto1111. It will slow down the process, but might heping with black images.",
+															   value=g.settings_data['sail_override_settings_restore'])
+								sail_store_folders = gr.Checkbox(label="store the images in folders per model?", info="Should the images be stored in different Folders per model?",
+															   value=g.settings_data['sail_store_folders'])
 							with gr.Column():
 								sail_gen_type = gr.Radio(['Random', 'Linear'],
 														 label='Select type of change, Ranodm or linear after n steps',
@@ -273,7 +277,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_dimensions.change,
 					  sail_gen_type.change,
 					  sail_gen_steps.change,
-					  sail_gen_enabled.change
+					  sail_gen_enabled.change,
+					  sail_override_settings_restore.change,
+					  sail_store_folders.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
@@ -309,7 +315,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_dimensions,
 					sail_gen_type,
 					sail_gen_steps,
-					sail_gen_enabled
+					sail_gen_enabled,
+					sail_override_settings_restore,
+					sail_store_folders
 					],
 			outputs=None)
 
@@ -347,7 +355,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_dimensions,
 					 sail_gen_type,
 					 sail_gen_steps,
-					 sail_gen_enabled])
+					 sail_gen_enabled,
+					 sail_override_settings_restore,
+					 sail_store_folders])
 
 		start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 											  inputs=[],
@@ -394,13 +404,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 																   label="Negative Prompt")
 						with gr.Row():
 							with gr.Column(scale=2):
-								automa_Sampler = gr.Dropdown(
-									choices=g.settings_data['automa_samplers'], value=g.settings_data['automa_Sampler'],
+								automa_sampler = gr.Dropdown(
+									choices=g.settings_data['automa_samplers'], value=g.settings_data['automa_sampler'],
 									label='Sampler')
 							with gr.Column(scale=2):
-								automa_Checkpoint = gr.Dropdown(
+								automa_checkpoint = gr.Dropdown(
 									choices=g.settings_data['automa_checkpoints'],
-									value=g.settings_data['automa_Checkpoint'],
+									value=g.settings_data['automa_checkpoint'],
 									label='Checkpoint')
 							with gr.Column(scale=2):
 								automa_vae = gr.Dropdown(
@@ -409,10 +419,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									label='VAE')
 
 						with gr.Row():
-							automa_Steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_Steps'],
+							automa_steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_steps'],
 													 label="Steps",
 													 info="Choose between 1 and 100")
-							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_CFG Scale'],
+							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_cfg_scale'],
 												   label="CFG Scale",
 												   info="Choose between 1 and 20")
 							automa_clip_skip = gr.Slider(0, 10, step=1, value=g.settings_data['automa_clip_skip'],
@@ -420,10 +430,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														 info="Choose between 1 and 10")
 						with gr.Row():
 							with gr.Column(scale=3):
-								automa_Width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_Width'],
+								automa_width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_width'],
 														 label="Width",
 														 info="Choose between 1 and 2048")
-								automa_Height = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_Height'],
+								automa_height = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_height'],
 														  label="Height",
 														  info="Choose between 1 and 2048")
 							with gr.Column(scale=0):
@@ -447,22 +457,22 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						automa_result_images = gr.Gallery(label='output images', )
 
 				automa_size_button.click(fn=ui_code.automa_switch_size,
-										 inputs=[automa_Width, automa_Height],
-										 outputs=[automa_Width, automa_Height])
+										 inputs=[automa_width, automa_height],
+										 outputs=[automa_width, automa_height])
 
 				automa_refresh_button.click(fn=ui_code.automa_refresh,
 											inputs=None,
-											outputs=[automa_Sampler, automa_Checkpoint, automa_vae])
+											outputs=[automa_sampler, automa_checkpoint, automa_vae])
 
 				automa_start_button.click(fn=ui_code.run_automatics_generation,
 										  inputs=[automa_prompt_input,
 												  automa_negative_prompt_input,
-												  automa_Sampler,
-												  automa_Checkpoint,
-												  automa_Steps,
+												  automa_sampler,
+												  automa_checkpoint,
+												  automa_steps,
 												  automa_CFG,
-												  automa_Width,
-												  automa_Height,
+												  automa_width,
+												  automa_height,
 												  automa_Batch,
 												  automa_n_iter,
 												  automa_url,
@@ -475,28 +485,28 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				gr.on(
 					triggers=[automa_prompt_input.change,
 							  automa_negative_prompt_input.change,
-							  automa_Sampler.change,
-							  automa_Steps.change,
+							  automa_sampler.change,
+							  automa_steps.change,
 							  automa_CFG.change,
-							  automa_Width.change,
-							  automa_Height.change,
+							  automa_width.change,
+							  automa_height.change,
 							  automa_Batch.change,
 							  automa_n_iter.change,
 							  automa_url.change,
 							  automa_save.change,
 							  automa_save_on_api_host.change,
-							  automa_Checkpoint.change,
+							  automa_checkpoint.change,
 							  automa_vae.change,
 							  automa_clip_skip.change, ],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
-							automa_Sampler,
-							automa_Checkpoint,
-							automa_Steps,
+							automa_sampler,
+							automa_checkpoint,
+							automa_steps,
 							automa_CFG,
-							automa_Width,
-							automa_Height,
+							automa_width,
+							automa_height,
 							automa_Batch,
 							automa_n_iter,
 							automa_url,
@@ -576,13 +586,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				outputs=[ui.hordeai_prompt_input,
 						 ui.hordeai_negative_prompt_input,
 						 ui.horde_api_key,
-						 ui.horde_Model,
-						 ui.horde_Sampler,
-						 ui.horde_Steps,
+						 ui.horde_model,
+						 ui.horde_sampler,
+						 ui.horde_steps,
 						 ui.horde_CFG,
-						 ui.horde_Width,
-						 ui.horde_Height,
-						 ui.horde_Clipskip]
+						 ui.horde_width,
+						 ui.horde_height,
+						 ui.horde_clipskip]
 			)
 			gr.Interface(
 				ui_code.run_hordeai_generation,
@@ -590,13 +600,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					ui.hordeai_prompt_input,
 					ui.hordeai_negative_prompt_input,
 					ui.horde_api_key,
-					ui.horde_Model,
-					ui.horde_Sampler,
-					ui.horde_Steps,
+					ui.horde_model,
+					ui.horde_sampler,
+					ui.horde_steps,
 					ui.horde_CFG,
-					ui.horde_Width,
-					ui.horde_Height,
-					ui.horde_Clipskip,
+					ui.horde_width,
+					ui.horde_height,
+					ui.horde_clipskip,
 				]
 				, outputs=gr.Image(label="Generated Image"),  # "text",
 				allow_flagging='never',
@@ -810,26 +820,26 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		outputs=[ui.hordeai_prompt_input,
 				 ui.hordeai_negative_prompt_input,
 				 ui.horde_api_key,
-				 ui.horde_Model,
-				 ui.horde_Sampler,
-				 ui.horde_Steps,
+				 ui.horde_model,
+				 ui.horde_sampler,
+				 ui.horde_steps,
 				 ui.horde_CFG,
-				 ui.horde_Width,
-				 ui.horde_Height,
-				 ui.horde_Clipskip,
+				 ui.horde_width,
+				 ui.horde_height,
+				 ui.horde_clipskip,
 				 automa_prompt_input,
 				 automa_negative_prompt_input,
-				 automa_Sampler,
-				 automa_Steps,
+				 automa_sampler,
+				 automa_steps,
 				 automa_CFG,
-				 automa_Width,
-				 automa_Height,
+				 automa_width,
+				 automa_height,
 				 automa_Batch,
 				 automa_n_iter,
 				 automa_url,
 				 automa_save,
 				 automa_save_on_api_host,
-				 automa_Checkpoint,
+				 automa_checkpoint,
 				 automa_vae,
 				 automa_clip_skip
 				 ]
@@ -840,17 +850,17 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		inputs=None,
 		outputs=[automa_prompt_input,
 				 automa_negative_prompt_input,
-				 automa_Sampler,
-				 automa_Steps,
+				 automa_sampler,
+				 automa_steps,
 				 automa_CFG,
-				 automa_Width,
-				 automa_Height,
+				 automa_width,
+				 automa_height,
 				 automa_Batch,
 				 automa_n_iter,
 				 automa_url,
 				 automa_save,
 				 automa_save_on_api_host,
-				 automa_Checkpoint]
+				 automa_checkpoint]
 	)
 
 	with gr.Tab('Image Scoring'):

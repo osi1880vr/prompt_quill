@@ -86,22 +86,22 @@ class ui_actions:
 
     def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
         self.g.settings_data['horde_api_key'] = api_key
-        self.g.settings_data['horde_Model'] = model
-        self.g.settings_data['horde_Sampler'] = sampler
-        self.g.settings_data['horde_Steps'] = steps
-        self.g.settings_data['horde_CFG Scale'] = cfg
-        self.g.settings_data['horde_Width'] = width
-        self.g.settings_data['horde_Height'] = heigth
-        self.g.settings_data['horde_Clipskip'] = clipskip
+        self.g.settings_data['horde_model'] = model
+        self.g.settings_data['horde_sampler'] = sampler
+        self.g.settings_data['horde_steps'] = steps
+        self.g.settings_data['horde_cfg_scale'] = cfg
+        self.g.settings_data['horde_width'] = width
+        self.g.settings_data['horde_height'] = heigth
+        self.g.settings_data['horde_clipskip'] = clipskip
         self.settings_io.write_settings(self.g.settings_data)
         self.interface.reload_settings()
 
     def set_automa_settings(self, sampler, steps, cfg, width, heigth, batch,n_iter, url, save, save_api):
-        self.g.settings_data['automa_Sampler'] = sampler
-        self.g.settings_data['automa_Steps'] = steps
-        self.g.settings_data['automa_CFG Scale'] = cfg
-        self.g.settings_data['automa_Width'] = width
-        self.g.settings_data['automa_Height'] = heigth
+        self.g.settings_data['automa_sampler'] = sampler
+        self.g.settings_data['automa_steps'] = steps
+        self.g.settings_data['automa_cfg_scale'] = cfg
+        self.g.settings_data['automa_width'] = width
+        self.g.settings_data['automa_height'] = heigth
         self.g.settings_data['automa_batch'] = batch
         self.g.settings_data['automa_n_iter'] = n_iter
         self.g.settings_data['automa_url'] = url
@@ -141,11 +141,11 @@ class ui_actions:
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['civitai_Air'], self.g.settings_data[
             'civitai_Steps'], self.g.settings_data['civitai_CFG Scale'], self.g.settings_data['civitai_Width'], self.g.settings_data[
             'civitai_Height'], self.g.settings_data['civitai_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, \
-            self.g.settings_data['horde_api_key'], self.g.settings_data['horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data[
-            'horde_Steps'], self.g.settings_data['horde_CFG Scale'], self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], \
-            self.g.settings_data['horde_Clipskip'], self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data[
-            'automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data[
-            'automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
+            self.g.settings_data['horde_api_key'], self.g.settings_data['horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data[
+            'horde_steps'], self.g.settings_data['horde_cfg_scale'], self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], \
+            self.g.settings_data['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data[
+            'automa_sampler'], self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
 
 
     def civitai_get_last_prompt(self):
@@ -156,12 +156,12 @@ class ui_actions:
 
     def hordeai_get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde_api_key'], self.g.settings_data[
-            'horde_Model'], self.g.settings_data['horde_Sampler'], self.g.settings_data['horde_Steps'], self.g.settings_data['horde_CFG Scale'], \
-            self.g.settings_data['horde_Width'], self.g.settings_data['horde_Height'], self.g.settings_data['horde_Clipskip']
+            'horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data['horde_steps'], self.g.settings_data['horde_cfg_scale'], \
+            self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], self.g.settings_data['horde_clipskip']
 
 
     def automa_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_Sampler'], self.g.settings_data['automa_Steps'], self.g.settings_data['automa_CFG Scale'], self.g.settings_data['automa_Width'], self.g.settings_data['automa_Height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
+        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['automa_sampler'], self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data['automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host']
 
 
     def llm_get_settings(self):
@@ -264,11 +264,11 @@ class ui_actions:
     def sail_automa_gen(self, query):
         return self.automa_client.request_generation(query,
                                                      self.g.settings_data['negative_prompt'],
-                                                     self.g.settings_data['automa_Sampler'],
-                                                     self.g.settings_data['automa_Steps'],
-                                                     self.g.settings_data['automa_CFG Scale'],
-                                                     self.g.settings_data['automa_Width'],
-                                                     self.g.settings_data['automa_Height'],
+                                                     self.g.settings_data['automa_sampler'],
+                                                     self.g.settings_data['automa_steps'],
+                                                     self.g.settings_data['automa_cfg_scale'],
+                                                     self.g.settings_data['automa_width'],
+                                                     self.g.settings_data['automa_height'],
                                                      self.g.settings_data['automa_url'],
                                                      self.g.settings_data['automa_save'],
                                                      self.g.settings_data['automa_batch'],
@@ -527,25 +527,25 @@ class ui_staff:
                                      info="Choose between 1 and 10")
 
         self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde_api_key'], type='password')
-        self.horde_Model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value='Deliberate 3.0', label='Model')
-        self.horde_Sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
+        self.horde_model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value='Deliberate 3.0', label='Model')
+        self.horde_sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
                                              "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
                                              "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
-                                             ], value=self.g.settings_data['horde_Sampler'], label='Sampler')
+                                             ], value=self.g.settings_data['horde_sampler'], label='Sampler')
 
-        self.horde_Steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde_Steps'], label="Steps",
+        self.horde_steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde_steps'], label="Steps",
                                 info="Choose between 1 and 100")
-        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde_CFG Scale'], label="CFG Scale",
+        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde_cfg_scale'], label="CFG Scale",
                               info="Choose between 1 and 20")
-        self.horde_Width = gr.Slider(0, 1024, step=1, value=self.g.settings_data['horde_Width'], label="Width",
+        self.horde_width = gr.Slider(0, 1024, step=1, value=self.g.settings_data['horde_width'], label="Width",
                                 info="Choose between 1 and 1024")
-        self.horde_Height = gr.Slider(0, 1024, step=1, value=self.g.settings_data['horde_Height'], label="Height",
+        self.horde_height = gr.Slider(0, 1024, step=1, value=self.g.settings_data['horde_height'], label="Height",
                                  info="Choose between 1 and 1024")
-        self.horde_Clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde_Clipskip'], label="Clipskip",
+        self.horde_clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde_clipskip'], label="Clipskip",
                                    info="Choose between 1 and 10")
 
         self.automa_url = gr.TextArea(lines=1, label="API URL", value=self.g.settings_data['automa_url'])
-        self.automa_Sampler = gr.Dropdown(
+        self.automa_sampler = gr.Dropdown(
             choices=['DPM++ 2M Karras', 'DPM++ SDE Karras', 'DPM++ 2M SDE Exponential', 'DPM++ 2M SDE Karras', 'Euler a',
                      'Euler',
                      'LMS', 'Heun', 'DPM2', 'DPM2 a', 'DPM++ 2S a',
@@ -553,14 +553,14 @@ class ui_staff:
                      'DPM++ 2M SDE Heun Exponential', 'DPM++ 3M SDE', 'DPM++ 3M SDE Karras', 'DPM++ 3M SDE Exponential',
                      'DPM fast',
                      'DPM adaptive', 'LMS Karras', 'DPM2 Karras', 'DPM2 a Karras', 'DPM++ 2S a Karras'
-                     ], value=self.g.settings_data['automa_Sampler'], label='Sampler')
-        self.automa_Steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['automa_Steps'], label="Steps",
+                     ], value=self.g.settings_data['automa_sampler'], label='Sampler')
+        self.automa_steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['automa_steps'], label="Steps",
                                  info="Choose between 1 and 100")
-        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_CFG Scale'], label="CFG Scale",
+        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_cfg_scale'], label="CFG Scale",
                                info="Choose between 1 and 20")
-        self.automa_Width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_Width'], label="Width",
+        self.automa_width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_width'], label="Width",
                                  info="Choose between 1 and 2048")
-        self.automa_Height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_Height'], label="Height",
+        self.automa_height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['automa_height'], label="Height",
                                   info="Choose between 1 and 2048")
         self.automa_Batch = gr.Slider(1, 250, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
                                       info="The number of simultaneous images in each batch, range from 1-50.")

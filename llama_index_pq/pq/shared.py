@@ -215,3 +215,25 @@ def is_image_black(image):
 
 	# Check if all values in the array are 0 (black)
 	return np.all(image_array == 0)
+
+def sanitize_path_component(component, replacement='_'):
+	"""
+	Sanitizes a string to make it a valid file path component.
+
+	Parameters:
+	- component (str): The string to sanitize.
+	- replacement (str): The string to replace invalid characters with. Default is '_'.
+
+	Returns:
+	- str: The sanitized string.
+	"""
+	# List of invalid characters for Windows
+	invalid_chars = r'[<>:"/\\|?*\x00-\x1F]'
+
+	# Replace invalid characters with the specified replacement
+	sanitized = re.sub(invalid_chars, replacement, component)
+
+	# Trim leading and trailing spaces
+	sanitized = sanitized.strip()
+
+	return sanitized
