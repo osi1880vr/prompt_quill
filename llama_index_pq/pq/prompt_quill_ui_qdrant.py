@@ -85,6 +85,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												   label="Sail steps", info="Choose between 1 and 10000")
 							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
 												   label="Sail distance", info="Choose between 1 and 10000")
+							sail_depth_preset = gr.Slider(1, 1000000, step=1, value=g.settings_data['sail_depth_preset'],
+												   label="Sail distance preset", info="Choose between 1 and 1000000")
 
 						with gr.Row():
 							sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
@@ -118,9 +120,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 															  info="Limit the number of images keept in the gallery choose between 1 and 500")
 
 				with gr.Row():
-					sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png')
+					sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png',interactive=True)
 				with gr.Row():
-					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs")
+					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",interactive=True)
 			with gr.Tab('Filters'):
 				with gr.Row():
 					with gr.Column(scale=1):
@@ -279,7 +281,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_gen_steps.change,
 					  sail_gen_enabled.change,
 					  sail_override_settings_restore.change,
-					  sail_store_folders.change
+					  sail_store_folders.change,
+					  sail_depth_preset.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
@@ -317,7 +320,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_gen_steps,
 					sail_gen_enabled,
 					sail_override_settings_restore,
-					sail_store_folders
+					sail_store_folders,
+					sail_depth_preset
 					],
 			outputs=None)
 

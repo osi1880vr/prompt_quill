@@ -87,6 +87,8 @@ You mix a new prompt based on the context and the query. The query is just addin
 	"sail_gen_enabled": False,
 	"sail_override_settings_restore": False,
 	"sail_store_folders": False,
+	"sail_depth_preset": 1,
+
 
 	'model_test_steps': [20,25,30],
 	'model_test_cfg': [5, 6, 7],

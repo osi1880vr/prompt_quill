@@ -203,7 +203,7 @@ class adapter:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                        query_vector=vector,
                                        limit=limit,
-                                       offset=(offset+1)*limit,
+                                       offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit),
                                        query_filter=filter,
                                        search_params=SearchParams(hnsw_ef=128, exact=False),
                                        )
@@ -212,7 +212,7 @@ class adapter:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                                 query_vector=vector,
                                                 limit=limit,
-                                                offset=(offset+1)*limit
+                                                offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit)
                                                 )
         return result
 

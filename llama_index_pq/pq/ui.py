@@ -150,7 +150,8 @@ class ui_actions:
                              sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
                              sail_neg_filter_context,automa_alt_vae,sail_checkpoint,
                              sail_sampler, sail_vae, sail_dimensions, sail_gen_type,
-                             sail_gen_steps,sail_gen_enabled,sail_override_settings_restore,sail_store_folders):
+                             sail_gen_steps,sail_gen_enabled,sail_override_settings_restore,sail_store_folders,
+                             sail_depth_preset):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -190,6 +191,9 @@ class ui_actions:
         self.g.settings_data['sail_gen_enabled'] = sail_gen_enabled
         self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
         self.g.settings_data['sail_store_folders'] = sail_store_folders
+        self.g.settings_data['sail_depth_preset'] = sail_depth_preset
+
+
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -280,7 +284,8 @@ class ui_actions:
         ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']),self.g.settings_data["sail_checkpoint"
         ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
         ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
-        ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"]
+        ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"
+        ],self.g.settings_data["sail_depth_preset"]
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -795,13 +800,17 @@ class ui_actions:
             query = self.interface.translate(self.g.settings_data['sail_text'])
 
         prompt_discard_count = 0
-        n = 0
+        n = 1
         sail_steps = self.g.settings_data['sail_width']
 
         context_count = self.get_context_count()
 
-        yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(int(context_count / self.g.settings_data['sail_depth']))} images possible"
+        possible_images = int(context_count / self.g.settings_data['sail_depth'])-int(self.g.settings_data['sail_depth_preset'] / self.g.settings_data['sail_depth'])
 
+        yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(possible_images)} images possible"
+
+        new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
+        query = self.get_next_target_new(new_nodes)
 
         while n < sail_steps:
 
