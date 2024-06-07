@@ -932,7 +932,7 @@ class ui_actions:
     
 
     def get_context_details(self, *args):
-        context_details = self.interface.get_context_details()
+        context_details = self.g.last_context_list
         textboxes = []
         for detail in context_details:
             t = gr.Textbox(f"{detail}")

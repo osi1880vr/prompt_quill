@@ -250,10 +250,11 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         nodes = self.retrieve_context(query)
         self.prepare_meta_data_from_nodes(nodes)
         context = ''
+        self.g.last_context_list = []
         for node in nodes:
             payload = json.loads(node.payload['_node_content'])
             context = context + payload['text']
-
+            self.g.last_context_list.append(payload['text'])
         return [context]
 
 
