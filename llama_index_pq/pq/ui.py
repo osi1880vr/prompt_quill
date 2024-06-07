@@ -946,7 +946,8 @@ class ui_actions:
     
     def dive_into(self, text):
         self.g.context_prompt = text
-        context = self.interface.retrieve_context(text)
+        self.interface.retrieve_context(text)
+        context = self.g.last_context_list
     
         if len(context) < self.max_top_k - 1:
             x = range(len(context), self.max_top_k - 1)

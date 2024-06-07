@@ -40,6 +40,8 @@ image_score = score.aestetic_score()
 max_top_k = 50
 textboxes = []
 
+
+
 with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 	with gr.Row():
 		# Image element (adjust width as needed)
@@ -85,7 +87,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												   label="Sail steps", info="Choose between 1 and 10000")
 							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
 												   label="Sail distance", info="Choose between 1 and 10000")
-							sail_depth_preset = gr.Slider(1, 1000000, step=1, value=g.settings_data['sail_depth_preset'],
+							sail_depth_preset = gr.Slider(0, 1000000, step=1, value=g.settings_data['sail_depth_preset'],
 												   label="Sail distance preset", info="Choose between 1 and 1000000")
 
 						with gr.Row():
@@ -122,7 +124,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Row():
 					sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png',interactive=True)
 				with gr.Row():
-					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",interactive=True)
+					sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",interactive=True,autoscroll=True)
 			with gr.Tab('Filters'):
 				with gr.Row():
 					with gr.Column(scale=1):
