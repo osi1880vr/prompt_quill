@@ -529,6 +529,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				button_interrogate = gr.Button('Interrogate')
 				button_interrogate.click(ui_code.run_automa_interrogation, [input_image, interrogate_url],
 										 output_interrogation)
+				input_image.change(ui_code.run_automa_interrogation, [input_image, interrogate_url],
+								   output_interrogation)
 			with gr.Tab('Interrogate Batch') as interrogate_batch:
 				input_image_gallery = gr.Gallery()
 				output_interrogation = gr.Textbox()

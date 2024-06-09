@@ -393,7 +393,7 @@ class ui_actions:
         samplers = self.automa_client.get_samplers(self.g.settings_data['automa_url'])
         if samplers != -1:
             if self.g.settings_data['automa_sampler'] == '':
-                self.g.settings_data['automa_sampler'] = samplers[0]
+                self.g.settings_data['automa_sampler'] = ['None'] + samplers[0]
             return samplers
         else:
             return []
@@ -402,7 +402,7 @@ class ui_actions:
         checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa_url'])
         if checkpoints != -1:
             if self.g.settings_data['automa_checkpoint'] == '':
-                self.g.settings_data['automa_checkpoint'] = checkpoints[0]
+                self.g.settings_data['automa_checkpoint'] = ['None'] + checkpoints[0]
             return checkpoints
         else:
             return []
@@ -412,7 +412,7 @@ class ui_actions:
         vaes = self.automa_client.get_vaes(self.g.settings_data['automa_url'])
         if vaes != -1:
             if self.g.settings_data['automa_vae'] == '':
-                self.g.settings_data['automa_vae'] = vaes[0]
+                self.g.settings_data['automa_vae'] = ['None'] + vaes[0]
             return vaes
         else:
             return []
@@ -812,7 +812,7 @@ class ui_actions:
         new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
         query = self.get_next_target_new(new_nodes)
 
-        while n < sail_steps:
+        while n < sail_steps+1:
 
             try:
 
@@ -848,10 +848,11 @@ class ui_actions:
                 print('some error happened: ',str(e))
                 time.sleep(5)
             finally:
-                n += 1
-                self.images_done += 1
                 if self.g.job_running is False:
                     break
+                else:
+                    n += 1
+                    self.images_done += 1
 
 
 
@@ -860,9 +861,9 @@ class ui_actions:
             if self.g.job_running is False:
                 stop_reason = 'Stopped'
             if self.g.settings_data['sail_generate']:
-                yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+                yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
             else:
-                yield self.sail_log,[],f'{stop_reason}\n{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+                yield self.sail_log,[],f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
 
     def run_t2t_show_sail(self):
         self.g.job_running = True
