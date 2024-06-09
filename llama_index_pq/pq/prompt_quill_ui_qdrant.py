@@ -431,9 +431,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_cfg_scale'],
 												   label="CFG Scale",
 												   info="Choose between 1 and 20")
-							automa_clip_skip = gr.Slider(0, 10, step=1, value=g.settings_data['automa_clip_skip'],
+							automa_clip_skip = gr.Slider(0, 12, step=1, value=g.settings_data['automa_clip_skip'],
 														 label="Clip Skip",
-														 info="Choose between 1 and 10")
+														 info="Choose between 1 and 12")
 						with gr.Row():
 							with gr.Column(scale=3):
 								automa_width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_width'],
