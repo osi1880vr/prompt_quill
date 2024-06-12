@@ -28,8 +28,11 @@ while 1:
         response = requests.get(url)
         if response.status_code == 200:
             break
+        else:
+            print(f'http status: {response.status_code}')
         time.sleep(1)
-    except:
+    except Exception as e:
+        print(str(e))
         pass
     if trycount > 300:
         print('something went wrong qdrant is still not up and running, please try again')
