@@ -363,7 +363,7 @@ class ui_actions:
         self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
         self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae'])
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae'])
 
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
