@@ -49,7 +49,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 show_download_button=False, container=False, elem_classes="gr-image", )
 
 		# Title element (adjust font size and styling with CSS if needed)
-		gr.Markdown("**Prompt Quill**", elem_classes="app-title")  # Add unique ID for potential CSS styling
+		gr.Markdown("**Prompt Quill 2.0**", elem_classes="app-title")  # Add unique ID for potential CSS styling
 
 	with gr.Tab("Chat") as chat:
 		with gr.Row():
