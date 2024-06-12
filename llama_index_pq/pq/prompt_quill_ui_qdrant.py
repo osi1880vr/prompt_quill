@@ -208,7 +208,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 														  label=f'Rephrase Prompt',
 														  placeholder="Enter your rephrase prompt",
 														  lines=4)
-			with gr.Tab('Generation Sailing'):
+			with gr.Tab('Generation Sailing') as gen_sail:
 				with gr.Row():
 					with gr.Column(scale=3):
 						with gr.Row():
@@ -364,6 +364,14 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_gen_enabled,
 					 sail_override_settings_restore,
 					 sail_store_folders])
+
+
+		gr.on(
+			triggers=[gen_sail.select],
+			fn=ui_code.automa_refresh,
+			inputs=None,
+			outputs=[sail_sampler, sail_checkpoint, sail_vae]
+		)
 
 		start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
 											  inputs=[],

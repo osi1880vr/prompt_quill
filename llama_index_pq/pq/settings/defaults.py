@@ -478,7 +478,7 @@ ASSISTANT: cinematic photo, masterpiece, in the style of Blade Runner, futuristi
 USER: Create a prompt for: {query_str}
 {assistant_pattern}
 """,
-		'custom_template': """{instruction_start}Context information is below.
+		'prompt_template_b': """{instruction_start}Context information is below.
 ---------------------
 {context_str}
 ---------------------
@@ -502,6 +502,7 @@ ASSISTANT: at dusk, cinematic photo in the style of Blade Runner, with a high-te
 {start_pattern}
 USER: Create a prompt for: {query_str}
 {assistant_pattern}""",
+"custom_template": """""",
 'model_test_instruction': """{instruction_start}Context information is below.
 ---------------------
 {context_str}

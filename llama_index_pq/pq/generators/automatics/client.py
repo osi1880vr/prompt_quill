@@ -204,7 +204,7 @@ class automa_client:
         self.webui_server_url = url
         vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
         if vaes != '':
-            vae_array = ['None']
+            vae_array = ['None', 'Automatic']
             for model in vaes:
                 vae_array.append(model['model_name'])
 

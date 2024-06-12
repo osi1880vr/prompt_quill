@@ -393,7 +393,7 @@ class ui_actions:
         samplers = self.automa_client.get_samplers(self.g.settings_data['automa_url'])
         if samplers != -1:
             if self.g.settings_data['automa_sampler'] == '':
-                self.g.settings_data['automa_sampler'] = ['None'] + samplers[0]
+                self.g.settings_data['automa_sampler'] = samplers[0]
             return samplers
         else:
             return []
@@ -402,7 +402,7 @@ class ui_actions:
         checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa_url'])
         if checkpoints != -1:
             if self.g.settings_data['automa_checkpoint'] == '':
-                self.g.settings_data['automa_checkpoint'] = ['None'] + checkpoints[0]
+                self.g.settings_data['automa_checkpoint'] = checkpoints[0]
             return checkpoints
         else:
             return []
@@ -412,7 +412,7 @@ class ui_actions:
         vaes = self.automa_client.get_vaes(self.g.settings_data['automa_url'])
         if vaes != -1:
             if self.g.settings_data['automa_vae'] == '':
-                self.g.settings_data['automa_vae'] = ['None'] + vaes[0]
+                self.g.settings_data['automa_vae'] = vaes[0]
             return vaes
         else:
             return []
