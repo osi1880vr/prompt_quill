@@ -87,6 +87,10 @@ class api_sail:
 
 		try:
 
+			if 'unload_llm' in data:
+				if data['unload_llm'] is True:
+					self.g.settings_data['unload_llm'] = True
+
 			if data['add_search'] is True:
 				query = f'{data["search"]}, {query}'
 

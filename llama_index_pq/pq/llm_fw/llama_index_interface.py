@@ -332,15 +332,16 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             grammar=None
         )
 
-
         output = ""
         for completion_chunk in completion_chunks:
             text = completion_chunk['choices'][0]['text']
             output += text
 
-
         return output.strip()
 
+    def check_llm_loaded(self):
+        if not hasattr(self, 'llm'):
+            self.llm = self.set_llm()
 
     def retrieve_model_test_llm_completion(self, prompt):
         self.llm._model.reset()
@@ -352,15 +353,25 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         return self.create_completion(prompt)
 
     def retrieve_llm_completion(self, prompt):
+
+        self.check_llm_loaded()
+
         self.llm._model.reset()
 
         context = self.get_context_text(prompt)
         self.g.last_context = context
         prompt = self.prepare_prompt(prompt,context)
 
-        return self.create_completion(prompt)
+        result = self.create_completion(prompt)
+
+        if self.g.settings_data['unload_llm']:
+            self.del_llm_model()
+
+        return result
 
     def retrieve_query(self, query):
+        self.check_llm_loaded()
+
         try:
             self.llm._model.reset()
             return self.retrieve_llm_completion(query)
@@ -369,11 +380,20 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             return 'something went wrong:' + str(e)
 
     def retrieve_rephrase_query(self, query, context):
+
+        self.check_llm_loaded()
         self.set_rephrase_pipeline(context)
         self.llm._model.reset()
         response =  self.query_rephrase_engine.query(query)
         response = response.response.strip(" ")
         return response.replace('"','')
+
+    def del_llm_model(self):
+        if hasattr(self, 'llm'):
+            self.llm._model = None
+            del self.llm
+        # delete the model from Ram
+        gc.collect()
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k):
 
@@ -384,13 +404,9 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.g.settings_data["top_k"] = top_k
         self.g.settings_data['LLM Model'] = model["name"]
 
-        self.llm._model = None
-        del self.llm
+        self.del_llm_model()
 
         self.llm = self.set_llm()
-
-        # delete the model from Ram
-        gc.collect()
 
         self.set_pipeline()
         settings_io().write_settings(self.g.settings_data)
@@ -410,11 +426,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         self.log('magic_prompt_logfile.txt',f"Magic Prompt: \n{prompt_text} \n")
 
-        self.llm._model = None
-        del self.llm
-
-        # delete the model from Ram
-        gc.collect()
+        self.del_llm_model()
 
         self.llm = self.set_llm()
 

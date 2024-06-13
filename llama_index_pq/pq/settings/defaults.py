@@ -9,6 +9,7 @@ default = {
 	"top_k": 5,
 	"max_top_k": 50,
 	"Instruct Model": False,
+	"unload_llm": False,
 	"collection": 'prompts_large_meta',
 	"collections_list": ['prompts_large_meta'],
 
