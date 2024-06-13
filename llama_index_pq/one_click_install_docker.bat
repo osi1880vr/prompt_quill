@@ -72,13 +72,13 @@ if exist "%INSTALL_DIR%/qdrant" (
 if not exist "%INSTALL_DIR%/qdrant" (
 
     ECHO Download LLama-index QDrant data
-    curl -L https://civitai.com/api/download/models/407093 --output %INSTALL_DIR%/data.zip
+    curl -L https://civitai.com/api/download/models/567736 --output %INSTALL_DIR%/data.zip
 
     cd %INSTALL_DIR%
 
 
     ECHO Load data into qdrant
-    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-3474994170629559-2024-03-23-06-41-00.snapshot"
+    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot"
 
     ECHO some cleanup
     del /f %INSTALL_DIR%\dist-qdrant.zip
