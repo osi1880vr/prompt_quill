@@ -136,7 +136,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     if not exist "%CACHE_DIR%/data.zip" (
         ECHO Download llama-index QDrant data
         if exist %STATUS_FILE% del %STATUS_FILE%
-        curl -L https://civitai.com/models/330412?modelVersionId=567736 --output %INSTALL_DIR%/data.zip -w "%%{http_code}" > %STATUS_FILE%
+        curl -L https://civitai.com/api/download/models/567736 --output %INSTALL_DIR%/data.zip -w "%%{http_code}" > %STATUS_FILE%
         set /p HTTPCODE=<%STATUS_FILE%
         for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
         if "%HTTPCODE%" neq "200" (
