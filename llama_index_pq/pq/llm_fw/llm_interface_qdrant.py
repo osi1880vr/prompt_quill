@@ -16,6 +16,7 @@ import globals
 import threading
 import shared
 
+
 from llm_fw.llama_index_interface import adapter
 
 from post_process.summary import extractive_summary
@@ -60,10 +61,13 @@ class _LLM_INTERFACE:
         f.close()
 
 
+
+
     def log_raw(self,logfile, text):
-        f = open(logfile, 'a')
+        f = open(logfile, 'a',encoding='utf8',errors='ignore')
         try:
-            f.write(f"{text}\n")
+            utf_text = shared.to_utf8_string(text)
+            f.write(f"{utf_text}\n")
         except:
             pass
         f.close()

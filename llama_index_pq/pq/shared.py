@@ -237,3 +237,11 @@ def sanitize_path_component(component, replacement='_'):
 	sanitized = sanitized.strip()
 
 	return sanitized
+
+def to_utf8_string(text):
+	cleaned_text = re.sub(r'[^\x00-\x7F]+', '?', text)
+	try:
+		return cleaned_text.encode('utf-8').decode('utf-8')
+	except UnicodeDecodeError:
+		# Return encoded bytes on error (may contain invalid characters)
+		return 'text did contain non utf8 convertible data, therefore lets make a cute kitten prompt'

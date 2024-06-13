@@ -138,6 +138,15 @@ You mix a new prompt based on the context and the query. The query is just addin
 				'assistant_pattern': '### Response:\n ASSISTANT:',
 				'context_window': 4096
 			},
+		'microsoft/Phi-3-mini-4k-instruct-gguf':
+			{
+				'name': 'microsoft/Phi-3-mini-4k-instruct-gguf',
+				'path': 'https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf',
+				'instruction_start': '<|im_start|>user\n',
+				'start_pattern': '<START>',
+				'assistant_pattern': '<|im_end|>\n<|im_start|>assistant\n',
+				'context_window': 4096
+			},
 		'TheBloke/openchat-3.5-0106-GGUF-Q5':
 			{
 				'name': 'TheBloke/openchat-3.5-0106-GGUF-Q5',
