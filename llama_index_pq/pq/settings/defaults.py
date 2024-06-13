@@ -281,6 +281,16 @@ You mix a new prompt based on the context and the query. The query is just addin
 				'assistant_pattern': '[/INST]ASSISTANT:',
 				'context_window': 32768
 			},
+		'TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF-Q5':
+			{
+				'name': 'TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF-Q5',
+				'path': 'https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q5_K_M.gguf',
+				'instruction_start': '',
+				'start_pattern': '<START>\n',
+				'user_pattern': '',
+				'assistant_pattern': 'ASSISTANT:',
+				'context_window': 32768
+			},
 		'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF-Q5':
 			{
 				'name': 'TheBloke/bling-stable-lm-3b-4e1t-v0-GGUF-Q5',
