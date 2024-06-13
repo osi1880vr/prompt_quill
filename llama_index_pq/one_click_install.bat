@@ -1,5 +1,6 @@
 @echo off
 
+
 :: If you don't already have Git, download Git-SCM and install it here: https://git-scm.com/download/win
 WHERE git >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 (
@@ -104,21 +105,45 @@ if not exist "%INSTALL_DIR%/qdrant" (
 
     if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
         ECHO Download Qdrant Portable Version
-        curl -L https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip
+        if exist %STATUS_FILE% del %STATUS_FILE%
+        curl -L https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -w "%%{http_code}" > %STATUS_FILE%
+        set /p HTTPCODE=<%STATUS_FILE%
+        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
+        if "%HTTPCODE%" neq "200" (
+            echo [101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zips HTTP Status Code: %HTTPCODE% [0m
+            pause
+            exit /b 1
+        )
     ) else (
         xcopy %CACHE_DIR%\qdrant-x86_64-pc-windows-msvc.zip %INSTALL_DIR%
     )
 
     if not exist "%CACHE_DIR%/dist-qdrant.zip" (
         ECHO Download Qdrant Web UI
-        curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip
+        if exist %STATUS_FILE% del %STATUS_FILE%
+        curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip -w "%%{http_code}" > %STATUS_FILE%
+        set /p HTTPCODE=<%STATUS_FILE%
+        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
+        if "%HTTPCODE%" neq "200" (
+         echo [101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: %HTTPCODE% [0m
+         pause
+         exit /b 1
+        )
     ) else (
         xcopy %CACHE_DIR%\dist-qdrant.zip %INSTALL_DIR%
     )
 
     if not exist "%CACHE_DIR%/data.zip" (
         ECHO Download llama-index QDrant data
-        curl -L https://civitai.com/api/download/models/407093 --output %INSTALL_DIR%/data.zip
+        if exist %STATUS_FILE% del %STATUS_FILE%
+        curl -L https://civitai.com/models/330412?modelVersionId=567736 --output %INSTALL_DIR%/data.zip -w "%%{http_code}" > %STATUS_FILE%
+        set /p HTTPCODE=<%STATUS_FILE%
+        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
+        if "%HTTPCODE%" neq "200" (
+         echo [101;93m Error: Failed to download Prompt Quill data HTTP Status Code: %HTTPCODE% [0m
+         pause
+         exit /b 1
+        )
     ) else (
         xcopy %CACHE_DIR%\data.zip %INSTALL_DIR%
     )
@@ -148,7 +173,7 @@ if not exist "%INSTALL_DIR%/qdrant" (
     start /W "" python pq/check_qdrant_up.py
 
     ECHO Load data into qdrant, please be patient, this may take a while
-    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_large_meta-3474994170629559-2024-03-23-06-41-00.snapshot"
+    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot"
 
     ECHO some cleanup
     del /f %INSTALL_DIR%\dist-qdrant.zip
