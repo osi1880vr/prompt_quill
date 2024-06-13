@@ -296,16 +296,18 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         meta_prompt = f"{meta_prompt}"
         instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']
         start_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['start_pattern']
+        user_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['user_pattern']
         assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
-        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,assistant_pattern=assistant_pattern)
+        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
 
     def prepare_model_test_prompt(self,prompt,context):
         meta_prompt = self.g.settings_data['prompt_templates']['model_test_instruction']
         meta_prompt = f"{meta_prompt}"
         instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']
         start_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['start_pattern']
+        user_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['user_pattern']
         assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
-        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,assistant_pattern=assistant_pattern)
+        return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
 
 
     def create_completion(self,prompt):

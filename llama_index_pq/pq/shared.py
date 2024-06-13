@@ -43,9 +43,10 @@ def clean_llm_artefacts(prompt):
 		if artefact in prompt:
 			prompt = re.sub(rf'.*{artefact}', '', prompt)
 
+	pattern = r"<\|(.*?)\|>"
+	prompt = re.sub(pattern, "", prompt)
+
 	return prompt
-
-
 
 def repair_brackets(txt):
 	# split the text into words
@@ -245,3 +246,5 @@ def to_utf8_string(text):
 	except UnicodeDecodeError:
 		# Return encoded bytes on error (may contain invalid characters)
 		return 'text did contain non utf8 convertible data, therefore lets make a cute kitten prompt'
+
+
