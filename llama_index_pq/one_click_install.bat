@@ -39,6 +39,7 @@ set CONDA_ROOT_PREFIX=%cd%\installer_files\conda
 set INSTALL_ENV_DIR=%cd%\installer_files\env
 set MINICONDA_DOWNLOAD_URL=https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Windows-x86_64.exe
 set conda_exists=F
+set STATUS_FILE=%cd%\installer_files\status.txt
 
 if not exist "%INSTALL_DIR%" (
 	mkdir "%INSTALL_DIR%"
@@ -99,9 +100,8 @@ if exist "%INSTALL_DIR%/qdrant" (
 
 )
 
-
+echo install the vector store
 if not exist "%INSTALL_DIR%/qdrant" (
-
 
     if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
         ECHO Download Qdrant Portable Version
