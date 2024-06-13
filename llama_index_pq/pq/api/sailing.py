@@ -72,6 +72,7 @@ class api_sail:
 			self.api_sail_depth_start = 0
 			self.g.api_sail_history = []
 			self.api_sail_count = 0
+			self.g.settings_data['sail_text'] = data['query']
 
 		if self.last_api_sail_query is None:
 			self.last_api_sail_query = data['query']
