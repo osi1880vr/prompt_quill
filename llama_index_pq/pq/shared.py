@@ -37,7 +37,7 @@ def clean_llm_artefacts(prompt):
 		prompt = re.sub(r'.*\n', '', prompt)
 
 	artefacts = ['Answer: ','Steps: ','scale: ', 'Seed: ', 'Face restoration: ', 'Size: ', 'Model hash: ', 'Model: ', 'Clip skip: ',
-				 'Token merging ratio: ', 'ADetailer .*?: ']
+				 'Token merging ratio: ', 'ADetailer .*?: ','"','\[', '\]', '\{', '\}']
 
 	for artefact in artefacts:
 		if artefact in prompt:

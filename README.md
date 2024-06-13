@@ -27,7 +27,7 @@ With the latest faeture added it also adds a way for automated model testing if 
 
 * One Click installer available for all version (windows)
 * Create prompts from your input based on similar existing prompts from the vector store.
-* Select the LLM to be used and set some of the parameters that get exposed by the different frameworks.
+* Select the LLM to be used and set some of the parameters that get exposed by the different frameworks. There is now a large list of LLMs available.
 * Edit the Magic Prompt that's sent to make the LLM a prompt engineering helper.
 * I have implemented Prompt Quill using llmware, llama-index. They offer different connections to vector stores. (We currently support Milvus and Qdrant.)
 * Translate, you can enable translate and then enter your prompt in your native language, it will then get translated using Google Translate to english. The translated prompt is shown in the output so you can see what it was tranbslated to.
@@ -36,7 +36,7 @@ With the latest faeture added it also adds a way for automated model testing if 
 * batch mode, this will create a prompt for each result from the context as a input prompt. this will help to give you a more broad idea of what your input could get to. Be a little patient as it will take more time to generate.
 * Image generation via the API of auto1111 or forge
 * Sail the data Ocean, this allows you to sail along the vector distance through the ocean of prompts. It allows you to take an automated journey and see the seven seas of data pushing out nice prompts you may not have the idea to even think about. It also allows you to direct create images using the a1111/Forge API. Ahoy sailor, fair winds and following seas.
-
+* Model tester, this feature will allow you to have your newly trained model tested on some real world prompts. During training you tend to check on the data you trained and only spend little time to see the normal usage of the model. It can help you to see the tipping point when your model starts drifting away for normal usage. So it will help you to save time and maybe money if you are paying for GPU resources.
 
 # The best feature :)
 
@@ -47,6 +47,7 @@ Here you will get full control, and you can make it as close as possible to your
 Right now there are just a few examples, but if you change the Query and Answer to your type of prompts, it will generate prompts corresponding to your preferred style.
 You might need to experiment with this but during development, I learned that with this you can get a powerful tool to make it generate prompts as close as possible to your style.
 
+There is now 2 different templates that will show how much difference you can get by changing the character. template_a tends to create story telling prompts, while template_b will create lists of concepts as most of SD prompters do.
 
 # Simple prompt vs Prompt Quill prompt
 
