@@ -29,7 +29,7 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchText, SearchP
 import qdrant_client
 from settings.io import settings_io
 import shared
-from accelerate import Accelerator
+
 
 url = "http://localhost:6333"
 
@@ -39,7 +39,6 @@ if os.getenv("QDRANT_URL") is not None:
 class adapter:
 
     def __init__(self):
-        self.accelerator = Accelerator()
         self.g = globals.get_globals()
         self.set_document_store()
         self.llm = self.set_llm()
@@ -74,7 +73,7 @@ class adapter:
 
 
 
-        self.llm = LlamaCPP(
+        return LlamaCPP(
 
             model_url=self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['path'],
 
@@ -100,8 +99,6 @@ class adapter:
             verbose=True,
         )
 
-        self.llm._model = self.accelerator.prepare(self.llm._model)
-        return self.llm
 
 
     def get_retriever(self, similarity_top_k):
@@ -322,26 +319,26 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def create_completion(self, prompt):
 
-        with self.accelerator.main_process_first():
-            completion_chunks = self.llm._model.create_completion(
-                prompt=prompt,
-                temperature=self.g.settings_data["Temperature"],
-                max_tokens=self.g.settings_data["max output Tokens"],
-                top_p=1,
-                min_p=0.05,
-                typical_p=1,
-                frequency_penalty=0,
-                presence_penalty=0,
-                repeat_penalty=1,
-                top_k=0,
-                stream=True,
-                seed=None,
-                tfs_z=1,
-                mirostat_mode=0,
-                mirostat_tau=5,
-                mirostat_eta=0.1,
-                grammar=None
-            )
+
+        completion_chunks = self.llm._model.create_completion(
+            prompt=prompt,
+            temperature=self.g.settings_data["Temperature"],
+            max_tokens=self.g.settings_data["max output Tokens"],
+            top_p=1,
+            min_p=0.05,
+            typical_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            repeat_penalty=1,
+            top_k=0,
+            stream=True,
+            seed=None,
+            tfs_z=1,
+            mirostat_mode=0,
+            mirostat_tau=5,
+            mirostat_eta=0.1,
+            grammar=None
+        )
 
         output = ""
         for completion_chunk in completion_chunks:

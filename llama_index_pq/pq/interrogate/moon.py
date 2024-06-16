@@ -4,7 +4,6 @@ import gc
 import re
 from PIL import ImageDraw
 from torchvision.transforms.v2 import Resize
-from accelerate import Accelerator
 
 class moon:
 
@@ -12,7 +11,7 @@ class moon:
 	def __init__(self):
 		self.model = None
 		self.tokenizer = None
-		self.accelerator = Accelerator()
+
 		pass
 
 	def detect_device(self):
@@ -66,13 +65,12 @@ class moon:
 			questions = prompt.split('\n')
 			for question in questions:
 				question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
-				with self.accelerator.main_process_first():
-					answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
+
+				answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
 				answers.append(f'{question}:<br>{answer}<br>')
 		else:
 			prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
-			with self.accelerator.main_process_first():
-				answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
+			answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
 		gc.collect()
 		torch.cuda.empty_cache()
 
