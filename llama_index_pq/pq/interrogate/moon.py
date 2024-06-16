@@ -25,7 +25,7 @@ class moon:
 		elif torch.backends.mps.is_available():
 			return torch.device("mps"), torch.float16
 		else:
-			return torch.device("cpu"), torch.float16
+			return torch.device("cpu"), torch.float32
 
 	def setModel(self):
 		device, dtype = self.detect_device()
@@ -66,7 +66,8 @@ class moon:
 			questions = prompt.split('\n')
 			for question in questions:
 				question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
-				answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
+				with self.accelerator.main_process_first():
+					answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
 				answers.append(f'{question}:<br>{answer}<br>')
 		else:
 			prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
