@@ -4,7 +4,7 @@ import gc
 import re
 from PIL import ImageDraw
 from torchvision.transforms.v2 import Resize
-
+from accelerate import Accelerator
 
 class moon:
 
@@ -12,12 +12,14 @@ class moon:
 	def __init__(self):
 		self.model = None
 		self.tokenizer = None
+		self.accelerator = Accelerator()
 		pass
 
 	def detect_device(self):
 		"""
 		Detects the appropriate device to run on, and return the device and dtype.
 		"""
+
 		if torch.cuda.is_available():
 			return torch.device("cuda"), torch.float16
 		elif torch.backends.mps.is_available():
@@ -29,11 +31,13 @@ class moon:
 		device, dtype = self.detect_device()
 		model_id = "vikhyatk/moondream2"
 		revision = "2024-05-20"
-		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
+
 		self.model = AutoModelForCausalLM.from_pretrained(
 			model_id, trust_remote_code=True, revision=revision
-		).to(device=device)
+		).to(device=device,dtype=dtype)
+		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model.eval()
+		self.model = self.accelerator.prepare(self.model)
 
 
 
@@ -66,7 +70,8 @@ class moon:
 				answers.append(f'{question}:<br>{answer}<br>')
 		else:
 			prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
-			answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
+			with self.accelerator.main_process_first():
+				answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
 		gc.collect()
 		torch.cuda.empty_cache()
 
