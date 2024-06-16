@@ -4,7 +4,6 @@ import gc
 import re
 from PIL import ImageDraw
 from torchvision.transforms.v2 import Resize
-from .moondream import Moondream
 
 
 class moon:
