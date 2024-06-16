@@ -42,7 +42,7 @@ from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
 from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
-from interrogate.moondream import moon
+from interrogate.moon import moon
 
 
 
@@ -239,7 +239,9 @@ Generate an improved text to image prompt based on the above advice.
                     img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
                     images.append(img)
 
-            output_prompts.append(improved)
+            output_text = f'Image description:<br>{output[0]}<br>Improvement description:<br>{output[1]}<br>Output Prompt:<br>{improved}'
+
+            output_prompts.append(output_text)
 
 
         return '<br>'.join(output_prompts), images
