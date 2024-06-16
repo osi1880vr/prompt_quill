@@ -28,3 +28,4 @@ deep_translator
 pytorch_lightning
 Flask
 jsonify
+einops

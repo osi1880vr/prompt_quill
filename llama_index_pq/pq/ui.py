@@ -27,8 +27,7 @@ import random
 from collections import deque
 from api import v1
 import shared
-from PIL import ImageDraw
-from torchvision.transforms.v2 import Resize
+
 
 import nltk
 nltk.download('punkt')
@@ -220,38 +219,17 @@ class ui_actions:
         return 'Moondream unloaded'
 
 
-    def extract_floats(self, text):
-    # Regular expression to match an array of four floating point numbers
-        pattern = r"\[\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*\]"
-        match = re.search(pattern, text)
-        if match:
-            # Extract the numbers and convert them to floats
-            return [float(num) for num in match.groups()]
-        return None  # Return None if no match is found
-
-
-    def extract_bbox(self, text):
-        bbox = None
-        if self.extract_floats(text) is not None:
-            x1, y1, x2, y2 = self.extract_floats(text)
-            bbox = (x1, y1, x2, y2)
-        return bbox
-
-
-    def moon_process_answer(self, img, answer):
-        if self.extract_bbox(answer) is not None:
-            x1, y1, x2, y2 = self.extract_bbox(answer)
-            draw_image = Resize(768)(img)
-            width, height = draw_image.size
-            x1, x2 = int(x1 * width), int(x2 * width)
-            y1, y2 = int(y1 * height), int(y2 * height)
-            bbox = (x1, y1, x2, y2)
-            ImageDraw.Draw(draw_image).rectangle(bbox, outline="red", width=3)
-            return gr.update(visible=True, value=draw_image)
-
-        return gr.update(visible=False, value=None)
-
-
+    def png_info_get(self, img):
+        if img is not None:
+            metadata = {
+                "format": img.format,
+                "mode": img.mode,
+                "size": img.size,
+                "info": img.info,  # This will include PNG-specific metadata
+            }
+            return json.dumps(metadata["info"])
+        else:
+            return ''
 
     def set_prompt_input(self):
         return self.g.context_prompt
