@@ -44,7 +44,7 @@ class moon:
 		torch.cuda.empty_cache()
 
 
-	def run_interrogation(self, img, prompt):
+	def run_interrogation(self, img, prompt,max_new_tokens):
 		if prompt == '':
 			prompt = "Describe this image."
 
@@ -58,10 +58,12 @@ class moon:
 		if '\n' in prompt:
 			questions = prompt.split('\n')
 			for question in questions:
-				answer = self.model.answer_question(enc_image, question, self.tokenizer)
+				question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
+				answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
 				answers.append(f'{question}:<br>{answer}<br>')
 		else:
-			answers.append(self.model.answer_question(enc_image, prompt, self.tokenizer))
+			prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
+			answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
 		gc.collect()
 		torch.cuda.empty_cache()
 

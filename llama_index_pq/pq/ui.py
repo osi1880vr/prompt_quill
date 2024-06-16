@@ -202,29 +202,29 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
 
-    def moon_answer_question(self, img, prompt):
-        return self.moon_interrogate.run_interrogation(img, prompt)
+    def moon_answer_question(self, img, prompt, max_new_tokens):
+        return self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
 
-    def moon_batch_answer_question(self, img, prompt):
+    def moon_batch_answer_question(self, img, prompt, max_new_tokens):
         outputs = []
 
         for image in img:
-            outputs.append(self.moon_interrogate.run_interrogation(image[0], prompt))
+            outputs.append(self.moon_interrogate.run_interrogation(image[0], prompt, max_new_tokens))
 
         return '<br><br>'.join(outputs)
-    def moon_get_prompt(self, img, prompt):
-        response = self.moon_interrogate.run_interrogation(img, prompt)
+    def moon_get_prompt(self, img, prompt, max_new_tokens):
+        response = self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
         prompt = self.run_llm_response(response, '')
 
         output = f'Image description:<br>{response}<br>Prompt:<br>{prompt}'
 
         return output
 
-    def moon_batch_get_prompt(self, img, prompt):
+    def moon_batch_get_prompt(self, img, prompt, max_new_tokens):
         outputs = []
 
         for image in img:
-            outputs.append(self.moon_get_prompt(image[0], prompt))
+            outputs.append(self.moon_get_prompt(image[0], prompt, max_new_tokens))
 
         return '<br><br>'.join(outputs)
     def moon_unload(self):

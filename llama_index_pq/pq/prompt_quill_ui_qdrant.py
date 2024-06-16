@@ -638,6 +638,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
 					with gr.Column(scale=1):
 						with gr.Row():
+							moon_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_submit = gr.Button("Submit")
 							moon_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
@@ -648,9 +649,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_output = gr.Markdown(label="Response")
 						#ann = gr.Image(visible=False, label="Annotated Image")
 
-				moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
-				moon_prompt.submit(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
-				moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt], moon_output)
+				moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt, moon_max_tokens], moon_output)
+				moon_prompt.submit(ui_code.moon_answer_question, [moon_img, moon_prompt, moon_max_tokens], moon_output)
+				moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt, moon_max_tokens], moon_output)
 				moon_unload_model.click(ui_code.moon_unload,None,moon_output)
 				#moon_output.change(ui_code.moon_process_answer, [moon_img, moon_output], ann, show_progress=False)
 			with gr.Tab("Batch"):
@@ -659,6 +660,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
 					with gr.Column(scale=1):
 						with gr.Row():
+							moon_batch_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_batch_submit = gr.Button("Submit")
 							moon_batch_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
@@ -667,9 +669,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_batch_gallery = gr.Gallery(type="pil", label="Upload Images")
 						moon_batch_output = gr.Markdown(label="Response")
 
-				moon_batch_submit.click(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
-				moon_batch_prompt.submit(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
-				moon_batch_get_prompt.click(ui_code.moon_batch_get_prompt, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
+				moon_batch_submit.click(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
+				moon_batch_prompt.submit(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
+				moon_batch_get_prompt.click(ui_code.moon_batch_get_prompt, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
 				moon_batch_unload_model.click(ui_code.moon_unload,None,moon_output)
 
 		with gr.Tab("PNG Info"):
