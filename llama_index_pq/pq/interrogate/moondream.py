@@ -52,11 +52,20 @@ class moon:
 			self.setModel()
 
 		enc_image = self.model.encode_image(img)
-		answer = self.model.answer_question(enc_image, prompt, self.tokenizer)
+
+		answers = []
+
+		if '\n' in prompt:
+			questions = prompt.split('\n')
+			for question in questions:
+				answer = self.model.answer_question(enc_image, question, self.tokenizer)
+				answers.append(f'{question}:<br>{answer}<br>')
+		else:
+			answers.append(self.model.answer_question(enc_image, prompt, self.tokenizer))
 		gc.collect()
 		torch.cuda.empty_cache()
 
-		return answer
+		return '<br><br>'.join(answers)
 
 
 	def extract_floats(self, text):

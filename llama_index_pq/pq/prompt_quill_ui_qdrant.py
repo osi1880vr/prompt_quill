@@ -632,29 +632,50 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 	with gr.Tab("Interrogation") as interrogation:
 		with gr.Tab("Moondream"):
-			with gr.Row():
-				with gr.Column(scale=3):
-					moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
-				with gr.Column(scale=1):
-					with gr.Row():
-						moon_submit = gr.Button("Submit")
-						moon_get_prompt = gr.Button("Get Prompt")
-					with gr.Row():
-						moon_unload_model = gr.Button("Unload Moondream")
-			with gr.Row():
-				moon_img = gr.Image(type="pil", label="Upload an Image")
-				with gr.Column():
-					moon_output = gr.Markdown(label="Response")
-					#ann = gr.Image(visible=False, label="Annotated Image")
+			with gr.Tab("Single"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
+					with gr.Column(scale=1):
+						with gr.Row():
+							moon_submit = gr.Button("Submit")
+							moon_get_prompt = gr.Button("Get Prompt")
+						with gr.Row():
+							moon_unload_model = gr.Button("Unload Moondream")
+				with gr.Row():
+					moon_img = gr.Image(type="pil", label="Upload an Image")
+					with gr.Column():
+						moon_output = gr.Markdown(label="Response")
+						#ann = gr.Image(visible=False, label="Annotated Image")
 
-			moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
-			moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt], moon_output)
-			moon_unload_model.click(ui_code.moon_unload,None,moon_output)
-			#moon_output.change(ui_code.moon_process_answer, [moon_img, moon_output], ann, show_progress=False)
+				moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
+				moon_prompt.submit(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
+				moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt], moon_output)
+				moon_unload_model.click(ui_code.moon_unload,None,moon_output)
+				#moon_output.change(ui_code.moon_process_answer, [moon_img, moon_output], ann, show_progress=False)
+			with gr.Tab("Batch"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
+					with gr.Column(scale=1):
+						with gr.Row():
+							moon_batch_submit = gr.Button("Submit")
+							moon_batch_get_prompt = gr.Button("Get Prompt")
+						with gr.Row():
+							moon_batch_unload_model = gr.Button("Unload Moondream")
+				with gr.Row():
+						moon_batch_gallery = gr.Gallery(type="pil", label="Upload Images")
+						moon_batch_output = gr.Markdown(label="Response")
+
+				moon_batch_submit.click(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
+				moon_batch_prompt.submit(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
+				moon_batch_get_prompt.click(ui_code.moon_batch_get_prompt, [moon_batch_gallery, moon_batch_prompt], moon_batch_output)
+				moon_batch_unload_model.click(ui_code.moon_unload,None,moon_output)
+
 		with gr.Tab("PNG Info"):
 			with gr.Row():
 				with gr.Column(scale=3):
-					png_info_img = gr.Image(type="pil", label="Upload an Image")
+					png_info_img = gr.Image(type="pil", label="Upload an Image", height=300)
 				with gr.Column(scale=1):
 					png_info_output = gr.Markdown(label="Response")
 			png_info_img.change(fn=ui_code.png_info_get,

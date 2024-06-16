@@ -205,7 +205,13 @@ class ui_actions:
     def moon_answer_question(self, img, prompt):
         return self.moon_interrogate.run_interrogation(img, prompt)
 
+    def moon_batch_answer_question(self, img, prompt):
+        outputs = []
 
+        for image in img:
+            outputs.append(self.moon_interrogate.run_interrogation(image[0], prompt))
+
+        return '<br><br>'.join(outputs)
     def moon_get_prompt(self, img, prompt):
         response = self.moon_interrogate.run_interrogation(img, prompt)
         prompt = self.run_llm_response(response, '')
@@ -214,6 +220,13 @@ class ui_actions:
 
         return output
 
+    def moon_batch_get_prompt(self, img, prompt):
+        outputs = []
+
+        for image in img:
+            outputs.append(self.moon_get_prompt(image[0], prompt))
+
+        return '<br><br>'.join(outputs)
     def moon_unload(self):
         self.moon_interrogate.unload()
         return 'Moondream unloaded'
