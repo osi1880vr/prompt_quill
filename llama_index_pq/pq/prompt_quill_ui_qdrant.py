@@ -638,8 +638,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
 					with gr.Column(scale=1):
 						with gr.Row():
-							moon_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_submit = gr.Button("Submit")
+							moon_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
 							moon_unload_model = gr.Button("Unload Moondream")
@@ -660,8 +660,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
 					with gr.Column(scale=1):
 						with gr.Row():
-							moon_batch_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_batch_submit = gr.Button("Submit")
+							moon_batch_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
 							moon_batch_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
 							moon_batch_unload_model = gr.Button("Unload Moondream")
