@@ -5,7 +5,10 @@ from post_process.summary import extractive_summary
 from llm_fw import llm_interface_qdrant
 import shared
 import json
+import os
 
+out_dir = 'api_out'
+out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 
 class api_sail:
 
@@ -65,6 +68,15 @@ class api_sail:
 		else:
 			return -1
 
+
+	def log(self,logfile, text):
+		f = open(logfile, 'a')
+		try:
+			f.write(f"QUERY: {text} \n")
+		except:
+			pass
+		f.close()
+
 	def run_api_sail(self, data):
 
 		if data['reset_journey'] is True:
@@ -103,6 +115,10 @@ class api_sail:
 			prompt = self.interface.retrieve_llm_completion(query)
 
 			prompt = shared.clean_llm_artefacts(prompt)
+
+			self.log(os.path.join(out_dir_t2t,'api_sail_log.txt'),f'{query}\n')
+			self.log(os.path.join(out_dir_t2t,'api_sail_log.txt'),f'{prompt}\n')
+
 
 			if data['summary'] is True:
 				prompt = extractive_summary(prompt)
