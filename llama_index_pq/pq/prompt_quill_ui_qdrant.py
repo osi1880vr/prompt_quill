@@ -635,7 +635,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab("Single"):
 				with gr.Row():
 					with gr.Column(scale=3):
-						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
+						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
 					with gr.Column(scale=1):
 						with gr.Row():
 							moon_submit = gr.Button("Submit")
@@ -657,7 +657,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab("Batch"):
 				with gr.Row():
 					with gr.Column(scale=3):
-						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=4)
+						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
 					with gr.Column(scale=1):
 						with gr.Row():
 							moon_batch_submit = gr.Button("Submit")
@@ -668,11 +668,29 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Row():
 						moon_batch_gallery = gr.Gallery(type="pil", label="Upload Images")
 						moon_batch_output = gr.Markdown(label="Response")
-
 				moon_batch_submit.click(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
 				moon_batch_prompt.submit(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
 				moon_batch_get_prompt.click(ui_code.moon_batch_get_prompt, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
 				moon_batch_unload_model.click(ui_code.moon_unload,None,moon_output)
+			with gr.Tab("Image improver"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						moon_improver_prompt = gr.Textbox(label="Input Prompt", value='How to improve this image?', placeholder="Type here...", scale=3)
+					with gr.Column(scale=1):
+						with gr.Row():
+							moon_improver_submit = gr.Button("Submit")
+							moon_improver_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
+						with gr.Row():
+							moon_improver_unload_model = gr.Button("Unload Moondream")
+				with gr.Row():
+					moon_improver_gallery = gr.Gallery(type="pil", label="Upload Images")
+					moon_improver_output = gr.Markdown(label="Response")
+					moon_improver_output_gallery = gr.Gallery()
+
+				moon_improver_submit.click(fn=ui_code.moon_improver,
+										   inputs=[moon_improver_gallery, moon_improver_prompt, moon_improver_max_tokens],
+										   outputs=[moon_improver_output,moon_improver_output_gallery])
+
 
 		with gr.Tab("PNG Info"):
 			with gr.Row():

@@ -212,6 +212,40 @@ class ui_actions:
             outputs.append(self.moon_interrogate.run_interrogation(image[0], prompt, max_new_tokens))
 
         return '<br><br>'.join(outputs)
+
+
+    def moon_improver(self, img, prompt, max_new_tokens):
+        outputs = []
+        images = []
+
+        output_prompts = []
+
+        for image in img:
+            desc_prompt = 'Describe this image.'
+            image_desciption = self.moon_interrogate.run_interrogation(image[0], desc_prompt, max_new_tokens)
+            outputs.append([image_desciption, self.moon_interrogate.run_interrogation(image[0], prompt, max_new_tokens)])
+
+        for output in outputs:
+
+            model_input = f"""Original prompt: "{output[0]}"
+Improvement advice: {output[1]}
+Generate an improved text to image prompt based on the above advice.
+"""
+
+            improved = self.interface.create_completion(model_input)
+            response = self.automa_client.request_generation(improved,self.g.settings_data['negative_prompt'],self.g.settings_data)
+            if response != '':
+                for index, image in enumerate(response.get('images')):
+                    img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                    images.append(img)
+
+            output_prompts.append(improved)
+
+
+        return '<br>'.join(output_prompts), images
+
+
+
     def moon_get_prompt(self, img, prompt, max_new_tokens):
         response = self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
         prompt = self.run_llm_response(response, '')

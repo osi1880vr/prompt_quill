@@ -22,16 +22,18 @@ class moon:
 		elif torch.backends.mps.is_available():
 			return torch.device("mps"), torch.float16
 		else:
-			return torch.device("cpu"), torch.float32
+			return torch.device("cpu"), torch.float16
 
 	def setModel(self):
 		device, dtype = self.detect_device()
 		model_id = "vikhyatk/moondream2"
 		revision = "2024-05-20"
+		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model = AutoModelForCausalLM.from_pretrained(
 			model_id, trust_remote_code=True, revision=revision
 		).to(device=device)
-		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
+		self.model.eval()
+
 
 
 

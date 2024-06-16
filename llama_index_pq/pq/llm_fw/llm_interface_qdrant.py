@@ -103,6 +103,9 @@ class _LLM_INTERFACE:
 
         return output
 
+    def create_completion(self, prompt):
+        return self.adapter.create_completion(prompt)
+
 
     def run_llm_response_batch(self, query):
 

@@ -311,7 +311,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
 
 
-    def create_completion(self,prompt):
+    def create_completion(self, prompt):
 
         completion_chunks = self.llm._model.create_completion(
             prompt=prompt,
