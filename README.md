@@ -37,6 +37,7 @@ With the latest faeture added it also adds a way for automated model testing if 
 * Image generation via the API of auto1111 or forge
 * Sail the data Ocean, this allows you to sail along the vector distance through the ocean of prompts. It allows you to take an automated journey and see the seven seas of data pushing out nice prompts you may not have the idea to even think about. It also allows you to direct create images using the a1111/Forge API. Ahoy sailor, fair winds and following seas.
 * Model tester, this feature will allow you to have your newly trained model tested on some real world prompts. During training you tend to check on the data you trained and only spend little time to see the normal usage of the model. It can help you to see the tipping point when your model starts drifting away for normal usage. So it will help you to save time and maybe money if you are paying for GPU resources.
+* Moondream interrogation. get a description of any image and also ask questions about the image. A really magic thing, it also can give advice hoe to improve the image.
 
 # The best feature :)
 
