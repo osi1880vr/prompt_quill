@@ -16,6 +16,7 @@ import globals
 import gc
 import os
 import json
+import torch
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
@@ -337,6 +338,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             text = completion_chunk['choices'][0]['text']
             output += text
 
+        gc.collect()
+        torch.cuda.empty_cache()
         return output.strip()
 
     def check_llm_loaded(self):
@@ -374,7 +377,10 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         try:
             self.llm._model.reset()
-            return self.retrieve_llm_completion(query)
+            answer = self.retrieve_llm_completion(query)
+            gc.collect()
+            torch.cuda.empty_cache()
+            return answer
 
         except Exception as e:
             return 'something went wrong:' + str(e)
@@ -385,6 +391,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.set_rephrase_pipeline(context)
         self.llm._model.reset()
         response =  self.query_rephrase_engine.query(query)
+        gc.collect()
+        torch.cuda.empty_cache()
         response = response.response.strip(" ")
         return response.replace('"','')
 
@@ -394,6 +402,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             del self.llm
         # delete the model from Ram
         gc.collect()
+        torch.cuda.empty_cache()
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k):
 

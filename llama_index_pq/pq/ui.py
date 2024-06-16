@@ -27,7 +27,8 @@ import random
 from collections import deque
 from api import v1
 import shared
-
+from PIL import ImageDraw
+from torchvision.transforms.v2 import Resize
 
 import nltk
 nltk.download('punkt')
@@ -42,6 +43,10 @@ from generators.hordeai.client import hordeai_models
 from settings.io import settings_io
 from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
+from interrogate.moondream import moon
+
+
+
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
@@ -68,6 +73,7 @@ class ui_actions:
         self.prompt_iterator = prompt_iterator()
         self.gen_step = 0
         self.gen_step_select = 0
+        self.moon_interrogate = moon()
 
     def run_llm_response(self,query, history):
         prompt = self.interface.run_llm_response(query, history)
@@ -196,6 +202,54 @@ class ui_actions:
 
         self.settings_io.write_settings(self.g.settings_data)
 
+
+    def moon_answer_question(self, img, prompt):
+        return self.moon_interrogate.run_interrogation(img, prompt)
+
+
+    def moon_get_prompt(self, img, prompt):
+        response = self.moon_interrogate.run_interrogation(img, prompt)
+        prompt = self.run_llm_response(response, '')
+
+        output = f'Image description:<br>{response}<br>Prompt:<br>{prompt}'
+
+        return output
+
+    def moon_unload(self):
+        self.moon_interrogate.unload()
+        return 'Moondream unloaded'
+
+
+    def extract_floats(self, text):
+    # Regular expression to match an array of four floating point numbers
+        pattern = r"\[\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*\]"
+        match = re.search(pattern, text)
+        if match:
+            # Extract the numbers and convert them to floats
+            return [float(num) for num in match.groups()]
+        return None  # Return None if no match is found
+
+
+    def extract_bbox(self, text):
+        bbox = None
+        if self.extract_floats(text) is not None:
+            x1, y1, x2, y2 = self.extract_floats(text)
+            bbox = (x1, y1, x2, y2)
+        return bbox
+
+
+    def moon_process_answer(self, img, answer):
+        if self.extract_bbox(answer) is not None:
+            x1, y1, x2, y2 = self.extract_bbox(answer)
+            draw_image = Resize(768)(img)
+            width, height = draw_image.size
+            x1, x2 = int(x1 * width), int(x2 * width)
+            y1, y2 = int(y1 * height), int(y2 * height)
+            bbox = (x1, y1, x2, y2)
+            ImageDraw.Draw(draw_image).rectangle(bbox, outline="red", width=3)
+            return gr.update(visible=True, value=draw_image)
+
+        return gr.update(visible=False, value=None)
 
 
 

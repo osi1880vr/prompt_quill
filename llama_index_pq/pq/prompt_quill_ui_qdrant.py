@@ -630,7 +630,29 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				# live=True
 			)
 
-	with gr.Tab('Model testing'):
+	with gr.Tab("Interrogation") as interrogation:
+		with gr.Row():
+			with gr.Column(scale=3):
+				moon_prompt = gr.Textbox(label="Input Prompt", placeholder="Type here...", scale=4)
+			with gr.Column(scale=1):
+				with gr.Row():
+					moon_submit = gr.Button("Submit")
+					moon_get_prompt = gr.Button("Get Prompt")
+				with gr.Row():
+					moon_unload_model = gr.Button("Unload Moondream")
+		with gr.Row():
+			moon_img = gr.Image(type="pil", label="Upload an Image")
+			with gr.Column():
+				moon_output = gr.Markdown(label="Response")
+				#ann = gr.Image(visible=False, label="Annotated Image")
+
+		moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt], moon_output)
+		moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt], moon_output)
+		moon_unload_model.click(ui_code.moon_unload,None,moon_output)
+		#moon_output.change(ui_code.moon_process_answer, [moon_img, moon_output], ann, show_progress=False)
+
+
+	with gr.Tab('Model testing')as model_test:
 		with gr.Tab('Setup test'):
 			with gr.Row():
 				with gr.Column(scale=3):
@@ -1060,6 +1082,66 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				prompt_template_submit_button.click(fn=ui_code.set_prompt_template,
 													inputs=[prompt_template_select, prompt_template, ],
 													outputs=[prompt_template_status])
+
+	gr.on(
+		triggers=[generator.select],
+		fn=ui_code.all_get_last_prompt,
+		inputs=None,
+		outputs=[ui.hordeai_prompt_input,
+				 ui.hordeai_negative_prompt_input,
+				 ui.horde_api_key,
+				 ui.horde_model,
+				 ui.horde_sampler,
+				 ui.horde_steps,
+				 ui.horde_CFG,
+				 ui.horde_width,
+				 ui.horde_height,
+				 ui.horde_clipskip,
+				 automa_prompt_input,
+				 automa_negative_prompt_input,
+				 automa_sampler,
+				 automa_steps,
+				 automa_CFG,
+				 automa_width,
+				 automa_height,
+				 automa_Batch,
+				 automa_n_iter,
+				 automa_url,
+				 automa_save,
+				 automa_save_on_api_host,
+				 automa_checkpoint,
+				 automa_vae,
+				 automa_clip_skip
+				 ]
+	)
+	gr.on(
+		triggers=[automatic1111.select, generate.select],
+		fn=ui_code.automa_get_last_prompt,
+		inputs=None,
+		outputs=[automa_prompt_input,
+				 automa_negative_prompt_input,
+				 automa_sampler,
+				 automa_steps,
+				 automa_CFG,
+				 automa_width,
+				 automa_height,
+				 automa_Batch,
+				 automa_n_iter,
+				 automa_url,
+				 automa_save,
+				 automa_save_on_api_host,
+				 automa_checkpoint]
+	)
+
+	gr.on(
+		triggers=[chat.select,sailor.select,
+				  generator.select,model_test.select,
+				  deep_dive.select,batch_run.select],
+		fn=ui_code.moon_unload,
+		inputs=None,
+		outputs=None
+	)
+
 
 if __name__ == "__main__":
 	server_name = "localhost"
