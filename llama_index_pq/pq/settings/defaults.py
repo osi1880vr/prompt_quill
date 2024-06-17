@@ -125,6 +125,8 @@ You mix a new prompt based on the context and the query. The query is just addin
 		'Celebrities': ['Albert Einstein']
 	},
 
+	"moon_low_mem": False,
+
 	"embedding_model": "BAAI/bge-base-en-v1.5",
 	"embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],
 	'selected_template': 'prompt_template_a',

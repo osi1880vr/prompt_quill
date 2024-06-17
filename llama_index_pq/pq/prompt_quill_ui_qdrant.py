@@ -638,8 +638,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
 					with gr.Column(scale=1):
 						with gr.Row():
-							moon_submit = gr.Button("Submit")
 							moon_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
+							moon_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
+							moon_submit = gr.Button("Submit")
 							moon_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
 							moon_unload_model = gr.Button("Unload Moondream")
@@ -660,8 +661,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
 					with gr.Column(scale=1):
 						with gr.Row():
-							moon_batch_submit = gr.Button("Submit")
 							moon_batch_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
+							moon_batch_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
+							moon_batch_submit = gr.Button("Submit")
 							moon_batch_get_prompt = gr.Button("Get Prompt")
 						with gr.Row():
 							moon_batch_unload_model = gr.Button("Unload Moondream")
@@ -678,8 +680,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						moon_improver_prompt = gr.Textbox(label="Input Prompt", value='How to improve this image?', placeholder="Type here...", scale=3)
 					with gr.Column(scale=1):
 						with gr.Row():
-							moon_improver_submit = gr.Button("Submit")
 							moon_improver_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
+							moon_improver_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
+							moon_improver_submit = gr.Button("Submit")
 						with gr.Row():
 							moon_improver_unload_model = gr.Button("Unload Moondream")
 				with gr.Row():
@@ -687,9 +690,19 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					moon_improver_output = gr.Markdown(label="Response")
 					moon_improver_output_gallery = gr.Gallery()
 
+
 				moon_improver_submit.click(fn=ui_code.moon_improver,
 										   inputs=[moon_improver_gallery, moon_improver_prompt, moon_improver_max_tokens],
 										   outputs=[moon_improver_output,moon_improver_output_gallery])
+		moon_improver_low_mem.change(fn=ui_code.moon_set_low_mem,
+									 inputs=moon_improver_low_mem,
+									 outputs=[moon_batch_low_mem,moon_low_mem])
+		moon_batch_low_mem.change(fn=ui_code.moon_set_low_mem,
+									 inputs=moon_batch_low_mem,
+									 outputs=[moon_improver_low_mem,moon_low_mem])
+		moon_low_mem.change(fn=ui_code.moon_set_low_mem,
+									 inputs=moon_low_mem,
+									 outputs=[moon_batch_low_mem,moon_improver_low_mem])
 
 
 		with gr.Tab("PNG Info"):
