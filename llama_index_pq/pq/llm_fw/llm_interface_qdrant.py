@@ -48,6 +48,9 @@ class _LLM_INTERFACE:
         return self.adapter.change_model(model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k)
 
 
+    def del_llm_model(self):
+        self.adapter.del_llm_model()
+
     def set_prompt(self,prompt_text):
         return self.adapter.set_prompt(prompt_text)
 

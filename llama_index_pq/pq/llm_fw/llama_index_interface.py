@@ -319,6 +319,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def create_completion(self, prompt):
 
+        self.check_llm_loaded()
 
         completion_chunks = self.llm._model.create_completion(
             prompt=prompt,

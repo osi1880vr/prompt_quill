@@ -203,11 +203,12 @@ class ui_actions:
 
 
     def moon_answer_question(self, img, prompt, max_new_tokens):
+        self.interface.del_llm_model()
         return self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
 
     def moon_batch_answer_question(self, img, prompt, max_new_tokens):
+        self.interface.del_llm_model()
         outputs = []
-
         for image in img:
             outputs.append(self.moon_interrogate.run_interrogation(image[0], prompt, max_new_tokens))
 
@@ -215,6 +216,7 @@ class ui_actions:
 
 
     def moon_improver(self, img, prompt, max_new_tokens):
+        self.interface.del_llm_model()
         outputs = []
         images = []
 
@@ -224,6 +226,8 @@ class ui_actions:
             desc_prompt = 'Describe this image.'
             image_desciption = self.moon_interrogate.run_interrogation(image[0], desc_prompt, max_new_tokens)
             outputs.append([image_desciption, self.moon_interrogate.run_interrogation(image[0], prompt, max_new_tokens)])
+
+        self.moon_unload()
 
         for output in outputs:
 
@@ -249,7 +253,9 @@ Generate an improved text to image prompt based on the above advice.
 
 
     def moon_get_prompt(self, img, prompt, max_new_tokens):
+        self.interface.del_llm_model()
         response = self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
+        self.moon_unload()
         prompt = self.run_llm_response(response, '')
 
         output = f'Image description:<br>{response}<br>Prompt:<br>{prompt}'

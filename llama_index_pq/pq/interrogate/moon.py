@@ -30,15 +30,11 @@ class moon:
 		device, dtype = self.detect_device()
 		model_id = "vikhyatk/moondream2"
 		revision = "2024-05-20"
-
+		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model = AutoModelForCausalLM.from_pretrained(
 			model_id, trust_remote_code=True, revision=revision
 		).to(device=device,dtype=dtype)
-		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model.eval()
-		self.model = self.accelerator.prepare(self.model)
-
-
 
 
 	def unload(self):
