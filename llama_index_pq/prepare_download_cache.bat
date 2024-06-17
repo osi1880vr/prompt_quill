@@ -30,7 +30,7 @@ if not exist "%CACHE_DIR%/dist-qdrant.zip" (
 
 if not exist "%CACHE_DIR%/data.zip" (
     ECHO Download LLama-index QDrant data
-    curl -L https://civitai.com/api/download/models/407093 --output %CACHE_DIR%/data.zip
+    curl -L https://civitai.com/api/download/models/567736 --output %CACHE_DIR%/data.zip
 ) else (
     ECHO skipped Download LLama-index QDrant data
 )
