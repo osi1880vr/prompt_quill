@@ -146,7 +146,9 @@ class ui_actions:
         self.g.settings_data['automa_ad_confidence'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
-
+    def set_automa_layerdiffuse(self, automa_layerdiffuse_enable):
+        self.g.settings_data['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
+        self.settings_io.write_settings(self.g.settings_data)
     def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate,
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,

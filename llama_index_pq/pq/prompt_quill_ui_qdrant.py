@@ -593,6 +593,16 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								automa_ad_confidence],
 						outputs=None
 					)
+				with gr.Tab('Layer Diffusion') as layerdiffuse:
+					automa_layerdiffuse_enable = gr.Checkbox(label="Enable Layer Diffusion",
+														  value=g.settings_data['automa_layerdiffuse_enable'])
+
+					gr.on(
+						triggers=[automa_layerdiffuse_enable.change],
+						fn=ui_code.set_automa_layerdiffuse,
+						inputs=[automa_layerdiffuse_enable],
+						outputs=None
+					)
 
 		with gr.Tab("HordeAI") as hordeai:
 			gr.on(

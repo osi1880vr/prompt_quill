@@ -103,8 +103,29 @@ class automa_client:
                 "ad_confidence": settings_data['automa_ad_confidence'],
             }]
 
+        LayerDiffuse = {}
+        if settings_data['automa_layerdiffuse_enable']:
+            LayerDiffuse["args"] = [
+                    {
+                        #   "(SDXL) Only Generate Transparent Image (Attention Injection)"
+                        "method": 4, # this number is the order the models are presented
+                        "weight": 1.0,
+                        "stop_at": 1.0,
+                        "resize_mode": "Crop and Resize",
+                        "blending": None,
+                        "output_mat_for_i2i": False,
+                        "fg_prompt": "",
+                        "bg_prompt": "",
+                        "blended_prompt": ""
+                    }
+                ]
+
+
         if len(ADetailer) > 0:
             alwayson_scripts["ADetailer"] = ADetailer
+
+        if len(LayerDiffuse) > 0:
+            alwayson_scripts["layerdiffuse"] = LayerDiffuse
 
         if type(prompt) == str:
             prompt = (str(prompt).encode('utf-8')).decode('utf-8')

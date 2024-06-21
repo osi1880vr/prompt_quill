@@ -51,6 +51,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 	'automa_checkpoints': [],
 	'automa_samplers': [],
 	'automa_vaes': [],
+	'automa_layerdiffuse_enable': False,
 
 	"sail_text": "",
 	"sail_width": 10,

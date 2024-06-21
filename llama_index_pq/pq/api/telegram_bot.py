@@ -19,7 +19,16 @@ class Telegram:
 	def get_image(self, data):
 
 		prompt = self.interface.run_api_llm_response(data['query'])
+		if "layerdiffuse" in data:
+			if data['layerdiffuse']:
+				self.g.settings_data['automa_layerdiffuse_enable'] = True
+				self.g.settings_data["automa_width"] = 1024
+				self.g.settings_data["automa_height"] = 1024
+
 		image = self.automa_gen(prompt['prompt'])
+		if "layerdiffuse" in data:
+			if data['layerdiffuse']:
+				self.g.settings_data['automa_layerdiffuse_enable'] = False
 
 		return {"prompt": prompt['prompt'],
 				"negative_prompt": self.g.settings_data['negative_prompt'],
