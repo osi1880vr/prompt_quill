@@ -3,13 +3,34 @@ import threading
 import json
 from flask import Flask, request, jsonify
 from api.sailing import api_sail
+from api.telegram_bot import Telegram
 from llm_fw import llm_interface_qdrant
 
 app = Flask(__name__)
 
 sail_api = api_sail()
-interface = llm_interface_qdrant.get_interface()
+telegram_api = Telegram()
 
+
+interface = llm_interface_qdrant.get_interface()
+telegram_api.interface = interface
+
+@app.route('/get_image_telegram', methods=['POST'])
+def get_image_telegram():
+    try:
+        data = request.json
+        return json.dumps(telegram_api.get_image(data))
+    except:
+        return jsonify({'error': 'Invalid JSON format'}), 400
+
+
+@app.route('/get_prompt_telegram', methods=['POST'])
+def get_prompt_telegram():
+    try:
+        data = request.json
+        return json.dumps(telegram_api.get_prompt(data))
+    except:
+        return jsonify({'error': 'Invalid JSON format'}), 400
 
 
 @app.route('/get_prompt', methods=['POST'])

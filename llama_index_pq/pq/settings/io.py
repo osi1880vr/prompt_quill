@@ -24,6 +24,12 @@ class settings_io:
             if key not in self.settings:
                 self.settings[key] = self.default[key]
                 missing += 1
+            if type(self.settings[key]) == dict:
+                for subkey in self.default[key]:
+                    if subkey not in self.settings[key]:
+                        self.settings[key][subkey] = self.default[key][subkey]
+                        missing += 1
+
         if missing != 0:
             self.write_settings(self.settings)
         self.update_settings_with_defaults()
