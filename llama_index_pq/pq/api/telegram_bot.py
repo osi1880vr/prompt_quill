@@ -30,6 +30,7 @@ class Telegram:
 			self.g.settings_data["automa_height"] = data['h']
 
 		self.g.settings_data["automa_checkpoint"] = data['model']
+		self.g.settings_data["automa_steps"] = data['steps']
 
 		image = self.automa_gen(prompt['prompt'])
 
