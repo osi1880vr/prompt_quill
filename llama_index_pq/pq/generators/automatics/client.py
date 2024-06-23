@@ -108,7 +108,7 @@ class automa_client:
             LayerDiffuse["args"] = [
                     {
                         #   "(SDXL) Only Generate Transparent Image (Attention Injection)"
-                        "method": 4, # this number is the order the models are presented
+                        "method": 5, # this number is the order the models are presented
                         "weight": 1.0,
                         "stop_at": 1.0,
                         "resize_mode": "Crop and Resize",
