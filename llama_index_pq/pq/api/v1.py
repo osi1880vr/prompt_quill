@@ -20,7 +20,7 @@ def get_image_telegram():
     try:
         data = request.json
         return json.dumps(telegram_api.get_image(data))
-    except:
+    except Exception as e:
         return jsonify({'error': 'Invalid JSON format'}), 400
 
 

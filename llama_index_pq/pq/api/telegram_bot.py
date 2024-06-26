@@ -18,7 +18,20 @@ class Telegram:
 
 	def get_image(self, data):
 
-		prompt = self.interface.run_api_llm_response(data['query'])
+
+		if not data['reuse_prompt'] or data['artist'] != '' or data['style'] != '':
+
+			if data['artist'] != '':
+				data['query'] = f"((artwork by {data['artist']})) {data['query']}"
+			if data['style'] != '':
+				data['query'] = f"((in the style of {data['style']})) {data['query']} "
+
+			try:
+				prompt = self.interface.run_api_llm_response(data['query'])
+			except Exception as e:
+				print(e)
+		else:
+			prompt = {'prompt':data['query']}
 
 		if data['image_type'] == 'transparent':
 			self.g.settings_data['automa_layerdiffuse_enable'] = True
@@ -40,7 +53,10 @@ class Telegram:
 
 
 	def get_prompt(self, data):
-
+		if data['artist'] != '':
+			data['query'] = f"artwork by {data['artist']} {data['query']}"
+		if data['style'] != '':
+			data['query'] = f"{data['query']} in the style of {data['style']}"
 		prompt = self.interface.run_api_llm_response(data['query'])
 		return {"prompt": prompt['prompt'],
 				"negative_prompt": self.g.settings_data['negative_prompt']}
