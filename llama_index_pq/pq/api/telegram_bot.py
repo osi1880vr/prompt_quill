@@ -44,6 +44,7 @@ class Telegram:
 
 		self.g.settings_data["automa_checkpoint"] = data['model']
 		self.g.settings_data["automa_steps"] = data['steps']
+		self.g.settings_data["automa_cfg_scale"] = data['cfg']
 
 		image = self.automa_gen(prompt['prompt'])
 
