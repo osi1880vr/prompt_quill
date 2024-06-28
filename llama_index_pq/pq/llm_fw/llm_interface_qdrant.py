@@ -151,7 +151,7 @@ class _LLM_INTERFACE:
         return self.adapter.retrieve_rephrase_query(query, prompt)
 
 
-    def run_api_llm_response(self, query):
+    def run_api_llm_response(self, query, api=False):
         negative_out = ''
 
         output = self.adapter.retrieve_llm_completion(query)
@@ -161,7 +161,9 @@ class _LLM_INTERFACE:
 
 
         if self.g.settings_data['translate']:
-            output = f'Your prompt was translated to: {query}\n\n\n{output}'
+            if api is False:
+                output = f'Your prompt was translated to: {query}\n\n\n{output}'
+
 
         negative_out = shared.get_negative_prompt()
 

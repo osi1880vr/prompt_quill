@@ -27,7 +27,7 @@ class Telegram:
 				data['query'] = f"((in the style of {data['style']})) {data['query']} "
 
 			try:
-				prompt = self.interface.run_api_llm_response(data['query'])
+				prompt = self.interface.run_api_llm_response(query=data['query'], api=True)
 			except Exception as e:
 				print(e)
 		else:
