@@ -487,42 +487,45 @@ def download_qdrant():
 	filename = 'qdrant-x86_64-pc-windows-msvc.zip'
 	zip_path = os.path.join(cache_dir, filename)
 	install_path = os.path.join(install_dir, filename)
-	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(qdrant_dir, 'qdrant.exe')):
-		print("Download Qdrant")
-		url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
-		status_code = download_file(url, install_path)
-		if status_code != 200:
-			print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
-			input("Press Enter to exit...")
-			exit(1)
+	if not os.path.exists(zip_path):
+		if not os.path.exists(os.path.join(qdrant_dir, 'qdrant.exe')):
+			print("Download Qdrant")
+			url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
 	else:
 		shutil.copy(zip_path, install_path)
 
 	filename = 'dist-qdrant.zip'
 	zip_path = os.path.join(cache_dir, filename)
 	install_path = os.path.join(install_dir, filename)
-	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(qdrant_dir, 'static')):
-		print("Download Qdrant Web UI")
-		url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
-		status_code = download_file(url, install_path)
-		if status_code != 200:
-			print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
-			input("Press Enter to exit...")
-			exit(1)
+	if not os.path.exists(zip_path):
+		if not os.path.exists(os.path.join(qdrant_dir, 'static')):
+			print("Download Qdrant Web UI")
+			url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
 	else:
 		shutil.copy(zip_path, install_path)
 
 	filename = 'data.zip'
 	zip_path = os.path.join(cache_dir, filename)
 	install_path = os.path.join(install_dir, filename)
-	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
-		print("Download Prompt Quill data")
-		url = 'https://civitai.com/api/download/models/567736'
-		status_code = download_file(url, install_path)
-		if status_code != 200:
-			print("\033[101;93m Error: Failed to download prompt quill data HTTP Status Code: {} \033[0m".format(status_code))
-			input("Press Enter to exit...")
-			exit(1)
+	if not os.path.exists(zip_path):
+		if not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
+			print("Download Prompt Quill data")
+			url = 'https://civitai.com/api/download/models/567736'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download prompt quill data HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
 	else:
 		shutil.copy(zip_path, install_path)
 
