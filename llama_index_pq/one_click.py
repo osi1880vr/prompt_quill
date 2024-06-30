@@ -25,6 +25,7 @@ import importlib.util
 import shutil
 import zipfile
 
+
 # Define the required PyTorch version
 TORCH_VERSION = "2.2.1"
 TORCHVISION_VERSION = "0.17.1"
@@ -63,6 +64,13 @@ except ImportError:
 	install_package("requests")
 	import requests
 
+# Try to import the tqdm module and install it if not present
+try:
+	from tqdm import tqdm
+except ImportError:
+	print("tqdm library not found. Installing...")
+	install_package("tqdm")
+	from tqdm import tqdm
 
 def is_linux():
 	return sys.platform.startswith("linux")
@@ -409,8 +417,17 @@ def extract_zip(zip_path, extract_to):
 
 def download_file(url, output_path):
 	response = requests.get(url, stream=True)
-	with open(output_path, 'wb') as f:
-		shutil.copyfileobj(response.raw, f)
+	total_size = int(response.headers.get('content-length', 0))
+	with open(output_path, 'wb') as f, tqdm(
+			desc=output_path,
+			total=total_size,
+			unit='iB',
+			unit_scale=True,
+			unit_divisor=1024,
+	) as bar:
+		for data in response.iter_content(chunk_size=1024):
+			size = f.write(data)
+			bar.update(size)
 	return response.status_code
 
 def download_qdrant():
@@ -424,7 +441,7 @@ def download_qdrant():
 		zip_path = os.path.join(cache_dir, filename)
 		install_path = os.path.join(install_dir, filename)
 		if not os.path.exists(zip_path):
-			print("Download Qdrant Web UI")
+			print("Download Qdrant")
 			url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
 			status_code = download_file(url, install_path)
 			if status_code != 200:
@@ -452,7 +469,7 @@ def download_qdrant():
 		zip_path = os.path.join(cache_dir, filename)
 		install_path = os.path.join(install_dir, filename)
 		if not os.path.exists(zip_path):
-			print("Download Qdrant Web UI")
+			print("Download Prompt Quill data")
 			url = 'https://civitai.com/api/download/models/567736'
 			status_code = download_file(url, install_path)
 			if status_code != 200:
