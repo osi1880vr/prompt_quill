@@ -488,7 +488,7 @@ def download_qdrant():
 	zip_path = os.path.join(cache_dir, filename)
 	install_path = os.path.join(install_dir, filename)
 	if not os.path.exists(zip_path):
-		if not os.path.exists(os.path.join(qdrant_dir, 'qdrant.exe')):
+		if not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
 			print("Download Qdrant")
 			url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
 			status_code = download_file(url, install_path)
@@ -503,7 +503,7 @@ def download_qdrant():
 	zip_path = os.path.join(cache_dir, filename)
 	install_path = os.path.join(install_dir, filename)
 	if not os.path.exists(zip_path):
-		if not os.path.exists(os.path.join(qdrant_dir, 'static')):
+		if not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
 			print("Download Qdrant Web UI")
 			url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
 			status_code = download_file(url, install_path)
