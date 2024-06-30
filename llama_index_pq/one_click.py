@@ -415,19 +415,44 @@ def extract_zip(zip_path, extract_to):
 	with zipfile.ZipFile(zip_path, 'r') as zip_ref:
 		zip_ref.extractall(extract_to)
 
-def download_file(url, output_path):
-	response = requests.get(url, stream=True)
-	total_size = int(response.headers.get('content-length', 0))
-	with open(output_path, 'wb') as f, tqdm(
-			desc=output_path,
-			total=total_size,
-			unit='iB',
-			unit_scale=True,
-			unit_divisor=1024,
-	) as bar:
-		for data in response.iter_content(chunk_size=1024):
-			size = f.write(data)
-			bar.update(size)
+def download_file(url, output_path, max_retries=5):
+	for attempt in range(1, max_retries + 1):
+		try:
+			print(f"Attempt {attempt} to download {url}")
+			response = requests.get(url, stream=True)
+			total_size = int(response.headers.get('content-length', 0))
+
+			with open(output_path, 'wb') as f, tqdm(
+					desc=output_path,
+					total=total_size,
+					unit='iB',
+					unit_scale=True,
+					unit_divisor=1024,
+			) as bar:
+				for data in response.iter_content(chunk_size=1024):
+					size = f.write(data)
+					bar.update(size)
+
+			# Check if download was successful
+			if os.path.getsize(output_path) != total_size:
+				raise RuntimeError("Download failed or incomplete.")
+
+			return response.status_code
+
+		except Exception as e:
+			print(f"Error downloading: {str(e)}")
+			if attempt < max_retries:
+				print("Retrying...")
+				time.sleep(5)  # Wait for 5 seconds before retrying
+			else:
+				print(f"Max retries ({max_retries}) exceeded. Giving up.")
+				raise
+
+	# Check if download was successful
+	if os.path.getsize(output_path) != total_size:
+		os.remove(output_path)
+		raise RuntimeError("Download failed or incomplete.")
+
 	return response.status_code
 
 def download_qdrant():
@@ -482,13 +507,14 @@ def download_qdrant():
 
 		# Assuming the qdrant executable zip and data zip paths are known and set similarly
 		qdrant_exe_zip = os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')
+		qdrand_dist_zip = os.path.join(install_dir, 'dist-qdrant.zip')
 		data_zip = os.path.join(install_dir, 'data.zip')
 
 		print("Extract Qdrant with unzip")
 		extract_zip(qdrant_exe_zip, qdrant_dir)
 
 		print("Extract Qdrant web UI with unzip")
-		extract_zip(install_path, qdrant_dir)
+		extract_zip(qdrand_dist_zip, qdrant_dir)
 
 		print("Rename the dist folder to static")
 		os.rename(os.path.join(qdrant_dir, 'dist'), os.path.join(qdrant_dir, 'static'))
