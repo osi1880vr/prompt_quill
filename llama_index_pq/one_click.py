@@ -575,9 +575,12 @@ def download_qdrant():
 
 	# Cleanup
 	print("Performing cleanup")
-	os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
-	os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
-	os.remove(os.path.join(install_dir, 'data.zip'))
+	if os.path.exists(os.path.join(install_dir, 'dist-qdrant.zip')):
+		os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
+	if os.path.exists(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')):
+		os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
+	if os.path.exists(os.path.join(install_dir, 'data.zip')):
+		os.remove(os.path.join(install_dir, 'data.zip'))
 	shutil.rmtree(os.path.join(install_dir, 'delete_after_setup'), ignore_errors=True)
 	shutil.rmtree(os.path.join(install_dir, 'qdrant', 'snapshots'), ignore_errors=True)
 
