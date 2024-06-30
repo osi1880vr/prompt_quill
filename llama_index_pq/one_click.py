@@ -548,7 +548,7 @@ def download_qdrant():
 		print("Rename the dist folder to static")
 		os.rename(os.path.join(qdrant_dir, 'dist'), os.path.join(qdrant_dir, 'static'))
 
-	if not os.path.exists(os.path.join(install_dir, 'delete_after_setup', snapshot_name)):
+	if not os.path.exists(os.path.join(install_dir, 'delete_after_setup', snapshot_name)) and not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
 		print("Extract data with unzip")
 		extract_zip(data_zip, os.path.join(install_dir, 'delete_after_setup'))
 
