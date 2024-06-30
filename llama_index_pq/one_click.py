@@ -22,6 +22,8 @@ import subprocess
 import time
 import site
 import importlib.util
+import shutil
+import zipfile
 
 # Define the required PyTorch version
 TORCH_VERSION = "2.2.1"
@@ -35,6 +37,10 @@ clip_package = os.environ.get('CLIP_PACKAGE', "git+https://github.com/openai/CLI
 script_dir = os.getcwd()
 conda_env_path = os.path.join(script_dir, "installer_files", "env")
 
+install_dir = os.path.join(script_dir, "installer_files")
+cache_dir = os.path.join(script_dir, "installer_cache")
+
+
 # Command-line flags
 cmd_flags_path = os.path.join(script_dir, "CMD_FLAGS.txt")
 if os.path.exists(cmd_flags_path):
@@ -44,6 +50,18 @@ else:
 	CMD_FLAGS = ''
 
 flags = f"{' '.join([flag for flag in sys.argv[1:] if flag != '--update-wizard'])} {CMD_FLAGS}"
+
+
+# Function to install a package using pip
+def install_package(package):
+	subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+try:
+	import requests
+except ImportError:
+	print("Requests library not found. Installing...")
+	install_package("requests")
+	import requests
 
 
 def is_linux():
@@ -385,45 +403,122 @@ def launch_webui():
 
 	run_cmd(f"python pq/prompt_quill_ui_qdrant.py", environment=True)
 
+def extract_zip(zip_path, extract_to):
+	with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+		zip_ref.extractall(extract_to)
 
-# Install/update the project requirements
-# run_cmd("python -m pip install -r requirements.txt --upgrade", assert_success=True, environment=True)
-#
-#
-# print()
-# print("There is a good chance that llama-cpp is only working with CPU now.")
-# print("We could try to copy a precompiled version into the conda environment")
-# print("By feedback it looks like you need to have the Nvidia Cuda Package installed, it has to be 12.2")
-# print("If you like to try say Y, we will take a backup so you can rollback if you need later")
-# print()
-# print()
-#
-# choice = input("Input> ").upper()
-# while choice not in 'YN':
-# 	print("Invalid choice. Please try again.")
-# 	choice = input("Input> ").upper()
-#
-# if choice == 'Y':
-# 	from distutils.dir_util import copy_tree
-# 	import shutil
-# 	import os
-#
-# 	print_big_message("Installing the CUDA runtime libraries.")
-# 	run_cmd(f"conda install -y -c \"nvidia/label/cuda-12.2.0\" cuda-runtime", assert_success=True, environment=True)
-#
-#
-#
-# 	llama_directory = 'installer_files/env/Lib/site-packages/llama_cpp'
-# 	to_directory = 'installer_files/llama_cpp_backup'
-# 	compiled_llama_directory = '../llama-cpp_windows/llama_cpp'
-#
-# 	copy_tree(llama_directory, to_directory)
-#
-# 	if os.path.exists(llama_directory):
-# 		shutil.rmtree(llama_directory)
-# 	copy_tree(compiled_llama_directory, llama_directory)
-#
+def download_file(url, output_path):
+	response = requests.get(url, stream=True)
+	with open(output_path, 'wb') as f:
+		shutil.copyfileobj(response.raw, f)
+	return response.status_code
 
+def download_qdrant():
+
+	qdrant_dir = os.path.join(install_dir, 'qdrant')
+
+	if not os.path.exists(qdrant_dir):
+
+
+		filename = 'qdrant-x86_64-pc-windows-msvc.zip'
+		zip_path = os.path.join(cache_dir, filename)
+		install_path = os.path.join(install_dir, filename)
+		if not os.path.exists(zip_path):
+			print("Download Qdrant Web UI")
+			url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
+		else:
+			shutil.copy(zip_path, install_path)
+
+		filename = 'dist-qdrant.zip'
+		zip_path = os.path.join(cache_dir, filename)
+		install_path = os.path.join(install_dir, filename)
+		if not os.path.exists(zip_path):
+			print("Download Qdrant Web UI")
+			url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
+		else:
+			shutil.copy(zip_path, install_path)
+
+		filename = 'data.zip'
+		zip_path = os.path.join(cache_dir, filename)
+		install_path = os.path.join(install_dir, filename)
+		if not os.path.exists(zip_path):
+			print("Download Qdrant Web UI")
+			url = 'https://civitai.com/api/download/models/567736'
+			status_code = download_file(url, install_path)
+			if status_code != 200:
+				print("\033[101;93m Error: Failed to download prompt quill data HTTP Status Code: {} \033[0m".format(status_code))
+				input("Press Enter to exit...")
+				exit(1)
+		else:
+			shutil.copy(zip_path, install_path)
+
+
+		# Assuming the qdrant executable zip and data zip paths are known and set similarly
+		qdrant_exe_zip = os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')
+		data_zip = os.path.join(install_dir, 'data.zip')
+
+		print("Extract Qdrant with unzip")
+		extract_zip(qdrant_exe_zip, qdrant_dir)
+
+		print("Extract Qdrant web UI with unzip")
+		extract_zip(install_path, qdrant_dir)
+
+		print("Rename the dist folder to static")
+		os.rename(os.path.join(qdrant_dir, 'dist'), os.path.join(qdrant_dir, 'static'))
+
+		print("Extract data with unzip")
+		extract_zip(data_zip, os.path.join(install_dir, 'delete_after_setup'))
+
+		print("Startup Qdrant to upload the data")
+		qdrant_executable = os.path.join(qdrant_dir, 'qdrant.exe')
+		subprocess.Popen([qdrant_executable, '--disable-telemetry'], cwd=qdrant_dir)
+
+		# Run the Python script and wait for it to complete
+		print("Run the check_qdrant_up.py script")
+		subprocess.call([sys.executable, 'pq/check_qdrant_up.py'])
+
+		# Upload data using curl
+		print("Load data into qdrant, please be patient, this may take a while")
+		curl_command = [
+			'curl', '-X', 'POST',
+			"http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot",
+			'-H', "Content-Type:multipart/form-data", '-H', "api-key:",
+			'-F', f"snapshot=@{os.path.join(install_dir, 'delete_after_setup', 'prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot')}"
+		]
+		subprocess.call(curl_command)
+
+		# Cleanup
+		print("Performing cleanup")
+		os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
+		os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
+		os.remove(os.path.join(install_dir, 'data.zip'))
+		shutil.rmtree(os.path.join(install_dir, 'delete_after_setup'), ignore_errors=True)
+		shutil.rmtree(os.path.join(install_dir, 'qdrant', 'snapshots'), ignore_errors=True)
+
+	else:
+		print("Startup Qdrant to upload the data")
+		qdrant_executable = os.path.join(qdrant_dir, 'qdrant.exe')
+		subprocess.Popen([qdrant_executable, '--disable-telemetry'], cwd=qdrant_dir)
+
+		# Run the Python script and wait for it to complete
+		print("Run the check_qdrant_up.py script")
+		subprocess.call([sys.executable, 'pq/check_qdrant_up.py'])
+
+
+
+
+
+download_qdrant()
 
 install_webui()
 

@@ -1,6 +1,28 @@
 @echo off
 
 
+:: Function to wait for a file to be created and not be empty
+:WAITFORFILE
+set FILE_TO_CHECK=%1
+
+:CHECKFILE
+if not exist !FILE_TO_CHECK! (
+    ping -n 2 127.0.0.1 > nul
+    goto CHECKFILE
+)
+
+:: Check if the file is empty
+for %%A in (!FILE_TO_CHECK!) do (
+    if %%~zA equ 0 (
+        ping -n 2 127.0.0.1 > nul
+        goto CHECKFILE
+    )
+)
+
+exit /b
+
+
+
 :: If you don't already have Git, download Git-SCM and install it here: https://git-scm.com/download/win
 WHERE git >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 (
@@ -89,101 +111,6 @@ ECHO cleanup miniconda installer
 del /f %INSTALL_DIR%\miniconda_installer.exe
 
 call pip install requests
-
-if exist "%INSTALL_DIR%/qdrant" (
-    ECHO Startup Qdrant
-    cd %INSTALL_DIR%/qdrant
-    start "" "%INSTALL_DIR%/qdrant/qdrant.exe"
-
-    cd %BASE_DIR%
-    start /W "" python pq/check_qdrant_up.py
-
-)
-
-echo install the vector store
-if not exist "%INSTALL_DIR%/qdrant" (
-
-    if not exist "%CACHE_DIR%/qdrant-x86_64-pc-windows-msvc.zip" (
-        ECHO Download Qdrant Portable Version
-        if exist %STATUS_FILE% del %STATUS_FILE%
-        curl -L https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip --output %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -w "%%{http_code}" > %STATUS_FILE%
-        set /p HTTPCODE=<%STATUS_FILE%
-        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
-        if "%HTTPCODE%" neq "200" (
-            echo [101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zips HTTP Status Code: %HTTPCODE% [0m
-            pause
-            exit /b 1
-        )
-    ) else (
-        xcopy %CACHE_DIR%\qdrant-x86_64-pc-windows-msvc.zip %INSTALL_DIR%
-    )
-
-    if not exist "%CACHE_DIR%/dist-qdrant.zip" (
-        ECHO Download Qdrant Web UI
-        if exist %STATUS_FILE% del %STATUS_FILE%
-        curl -L https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip --output %INSTALL_DIR%/dist-qdrant.zip -w "%%{http_code}" > %STATUS_FILE%
-        set /p HTTPCODE=<%STATUS_FILE%
-        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
-        if "%HTTPCODE%" neq "200" (
-         echo [101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: %HTTPCODE% [0m
-         pause
-         exit /b 1
-        )
-    ) else (
-        xcopy %CACHE_DIR%\dist-qdrant.zip %INSTALL_DIR%
-    )
-
-    if not exist "%CACHE_DIR%/data.zip" (
-        ECHO Download llama-index QDrant data
-        if exist %STATUS_FILE% del %STATUS_FILE%
-        curl -L https://civitai.com/api/download/models/567736 --output %INSTALL_DIR%/data.zip -w "%%{http_code}" > %STATUS_FILE%
-        set /p HTTPCODE=<%STATUS_FILE%
-        for /f %%i in ("%HTTPCODE%") do set HTTPCODE=%%i
-        if "%HTTPCODE%" neq "200" (
-         echo [101;93m Error: Failed to download Prompt Quill data HTTP Status Code: %HTTPCODE% [0m
-         pause
-         exit /b 1
-        )
-    ) else (
-        xcopy %CACHE_DIR%\data.zip %INSTALL_DIR%
-    )
-
-
-    ECHO Extract Qdrant with unzip
-    %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/qdrant-x86_64-pc-windows-msvc.zip -d %INSTALL_DIR%/qdrant
-
-    ECHO Extract Qdrant web UI with unzip
-    %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/dist-qdrant.zip -d %INSTALL_DIR%/qdrant
-
-    ECHO rename the dist folder to static
-    cd %INSTALL_DIR%/qdrant
-    ren "dist" "static"
-
-    cd %INSTALL_DIR%
-
-    ECHO Extract Qdrant web UI with unzip
-    %INSTALL_DIR%/../../unzip/unzip.exe %INSTALL_DIR%/data.zip -d %INSTALL_DIR%/delete_after_setup
-
-    ECHO Startup Qdrant to upload the data
-    cd %INSTALL_DIR%/qdrant
-    start "" "%INSTALL_DIR%/qdrant/qdrant.exe" --disable-telemetry
-
-    cd %BASE_DIR%
-    REM we do this to give Qdrant some time to fire up
-    start /W "" python pq/check_qdrant_up.py
-
-    ECHO Load data into qdrant, please be patient, this may take a while
-    curl -X POST "http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot" -H "Content-Type:multipart/form-data" -H "api-key:" -F "snapshot=@%INSTALL_DIR%/delete_after_setup/prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot"
-
-    ECHO some cleanup
-    del /f %INSTALL_DIR%\dist-qdrant.zip
-    del /f %INSTALL_DIR%\qdrant-x86_64-pc-windows-msvc.zip
-    del /f %INSTALL_DIR%\data.zip
-    rmdir /s /q %INSTALL_DIR%\delete_after_setup
-    rmdir /s /q %INSTALL_DIR%\qdrant\snapshots
-)
-
-
 
 cd %BASE_DIR%
 call python one_click.py
