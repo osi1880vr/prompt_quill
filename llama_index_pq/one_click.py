@@ -312,7 +312,7 @@ def is_installed(package):
 def install_webui():
 
 	if not os.path.exists(os.path.join(install_dir, 'env', 'bin')):
-		run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
+		run_cmd(f"mkdir {os.path.join(install_dir, 'env', 'bin')}", assert_success=True, environment=True)
 
 	if not is_installed("clip"):
 		run_pip(f"install {clip_package}", "clip")
