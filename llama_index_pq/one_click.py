@@ -311,95 +311,99 @@ def is_installed(package):
 
 def install_webui():
 
-	run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
+	if not os.path.exists(os.path.join(install_dir, 'env', 'bin')):
+		run_cmd(f"mkdir installer_files\\env\\bin", assert_success=True, environment=True)
 
 	if not is_installed("clip"):
 		run_pip(f"install {clip_package}", "clip")
 
 
-	# Ask the user for the GPU vendor
-	if "GPU_CHOICE" in os.environ:
-		choice = os.environ["GPU_CHOICE"].upper()
-		print_big_message(f"Selected GPU choice \"{choice}\" based on the GPU_CHOICE environment variable.")
-	else:
-		choice = get_user_choice(
-			"What is your GPU?",
-			{
-				'A': 'NVIDIA',
-				'B': 'AMD (Linux/MacOS only. Requires ROCm SDK 5.6 on Linux)',
-				'C': 'Apple M Series',
-				'D': 'Intel Arc (IPEX)',
-				'N': 'None (I want to run models in CPU mode)'
-			},
-		)
-
-	gpu_choice_to_name = {
-		"A": "NVIDIA",
-		"B": "AMD",
-		"C": "APPLE",
-		"D": "INTEL",
-		"N": "NONE"
-	}
-
-	selected_gpu = gpu_choice_to_name[choice]
-	use_cuda118 = "N"
-
-	# Write a flag to CMD_FLAGS.txt for CPU mode
-	if selected_gpu == "NONE":
-		with open(cmd_flags_path, 'r+') as cmd_flags_file:
-			if "--cpu" not in cmd_flags_file.read():
-				print_big_message("Adding the --cpu flag to CMD_FLAGS.txt.")
-				cmd_flags_file.write("\n--cpu\n")
-
-	# Check if the user wants CUDA 11.8
-	elif any((is_windows(), is_linux())) and selected_gpu == "NVIDIA":
-		if "USE_CUDA118" in os.environ:
-			use_cuda118 = "Y" if os.environ.get("USE_CUDA118", "").lower() in ("yes", "y", "true", "1", "t", "on") else "N"
+	try:
+		import torch
+	except:
+		# Ask the user for the GPU vendor
+		if "GPU_CHOICE" in os.environ:
+			choice = os.environ["GPU_CHOICE"].upper()
+			print_big_message(f"Selected GPU choice \"{choice}\" based on the GPU_CHOICE environment variable.")
 		else:
-			print("\nDo you want to use CUDA 11.8 instead of 12.1?\nOnly choose this option if your GPU is very old (Kepler or older).\n\nFor RTX and GTX series GPUs, say \"N\".\nIf unsure, say \"N\".\n")
-			use_cuda118 = input("Input (Y/N)> ").upper().strip('"\'').strip()
-			while use_cuda118 not in 'YN':
-				print("Invalid choice. Please try again.")
-				use_cuda118 = input("Input> ").upper().strip('"\'').strip()
+			choice = get_user_choice(
+				"What is your GPU?",
+				{
+					'A': 'NVIDIA',
+					'B': 'AMD (Linux/MacOS only. Requires ROCm SDK 5.6 on Linux)',
+					'C': 'Apple M Series',
+					'D': 'Intel Arc (IPEX)',
+					'N': 'None (I want to run models in CPU mode)'
+				},
+			)
 
-		if use_cuda118 == 'Y':
-			print("CUDA: 11.8")
-		else:
-			print("CUDA: 12.1")
+		gpu_choice_to_name = {
+			"A": "NVIDIA",
+			"B": "AMD",
+			"C": "APPLE",
+			"D": "INTEL",
+			"N": "NONE"
+		}
 
-	# No PyTorch for AMD on Windows (?)
-	elif is_windows() and selected_gpu == "AMD":
-		print("PyTorch setup on Windows is not implemented yet. Exiting...")
-		sys.exit(1)
+		selected_gpu = gpu_choice_to_name[choice]
+		use_cuda118 = "N"
 
-	# Find the Pytorch installation command
-	install_pytorch = f"python -m pip install torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION} "
+		# Write a flag to CMD_FLAGS.txt for CPU mode
+		if selected_gpu == "NONE":
+			with open(cmd_flags_path, 'r+') as cmd_flags_file:
+				if "--cpu" not in cmd_flags_file.read():
+					print_big_message("Adding the --cpu flag to CMD_FLAGS.txt.")
+					cmd_flags_file.write("\n--cpu\n")
 
-	if selected_gpu == "NVIDIA":
-		if use_cuda118 == 'Y':
-			install_pytorch += "--index-url https://download.pytorch.org/whl/cu118"
-		else:
-			install_pytorch += "--index-url https://download.pytorch.org/whl/cu121"
-	elif selected_gpu == "AMD":
-		install_pytorch += "--index-url https://download.pytorch.org/whl/rocm5.6"
-	elif selected_gpu in ["APPLE", "NONE"]:
-		install_pytorch += "--index-url https://download.pytorch.org/whl/cpu"
-	elif selected_gpu == "INTEL":
-		if is_linux():
-			install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
-		else:
-			install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10 --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
+		# Check if the user wants CUDA 11.8
+		elif any((is_windows(), is_linux())) and selected_gpu == "NVIDIA":
+			if "USE_CUDA118" in os.environ:
+				use_cuda118 = "Y" if os.environ.get("USE_CUDA118", "").lower() in ("yes", "y", "true", "1", "t", "on") else "N"
+			else:
+				print("\nDo you want to use CUDA 11.8 instead of 12.1?\nOnly choose this option if your GPU is very old (Kepler or older).\n\nFor RTX and GTX series GPUs, say \"N\".\nIf unsure, say \"N\".\n")
+				use_cuda118 = input("Input (Y/N)> ").upper().strip('"\'').strip()
+				while use_cuda118 not in 'YN':
+					print("Invalid choice. Please try again.")
+					use_cuda118 = input("Input> ").upper().strip('"\'').strip()
 
-	# Install Git and then Pytorch
-	print_big_message("Installing PyTorch.")
-	run_cmd(f"conda install -y -k ninja git && {install_pytorch} && python -m pip install py-cpuinfo==9.0.0", assert_success=True, environment=True)
+			if use_cuda118 == 'Y':
+				print("CUDA: 11.8")
+			else:
+				print("CUDA: 12.1")
 
-	if selected_gpu == "INTEL":
-		# Install oneAPI dependencies via conda
-		print_big_message("Installing Intel oneAPI runtime libraries.")
-		run_cmd("conda install -y -c intel dpcpp-cpp-rt=2024.0 mkl-dpcpp=2024.0")
-		# Install libuv required by Intel-patched torch
-		run_cmd("conda install -y libuv")
+		# No PyTorch for AMD on Windows (?)
+		elif is_windows() and selected_gpu == "AMD":
+			print("PyTorch setup on Windows is not implemented yet. Exiting...")
+			sys.exit(1)
+
+		# Find the Pytorch installation command
+		install_pytorch = f"python -m pip install torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION} "
+
+		if selected_gpu == "NVIDIA":
+			if use_cuda118 == 'Y':
+				install_pytorch += "--index-url https://download.pytorch.org/whl/cu118"
+			else:
+				install_pytorch += "--index-url https://download.pytorch.org/whl/cu121"
+		elif selected_gpu == "AMD":
+			install_pytorch += "--index-url https://download.pytorch.org/whl/rocm5.6"
+		elif selected_gpu in ["APPLE", "NONE"]:
+			install_pytorch += "--index-url https://download.pytorch.org/whl/cpu"
+		elif selected_gpu == "INTEL":
+			if is_linux():
+				install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
+			else:
+				install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10 --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
+
+		# Install Git and then Pytorch
+		print_big_message("Installing PyTorch.")
+		run_cmd(f"conda install -y -k ninja git && {install_pytorch} && python -m pip install py-cpuinfo==9.0.0", assert_success=True, environment=True)
+
+		if selected_gpu == "INTEL":
+			# Install oneAPI dependencies via conda
+			print_big_message("Installing Intel oneAPI runtime libraries.")
+			run_cmd("conda install -y -c intel dpcpp-cpp-rt=2024.0 mkl-dpcpp=2024.0")
+			# Install libuv required by Intel-patched torch
+			run_cmd("conda install -y libuv")
 
 	# Install the webui requirements
 	update_requirements(initial_installation=True)
@@ -423,7 +427,7 @@ def download_file(url, output_path, max_retries=5):
 			total_size = int(response.headers.get('content-length', 0))
 
 			with open(output_path, 'wb') as f, tqdm(
-					desc=output_path,
+					desc=os.path.basename(output_path),
 					total=total_size,
 					unit='iB',
 					unit_scale=True,
@@ -455,107 +459,125 @@ def download_file(url, output_path, max_retries=5):
 
 	return response.status_code
 
+
+def check_collection_exists(qdrant_url, collection_name):
+	url = f"{qdrant_url}/collections/{collection_name}/exists"
+
+	try:
+		response = requests.get(url)
+		response.raise_for_status()  # Raise an exception for HTTP errors (non-2xx responses)
+
+		if response.status_code == 200:
+			exists = response.json().get('exists', False)
+			return exists
+		else:
+			print(f"Failed to check collection existence. Status code: {response.status_code}")
+			return False
+
+	except requests.exceptions.RequestException as e:
+		print(f"Error connecting to Qdrant: {str(e)}")
+		return False
+
 def download_qdrant():
 
 	qdrant_dir = os.path.join(install_dir, 'qdrant')
-
-	if not os.path.exists(qdrant_dir):
-
-
-		filename = 'qdrant-x86_64-pc-windows-msvc.zip'
-		zip_path = os.path.join(cache_dir, filename)
-		install_path = os.path.join(install_dir, filename)
-		if not os.path.exists(zip_path):
-			print("Download Qdrant")
-			url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
-			status_code = download_file(url, install_path)
-			if status_code != 200:
-				print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
-				input("Press Enter to exit...")
-				exit(1)
-		else:
-			shutil.copy(zip_path, install_path)
-
-		filename = 'dist-qdrant.zip'
-		zip_path = os.path.join(cache_dir, filename)
-		install_path = os.path.join(install_dir, filename)
-		if not os.path.exists(zip_path):
-			print("Download Qdrant Web UI")
-			url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
-			status_code = download_file(url, install_path)
-			if status_code != 200:
-				print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
-				input("Press Enter to exit...")
-				exit(1)
-		else:
-			shutil.copy(zip_path, install_path)
-
-		filename = 'data.zip'
-		zip_path = os.path.join(cache_dir, filename)
-		install_path = os.path.join(install_dir, filename)
-		if not os.path.exists(zip_path):
-			print("Download Prompt Quill data")
-			url = 'https://civitai.com/api/download/models/567736'
-			status_code = download_file(url, install_path)
-			if status_code != 200:
-				print("\033[101;93m Error: Failed to download prompt quill data HTTP Status Code: {} \033[0m".format(status_code))
-				input("Press Enter to exit...")
-				exit(1)
-		else:
-			shutil.copy(zip_path, install_path)
+	snapshot_name = 'prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot'
 
 
-		# Assuming the qdrant executable zip and data zip paths are known and set similarly
-		qdrant_exe_zip = os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')
-		qdrand_dist_zip = os.path.join(install_dir, 'dist-qdrant.zip')
-		data_zip = os.path.join(install_dir, 'data.zip')
+	filename = 'qdrant-x86_64-pc-windows-msvc.zip'
+	zip_path = os.path.join(cache_dir, filename)
+	install_path = os.path.join(install_dir, filename)
+	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(qdrant_dir, 'qdrant.exe')):
+		print("Download Qdrant")
+		url = 'https://github.com/qdrant/qdrant/releases/download/v1.9.2/qdrant-x86_64-pc-windows-msvc.zip'
+		status_code = download_file(url, install_path)
+		if status_code != 200:
+			print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
+			input("Press Enter to exit...")
+			exit(1)
+	else:
+		shutil.copy(zip_path, install_path)
 
+	filename = 'dist-qdrant.zip'
+	zip_path = os.path.join(cache_dir, filename)
+	install_path = os.path.join(install_dir, filename)
+	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(qdrant_dir, 'static')):
+		print("Download Qdrant Web UI")
+		url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.22/dist-qdrant.zip'
+		status_code = download_file(url, install_path)
+		if status_code != 200:
+			print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
+			input("Press Enter to exit...")
+			exit(1)
+	else:
+		shutil.copy(zip_path, install_path)
+
+	filename = 'data.zip'
+	zip_path = os.path.join(cache_dir, filename)
+	install_path = os.path.join(install_dir, filename)
+	if not os.path.exists(zip_path) and not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
+		print("Download Prompt Quill data")
+		url = 'https://civitai.com/api/download/models/567736'
+		status_code = download_file(url, install_path)
+		if status_code != 200:
+			print("\033[101;93m Error: Failed to download prompt quill data HTTP Status Code: {} \033[0m".format(status_code))
+			input("Press Enter to exit...")
+			exit(1)
+	else:
+		shutil.copy(zip_path, install_path)
+
+
+	# Assuming the qdrant executable zip and data zip paths are known and set similarly
+	qdrant_exe_zip = os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')
+	qdrand_dist_zip = os.path.join(install_dir, 'dist-qdrant.zip')
+	data_zip = os.path.join(install_dir, 'data.zip')
+
+
+	if not os.path.exists(os.path.join(qdrant_dir, 'qdrant.exe')):
 		print("Extract Qdrant with unzip")
 		extract_zip(qdrant_exe_zip, qdrant_dir)
 
+	if not os.path.exists(os.path.join(qdrant_dir, 'dist')) and not os.path.exists(os.path.join(qdrant_dir, 'static')):
 		print("Extract Qdrant web UI with unzip")
 		extract_zip(qdrand_dist_zip, qdrant_dir)
 
+	if not os.path.exists(os.path.join(qdrant_dir, 'static')):
 		print("Rename the dist folder to static")
 		os.rename(os.path.join(qdrant_dir, 'dist'), os.path.join(qdrant_dir, 'static'))
 
+	if not os.path.exists(os.path.join(install_dir, 'delete_after_setup', snapshot_name)):
 		print("Extract data with unzip")
 		extract_zip(data_zip, os.path.join(install_dir, 'delete_after_setup'))
 
-		print("Startup Qdrant to upload the data")
-		qdrant_executable = os.path.join(qdrant_dir, 'qdrant.exe')
-		subprocess.Popen([qdrant_executable, '--disable-telemetry'], cwd=qdrant_dir)
+	print("Startup Qdrant to upload the data")
+	qdrant_executable = os.path.join(qdrant_dir, 'qdrant.exe')
+	subprocess.Popen([qdrant_executable, '--disable-telemetry'], cwd=qdrant_dir)
 
-		# Run the Python script and wait for it to complete
-		print("Run the check_qdrant_up.py script")
-		subprocess.call([sys.executable, 'pq/check_qdrant_up.py'])
+	# Run the Python script and wait for it to complete
+	print("Run the check_qdrant_up.py script")
+	subprocess.call([sys.executable, 'pq/check_qdrant_up.py'])
 
+	if not check_collection_exists('http://localhost:6333', 'prompts_large_meta'):
 		# Upload data using curl
 		print("Load data into qdrant, please be patient, this may take a while")
 		curl_command = [
 			'curl', '-X', 'POST',
 			"http://localhost:6333/collections/prompts_large_meta/snapshots/upload?priority=snapshot",
 			'-H', "Content-Type:multipart/form-data", '-H', "api-key:",
-			'-F', f"snapshot=@{os.path.join(install_dir, 'delete_after_setup', 'prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot')}"
+			'-F', f"snapshot=@{os.path.join(install_dir, 'delete_after_setup', snapshot_name)}"
 		]
 		subprocess.call(curl_command)
+		with open(os.path.join(install_dir, 'qdrant_loaded.txt'), 'a'):  # 'a' opens the file for writing, creating it if it does not exist
+			pass
 
-		# Cleanup
-		print("Performing cleanup")
-		os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
-		os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
-		os.remove(os.path.join(install_dir, 'data.zip'))
-		shutil.rmtree(os.path.join(install_dir, 'delete_after_setup'), ignore_errors=True)
-		shutil.rmtree(os.path.join(install_dir, 'qdrant', 'snapshots'), ignore_errors=True)
+	# Cleanup
+	print("Performing cleanup")
+	os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
+	os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
+	os.remove(os.path.join(install_dir, 'data.zip'))
+	shutil.rmtree(os.path.join(install_dir, 'delete_after_setup'), ignore_errors=True)
+	shutil.rmtree(os.path.join(install_dir, 'qdrant', 'snapshots'), ignore_errors=True)
 
-	else:
-		print("Startup Qdrant to upload the data")
-		qdrant_executable = os.path.join(qdrant_dir, 'qdrant.exe')
-		subprocess.Popen([qdrant_executable, '--disable-telemetry'], cwd=qdrant_dir)
-
-		# Run the Python script and wait for it to complete
-		print("Run the check_qdrant_up.py script")
-		subprocess.call([sys.executable, 'pq/check_qdrant_up.py'])
 
 
 
