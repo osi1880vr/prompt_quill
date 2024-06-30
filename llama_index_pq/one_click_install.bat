@@ -1,28 +1,6 @@
 @echo off
 
 
-:: Function to wait for a file to be created and not be empty
-:WAITFORFILE
-set FILE_TO_CHECK=%1
-
-:CHECKFILE
-if not exist !FILE_TO_CHECK! (
-    ping -n 2 127.0.0.1 > nul
-    goto CHECKFILE
-)
-
-:: Check if the file is empty
-for %%A in (!FILE_TO_CHECK!) do (
-    if %%~zA equ 0 (
-        ping -n 2 127.0.0.1 > nul
-        goto CHECKFILE
-    )
-)
-
-exit /b
-
-
-
 :: If you don't already have Git, download Git-SCM and install it here: https://git-scm.com/download/win
 WHERE git >nul 2>nul
 IF %ERRORLEVEL% NEQ 0 (
