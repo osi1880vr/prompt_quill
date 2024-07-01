@@ -29,7 +29,7 @@ def get_prompt_telegram():
     try:
         data = request.json
         return json.dumps(telegram_api.get_prompt(data))
-    except:
+    except Exception as e:
         return jsonify({'error': 'Invalid JSON format'}), 400
 
 
@@ -38,7 +38,7 @@ def get_prompt():
     try:
         data = request.json
         return json.dumps(interface.run_api_llm_response(data['query']))
-    except:
+    except Exception as e:
         return jsonify({'error': 'Invalid JSON format'}), 400
 
 

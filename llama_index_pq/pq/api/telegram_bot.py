@@ -54,11 +54,13 @@ class Telegram:
 
 
 	def get_prompt(self, data):
-		if data['artist'] != '':
-			data['query'] = f"artwork by {data['artist']} {data['query']}"
-		if data['style'] != '':
-			data['query'] = f"{data['query']} in the style of {data['style']}"
-		prompt = self.interface.run_api_llm_response(data['query'])
+		if 'artist' in data:
+			if data['artist'] != '':
+				data['query'] = f"artwork by {data['artist']} {data['query']}"
+		if 'style' in data:
+			if data['style'] != '':
+				data['query'] = f"{data['query']} in the style of {data['style']}"
+		prompt = self.interface.run_api_llm_response(data['query'], True)
 		return {"prompt": prompt['prompt'],
 				"negative_prompt": self.g.settings_data['negative_prompt']}
 
