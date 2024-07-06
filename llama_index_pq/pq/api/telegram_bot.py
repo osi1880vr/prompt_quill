@@ -9,8 +9,7 @@ class Telegram:
 		self.g = globals.get_globals()
 
 
-	def automa_gen(self, query):
-		negative_prompt = self.g.settings_data['negative_prompt']
+	def automa_gen(self, query, negative_prompt):
 		return self.automa_client.request_generation(query,
 													 negative_prompt,
 													 self.g.settings_data)
@@ -19,12 +18,11 @@ class Telegram:
 	def get_image(self, data):
 
 
-		if not data['reuse_prompt'] or data['artist'] != '' or data['style'] != '':
+		if not data['reuse_prompt'] or data['style'] != '':
 
-			if data['artist'] != '':
-				data['query'] = f"((artwork by {data['artist']})) {data['query']}"
+
 			if data['style'] != '':
-				data['query'] = f"((in the style of {data['style']})) {data['query']} "
+				data['query'] = data['style_prompt'].format(prompt=data['query'])
 
 			try:
 				prompt = self.interface.run_api_llm_response(query=data['query'], api=True)
@@ -46,23 +44,22 @@ class Telegram:
 		self.g.settings_data["automa_steps"] = data['steps']
 		self.g.settings_data["automa_cfg_scale"] = data['cfg']
 
-		image = self.automa_gen(prompt['prompt'])
+
+		image = self.automa_gen(prompt['prompt'], self.g.settings_data['negative_prompt'] if data['style'] == '' else data['style_neg_prompt'])
+
 
 		return {"prompt": prompt['prompt'],
-				"negative_prompt": self.g.settings_data['negative_prompt'],
+				"negative_prompt": self.g.settings_data['negative_prompt'] if data['style'] == '' else data['style_neg_prompt'],
 				"image": image}
 
 
 	def get_prompt(self, data):
-		if 'artist' in data:
-			if data['artist'] != '':
-				data['query'] = f"artwork by {data['artist']} {data['query']}"
-		if 'style' in data:
-			if data['style'] != '':
-				data['query'] = f"{data['query']} in the style of {data['style']}"
+
+		if data['style'] != '':
+			data['query'] = data['style_prompt'].format(prompt=data['query'])
 		prompt = self.interface.run_api_llm_response(data['query'], True)
 		return {"prompt": prompt['prompt'],
-				"negative_prompt": self.g.settings_data['negative_prompt']}
+				"negative_prompt": self.g.settings_data['negative_prompt'] if data['style'] == '' else data['style_neg_prompt']}
 
 
 
