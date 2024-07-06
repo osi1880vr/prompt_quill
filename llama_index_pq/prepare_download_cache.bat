@@ -35,6 +35,6 @@ if not exist "%CACHE_DIR%/data.zip" (
     ECHO skipped Download LLama-index QDrant data
 )
 
-
+pause
 :end
 exit
