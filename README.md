@@ -79,12 +79,6 @@ Here are a few more samples using a different model.
 [![Prompt Quill on youtube](images/video/video1.png)](https://youtu.be/FjvV4-5MU9k "Prompt Quill installed in one click")
 
 
-# as featured in llmware
-
-[![Prompt Quill on youtube](images/video/video2.jpg)](https://youtu.be/hunqd4s9AYI "Prompt Quill featured by llmware")
-
-
-
 
 # Robust prompts even with no negative prompt
 Here you see images comparing a regular, hand made prompt versus a prompt made by Prompt Quill.
@@ -147,14 +141,14 @@ The data can be found here also: https://civitai.com/models/330412
 
 # Roadmap
 
-* Add more models to the model lists.
-* Add negative prompting.
-* Add model / LORA advisor.
+* Add more models to the model lists. (Done)
+* Add negative prompting. (Done)
+* Add model / LORA advisor. (Done)
 * Add history to the conversation if not already included by the framework.
 * Add longterm history by storing conversations to disk.
-* Add more settings to finetune the vector search.
-* Add REST API
-* Build Comfyui Plugin
+* Add more settings to finetune the vector search. (Done)
+* Add REST API (Done)
+* Build Comfyui Plugin (Done)
 * Find someone do a plugin for Auto1111 :D
 
 
@@ -171,38 +165,11 @@ I am compiling a growing vector DB which I can then share at some place where I 
 
 # Install
 
-To run this thing you need to decide which RAG platform you like most (we support LLMWare, Llama-Index and Haystack), 
-then you got to set up a vector store and start playing with it.
+If you are on windows, you can use the one_click_install.bat.
+Since this is downloading very large files it can happen that downloads fail.
+You can use prepare_download_cache.bat to download the files and store them in a cache folder.
+The one_click_install.bat will check if the files are there and does not download them.
 
-If you did download a snapshot from civitai you have to run the Qdrant vectror store.
-A docker compose file you will find in the docker folder.
-
-just cd to the qdrant folder and run:
-
-docker compose up
-
-this will start the qdrant server.
-Once it is up and running you should find it a http://localhost:6333/dashboard .
-Under collections there is a little blue arrow right and there you can upload the snapshot.
-Once that is done you are ready to go to get the prompt quill running.
-
-get into the folder of the following brands you like to run on:
-llmware, llama_index or haystack
-
-run pip install -r .\requirements.txt.
-
-Unless you use llmware you have to do this following steps to run llama-cpp:
-
-If you only run on CPU the last steps is
-
-run pip install -r .\requirements_cpu.txt
-
-If you like to run on GPU you have to set up llama-cpp and torch to run on GPU for your environment
-to do this if on windows please check the file in llama-cpp_windows it will tell the further steps
-
-On any other platform please find how you do it, I do not have any other platform. If you create a method, please let me know and I can add it here. Contributions are welcome.
-
-Long term, I will create a one click installer but that's not today ;)
 
 
 # No Feature
