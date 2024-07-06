@@ -35,7 +35,7 @@ os.makedirs(out_dir_t2i, exist_ok=True)
 class automa_client:
 
     def __init__(self):
-        self.webui_server_url = 'http://localhost:7860'
+        self.webui_server_url = webui_server_url
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
 

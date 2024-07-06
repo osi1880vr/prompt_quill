@@ -1,19 +1,20 @@
 import globals
 from generators.automatics.client import automa_client
+from generators.swarmui.client import swarm_client
 
 class Telegram:
 
 	def __init__(self):
 		self.interface = None
-		self.automa_client = automa_client()
+		self.gen_client = swarm_client()
 		self.g = globals.get_globals()
 
 
-	def automa_gen(self, query):
+	def image_gen(self, query):
 		negative_prompt = self.g.settings_data['negative_prompt']
-		return self.automa_client.request_generation(query,
-													 negative_prompt,
-													 self.g.settings_data)
+		return self.gen_client.request_generation(query,
+												  negative_prompt,
+												  self.g.settings_data)
 
 
 	def get_image(self, data):
@@ -46,7 +47,7 @@ class Telegram:
 		self.g.settings_data["automa_steps"] = data['steps']
 		self.g.settings_data["automa_cfg_scale"] = data['cfg']
 
-		image = self.automa_gen(prompt['prompt'])
+		image = self.image_gen(prompt['prompt'])
 
 		return {"prompt": prompt['prompt'],
 				"negative_prompt": self.g.settings_data['negative_prompt'],
