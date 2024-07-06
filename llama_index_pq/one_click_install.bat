@@ -91,6 +91,16 @@ del /f %INSTALL_DIR%\miniconda_installer.exe
 call pip install requests
 
 cd %BASE_DIR%
+
+call python install_qdrant.py
+
+set QDRANT_FOLDER=%BASE_DIR%\installer_files\qdrant
+
+cd %QDRANT_FOLDER%
+
+start  qdrant.exe --disable-telemetry --snapshot ..\delete_after_setup\prompts_ng_gte-2103298935062809-2024-06-12-06-41-21.snapshot:prompts_ng_gte
+
+cd %BASE_DIR%
 call python one_click.py
 
 
