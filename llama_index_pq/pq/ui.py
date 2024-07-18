@@ -73,6 +73,7 @@ class ui_actions:
         self.gen_step = 0
         self.gen_step_select = 0
         self.moon_interrogate = moon()
+        self.sail_log = ''
 
     def run_llm_response(self,query, history):
         prompt = self.interface.run_llm_response(query, history)
@@ -1009,11 +1010,11 @@ Generate an improved text to image prompt based on the above advice.
                             img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
                             save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
                             self.automa_client.decode_and_save_base64(image, save_path)
-                            yield prompt,img
-                        else:
-                            yield prompt,None
+                            yield prompt, img
+                    else:
+                        yield prompt, None
                 else:
-                    yield prompt,None
+                    yield prompt, None
 
                 query = self.get_next_target_new(new_nodes)
                 if query == -1:
