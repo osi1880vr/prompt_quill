@@ -74,6 +74,11 @@ class ui_actions:
         self.gen_step_select = 0
         self.moon_interrogate = moon()
         self.sail_log = ''
+        self.sail_sinus_count = 1.0
+        self.sinus = 0
+        self.sail_depth_start = 0
+        self.images_done = 1
+
 
     def run_llm_response(self,query, history):
         prompt = self.interface.run_llm_response(query, history)
