@@ -945,7 +945,7 @@ Generate an improved text to image prompt based on the above advice.
                     images = self.check_black_images(prompt,images,black_images_filename)
                     yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:
-                    yield self.sail_log,[],f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+                    yield self.sail_log,[],f'{self.images_done} prompts(s) done\n{prompt_discard_count} prompts filtered'
 
                 query = self.get_next_target_new(new_nodes)
 

@@ -5,6 +5,7 @@ from llm_fw import llm_interface_qdrant
 import shared
 import json
 import os
+import time
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
@@ -19,6 +20,9 @@ class api_sail:
         self.api_sail_depth_start = 0
         self.api_sail_depth = 0
         self.api_sail_count = 0
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        self.file_name = f'api_sail_log_{timestamp}.txt'
+        self.query_file_name = f'api_sail_query_log_{timestamp}.txt'
 
     def shorten_string(self, text, max_bytes=1000):
         """Shortens a string to a maximum of 1000 bytes.
@@ -72,7 +76,7 @@ class api_sail:
     def log(self, logfile, text):
         f = open(logfile, 'a')
         try:
-            f.write(f"QUERY: {text} \n")
+            f.write(f"{text} \n")
         except:
             pass
         f.close()
@@ -85,6 +89,9 @@ class api_sail:
             self.g.api_sail_history = []
             self.api_sail_count = 0
             self.g.settings_data['sail_text'] = data['query']
+            timestamp = time.strftime("%Y%m%d-%H%M%S")
+            self.file_name = f'api_sail_log_{timestamp}.txt'
+            self.query_file_name = f'api_sail_query_log_{timestamp}.txt'
 
         if self.last_api_sail_query is None:
             self.last_api_sail_query = data['query']
@@ -115,9 +122,8 @@ class api_sail:
             prompt = self.interface.retrieve_llm_completion(query)
 
             prompt = shared.clean_llm_artefacts(prompt)
-
-            self.log(os.path.join(out_dir_t2t, 'api_sail_log.txt'), f'{query}\n')
-            self.log(os.path.join(out_dir_t2t, 'api_sail_log.txt'), f'{prompt}\n')
+            self.log(os.path.join(out_dir_t2t, self.query_file_name), f'{query}\n')
+            self.log(os.path.join(out_dir_t2t, self.file_name), f'{prompt}\n')
 
             if data['summary'] is True:
                 prompt = extractive_summary(prompt)
