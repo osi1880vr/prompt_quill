@@ -32,7 +32,10 @@ class moon:
 		revision = "2024-05-20"
 		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model = AutoModelForCausalLM.from_pretrained(
-			model_id, trust_remote_code=True, revision=revision
+			model_id,
+			use_flash_attention_2=False,
+			trust_remote_code=True,
+			revision=revision
 		).to(device=device,dtype=dtype)
 		self.model.eval()
 
@@ -57,16 +60,19 @@ class moon:
 
 		answers = []
 
-		if '\n' in prompt:
-			questions = prompt.split('\n')
-			for question in questions:
-				question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
+		try:
+			if '\n' in prompt:
+				questions = prompt.split('\n')
+				for question in questions:
+					question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
 
-				answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
-				answers.append(f'{question}:<br>{answer}<br>')
-		else:
-			prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
-			answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
+					answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
+					answers.append(f'{question}:<br>{answer}<br>')
+			else:
+				prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
+				answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
+		except Exception as e:
+			print(e)
 		gc.collect()
 		torch.cuda.empty_cache()
 

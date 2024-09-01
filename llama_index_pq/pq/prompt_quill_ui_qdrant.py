@@ -220,9 +220,12 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								sail_store_folders = gr.Checkbox(label="store the images in folders per model?", info="Should the images be stored in different Folders per model?",
 															   value=g.settings_data['sail_store_folders'])
 							with gr.Column():
+								sail_gen_any_combination = gr.Checkbox(label="Generate any combination selected for any single prompt?", info="Should any prompt be generated for any possible combination?",
+																 value=g.settings_data['sail_gen_any_combination'])
 								sail_gen_type = gr.Radio(['Random', 'Linear'],
 														 label='Select type of change, Ranodm or linear after n steps',
 														 value=g.settings_data['sail_gen_type'], interactive=True)
+
 								sail_gen_steps = gr.Slider(1, 100, step=1, value=g.settings_data['sail_gen_steps'],
 														   label="Steps",
 														   info="Rotate after n steps")
@@ -280,6 +283,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_vae.change,
 					  sail_dimensions.change,
 					  sail_gen_type.change,
+					  sail_gen_any_combination.change,
 					  sail_gen_steps.change,
 					  sail_gen_enabled.change,
 					  sail_override_settings_restore.change,
@@ -319,6 +323,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_vae,
 					sail_dimensions,
 					sail_gen_type,
+					sail_gen_any_combination,
 					sail_gen_steps,
 					sail_gen_enabled,
 					sail_override_settings_restore,
@@ -553,6 +558,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					automa_adetailer_enable = gr.Checkbox(label="Enable Adetailer",
 														  value=g.settings_data['automa_adetailer_enable'])
 
+					automa_adetailer_render_both = gr.Checkbox(label="Render with and without Adetailer",
+														  value=g.settings_data['automa_adetailer_render_both'])
+
 					automa_ad_use_inpaint_width_height = gr.Checkbox(label="Use inpaint with height",
 																	 value=g.settings_data[
 																		 'automa_ad_use_inpaint_width_height'])
@@ -562,7 +570,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								 "face_yolov8s.pt",
 								 "hand_yolov8n.pt",
 								 "person_yolov8n-seg.pt",
-								 "person_yolov8s-seg.pt"], value=g.settings_data['automa_ad_model'], label='Model')
+								 "yolov8x-worldv2-seg.pt",
+								 "mediapipe_face_full.pt",
+								 "mediapipe_face_short.pt",
+								 "mediapipe_face_mesh.pt",
+								 "mediapipe_face_mesh_eyes_only.pt"], value=g.settings_data['automa_ad_model'], label='Model')
 
 					automa_ad_denoising_strength = gr.Slider(0, 1, step=0.1,
 															 value=g.settings_data['automa_ad_denoising_strength'],
@@ -579,6 +591,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 					gr.on(
 						triggers=[automa_adetailer_enable.change,
+								  automa_adetailer_render_both.change,
 								  automa_ad_use_inpaint_width_height.change,
 								  automa_ad_model.change,
 								  automa_ad_denoising_strength.change,
@@ -586,6 +599,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								  automa_ad_confidence.change],
 						fn=ui_code.set_automa_adetailer,
 						inputs=[automa_adetailer_enable,
+								automa_adetailer_render_both,
 								automa_ad_use_inpaint_width_height,
 								automa_ad_model,
 								automa_ad_denoising_strength,
@@ -704,6 +718,20 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				moon_improver_submit.click(fn=ui_code.moon_improver,
 										   inputs=[moon_improver_gallery, moon_improver_prompt, moon_improver_max_tokens],
 										   outputs=[moon_improver_output,moon_improver_output_gallery])
+			with gr.Tab("File Renamer"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						moon_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
+					with gr.Column(scale=1):
+						moon_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
+						moon_folder_submit = gr.Button("Submit")
+
+				moon_folder_submit.click(fn=ui_code.moon_file_rename,
+										 inputs=moon_folder_name,
+										 outputs=moon_folder_status)
+
+
+
 		moon_improver_low_mem.change(fn=ui_code.moon_set_low_mem,
 									 inputs=moon_improver_low_mem,
 									 outputs=[moon_batch_low_mem,moon_low_mem])
@@ -713,6 +741,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		moon_low_mem.change(fn=ui_code.moon_set_low_mem,
 									 inputs=moon_low_mem,
 									 outputs=[moon_batch_low_mem,moon_improver_low_mem])
+
 
 
 		with gr.Tab("PNG Info"):

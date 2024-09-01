@@ -43,7 +43,7 @@ from settings.io import settings_io
 from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
 from interrogate.moon import moon
-
+from interrogate.get_filename import MoonFilenames
 
 
 
@@ -73,6 +73,7 @@ class ui_actions:
         self.gen_step = 0
         self.gen_step_select = 0
         self.moon_interrogate = moon()
+        self.moon_filenames = MoonFilenames()
         self.sail_log = ''
         self.sail_sinus_count = 1.0
         self.sinus = 0
@@ -139,12 +140,14 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer(self, automa_adetailer_enable,
+                             automa_adetailer_render_both,
                              automa_ad_use_inpaint_width_height,
                              automa_ad_model,
                              automa_ad_denoising_strength,
                              automa_ad_clip_skip,
                              automa_ad_confidence):
         self.g.settings_data['automa_adetailer_enable'] = automa_adetailer_enable
+        self.g.settings_data['automa_adetailer_render_both'] = automa_adetailer_render_both
         self.g.settings_data['automa_ad_use_inpaint_width_height'] = automa_ad_use_inpaint_width_height
         self.g.settings_data['automa_ad_model'] = automa_ad_model
         self.g.settings_data['automa_ad_denoising_strength'] = automa_ad_denoising_strength
@@ -159,11 +162,11 @@ class ui_actions:
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
-                             sail_add_neg, sail_neg_prompt,sail_filter_text,sail_filter_not_text,sail_filter_context,
-                             sail_filter_prompt,sail_neg_filter_text,sail_neg_filter_not_text,
-                             sail_neg_filter_context,automa_alt_vae,sail_checkpoint,
-                             sail_sampler, sail_vae, sail_dimensions, sail_gen_type,
-                             sail_gen_steps,sail_gen_enabled,sail_override_settings_restore,sail_store_folders,
+                             sail_add_neg, sail_neg_prompt, sail_filter_text, sail_filter_not_text, sail_filter_context,
+                             sail_filter_prompt, sail_neg_filter_text, sail_neg_filter_not_text,
+                             sail_neg_filter_context, automa_alt_vae, sail_checkpoint,
+                             sail_sampler, sail_vae, sail_dimensions, sail_gen_type, sail_gen_any_combination,
+                             sail_gen_steps, sail_gen_enabled, sail_override_settings_restore, sail_store_folders,
                              sail_depth_preset):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
@@ -200,6 +203,7 @@ class ui_actions:
         self.g.settings_data['sail_vae'] = sail_vae
         self.g.settings_data['sail_dimensions'] = sail_dimensions
         self.g.settings_data['sail_gen_type'] = sail_gen_type
+        self.g.settings_data['sail_gen_any_combination'] = sail_gen_any_combination
         self.g.settings_data['sail_gen_steps'] = sail_gen_steps
         self.g.settings_data['sail_gen_enabled'] = sail_gen_enabled
         self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
@@ -222,6 +226,8 @@ class ui_actions:
     def moon_low_mem(self):
         if self.g.settings_data["moon_low_mem"]:
             self.moon_unload()
+
+
     def moon_answer_question(self, img, prompt, max_new_tokens):
         self.moon_low_mem_llm()
         return self.moon_interrogate.run_interrogation(img, prompt, max_new_tokens)
@@ -289,10 +295,14 @@ Generate an improved text to image prompt based on the above advice.
             outputs.append(self.moon_get_prompt(image[0], prompt, max_new_tokens))
 
         return '<br><br>'.join(outputs)
+
     def moon_unload(self):
         self.moon_interrogate.unload()
         return 'Moondream unloaded'
 
+    def moon_file_rename(self, folder):
+        count = self.moon_filenames.process_folder(folder)
+        return count
 
     def png_info_get(self, img):
         if img is not None:
@@ -615,7 +625,10 @@ Generate an improved text to image prompt based on the above advice.
 
         if self.g.settings_data['sail_gen_enabled']:
             self.step_gen_data = []
-            gen_array = [self.g.settings_data['sail_dimensions'],self.g.settings_data['sail_checkpoint'],self.g.settings_data['sail_sampler'],self.g.settings_data['sail_vae'],]
+            gen_array = [self.g.settings_data['sail_dimensions'],
+                         self.g.settings_data['sail_checkpoint'],
+                         self.g.settings_data['sail_sampler'],
+                         self.g.settings_data['sail_vae'],]
             combinations = self.prompt_iterator.combine_all_arrays_to_arrays(gen_array)
             if self.g.settings_data['sail_gen_type'] == 'Linear':
                 if self.gen_step == self.g.settings_data['sail_gen_steps']:
