@@ -51,8 +51,8 @@ class MoonFilenames:
                             new_file_path = os.path.join(dirpath, new_filename)
                             counter = 1
                             while os.path.exists(new_file_path):
-                                new_filename = f"{base_name}_{counter}{extension}"
-                                new_file_path = os.path.join(dirpath, new_filename)
+                                new_filename_numbered = f"{new_file_name}_{counter}{extension}"
+                                new_file_path = os.path.join(dirpath, new_filename_numbered)
                                 counter += 1
 
                             # Rename the file to the new unique name
