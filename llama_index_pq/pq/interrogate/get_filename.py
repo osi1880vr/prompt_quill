@@ -28,7 +28,7 @@ class MoonFilenames:
     def get_filename(self, img):
         filename_prompt = 'generate a concise filename for the image that captures its core essence in the fewest words possible.'
 
-        file_name_draft = self.moon_interrogate.run_interrogation(img, filename_prompt, 16)
+        file_name_draft = self.moon_interrogate.run_interrogation(img, filename_prompt, 10)
         filename = self.fix_draft_filename(file_name_draft)
         return filename
 
