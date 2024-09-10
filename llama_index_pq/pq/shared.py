@@ -45,6 +45,8 @@ def clean_llm_artefacts(prompt):
 
 	pattern = r"<\|(.*?)\|>"
 	prompt = re.sub(pattern, "", prompt)
+	pattern = r"<(.*?)>"
+	prompt = re.sub(pattern, "", prompt)
 
 	return prompt
 
