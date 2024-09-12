@@ -719,16 +719,73 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										   inputs=[moon_improver_gallery, moon_improver_prompt, moon_improver_max_tokens],
 										   outputs=[moon_improver_output,moon_improver_output_gallery])
 			with gr.Tab("File Renamer"):
-				with gr.Row():
-					with gr.Column(scale=3):
-						moon_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
-					with gr.Column(scale=1):
-						moon_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
-						moon_folder_submit = gr.Button("Submit")
+				with gr.Tab("Rename"):
+					with gr.Row():
+						with gr.Column(scale=3):
+							moon_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
+						with gr.Column(scale=1):
+							moon_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
+							moon_folder_submit = gr.Button("Submit")
 
-				moon_folder_submit.click(fn=ui_code.moon_file_rename,
-										 inputs=moon_folder_name,
-										 outputs=moon_folder_status)
+						moon_folder_submit.click(fn=ui_code.moon_file_rename,
+												 inputs=moon_folder_name,
+												 outputs=moon_folder_status)
+
+
+				with gr.Tab("Story teller"):
+					with gr.Row():
+						with gr.Column(scale=3):
+							story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
+													  value=g.settings_data['story_teller_enabled'])
+							story_teller_model = gr.Dropdown(
+								choices=g.settings_data['story_teller_models'],
+								value=g.settings_data['story_teller_model'],
+								label='Story Teller Model')
+
+							story_teller_system_context = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
+							story_teller_prompt = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+
+							story_teller_host = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_host'], placeholder="http://localhost:11434", scale=3)
+							story_teller_timeout = gr.Textbox(label="Timeout Ollama Server'", value=g.settings_data['story_teller_timeout'], placeholder="300", scale=3)
+
+
+							story_teller_temperature = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['story_teller_temperature'],
+														 label="Temperature",
+														 info="Choose between 0.1 and 1")
+							story_teller_max_tokens = gr.Textbox(label="Timeout Ollama Server'", value=g.settings_data['story_teller_max_tokens'], placeholder="300", scale=3)
+
+
+							gr.on(
+								triggers=[story_teller_enabled.change,
+										  story_teller_model.change,
+										  story_teller_system_context.change,
+										  story_teller_prompt.change,
+										  story_teller_host.change,
+										  story_teller_timeout.change,
+										  story_teller_temperature.change,
+										  story_teller_max_tokens.change
+										  ],
+								fn=ui_code.set_story_teller,
+								inputs=[story_teller_enabled,
+										story_teller_model,
+										story_teller_system_context,
+										story_teller_prompt,
+										story_teller_host,
+										story_teller_timeout,
+										story_teller_temperature,
+										story_teller_max_tokens],
+								outputs=None
+							)
+
+
+
+
+
+						with gr.Column(scale=1):
+							story_teller_status = gr.Textbox('', label=f'Status', placeholder="status")
+
+
+
 
 
 

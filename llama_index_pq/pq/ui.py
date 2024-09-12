@@ -1131,6 +1131,27 @@ Generate an improved text to image prompt based on the above advice.
             return gr.update(choices=[],value=''),str(e)
 
 
+    def set_story_teller(self,
+                         story_teller_enabled,
+                         story_teller_model,
+                         story_teller_system_context,
+                         story_teller_prompt,
+                         story_teller_host,
+                         story_teller_timeout,
+                         story_teller_temperature,
+                         story_teller_max_tokens):
+
+        self.g.settings_data["story_teller_enabled"] = story_teller_enabled
+        self.g.settings_data["story_teller_model"] = story_teller_model
+        self.g.settings_data["story_teller_system_context"] = story_teller_system_context
+        self.g.settings_data["story_teller_prompt"] = story_teller_prompt
+        self.g.settings_data["story_teller_host"] = story_teller_host
+        self.g.settings_data["story_teller_timeout"] = story_teller_timeout
+        self.g.settings_data["story_teller_temperature"] = story_teller_temperature
+        self.g.settings_data["story_teller_max_tokens"] = story_teller_max_tokens
+
+        self.settings_io.write_settings(self.g.settings_data)
+
 class ui_staff:
 
     def __init__(self):
