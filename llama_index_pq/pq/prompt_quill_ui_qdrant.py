@@ -742,17 +742,17 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								value=g.settings_data['story_teller_model'],
 								label='Story Teller Model')
 
-							story_teller_system_context = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
-							story_teller_prompt = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+							story_teller_system_context = gr.Textbox(label="System Contact'", value=g.settings_data['story_teller_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
+							story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['story_teller_prompt'], placeholder="Make it tell a story", scale=3)
 
-							story_teller_host = gr.Textbox(label="URL for Ollama Server'", value=g.settings_data['story_teller_host'], placeholder="http://localhost:11434", scale=3)
-							story_teller_timeout = gr.Textbox(label="Timeout Ollama Server'", value=g.settings_data['story_teller_timeout'], placeholder="300", scale=3)
+							story_teller_host = gr.Textbox(label="URL for Ollama Server", value=g.settings_data['story_teller_host'], placeholder="http://localhost:11434", scale=3)
+							story_teller_timeout = gr.Textbox(label="Timeout Ollama Server", value=g.settings_data['story_teller_timeout'], placeholder="300", scale=3)
 
 
 							story_teller_temperature = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['story_teller_temperature'],
 														 label="Temperature",
 														 info="Choose between 0.1 and 1")
-							story_teller_max_tokens = gr.Textbox(label="Timeout Ollama Server'", value=g.settings_data['story_teller_max_tokens'], placeholder="300", scale=3)
+							story_teller_max_tokens = gr.Textbox(label="Max Tokens", value=g.settings_data['story_teller_max_tokens'], placeholder="300", scale=3)
 
 
 							gr.on(
