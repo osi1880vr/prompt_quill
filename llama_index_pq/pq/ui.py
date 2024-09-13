@@ -300,7 +300,14 @@ Generate an improved text to image prompt based on the above advice.
         self.moon_interrogate.unload()
         return 'Moondream unloaded'
 
+
+    def moon_file_rename_stop(self):
+        self.g.job_running = False
+        return "Stopped renaming"
+
     def moon_file_rename(self, folder):
+        self.interface.del_llm_model()
+        self.g.job_running = True
         count = self.moon_filenames.process_folder(folder)
         return count
 
@@ -1134,6 +1141,9 @@ Generate an improved text to image prompt based on the above advice.
     def set_story_teller(self,
                          story_teller_enabled,
                          story_teller_model,
+                         image_description_model,
+                         image_description_system_context,
+                         image_description_prompt,
                          story_teller_system_context,
                          story_teller_prompt,
                          story_teller_host,
@@ -1143,6 +1153,9 @@ Generate an improved text to image prompt based on the above advice.
 
         self.g.settings_data["story_teller_enabled"] = story_teller_enabled
         self.g.settings_data["story_teller_model"] = story_teller_model
+        self.g.settings_data["image_description_model"] = image_description_model
+        self.g.settings_data["image_description_system_context"] = image_description_system_context
+        self.g.settings_data["image_description_prompt"] = image_description_prompt
         self.g.settings_data["story_teller_system_context"] = story_teller_system_context
         self.g.settings_data["story_teller_prompt"] = story_teller_prompt
         self.g.settings_data["story_teller_host"] = story_teller_host

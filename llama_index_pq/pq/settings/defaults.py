@@ -132,14 +132,19 @@ You mix a new prompt based on the context and the query. The query is just addin
     "moon_low_mem": False,
 
     "story_teller_enabled": False,
-    "story_teller_model": "llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
-    "story_teller_system_context": "You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.",
-    "story_teller_prompt": "tell a story about the image,Based on the image provided, create a detailed and imaginative story. Describe the character or scene, explore their backstory, motivations, and the world they inhabit. Let the image inspire the tone, genre, and direction of the story. Feel free to include elements of adventure, mystery, or drama, depending on what the image suggests.",
+    "image_description_model": "llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
+    "image_description_system_context": "You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.",
+    "image_description_prompt": "Give a most detailed desciption of the image, describe any detail and also the mood the image is presenting, give a hint if the image is dramatic or funny or what ever matches the image best.",
+
+    "story_teller_system_context": "You are an vibrant story teller, you tell fantastic detailed storys about a image description thats given.Be factual and literal. Do not use metaphors or similes. Be concise.",
+    "story_teller_prompt": "Tell a vibrant, colorful told story about the following image description. Make it dramatic, funny or anyway matching the mood of the image. the image description follows here:",
+
+
     "story_teller_host": "http://localhost:11434",
     "story_teller_timeout": 300,
     "story_teller_temperature": 0.4,
     "story_teller_max_tokens": 300,
-    "story_teller_models": ["llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
+    "image_description_models": ["llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
                             "llava:7b-v1.6-mistral-q2_K (Q2_K, 3.3GB)",
                             "llava:7b-v1.6 (Q4_0, 4.7GB)",
                             "llava:13b-v1.6 (Q4_0, 8.0GB)",
@@ -149,6 +154,9 @@ You mix a new prompt based on the context and the query. The query is just addin
                             "moondream:1.8b (Q4, 1.7GB)",
                             "moondream:1.8b-v2-q6_K (Q6, 2.1GB)",
                             "moondream:1.8b-v2-fp16 (F16, 3.7GB)"],
+    "story_teller_models": ["dolphin-llama3:8b",
+                            "dolphin-phi"],
+    "story_teller_model": "dolphin-llama3:8b",
 
     "embedding_model": "BAAI/bge-base-en-v1.5",
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],

@@ -726,24 +726,40 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						with gr.Column(scale=1):
 							moon_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
 							moon_folder_submit = gr.Button("Submit")
+							moon_folder_stop = gr.Button("Stop")
 
 						moon_folder_submit.click(fn=ui_code.moon_file_rename,
 												 inputs=moon_folder_name,
 												 outputs=moon_folder_status)
-
+						moon_folder_stop.click(fn=ui_code.moon_file_rename_stop,
+												 inputs=None,
+												 outputs=moon_folder_status)
 
 				with gr.Tab("Story teller"):
+					gr.Markdown("""<span style="color: red; font-weight: bold;">To use this feature you have to install a Ollama Server</span>""")
 					with gr.Row():
 						with gr.Column(scale=3):
 							story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
 													  value=g.settings_data['story_teller_enabled'])
+
+
+							image_description_model = gr.Dropdown(
+								choices=g.settings_data['image_description_models'],
+								value=g.settings_data['image_description_model'],
+								label='Image description Model')
+
+
+							image_description_system_context = gr.Textbox(label="Image description System Contact'", value=g.settings_data['image_description_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
+							image_description_prompt = gr.Textbox(label="Image description Story telling prompt", value=g.settings_data['image_description_prompt'], placeholder="Make it describe the image", scale=3)
+
 							story_teller_model = gr.Dropdown(
 								choices=g.settings_data['story_teller_models'],
 								value=g.settings_data['story_teller_model'],
 								label='Story Teller Model')
 
-							story_teller_system_context = gr.Textbox(label="System Contact'", value=g.settings_data['story_teller_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
+							story_teller_system_context = gr.Textbox(label="Story telling System Contact'", value=g.settings_data['story_teller_system_context'], placeholder="You are an vibrant story teller, you tell fantastic detailed storys about a image description thats given.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
 							story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+
 
 							story_teller_host = gr.Textbox(label="URL for Ollama Server", value=g.settings_data['story_teller_host'], placeholder="http://localhost:11434", scale=3)
 							story_teller_timeout = gr.Textbox(label="Timeout Ollama Server", value=g.settings_data['story_teller_timeout'], placeholder="300", scale=3)
@@ -758,6 +774,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							gr.on(
 								triggers=[story_teller_enabled.change,
 										  story_teller_model.change,
+										  image_description_model.change,
+										  image_description_system_context.change,
+										  image_description_prompt.change,
 										  story_teller_system_context.change,
 										  story_teller_prompt.change,
 										  story_teller_host.change,
@@ -768,6 +787,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								fn=ui_code.set_story_teller,
 								inputs=[story_teller_enabled,
 										story_teller_model,
+										image_description_model,
+										image_description_system_context,
+										image_description_prompt,
 										story_teller_system_context,
 										story_teller_prompt,
 										story_teller_host,

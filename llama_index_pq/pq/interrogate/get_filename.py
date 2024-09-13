@@ -9,7 +9,7 @@ from io import BytesIO
 import base64
 
 import globals
-
+from llm_fw import llm_interface_qdrant
 
 class OllamaUtil:
     def __init__(self):
@@ -92,6 +92,45 @@ vision_models = ["llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
 class OllamaImageDescriber:
     def __init__(self):
         self.g = globals.get_globals()
+        self.interface = llm_interface_qdrant.get_interface()
+
+    def get_story(self, description):
+
+
+        client = Client(host=self.g.settings_data["story_teller_host"],
+                        timeout=int(self.g.settings_data["story_teller_timeout"]))
+
+        ollama_util = OllamaUtil()
+
+        models = [model_l['name'] for model_l in client.list()['models']]
+
+        model = self.g.settings_data["story_teller_model"]
+
+
+        if model not in models:
+            print(f"Downloading model: {model}")
+            ollama_util.pull_model(model, client)
+
+        full_response = client.generate(model=model,
+                                        system=self.g.settings_data["story_teller_system_context"],
+                                        prompt=f'{self.g.settings_data["story_teller_prompt"]} {description}',
+                                        keep_alive=-1,
+                                        stream=False,
+                                        options={
+                                            'num_predict': int(self.g.settings_data["story_teller_max_tokens"]),
+                                            'temperature': float(self.g.settings_data["story_teller_temperature"]),
+                                            'top_k': 40,
+                                            'top_p': 0.9,
+                                            'repeat_penalty': 1.1,
+                                            'seed': -1,
+                                            'main_gpu': 0,
+                                            'low_vram': True,
+                                        })
+
+        result = full_response['response']
+        return result
+
+
 
     def ollama_image_describe(self, image_name):
         client = Client(host=self.g.settings_data["story_teller_host"],
@@ -101,7 +140,7 @@ class OllamaImageDescriber:
 
         models = [model_l['name'] for model_l in client.list()['models']]
 
-        model = self.g.settings_data["story_teller_model"].split(' ')[0].strip()
+        model = self.g.settings_data["image_description_model"].split(' ')[0].strip()
 
         if model not in models:
             print(f"Downloading model: {model}")
@@ -116,8 +155,8 @@ class OllamaImageDescriber:
 
         print('Generating Description from Image')
         full_response = client.generate(model=model,
-                                        system=self.g.settings_data["story_teller_system_context"],
-                                        prompt=self.g.settings_data["story_teller_prompt"],
+                                        system=self.g.settings_data["image_description_system_context"],
+                                        prompt=self.g.settings_data["image_description_prompt"],
                                         images=images_base64,
                                         keep_alive=-1,
                                         stream=False,
@@ -129,10 +168,12 @@ class OllamaImageDescriber:
                                             'repeat_penalty': 1.1,
                                             'seed': -1,
                                             'main_gpu': 0,
-                                            'low_vram': False,
+                                            'low_vram': True,
                                         })
 
         result = full_response['response']
+
+        result = self.get_story(result)
 
         print('Finalized')
         return result
@@ -203,5 +244,7 @@ class MoonFilenames:
 
                     except Exception as e:
                         print(f"Error processing image {file_path}: {e}")
+                if self.g.job_running is False:
+                    break
 
         return process_count
