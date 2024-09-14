@@ -1140,6 +1140,7 @@ Generate an improved text to image prompt based on the above advice.
 
     def set_story_teller(self,
                          story_teller_enabled,
+                         story_teller_seconds_step_enabled,
                          story_teller_model,
                          image_description_model,
                          image_description_system_context,
@@ -1152,6 +1153,7 @@ Generate an improved text to image prompt based on the above advice.
                          story_teller_max_tokens):
 
         self.g.settings_data["story_teller_enabled"] = story_teller_enabled
+        self.g.settings_data["story_teller_seconds_step_enabled"] = story_teller_seconds_step_enabled
         self.g.settings_data["story_teller_model"] = story_teller_model
         self.g.settings_data["image_description_model"] = image_description_model
         self.g.settings_data["image_description_system_context"] = image_description_system_context
