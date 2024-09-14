@@ -132,6 +132,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     "moon_low_mem": False,
 
     "story_teller_enabled": False,
+    "story_teller_seconds_step_enabled": False,
     "image_description_model": "llava:7b-v1.6-vicuna-q2_K (Q2_K, 3.2GB)",
     "image_description_system_context": "You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.",
     "image_description_prompt": "Give a most detailed desciption of the image, describe any detail and also the mood the image is presenting, give a hint if the image is dramatic or funny or what ever matches the image best.",

@@ -742,6 +742,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
 													  value=g.settings_data['story_teller_enabled'])
 
+							story_teller_seconds_step_enabled = gr.Checkbox(label="Enable second step", info="Enable advanced Story telling?",
+															   value=g.settings_data['story_teller_seconds_step_enabled'])
 
 							image_description_model = gr.Dropdown(
 								choices=g.settings_data['image_description_models'],
@@ -773,6 +775,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 							gr.on(
 								triggers=[story_teller_enabled.change,
+										  story_teller_seconds_step_enabled.change,
 										  story_teller_model.change,
 										  image_description_model.change,
 										  image_description_system_context.change,
@@ -786,6 +789,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										  ],
 								fn=ui_code.set_story_teller,
 								inputs=[story_teller_enabled,
+										story_teller_seconds_step_enabled,
 										story_teller_model,
 										image_description_model,
 										image_description_system_context,

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from interrogate.moon import moon
 import os
 from PIL import Image
@@ -130,7 +132,20 @@ class OllamaImageDescriber:
         result = full_response['response']
         return result
 
+    def write_story_file(self, story):
+        single_line_text = re.sub(r'\s+', ' ', story)
+        # Get today's date and format it as YYYY-MM-DD
+        today_date = datetime.today().strftime('%Y-%m-%d')
 
+        # Define the filename with today's date
+        filename = f"story_text_{today_date}.txt"
+        story_path = 'api_out/img2txt'
+        filename = os.path.join(story_path,filename)
+
+        # Open the file in append mode, create it if it doesn't exist
+        with open(filename, 'a') as file:
+            # Write the single line to the file and append a newline at the end
+            file.write(single_line_text + '\n')
 
     def ollama_image_describe(self, image_name):
         client = Client(host=self.g.settings_data["story_teller_host"],
@@ -173,8 +188,9 @@ class OllamaImageDescriber:
 
         result = full_response['response']
 
-        result = self.get_story(result)
-
+        if self.g.settings_data["story_teller_seconds_step_enabled"]:
+            result = self.get_story(result)
+        self.write_story_file(result)
         print('Finalized')
         return result
 
