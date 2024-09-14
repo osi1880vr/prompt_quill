@@ -752,7 +752,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 							image_description_system_context = gr.Textbox(label="Image description System Context", value=g.settings_data['image_description_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
-							image_description_prompt = gr.Textbox(label="Image description Story telling prompt", value=g.settings_data['image_description_prompt'], placeholder="Make it describe the image", scale=3)
+							image_description_prompt = gr.Textbox(label="Image description prompt", value=g.settings_data['image_description_prompt'], placeholder="Make it describe the image", scale=3)
 
 							story_teller_model = gr.Dropdown(
 								choices=g.settings_data['story_teller_models'],
