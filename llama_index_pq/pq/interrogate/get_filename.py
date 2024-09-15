@@ -134,6 +134,7 @@ class OllamaImageDescriber:
 
     def write_story_file(self, story):
         single_line_text = re.sub(r'\s+', ' ', story)
+        single_line_text = single_line_text.replace('\u2013', '')
         # Get today's date and format it as YYYY-MM-DD
         today_date = datetime.today().strftime('%Y-%m-%d')
 
