@@ -277,7 +277,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
                     self.g.models_list.append(f'{node.metadata["model_name"]}')
             if hasattr(node, 'payload'):
                 if 'negative_prompt' in node.payload:
-                    negative_prompts = negative_prompts + node.payload['negative_prompt'].split(',')
+                    if node.payload['negative_prompt'] is not None:
+                        negative_prompts = negative_prompts + node.payload['negative_prompt'].split(',')
                 if 'model_name' in node.payload:
                     self.g.models_list.append(f'{node.payload["model_name"]}')
             if len(negative_prompts) > 0:
@@ -363,7 +364,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         return self.create_completion(prompt)
 
-    def retrieve_llm_completion(self, prompt):
+    def retrieve_llm_completion(self, prompt, keep_sail_text=False):
 
         self.check_llm_loaded()
 
@@ -371,7 +372,11 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         context = self.get_context_text(prompt)
         self.g.last_context = context
-        prompt = self.prepare_prompt(prompt,context)
+
+        if keep_sail_text:
+            prompt = self.prepare_prompt(self.g.settings_data['sail_text'],context)
+        else:
+            prompt = self.prepare_prompt(prompt,context)
 
         result = self.create_completion(prompt)
 

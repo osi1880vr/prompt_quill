@@ -82,6 +82,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						sail_text = gr.Textbox(g.settings_data['sail_text'],
 											   label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
 											   placeholder="Where do we set our sails", elem_id='sail-input-text')
+						keep_sail_text = gr.Checkbox(label="Use the input during the whole trip",
+												 info="if set to true there is no dynamic prompting, only the context is changed by the sailing.",
+												 value=g.settings_data['keep_sail_text'])
 						with gr.Row():
 							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
 												   label="Sail steps", info="Choose between 1 and 10000")
@@ -252,6 +255,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 		gr.on(
 			triggers=[sail_text.change,
+					  keep_sail_text.change,
 					  sail_width.change,
 					  sail_depth.change,
 					  sail_generate.change,
@@ -292,6 +296,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
+					keep_sail_text,
 					sail_width,
 					sail_depth,
 					sail_generate,

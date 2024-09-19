@@ -55,6 +55,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     'automa_layerdiffuse_enable': False,
 
     "sail_text": "",
+    "keep_sail_text": False,
     "sail_width": 10,
     "sail_depth": 10,
     "sail_generate": False,

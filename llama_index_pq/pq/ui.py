@@ -158,7 +158,7 @@ class ui_actions:
     def set_automa_layerdiffuse(self, automa_layerdiffuse_enable):
         self.g.settings_data['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
         self.settings_io.write_settings(self.g.settings_data)
-    def set_sailing_settings(self,sail_text, sail_width, sail_depth, sail_generate,
+    def set_sailing_settings(self,sail_text, keep_sail_text, sail_width, sail_depth, sail_generate,
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
                              sail_search, sail_max_gallery_size, sail_dyn_neg,
@@ -172,6 +172,7 @@ class ui_actions:
             self.sail_depth_start = sail_depth
 
         self.g.settings_data['sail_text'] = sail_text
+        self.g.settings_data['keep_sail_text'] = keep_sail_text
         self.g.settings_data['sail_width'] = sail_width
         self.g.settings_data['sail_depth'] = sail_depth
         self.g.settings_data['sail_generate'] = sail_generate
@@ -727,7 +728,7 @@ Generate an improved text to image prompt based on the above advice.
 
 
 
-    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename):
+    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False):
         prompt = ''
         query = self.prepare_query(query)
         if self.g.settings_data['sail_filter_prompt']:
@@ -736,7 +737,7 @@ Generate an improved text to image prompt based on the above advice.
                 if self.g.job_running is False:
                     break
 
-                prompt = self.interface.retrieve_llm_completion(query)
+                prompt = self.interface.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
 
                 filtered = shared.check_filtered(query)
 
@@ -750,7 +751,7 @@ Generate an improved text to image prompt based on the above advice.
                 sail_steps += 1
 
         else:
-            prompt = self.interface.retrieve_llm_completion(query)
+            prompt = self.interface.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
 
         prompt = shared.clean_llm_artefacts(prompt)
 
@@ -951,8 +952,12 @@ Generate an improved text to image prompt based on the above advice.
         while n < sail_steps+1:
 
             try:
+                if query == -1:
+                    self.g.job_running = False
+                    yield self.sail_log,[],f'Something went wrong, there is no valid query anymore'
+                    break
 
-                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['keep_sail_text'])
 
                 new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
 
