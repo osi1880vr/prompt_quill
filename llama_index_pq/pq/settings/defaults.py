@@ -10,8 +10,8 @@ default = {
     "max_top_k": 50,
     "Instruct Model": False,
     "unload_llm": False,
-    "collection": 'prompts_large_meta',
-    "collections_list": ['prompts_large_meta'],
+    "collection": 'prompts_ng_gte',
+    "collections_list": ['prompts_ng_gte'],
 
     "rephrase_instruction": """create a text to image prompt based on the context and the query,
 You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",
