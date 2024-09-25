@@ -39,6 +39,7 @@ from post_process.summary import extractive_summary
 from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
 from generators.hordeai.client import hordeai_models
+from generators.swarmui.client import swarmui_client
 from settings.io import settings_io
 from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
@@ -67,6 +68,8 @@ class ui_actions:
         self.settings_io = settings_io()
         self.max_top_k = 50
         self.automa_client = automa_client()
+        self.swarmui_client = swarmui_client(self.g.settings_data['swarmui_url'])
+
         self.api = v1
         self.api.run_api()
         self.prompt_iterator = prompt_iterator()
@@ -138,6 +141,28 @@ class ui_actions:
         self.g.settings_data['automa_vae'] = vae
         self.g.settings_data['automa_clip_skip'] = clip_skip
         self.settings_io.write_settings(self.g.settings_data)
+
+
+    def set_swarmui_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip):
+        self.g.last_prompt = prompt
+        self.g.last_negative_prompt = negative_prompt
+        self.g.settings_data['swarmui_sampler'] = sampler
+        self.g.settings_data['swarmui_steps'] = steps
+        self.g.settings_data['swarmui_cfg_scale'] = cfg
+        self.g.settings_data['swarmui_width'] = width
+        self.g.settings_data['swarmui_height'] = heigth
+        self.g.settings_data['swarmui_batch'] = batch
+        self.g.settings_data['swarmui_n_iter'] = n_iter
+        self.g.settings_data['swarmui_url'] = url
+        self.g.settings_data['swarmui_save'] = save
+        self.g.settings_data['swarmui_save_on_api_host'] = save_api
+        self.g.settings_data['swarmui_checkpoint'] = checkpoint
+        self.g.settings_data['swarmui_vae'] = vae
+        self.g.settings_data['swarmui_clip_skip'] = clip_skip
+        self.settings_io.write_settings(self.g.settings_data)
+
+
+
 
     def set_automa_adetailer(self, automa_adetailer_enable,
                              automa_adetailer_render_both,
@@ -214,6 +239,59 @@ class ui_actions:
 
         self.settings_io.write_settings(self.g.settings_data)
 
+    def set_swarmui_sailing_settings(self,sail_text, keep_sail_text, sail_width, sail_depth, sail_generate,
+                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
+                             sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
+                             sail_search, sail_max_gallery_size, sail_dyn_neg,
+                             sail_add_neg, sail_neg_prompt, sail_filter_text, sail_filter_not_text, sail_filter_context,
+                             sail_filter_prompt, sail_neg_filter_text, sail_neg_filter_not_text,
+                             sail_neg_filter_context, automa_alt_vae, sail_checkpoint,
+                             sail_sampler, sail_vae, sail_dimensions, sail_gen_type, sail_gen_any_combination,
+                             sail_gen_steps, sail_gen_enabled, sail_override_settings_restore, sail_store_folders,
+                             sail_depth_preset):
+        if self.g.job_running:
+            self.sail_depth_start = sail_depth
+
+        self.g.settings_data['swarmui_sail_text'] = sail_text
+        self.g.settings_data['swarmui_keep_sail_text'] = keep_sail_text
+        self.g.settings_data['swarmui_sail_width'] = sail_width
+        self.g.settings_data['swarmui_sail_depth'] = sail_depth
+        self.g.settings_data['swarmui_sail_generate'] = sail_generate
+        self.g.settings_data['swarmui_sail_summary'] = sail_summary
+        self.g.settings_data['swarmui_sail_rephrase'] = sail_rephrase
+        self.g.settings_data['swarmui_sail_rephrase_prompt'] = sail_rephrase_prompt
+        self.g.settings_data['swarmui_sail_gen_rephrase'] = sail_gen_rephrase
+        self.g.settings_data['swarmui_sail_sinus'] = sail_sinus
+        self.g.settings_data['swarmui_sail_sinus_freq'] = sail_sinus_freq
+        self.g.settings_data['swarmui_sail_sinus_range'] = sail_sinus_range
+        self.g.settings_data['swarmui_sail_add_style'] = sail_add_style
+        self.g.settings_data['swarmui_sail_style'] = sail_style
+        self.g.settings_data['swarmui_sail_add_search'] = sail_add_search
+        self.g.settings_data['swarmui_sail_search'] = sail_search
+        self.g.settings_data['swarmui_sail_max_gallery_size'] = sail_max_gallery_size
+        self.g.settings_data['swarmui_sail_dyn_neg'] = sail_dyn_neg
+        self.g.settings_data['swarmui_sail_add_neg'] = sail_add_neg
+        self.g.settings_data['swarmui_sail_neg_prompt'] = sail_neg_prompt
+        self.g.settings_data['swarmui_sail_filter_text'] = sail_filter_text
+        self.g.settings_data['swarmui_sail_filter_not_text'] = sail_filter_not_text
+        self.g.settings_data['swarmui_sail_filter_context'] = sail_filter_context
+        self.g.settings_data['swarmui_sail_filter_prompt'] = sail_filter_prompt
+        self.g.settings_data['swarmui_sail_neg_filter_text'] = sail_neg_filter_text
+        self.g.settings_data['swarmui_sail_neg_filter_not_text'] = sail_neg_filter_not_text
+        self.g.settings_data['swarmui_sail_neg_filter_context'] = sail_neg_filter_context
+        self.g.settings_data['swarmui_alt_vae'] = automa_alt_vae
+        self.g.settings_data['swarmui_sail_checkpoint'] = sail_checkpoint
+        self.g.settings_data['swarmui_sail_sampler'] = sail_sampler
+        self.g.settings_data['swarmui_sail_vae'] = sail_vae
+        self.g.settings_data['swarmui_sail_dimensions'] = sail_dimensions
+        self.g.settings_data['swarmui_sail_gen_type'] = sail_gen_type
+        self.g.settings_data['swarmui_sail_gen_any_combination'] = sail_gen_any_combination
+        self.g.settings_data['swarmui_sail_gen_steps'] = sail_gen_steps
+        self.g.settings_data['swarmui_sail_gen_enabled'] = sail_gen_enabled
+        self.g.settings_data['swarmui_sail_override_settings_restore'] = sail_override_settings_restore
+        self.g.settings_data['swarmui_sail_store_folders'] = sail_store_folders
+        self.g.settings_data['swarmui_sail_depth_preset'] = sail_depth_preset
+        self.settings_io.write_settings(self.g.settings_data)
 
     def moon_set_low_mem(self, value):
         self.g.settings_data["moon_low_mem"] = value
@@ -355,6 +433,7 @@ Generate an improved text to image prompt based on the above advice.
             self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
             self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
             self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+            self.settings_io.write_settings(self.g.settings_data)
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
@@ -362,9 +441,9 @@ Generate an improved text to image prompt based on the above advice.
             'horde_steps'], self.g.settings_data['horde_cfg_scale'], self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], \
             self.g.settings_data['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
             ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'], self.g.settings_data[
             'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
-            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'
+            'automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'
         ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']),self.g.settings_data[
             'automa_clip_skip']
     
@@ -380,10 +459,16 @@ Generate an improved text to image prompt based on the above advice.
     def automa_get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
                                                                           ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'], self.g.settings_data['automa_n_iter'], self.g.settings_data[
             'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'])
-    
-    
+
+    def swarmui_get_last_prompt(self):
+        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['swarmui_samplers'], value=self.g.settings_data['swarmui_sampler']
+                                                                          ), self.g.settings_data['swarmui_steps'], self.g.settings_data['swarmui_cfg_scale'], self.g.settings_data[
+            'swarmui_width'], self.g.settings_data['swarmui_height'], self.g.settings_data['swarmui_batch'], self.g.settings_data['swarmui_n_iter'], self.g.settings_data[
+            'swarmui_url'], self.g.settings_data['swarmui_save'], self.g.settings_data['swarmui_save_on_api_host'], gr.update(choices=self.g.settings_data['swarmui_checkpoints'], value=self.g.settings_data['swarmui_checkpoint'])
+
+
     def get_llm_settings(self):
         return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data["embedding_model"],self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k']
     
@@ -399,17 +484,17 @@ Generate an improved text to image prompt based on the above advice.
         if self.g.settings_data['automa_vae'] == '':
             self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
-        ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_summary"
-        ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
-        ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
-        ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
-        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
-        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"
-        ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
-        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']),self.g.settings_data["sail_checkpoint"
-        ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
-        ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
-        ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"
+        ],self.g.settings_data["sail_generate"], self.g.settings_data["sail_summary"
+        ],self.g.settings_data["sail_rephrase"], self.g.settings_data["sail_rephrase_prompt"], self.g.settings_data["sail_gen_rephrase"
+        ],self.g.settings_data["sail_sinus"], self.g.settings_data["sail_sinus_freq"], self.g.settings_data["sail_sinus_range"
+        ],self.g.settings_data["sail_add_style"], self.g.settings_data["sail_style"], self.g.settings_data["sail_add_search"
+        ],self.g.settings_data["sail_search"], self.g.settings_data["sail_max_gallery_size"], self.g.settings_data["sail_filter_text"
+        ],self.g.settings_data["sail_filter_not_text"], self.g.settings_data["sail_filter_context"], self.g.settings_data["sail_filter_prompt"
+        ],self.g.settings_data["sail_neg_filter_text"], self.g.settings_data["sail_neg_filter_not_text"], self.g.settings_data["sail_neg_filter_context"
+        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']), self.g.settings_data["sail_checkpoint"
+        ],self.g.settings_data["sail_sampler"], self.g.settings_data["sail_vae"], self.g.settings_data["sail_dimensions"
+        ],self.g.settings_data["sail_gen_type"], self.g.settings_data["sail_gen_steps"], self.g.settings_data["sail_gen_enabled"
+        ],self.g.settings_data["sail_override_settings_restore"], self.g.settings_data["sail_store_folders"
         ],self.g.settings_data["sail_depth_preset"]
 
     def get_prompt_template(self):
@@ -470,7 +555,10 @@ Generate an improved text to image prompt based on the above advice.
                 images.append(img)
         yield images
 
-    
+
+    def run_swarmui_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip):
+        pass
+
     def run_automa_interrogation(self, image_filename,url):
         with open(image_filename, mode='rb') as fp:
             base64_image = base64.b64encode(fp.read()).decode('utf-8')
@@ -482,13 +570,32 @@ Generate an improved text to image prompt based on the above advice.
     def automa_switch_size(self,automa_width,automa_height):
         self.g.settings_data['automa_width'] = automa_height
         self.g.settings_data['automa_height'] = automa_width
-        return automa_height,automa_width
+        return automa_height, automa_width
+
+    def swarmui_switch_size(self,width,height):
+        self.g.settings_data['swarmui_width'] = height
+        self.g.settings_data['swarmui_height'] = width
+        return height, width
 
     def automa_refresh(self):
-        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
-        self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-        self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+        if self.g.settings_data['sail_generate']:
+            self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+            self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+            self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+            self.settings_io.write_settings(self.g.settings_data)
         return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae'])
+
+    def swarmui_refresh(self):
+        if self.g.settings_data['swarmui_sail_generate']:
+            self.g.settings_data['swarmui_checkpoints'] = self.get_swarmui_checkpoints()
+            self.g.settings_data['swarmui_samplers'] = self.get_swarmui_sampler()
+            self.g.settings_data['swarmui_vaes'] = self.get_swarmui_vaes()
+            self.g.settings_data['swarmui_loras'] = self.get_swarmui_loras()
+            self.settings_io.write_settings(self.g.settings_data)
+        return gr.update(choices=self.g.settings_data['swarmui_samplers'], value=self.g.settings_data['swarmui_sail_sampler']), gr.update(choices=self.g.settings_data['swarmui_checkpoints'], value=self.g.settings_data['swarmui_sail_checkpoint']), gr.update(choices=self.g.settings_data['swarmui_vaes'], value=self.g.settings_data['swarmui_sail_vae'])
+
+
+
 
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     
@@ -542,6 +649,41 @@ Generate an improved text to image prompt based on the above advice.
         else:
             return []
 
+    def get_swarmui_sampler(self):
+        samplers = self.swarmui_client.get_samplers()
+        if samplers != -1:
+            if self.g.settings_data['swarmui_sampler'] == '':
+                self.g.settings_data['swarmui_sampler'] = samplers[0]
+            return samplers
+        else:
+            return []
+
+    def get_swarmui_checkpoints(self):
+        checkpoints = self.swarmui_client.get_checkpoints()
+        if checkpoints != -1:
+            if self.g.settings_data['swarmui_checkpoint'] == '':
+                self.g.settings_data['swarmui_checkpoint'] = checkpoints[0]
+            return checkpoints
+        else:
+            return []
+
+
+    def get_swarmui_vaes(self):
+        vaes = self.swarmui_client.get_vaes()
+        if vaes != -1:
+            if self.g.settings_data['swarmui_vae'] == '':
+                self.g.settings_data['swarmui_vae'] = vaes[0]
+            return vaes
+        else:
+            return []
+
+    def get_swarmui_loras(self):
+        loras = self.swarmui_client.get_loras()
+        if loras != -1:
+            return loras
+        else:
+            return []
+
 
     def get_next_target_new(self, nodes):
 
@@ -571,8 +713,46 @@ Generate an improved text to image prompt based on the above advice.
                 return out
         else:
             return -1
+
+
+    def get_swarmui_next_target_new(self, nodes):
+
+        if len(nodes) < self.g.settings_data['swarmui_sail_depth']:
+            self.g.settings_data['swarmui_sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
+
+        if self.g.settings_data['swarmui_sail_sinus']:
+            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['swarmui_sail_sinus_range'])
+            self.sail_sinus_count += self.g.settings_data['swarmui_ail_sinus_freq']
+            self.g.settings_data['swarmui_sail_depth'] += self.sinus
+            if self.g.settings_data['swarmui_sail_depth'] < 0:
+                self.g.settings_data['swarmui_sail_depth'] = 1
+
+        if len(nodes) > 0:
+
+            if self.g.settings_data['swarmui_sail_target']:
+                node = nodes[len(nodes)-1]
+                payload = json.loads(node.payload['_node_content'])
+                out = payload['text']
+                self.g.sail_history.append(out)
+                return out
+            else:
+                node = nodes[0]
+                payload = json.loads(node.payload['_node_content'])
+                out = payload['text']
+                self.g.sail_history.append(out)
+                return out
+        else:
+            return -1
+
+
+
+
     def check_api_avail(self):
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
+
+    def swarmui_check_api_avail(self):
+        return self.swarmui_client.check_avail()
+
 
     def sail_automa_gen(self, query):
 
@@ -595,6 +775,26 @@ Generate an improved text to image prompt based on the above advice.
                                                      negative_prompt,
                                                      self.g.settings_data)
 
+    def sail_swarmui_gen(self, query):
+
+        negative_prompt = self.g.settings_data['negative_prompt']
+
+        if self.g.settings_data['swarmui_sail_dyn_neg']:
+            if len(self.g.negative_prompt_list) > 0:
+                negative_prompt = shared.get_negative_prompt()
+
+
+        if self.g.settings_data['swarmui_sail_add_neg']:
+            negative_prompt = f"{self.g.settings_data['swarmui_sail_neg_prompt']}, {negative_prompt}"
+
+        if len(negative_prompt) < 30:
+            negative_prompt = self.g.settings_data['swarmui_negative_prompt']
+
+        self.g.act_neg_prompt = negative_prompt
+
+        return self.swarmui_client.request_generation(query,
+                                                     negative_prompt,
+                                                     self.g.settings_data)
 
     def log_prompt(self, filename, prompt, orig_prompt, n, sail_log):
 
@@ -676,6 +876,60 @@ Generate an improved text to image prompt based on the above advice.
         return images
 
 
+    def run_sail_swarmui_gen(self, prompt, images,folder=None):
+
+        if folder != None:
+            folder = shared.sanitize_path_component(folder)
+
+        if self.g.settings_data['swarmui_sail_gen_enabled']:
+            self.step_gen_data = []
+            gen_array = [self.g.settings_data['swarmui_sail_dimensions'],
+                         self.g.settings_data['swarmui_sail_checkpoint'],
+                         self.g.settings_data['swarmui_sail_sampler'],
+                         self.g.settings_data['swarmui_sail_vae'],]
+            combinations = self.prompt_iterator.combine_all_arrays_to_arrays(gen_array)
+            if self.g.settings_data['swarmui_sail_gen_type'] == 'Linear':
+                if self.gen_step == self.g.settings_data['swarmui_sail_gen_steps']:
+                    self.gen_step_select += 1
+                    if self.gen_step_select > len(combinations)-1:
+                        self.gen_step_select = 0
+                    self.gen_step = 0
+                step_gen_data = combinations[self.gen_step_select]
+            else:
+                step_gen_data = combinations[random.randint(0, len(combinations)-1)]
+            self.gen_step += 1
+            if len(step_gen_data) > 0:
+
+                self.g.settings_data['swarmui_width'] = step_gen_data[0].split(',')[0]
+                self.g.settings_data['swarmui_height'] = step_gen_data[0].split(',')[1]
+                self.g.settings_data['swarmui_checkpoint'] = step_gen_data[1]
+                self.g.settings_data['swarmui_sampler'] = step_gen_data[2]
+                self.g.settings_data['swarmui_vae'] = step_gen_data[3]
+
+        if folder == None and self.g.settings_data['swarmui_sail_store_folders']:
+            folder = shared.sanitize_path_component(self.g.settings_data['swarmui_checkpoint'])
+
+        response = self.sail_swarmui_gen(prompt)
+        if response != '':
+            for index, image in enumerate(response.get('images')):
+                img = Image.open(BytesIO(base64.b64decode(image.split(",")[1]))).convert('RGB')
+                if folder == None:
+                    save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
+                else:
+                    save_path = os.path.join(out_dir_t2i,folder)
+                    os.makedirs(save_path, exist_ok=True)
+                    save_path = os.path.join(save_path, f'txt2img-{self.timestamp()}-{index}.png')
+
+                self.swarmui_client.decode_and_save_base64(image, save_path)
+                images.append(img)
+
+        return images
+
+
+
+
+
+
     def automa_gen(self, prompt, images,folder=None):
 
         response = self.sail_automa_gen(prompt)
@@ -728,10 +982,25 @@ Generate an improved text to image prompt based on the above advice.
 
 
 
-    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False):
+    def new_prompt(self,
+                   query,
+                   n,
+                   prompt_discard_count,
+                   sail_steps,
+                   filename,
+                   keep_sail_text,
+                   filter_prompt,
+                   sail_text,
+                   sail_depth,
+                   sail_summary,
+                   sail_rephrase,
+                   rephrase_prompt,
+                   add_style,
+                   sail_style):
+
         prompt = ''
-        query = self.prepare_query(query)
-        if self.g.settings_data['sail_filter_prompt']:
+        query = self.swarmui_prepare_query(query)
+        if filter_prompt:
             while 1:
 
                 if self.g.job_running is False:
@@ -745,32 +1014,49 @@ Generate an improved text to image prompt based on the above advice.
                     self.g.sail_history.append(prompt)
                     break
                 n += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(sail_text, sail_depth, n)
                 query = self.get_next_target_new(new_nodes)
                 prompt_discard_count += 1
                 sail_steps += 1
 
         else:
-            prompt = self.interface.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
+            prompt = self.interface.adapter.swarmui_retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
 
         prompt = shared.clean_llm_artefacts(prompt)
+        if len(prompt) < 10:
+            #return self.get_swarmui_new_prompt(query, n, prompt_discard_count, sail_steps, filename, keep_sail_text)
+            return self.new_prompt(query,
+                              n,
+                              prompt_discard_count,
+                              sail_steps,
+                              filename,
+                              keep_sail_text,
+                              filter_prompt,
+                              sail_text,
+                              sail_depth,
+                              sail_summary,
+                              sail_rephrase,
+                              rephrase_prompt,
+                              add_style,
+                              sail_style)
 
 
-        if self.g.settings_data['sail_summary']:
+        if sail_summary:
             prompt = extractive_summary(prompt)
 
         orig_prompt = prompt
-        if self.g.settings_data['sail_rephrase']:
-            prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
+        if sail_rephrase:
+            prompt = self.interface.rephrase(prompt, rephrase_prompt)
 
-        if self.g.settings_data['sail_add_style']:
-            prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
-            orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
+        if add_style:
+            prompt = f'{sail_style}, {prompt}'
+            orig_prompt = f'{sail_style}, {orig_prompt}'
 
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
 
-        return prompt.strip(),orig_prompt.strip(),n,prompt_discard_count,sail_steps
+        return prompt.strip(), orig_prompt.strip(), n, prompt_discard_count, sail_steps
+
 
 
     def prepare_query(self,query):
@@ -783,6 +1069,18 @@ Generate an improved text to image prompt based on the above advice.
                 query = self.shorten_string(query)
 
         return query
+
+    def swarmui_prepare_query(self,query):
+        if self.g.settings_data['swarmui_sail_add_search']:
+            query = f'{self.g.settings_data["swarmui_sail_search"]}, {query}'
+
+        if len(query) > 1000:
+            query = extractive_summary(query,num_sentences=2)
+            if len(query) > 1000:
+                query = self.shorten_string(query)
+
+        return query
+
 
     def count_context(self):
         result = self.interface.count_context()
@@ -834,13 +1132,10 @@ Generate an improved text to image prompt based on the above advice.
 
         n = 0
 
-
-
         automa_steps = self.g.settings_data["automa_steps"]
         automa_width = self.g.settings_data["automa_width"]
         automa_height = self.g.settings_data["automa_height"]
         automa_CFG = self.g.settings_data["automa_cfg_scale"]
-
 
         if len(combinations) > 0:
             yield [], 'Test data ready, start image generation'
@@ -946,7 +1241,20 @@ Generate an improved text to image prompt based on the above advice.
 
         yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(possible_images)} images possible"
 
-        new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
+        #new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
+        new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['sail_text'],
+                                                               self.g.settings_data['sail_depth'],
+                                                               0,
+                                                               False,
+                                                               self.g.settings_data['sail_filter_context'],
+                                                               self.g.settings_data['sail_neg_filter_context'],
+                                                               self.g.settings_data['sail_depth_preset'],
+                                                               self.g.settings_data['collection'],
+                                                               self.g.settings_data['sail_filter_not_text'],
+                                                               self.g.settings_data['sail_filter_text'],
+                                                               self.g.settings_data['sail_neg_filter_text'],
+                                                               self.g.settings_data['sail_neg_filter_not_text']
+                                                               )
         query = self.get_next_target_new(new_nodes)
 
         while n < sail_steps+1:
@@ -957,9 +1265,71 @@ Generate an improved text to image prompt based on the above advice.
                     yield self.sail_log,[],f'Something went wrong, there is no valid query anymore'
                     break
 
-                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['keep_sail_text'])
+                #prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['keep_sail_text'])
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.new_prompt(query,
+                                                                                       n,
+                                                                                       prompt_discard_count,
+                                                                                       sail_steps,
+                                                                                       filename,
+                                                                                       self.g.settings_data['keep_sail_text'],
+                                                                                       self.g.settings_data['sail_filter_prompt'],
+                                                                                       self.g.settings_data['sail_text'],
+                                                                                       self.g.settings_data['sail_depth'],
+                                                                                       self.g.settings_data['sail_summary'],
+                                                                                       self.g.settings_data['sail_rephrase'],
+                                                                                       self.g.settings_data['sail_rephrase_prompt'],
+                                                                                       self.g.settings_data['sail_add_style'],
+                                                                                       self.g.settings_data["sail_style"])
 
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                #new_nodes = self.interface.adapter.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'], n)
+                new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['sail_text'],
+                                                                       self.g.settings_data['sail_depth'],
+                                                                       n,
+                                                                       False,
+                                                                       self.g.settings_data['sail_filter_context'],
+                                                                       self.g.settings_data['sail_neg_filter_context'],
+                                                                       self.g.settings_data['sail_depth_preset'],
+                                                                       self.g.settings_data['collection'],
+                                                                       self.g.settings_data['sail_filter_not_text'],
+                                                                       self.g.settings_data['sail_filter_text'],
+                                                                       self.g.settings_data['sail_neg_filter_text'],
+                                                                       self.g.settings_data['sail_neg_filter_not_text']
+                                                                       )
+
+                if len(prompt) < 10:
+                    while len(prompt) < 10:
+                        print('prompt to short trying to get a new one')
+                        n += 1
+                        #prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['keep_sail_text'])
+                        prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.new_prompt(query,
+                                                                                               n,
+                                                                                               prompt_discard_count,
+                                                                                               sail_steps,
+                                                                                               filename,
+                                                                                               self.g.settings_data['keep_sail_text'],
+                                                                                               self.g.settings_data['sail_filter_prompt'],
+                                                                                               self.g.settings_data['sail_text'],
+                                                                                               self.g.settings_data['sail_depth'],
+                                                                                               self.g.settings_data['sail_summary'],
+                                                                                               self.g.settings_data['sail_rephrase'],
+                                                                                               self.g.settings_data['sail_rephrase_prompt'],
+                                                                                               self.g.settings_data['sail_add_style'],
+                                                                                               self.g.settings_data["sail_style"])
+                        #new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                        new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['sail_text'],
+                                                                               self.g.settings_data['sail_depth'],
+                                                                               n,
+                                                                               False,
+                                                                               self.g.settings_data['sail_filter_context'],
+                                                                               self.g.settings_data['sail_neg_filter_context'],
+                                                                               self.g.settings_data['sail_depth_preset'],
+                                                                               self.g.settings_data['collection'],
+                                                                               self.g.settings_data['sail_filter_not_text'],
+                                                                               self.g.settings_data['sail_filter_text'],
+                                                                               self.g.settings_data['sail_neg_filter_text'],
+                                                                               self.g.settings_data['sail_neg_filter_not_text']
+                                                                               )
+
 
                 if self.g.settings_data['sail_generate']:
                     if self.g.settings_data['sail_gen_rephrase']:
@@ -984,7 +1354,20 @@ Generate an improved text to image prompt based on the above advice.
             except Exception as e:
                 n += 1
                 sail_steps += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                #new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['sail_text'],
+                                                                       self.g.settings_data['sail_depth'],
+                                                                       n,
+                                                                       False,
+                                                                       self.g.settings_data['sail_filter_context'],
+                                                                       self.g.settings_data['sail_neg_filter_context'],
+                                                                       self.g.settings_data['sail_depth_preset'],
+                                                                       self.g.settings_data['collection'],
+                                                                       self.g.settings_data['sail_filter_not_text'],
+                                                                       self.g.settings_data['sail_filter_text'],
+                                                                       self.g.settings_data['sail_neg_filter_text'],
+                                                                       self.g.settings_data['sail_neg_filter_not_text']
+                                                                       )
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
@@ -1005,6 +1388,235 @@ Generate an improved text to image prompt based on the above advice.
                 yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
             else:
                 yield self.sail_log,[],f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
+
+
+    def run_swarmui_t2t_sail(self):
+
+        """
+        Runs a Text-to-Text (T2T) SAIL (possibly referring to a creative text generation process) loop based on user-provided settings.
+
+        This function iterates through a specified number of "sails" (iterations) as defined by the `sail_width` setting.
+        In each sail, it performs the following actions:
+
+            1. Initializes variables based on user settings:
+                * Sets a flag indicating SAIL is running.
+                * Initializes an empty history list.
+                * Records starting depth for text generation.
+                * Initializes counters and variables for sinusoidal variations (purpose unclear based on provided code).
+                * Initializes variables for logging and image storage.
+
+            2. Prepares the query based on settings:
+                * Fetches the query text from settings.
+                * Optionally translates the query if enabled in settings.
+                * Optionally adds a search prefix to the query if enabled.
+
+            3. Iterates through each "sail" step:
+                * Retrieves a query based on settings (potentially using an interface).
+                * Cleans potential artefacts from the retrieved query using the `clean_llm_artefacts` function.
+                * Optionally summarizes the query using an external `extractive_summary` function (if enabled).
+                * Optionally adds a style prefix to the query if enabled.
+                * Logs the query with additional information (sinusoidal value, step number) based on settings.
+                * Retrieves top-k most relevant nodes based on the current query and depth (using an interface).
+
+                * (Optional) Generates creative text:
+                    * If generation is enabled, calls the `sail_automa_gen` function to generate text (implementation not provided).
+                    * Processes and saves any generated images from the response.
+
+            4. Yields results after each sail:
+                * Yields the accumulated log and a list of generated images (if any) for each sail.
+
+            5. Updates query for next sail:
+                * Extracts the next target text from retrieved nodes using the `get_next_target` function (implementation not provided).
+                * Handles potential early termination due to context rotation or user interruption.
+
+        Args:
+            self: Reference to the class instance (likely holds configuration and state).
+
+        Yields:
+            tuple: A tuple containing the accumulated log for the sail and a list of generated images (if any).
+        """
+        self.g.settings_data['swarmui_sail_target'] = True
+        self.g.job_running = True
+        self.g.sail_history = []
+        self.sail_depth_start = self.g.settings_data['swarmui_sail_depth']
+        self.sail_sinus_count = 1.0
+        self.sinus = 0
+        self.sail_log = ''
+        self.images_done = 1
+        self.g.act_neg_prompt = ''
+        query = self.g.settings_data['swarmui_sail_text']
+        images = deque(maxlen=int(self.g.settings_data['swarmui_sail_max_gallery_size']))
+        filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+        black_images_filename = os.path.join(out_dir_t2t, f'black_images_{time.strftime("%Y%m%d-%H%M%S")}.txt')
+
+        if self.g.settings_data['translate']:
+            query = self.interface.translate(self.g.settings_data['swarmui_sail_text'])
+
+        prompt_discard_count = 0
+        n = 1
+        sail_steps = self.g.settings_data['swarmui_sail_width']
+
+        context_count = self.get_context_count()
+
+        possible_images = int(context_count / self.g.settings_data['swarmui_sail_depth'])-int(self.g.settings_data['swarmui_sail_depth_preset'] / self.g.settings_data['swarmui_sail_depth'])
+
+        yield self.sail_log, [], f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(possible_images)} images possible"
+
+        #new_nodes = self.interface.adapter.swarmui_direct_search(query, self.g.settings_data['swarmui_sail_depth'], 0)
+
+        new_nodes = self.interface.adapter.sail_direct_search( query,
+                                                               self.g.settings_data['swarmui_sail_depth'],
+                                                               0,
+                                                               False,
+                                                               self.g.settings_data['swarmui_sail_filter_context'],
+                                                               self.g.settings_data['swarmui_sail_neg_filter_context'],
+                                                               self.g.settings_data['swarmui_sail_depth_preset'],
+                                                               self.g.settings_data['collection'],
+                                                               self.g.settings_data['swarmui_sail_filter_not_text'],
+                                                               self.g.settings_data['swarmui_sail_filter_text'],
+                                                               self.g.settings_data['swarmui_sail_neg_filter_text'],
+                                                               self.g.settings_data['swarmui_sail_neg_filter_not_text']
+                                                               )
+
+
+
+
+
+        query = self.get_swarmui_next_target_new(new_nodes)
+
+        while n < sail_steps+1:
+
+            try:
+                if query == -1:
+                    self.g.job_running = False
+                    yield self.sail_log, [], f'Something went wrong, there is no valid query anymore'
+                    break
+
+                #prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_swarmui_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['swarmui_keep_sail_text'])
+
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.new_prompt(query,
+                                                                             n,
+                                                                             prompt_discard_count,
+                                                                             sail_steps,
+                                                                             filename,
+                                                                             self.g.settings_data['swarmui_keep_sail_text'],
+                                                                             self.g.settings_data['swarmui_sail_filter_prompt'],
+                                                                             self.g.settings_data['swarmui_sail_text'],
+                                                                             self.g.settings_data['swarmui_sail_depth'],
+                                                                             self.g.settings_data['swarmui_sail_summary'],
+                                                                             self.g.settings_data['swarmui_sail_rephrase'],
+                                                                             self.g.settings_data['swarmui_sail_rephrase_prompt'],
+                                                                             self.g.settings_data['swarmui_sail_add_style'],
+                                                                             self.g.settings_data["swarmui_sail_style"])
+
+
+                #new_nodes = self.interface.adapter.swarmui_direct_search(self.g.settings_data['swarmui_sail_text'],self.g.settings_data['swarmui_sail_depth'],n)
+                new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['swarmui_sail_text'],
+                                                                       self.g.settings_data['swarmui_sail_depth'],
+                                                                       n,
+                                                                       False,
+                                                                       self.g.settings_data['swarmui_sail_filter_context'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_context'],
+                                                                       self.g.settings_data['swarmui_sail_depth_preset'],
+                                                                       self.g.settings_data['collection'],
+                                                                       self.g.settings_data['swarmui_sail_filter_not_text'],
+                                                                       self.g.settings_data['swarmui_sail_filter_text'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_text'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_not_text']
+                                                                       )
+                if len(prompt) < 10:
+                    while len(prompt) < 10:
+                        print('prompt to short trying to get a new one')
+                        n += 1
+                        #prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_swarmui_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['swarmui_keep_sail_text'])
+                        prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.new_prompt(query,
+                                                                                               n,
+                                                                                               prompt_discard_count,
+                                                                                               sail_steps,
+                                                                                               filename,
+                                                                                               self.g.settings_data['swarmui_keep_sail_text'],
+                                                                                               self.g.settings_data['swarmui_sail_filter_prompt'],
+                                                                                               self.g.settings_data['swarmui_sail_text'],
+                                                                                               self.g.settings_data['swarmui_sail_depth'],
+                                                                                               self.g.settings_data['swarmui_sail_summary'],
+                                                                                               self.g.settings_data['swarmui_sail_rephrase'],
+                                                                                               self.g.settings_data['swarmui_sail_rephrase_prompt'],
+                                                                                               self.g.settings_data['swarmui_sail_add_style'],
+                                                                                               self.g.settings_data["swarmui_sail_style"])
+
+                        #new_nodes = self.interface.adapter.swarmui_direct_search(self.g.settings_data['swarmui_sail_text'],self.g.settings_data['swarmui_sail_depth'],n)
+                        new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['swarmui_sail_text'],
+                                                                               self.g.settings_data['swarmui_sail_depth'],
+                                                                               n,
+                                                                               False,
+                                                                               self.g.settings_data['swarmui_sail_filter_context'],
+                                                                               self.g.settings_data['swarmui_sail_neg_filter_context'],
+                                                                               self.g.settings_data['swarmui_sail_depth_preset'],
+                                                                               self.g.settings_data['collection'],
+                                                                               self.g.settings_data['swarmui_sail_filter_not_text'],
+                                                                               self.g.settings_data['swarmui_sail_filter_text'],
+                                                                               self.g.settings_data['swarmui_sail_neg_filter_text'],
+                                                                               self.g.settings_data['swarmui_sail_neg_filter_not_text']
+                                                                               )
+
+                if self.g.settings_data['swarmui_sail_generate']:
+                    if self.g.settings_data['swarmui_sail_gen_rephrase']:
+                        images = self.run_sail_swarmui_gen(orig_prompt, images)
+                        images = self.check_black_images(prompt,images,black_images_filename)
+                        yield self.sail_log, list(images), f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+                    images = self.run_sail_swarmui_gen(prompt, images)
+                    images = self.check_black_images(prompt,images,black_images_filename)
+                    yield self.sail_log, list(images), f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
+                else:
+                    yield self.sail_log, [], f'{self.images_done} prompts(s) done\n{prompt_discard_count} prompts filtered'
+
+                query = self.get_swarmui_next_target_new(new_nodes)
+
+                if query == -1:
+                    self.interface.log_raw(filename, f'{n} sail is finished early due to no more context')
+                    yield self.sail_log, list(images), f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
+                    break
+
+
+
+            except Exception as e:
+                n += 1
+                sail_steps += 1
+                #new_nodes = self.interface.adapter.swarmui_direct_search(self.g.settings_data['swarmui_sail_text'],self.g.settings_data['swarmui_sail_depth'],n)
+                new_nodes = self.interface.adapter.sail_direct_search( self.g.settings_data['swarmui_sail_text'],
+                                                                       self.g.settings_data['swarmui_sail_depth'],
+                                                                       n,
+                                                                       False,
+                                                                       self.g.settings_data['swarmui_sail_filter_context'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_context'],
+                                                                       self.g.settings_data['swarmui_sail_depth_preset'],
+                                                                       self.g.settings_data['collection'],
+                                                                       self.g.settings_data['swarmui_sail_filter_not_text'],
+                                                                       self.g.settings_data['swarmui_sail_filter_text'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_text'],
+                                                                       self.g.settings_data['swarmui_sail_neg_filter_not_text']
+                                                                       )
+                query = self.get_swarmui_next_target_new(new_nodes)
+                print('some error happened: ', str(e))
+                time.sleep(5)
+            finally:
+                if self.g.job_running is False:
+                    break
+                else:
+                    n += 1
+                    self.images_done += 1
+
+
+
+        if query != -1:
+            stop_reason = 'Finished'
+            if self.g.job_running is False:
+                stop_reason = 'Stopped'
+            if self.g.settings_data['swarmui_sail_generate']:
+                yield self.sail_log, list(images), f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
+            else:
+                yield self.sail_log, [], f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
+
 
     def run_t2t_show_sail(self):
         self.g.job_running = True
@@ -1029,9 +1641,9 @@ Generate an improved text to image prompt based on the above advice.
 
             try:
 
-                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
+                prompt, orig_prompt, n , prompt_discard_count, sail_steps = self.get_new_prompt(query, n, prompt_discard_count, sail_steps, filename)
 
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'], self.g.settings_data['sail_depth'], n)
 
                 if self.g.settings_data['sail_generate']:
                     response = self.sail_automa_gen(prompt)
@@ -1052,9 +1664,9 @@ Generate an improved text to image prompt based on the above advice.
                     break
 
             except Exception as e:
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'], self.g.settings_data['sail_depth'], n)
                 query = self.get_next_target_new(new_nodes)
-                print('some error happened: ',str(e))
+                print('some error happened: ', str(e))
                 time.sleep(5)
             finally:
                 if self.g.job_running is False:
@@ -1106,22 +1718,22 @@ Generate an improved text to image prompt based on the above advice.
         for file in files:
             filename = os.path.basename(file)
             file_content = []
-            f = open(file,'r',encoding='utf8',errors='ignore')
+            f = open(file, 'r', encoding='utf8',errors='ignore')
             file_content = f.readlines()
             f.close()
     
-            outfile = os.path.join(out_dir_t2t,filename)
-            f = open(outfile,'a',encoding='utf8',errors='ignore')
+            outfile = os.path.join(out_dir_t2t, filename)
+            f = open(outfile, 'a', encoding='utf8', errors='ignore')
             n = 0
             for query in file_content:
-                response= self.interface.run_llm_response_batch(query)
+                response = self.interface.run_llm_response_batch(query)
                 f.write(f'{response}\n')
                 output = f'{output}{response}\n{n} ---------\n'
                 n += 1
                 yield output
             f.close()
 
-    def load_preset(self,name):
+    def load_preset(self, name):
         try:
             self.g.settings_data = settings_io().load_preset(name)
             return 'OK'
@@ -1130,7 +1742,7 @@ Generate an improved text to image prompt based on the above advice.
 
     def save_preset(self, name):
         try:
-            status = settings_io().save_preset(name,self.g.settings_data)
+            status = settings_io().save_preset(name, self.g.settings_data)
             return status
         except Exception as e:
             return str(e)
@@ -1138,9 +1750,9 @@ Generate an improved text to image prompt based on the above advice.
     def load_preset_list(self):
         try:
             self.g.settings_data['preset_list'] = settings_io().load_preset_list()
-            return gr.update(choices=self.g.settings_data['preset_list'],value=self.g.settings_data['selected_preset']),'OK'
+            return gr.update(choices=self.g.settings_data['preset_list'], value=self.g.settings_data['selected_preset']), 'OK'
         except Exception as e:
-            return gr.update(choices=[],value=''),str(e)
+            return gr.update(choices=[], value=''), str(e)
 
 
     def set_story_teller(self,
@@ -1171,6 +1783,11 @@ Generate an improved text to image prompt based on the above advice.
         self.g.settings_data["story_teller_max_tokens"] = story_teller_max_tokens
 
         self.settings_io.write_settings(self.g.settings_data)
+
+
+
+    def set_swarm_state(self,sail_generate_swarm, automa_model_settings):
+        print('ok')
 
 class ui_staff:
 

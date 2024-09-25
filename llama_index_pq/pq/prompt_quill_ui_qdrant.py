@@ -75,7 +75,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 	with gr.Tab("Sail the data ocean") as sailor:
 
-		with gr.Tab('Sailing') as sailing:
+		with gr.Tab('Sailing using Forge/Auto1111') as sailing:
 			with gr.Tab('Main view'):
 				with gr.Row():
 					with gr.Column(scale=3):
@@ -105,6 +105,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
 														info="Do you want to directly generate the images?",
 														value=g.settings_data['sail_generate'])
+
+							sail_generate_swarm = gr.Checkbox(label="Generate with SwarmUI",
+															  info="Do you want to directly generate the images?",
+															  value=g.settings_data['sail_generate_swarm'])
+
 							automa_alt_vae = gr.Dropdown(
 								choices=g.settings_data['automa_vaes'],
 								value=g.settings_data['automa_alt_vae'],
@@ -236,7 +241,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							sail_dimensions = ui_code.prompt_iterator.setting_dropdown(label='Dimensions',
 														  choices=g.settings_data['model_test_dimensions_list'],
 														initial_value=g.settings_data['sail_dimensions'])
-						with gr.Row():
+						with gr.Row() as automa_model_settings:
+
+
 							sail_sampler = ui_code.prompt_iterator.setting_dropdown(
 								choices=g.settings_data['automa_samplers'],
 								initial_value=g.settings_data['sail_sampler'],
@@ -253,6 +260,283 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=1):
 						sail_gen_refresh_button = gr.Button('Refresh')
 
+		with gr.Tab('Sailing using SwarmUi') as sailing_swarmui:
+			with gr.Tab('Main view'):
+				with gr.Row():
+					with gr.Column(scale=3):
+						swarmui_sail_text = gr.Textbox(g.settings_data['swarmui_sail_text'],
+											   label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
+											   placeholder="Where do we set our sails", elem_id='sail-input-text')
+						swarmui_keep_sail_text = gr.Checkbox(label="Use the input during the whole trip",
+													 info="if set to true there is no dynamic prompting, only the context is changed by the sailing.",
+													 value=g.settings_data['swarmui_keep_sail_text'])
+						with gr.Row():
+							swarmui_sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['swarmui_sail_width'],
+												   label="Sail steps", info="Choose between 1 and 10000")
+							swarmui_sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['swarmui_sail_depth'],
+												   label="Sail distance", info="Choose between 1 and 10000")
+							swarmui_sail_depth_preset = gr.Slider(0, 1000000, step=1, value=g.settings_data['swarmui_sail_depth_preset'],
+														  label="Sail distance preset", info="Choose between 1 and 1000000")
+
+						with gr.Row():
+							swarmui_sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
+													 info="This will create a sinus wave based movement along the distance.",
+													 value=g.settings_data['swarmui_sail_sinus'])
+							swarmui_sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['swarmui_sail_sinus_freq'],
+														label="Sinus Frequency", info="Choose between 0.1 and 10")
+							swarmui_sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['swarmui_sail_sinus_range'],
+														 label="Sinus Multiplier", info="Choose between 1 and 500")
+						with gr.Row():
+
+							swarmui_sail_generate = gr.Checkbox(label="Generate with SwarmUI",
+															  info="Do you want to directly generate the images?",
+															  value=g.settings_data['swarmui_sail_generate'])
+
+							swarmui_alt_vae = gr.Dropdown(
+								choices=g.settings_data['swarmui_vaes'],
+								value=g.settings_data['swarmui_alt_vae'],
+								label='Alternate VAE for fixing black images')
+					with gr.Column(scale=1):
+						with gr.Row():
+							swarmui_sail_status = gr.Textbox('', label=f'Status', placeholder="status")
+						with gr.Row():
+							swarmui_sail_submit_button = gr.Button('Start your journey')
+							swarmui_sail_stop_button = gr.Button('Interrupt your journey')
+							swarmui_sail_count_button = gr.Button('Count possible results')
+							swarmui_sail_check_connect_button = gr.Button('Check API Available')
+
+						with gr.Row():
+							swarmui_sail_max_gallery_size = gr.Slider(1, 500, step=1,
+															  value=g.settings_data['swarmui_sail_max_gallery_size'],
+															  label="Max Gallery size",
+															  info="Limit the number of images keept in the gallery choose between 1 and 500")
+
+				with gr.Row():
+					swarmui_sail_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png',interactive=True)
+				with gr.Row():
+					swarmui_sail_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",interactive=True,autoscroll=True)
+			with gr.Tab('Filters'):
+				with gr.Row():
+					with gr.Column(scale=1):
+						swarmui_sail_filter_count_button = gr.Button('Count possible results')
+					with gr.Column(scale=3):
+						swarmui_sail_filter_status = gr.Textbox('', label=f'Count', placeholder="0")
+				with gr.Row():
+					with gr.Column(scale=1):
+						swarmui_sail_filter_prompt = gr.Checkbox(label="Filter on prompt Level?",
+														 info="With this you filter entries from the prompt generation. It may lead to long wait time until a prompt will match.",
+														 value=g.settings_data['swarmui_sail_filter_prompt'])
+						swarmui_sail_filter_context = gr.Checkbox(label="Filter on context Level?",
+														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
+														  value=g.settings_data['swarmui_sail_filter_context'])
+
+					with gr.Column(scale=3):
+						swarmui_sail_filter_text = gr.Textbox(g.settings_data['swarmui_sail_filter_text'],
+													  label=f'List of negative words, words that are not allowed to be in context.',
+													  placeholder="Comma separated list of words you dont want in your prompt")
+						swarmui_sail_filter_not_text = gr.Textbox(g.settings_data['swarmui_sail_filter_not_text'],
+														  label=f'List of positive words, words that must be in context.',
+														  placeholder="Comma separated list of words that must be part of the prompt")
+				with gr.Row():
+					with gr.Column(scale=1):
+						swarmui_sail_neg_filter_context = gr.Checkbox(label="Filter on negative prompt context Level?",
+															  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
+															  value=g.settings_data['swarmui_sail_neg_filter_context'])
+					with gr.Column(scale=3):
+						swarmui_sail_neg_filter_text = gr.Textbox(g.settings_data['swarmui_sail_neg_filter_text'],
+														  label=f'List of negative words, words that are not allowed to be in negative prompt context.',
+														  placeholder="Comma separated list of words you dont want in your negative prompt ")
+						swarmui_sail_neg_filter_not_text = gr.Textbox(g.settings_data['swarmui_sail_neg_filter_not_text'],
+															  label=f'List of positive words, words that must be in negative prompt context.',
+															  placeholder="Comma separated list of words that must be part of the negative prompt ")
+
+				with gr.Row():
+					with gr.Column(scale=1):
+						swarmui_sail_add_search = gr.Checkbox(label="Add search specification",
+													  info="Add a text to each vector search.",
+													  value=g.settings_data['swarmui_sail_add_search'])
+					with gr.Column(scale=3):
+						swarmui_sail_search = gr.Textbox(g.settings_data['swarmui_sail_search'], label=f'Search Spec',
+												 placeholder="Enter your additional search")
+			with gr.Tab('Prompt manipulation'):
+				with gr.Row():
+					swarmui_sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
+											   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
+											   value=g.settings_data['swarmui_sail_dyn_neg'])
+
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						swarmui_sail_add_neg = gr.Checkbox(label="Add to negative prompt",
+												   info="Add a text to each negative prompt",
+												   value=g.settings_data['swarmui_sail_add_neg'])
+					with gr.Column(scale=3):
+						swarmui_sail_neg_prompt = gr.Textbox(g.settings_data['swarmui_sail_neg_prompt'], label=f'Negative Prompt addon',
+													 placeholder="Enter your negative prompt addon")
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						swarmui_sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
+													 value=g.settings_data['swarmui_sail_add_style'])
+					with gr.Column(scale=3):
+						swarmui_sail_style = gr.Textbox(g.settings_data['swarmui_sail_style'], label=f'Style Spec',
+												placeholder="Enter your hardcoded style")
+
+				with gr.Row():
+					swarmui_sail_summary = gr.Checkbox(label="Do summary of LLM prompt",
+											   info="The prompt will get reduced to a summary",
+											   value=g.settings_data['swarmui_sail_summary'])
+
+				with gr.Row(equal_height=True):
+					with gr.Column(scale=1):
+						swarmui_sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
+													info="The prompt gets rephrased based on the rephrase prompt",
+													value=g.settings_data['swarmui_sail_rephrase'])
+						swarmui_sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
+														info="To see the effect of the rephrasing you can check here to get both prompts generated",
+														value=g.settings_data['swarmui_sail_gen_rephrase'])
+					with gr.Column(scale=3):
+						swarmui_sail_rephrase_prompt = gr.Textbox(g.settings_data['swarmui_sail_rephrase_prompt'],
+														  label=f'Rephrase Prompt',
+														  placeholder="Enter your rephrase prompt",
+														  lines=4)
+			with gr.Tab('Generation Sailing') as swarmui_gen_sail:
+				with gr.Row():
+					with gr.Column(scale=3):
+						with gr.Row():
+							with gr.Column():
+								swarmui_sail_gen_enabled = gr.Checkbox(label="Enable generation parameters", info="Enable dynamic generation parameters?",
+															   value=g.settings_data['swarmui_sail_gen_enabled'])
+								swarmui_sail_override_settings_restore = gr.Checkbox(label="Restore overriden Settings after each image", info="If set to true the Checkpoint and VAE will be set to the settings in SD Forge/Auto1111. It will slow down the process, but might heping with black images.",
+																			 value=g.settings_data['swarmui_sail_override_settings_restore'])
+								swarmui_sail_store_folders = gr.Checkbox(label="store the images in folders per model?", info="Should the images be stored in different Folders per model?",
+																 value=g.settings_data['swarmui_sail_store_folders'])
+							with gr.Column():
+								swarmui_sail_gen_any_combination = gr.Checkbox(label="Generate any combination selected for any single prompt?", info="Should any prompt be generated for any possible combination?",
+																	   value=g.settings_data['swarmui_sail_gen_any_combination'])
+								swarmui_sail_gen_type = gr.Radio(['Random', 'Linear'],
+														 label='Select type of change, Ranodm or linear after n steps',
+														 value=g.settings_data['swarmui_sail_gen_type'], interactive=True)
+
+								swarmui_sail_gen_steps = gr.Slider(1, 100, step=1, value=g.settings_data['swarmui_sail_gen_steps'],
+														   label="Steps",
+														   info="Rotate after n steps")
+						with gr.Row():
+							swarmui_sail_dimensions = ui_code.prompt_iterator.setting_dropdown(label='Dimensions',
+																					   choices=g.settings_data['model_test_dimensions_list'],
+																					   initial_value=g.settings_data['swarmui_sail_dimensions'])
+						with gr.Row() as swarmui_model_settings:
+
+
+							swarmui_sail_sampler = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['swarmui_samplers'],
+								initial_value=g.settings_data['swarmui_sail_sampler'],
+								label='Sampler')
+							swarmui_sail_checkpoint = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['swarmui_checkpoints'],
+								initial_value=g.settings_data['swarmui_sail_checkpoint'],
+								label='Checkpoint')
+							swarmui_sail_vae = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['swarmui_vaes'],
+								initial_value=g.settings_data['swarmui_sail_vae'],
+								label='VAE')
+
+					with gr.Column(scale=1):
+						swarmui_sail_gen_refresh_button = gr.Button('Refresh')
+
+		# swarm ui sailing
+
+		gr.on(
+			triggers=[swarmui_sail_text.change,
+					  swarmui_keep_sail_text.change,
+					  swarmui_sail_width.change,
+					  swarmui_sail_depth.change,
+					  swarmui_sail_generate.change,
+					  swarmui_sail_summary.change,
+					  swarmui_sail_rephrase.change,
+					  swarmui_sail_rephrase_prompt.change,
+					  swarmui_sail_gen_rephrase.change,
+					  swarmui_sail_sinus.change,
+					  swarmui_sail_sinus_freq.change,
+					  swarmui_sail_sinus_range.change,
+					  swarmui_sail_add_style.change,
+					  swarmui_sail_style.change,
+					  swarmui_sail_add_search.change,
+					  swarmui_sail_search.change,
+					  swarmui_sail_max_gallery_size.change,
+					  swarmui_sail_dyn_neg.change,
+					  swarmui_sail_add_neg.change,
+					  swarmui_sail_neg_prompt.change,
+					  swarmui_sail_filter_text.change,
+					  swarmui_sail_filter_not_text.change,
+					  swarmui_sail_filter_context.change,
+					  swarmui_sail_filter_prompt.change,
+					  swarmui_sail_neg_filter_text.change,
+					  swarmui_sail_neg_filter_not_text.change,
+					  swarmui_sail_neg_filter_context.change,
+					  swarmui_alt_vae.change,
+					  swarmui_sail_checkpoint.change,
+					  swarmui_sail_sampler.change,
+					  swarmui_sail_vae.change,
+					  swarmui_sail_dimensions.change,
+					  swarmui_sail_gen_type.change,
+					  swarmui_sail_gen_any_combination.change,
+					  swarmui_sail_gen_steps.change,
+					  swarmui_sail_gen_enabled.change,
+					  swarmui_sail_override_settings_restore.change,
+					  swarmui_sail_store_folders.change,
+					  swarmui_sail_depth_preset.change
+					  ],
+			fn=ui_code.set_swarmui_sailing_settings,
+			inputs=[swarmui_sail_text,
+					swarmui_keep_sail_text,
+					swarmui_sail_width,
+					swarmui_sail_depth,
+					swarmui_sail_generate,
+					swarmui_sail_summary,
+					swarmui_sail_rephrase,
+					swarmui_sail_rephrase_prompt,
+					swarmui_sail_gen_rephrase,
+					swarmui_sail_sinus,
+					swarmui_sail_sinus_freq,
+					swarmui_sail_sinus_range,
+					swarmui_sail_add_style,
+					swarmui_sail_style,
+					swarmui_sail_add_search,
+					swarmui_sail_search,
+					swarmui_sail_max_gallery_size,
+					swarmui_sail_dyn_neg,
+					swarmui_sail_add_neg,
+					swarmui_sail_neg_prompt,
+					swarmui_sail_filter_text,
+					swarmui_sail_filter_not_text,
+					swarmui_sail_filter_context,
+					swarmui_sail_filter_prompt,
+					swarmui_sail_neg_filter_text,
+					swarmui_sail_neg_filter_not_text,
+					swarmui_sail_neg_filter_context,
+					swarmui_alt_vae,
+					swarmui_sail_checkpoint,
+					swarmui_sail_sampler,
+					swarmui_sail_vae,
+					swarmui_sail_dimensions,
+					swarmui_sail_gen_type,
+					swarmui_sail_gen_any_combination,
+					swarmui_sail_gen_steps,
+					swarmui_sail_gen_enabled,
+					swarmui_sail_override_settings_restore,
+					swarmui_sail_store_folders,
+					swarmui_sail_depth_preset
+					],
+			outputs=None)
+
+
+		gr.on(
+			triggers=[swarmui_gen_sail.select],
+			fn=ui_code.swarmui_refresh,
+			inputs=None,
+			outputs=[swarmui_sail_sampler, swarmui_sail_checkpoint, swarmui_sail_vae]
+		)
+
+		# forge sailing
 		gr.on(
 			triggers=[sail_text.change,
 					  keep_sail_text.change,
@@ -392,18 +676,50 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							   inputs=None,
 							   outputs=None,
 							   cancels=[start_sail])
+
+		swarmui_start_sail = swarmui_sail_submit_button.click(fn=ui_code.run_swarmui_t2t_sail,
+											  inputs=[],
+											  outputs=[swarmui_sail_result,
+													   swarmui_sail_result_images,
+													   swarmui_sail_status])
+		swarmui_sail_stop_button.click(fn=ui_code.stop_job,
+							   inputs=None,
+							   outputs=None,
+							   cancels=[swarmui_start_sail])
+
 		sail_check_connect_button.click(fn=ui_code.check_api_avail,
 										inputs=None,
 										outputs=sail_status)
+
+		swarmui_sail_check_connect_button.click(fn=ui_code.swarmui_check_api_avail,
+										inputs=None,
+										outputs=swarmui_sail_status)
+
+
 		sail_count_button.click(fn=ui_code.count_context,
 								inputs=None,
 								outputs=sail_status)
+
+		swarmui_sail_count_button.click(fn=ui_code.count_context,
+								inputs=None,
+								outputs=swarmui_sail_status)
+
 		sail_filter_count_button.click(fn=ui_code.count_context,
 									   inputs=None,
 									   outputs=sail_filter_status)
+
+		swarmui_sail_filter_count_button.click(fn=ui_code.count_context,
+									   inputs=None,
+									   outputs=swarmui_sail_filter_status)
+
 		sail_gen_refresh_button.click(fn=ui_code.automa_refresh,
 									inputs=None,
 									outputs=[sail_sampler, sail_checkpoint, sail_vae])
+
+		swarmui_sail_gen_refresh_button.click(fn=ui_code.swarmui_refresh,
+									  inputs=None,
+									  outputs=[swarmui_sail_sampler, swarmui_sail_checkpoint, swarmui_sail_vae])
+
 
 		with gr.Tab('Show'):
 			with gr.Row():
@@ -658,6 +974,129 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				flagging_options=None,
 				# live=True
 			)
+
+		with gr.Tab("SwarmUI") as swarmui:
+			with gr.Tab('Generate') as swarm_generate:
+				with gr.Row():
+					with gr.Column(scale=3):
+						swarmui_prompt_input = gr.TextArea(g.last_prompt, lines=5, label="Prompt")
+						swarmui_negative_prompt_input = gr.TextArea(g.last_negative_prompt, lines=3,
+															   label="Negative Prompt")
+						with gr.Row():
+							with gr.Column(scale=2):
+								swarmui_sampler = gr.Dropdown(
+									choices=g.settings_data['swarmui_samplers'], value=g.settings_data['swarmui_sampler'],
+									label='Sampler')
+							with gr.Column(scale=2):
+								swarmui_checkpoint = gr.Dropdown(
+									choices=g.settings_data['swarmui_checkpoints'],
+									value=g.settings_data['swarmui_checkpoint'],
+									label='Checkpoint')
+							with gr.Column(scale=2):
+								swarmui_vae = gr.Dropdown(
+									choices=g.settings_data['swarmui_vaes'],
+									value=g.settings_data['swarmui_vae'],
+									label='VAE')
+						with gr.Row():
+							swarmui_steps = gr.Slider(1, 100, step=1, value=g.settings_data['swarmui_steps'],
+													 label="Steps",
+													 info="Choose between 1 and 100")
+							swarmui_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['swarmui_cfg_scale'],
+												   label="CFG Scale",
+												   info="Choose between 1 and 20")
+							swarmui_clip_skip = gr.Slider(0, 12, step=1, value=g.settings_data['swarmui_clip_skip'],
+														 label="Clip Skip",
+														 info="Choose between 1 and 12")
+						with gr.Row():
+							with gr.Column(scale=3):
+								swarmui_width = gr.Slider(1, 2048, step=1, value=g.settings_data['swarmui_width'],
+														 label="Width",
+														 info="Choose between 1 and 2048")
+								swarmui_height = gr.Slider(1, 2048, step=1, value=g.settings_data['swarmui_height'],
+														  label="Height",
+														  info="Choose between 1 and 2048")
+							with gr.Column(scale=0):
+								swarmui_size_button = gr.Button('Switch size', elem_classes="gr-small-button")
+							with gr.Column(scale=1):
+								swarmui_Batch = gr.Slider(1, 250, step=1, value=g.settings_data['swarmui_batch'],
+													 label="Batch",
+													 info="The number of simultaneous images in each batch, range from 1-250.")
+								swarmui_n_iter = gr.Slider(1, 500, step=1, value=g.settings_data['swarmui_n_iter'],
+													  label="Iterations",
+													  info="The number of sequential batches to be run, range from 1-500.")
+						with gr.Row():
+							swarmui_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['swarmui_url'])
+							swarmui_save = gr.Checkbox(label="Save", info="Save the image?",
+													  value=g.settings_data['swarmui_save'])
+							swarmui_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?",
+																  value=g.settings_data['swarmui_save_on_api_host'])
+					with gr.Column(scale=1):
+						swarmui_refresh_button = gr.Button('Refresh')
+						swarmui_start_button = gr.Button('Generate')
+						swarmui_result_images = gr.Gallery(label='output images', )
+
+
+				swarmui_size_button.click(fn=ui_code.swarmui_switch_size,
+										 inputs=[swarmui_width, swarmui_height],
+										 outputs=[swarmui_width, swarmui_height])
+
+				swarmui_refresh_button.click(fn=ui_code.swarmui_refresh,
+											inputs=None,
+											outputs=[automa_sampler, automa_checkpoint, automa_vae])
+
+				swarmui_start_button.click(fn=ui_code.run_swarmui_generation,
+										  inputs=[swarmui_prompt_input,
+												  swarmui_negative_prompt_input,
+												  swarmui_sampler,
+												  swarmui_checkpoint,
+												  swarmui_steps,
+												  swarmui_CFG,
+												  swarmui_width,
+												  swarmui_height,
+												  swarmui_Batch,
+												  swarmui_n_iter,
+												  swarmui_url,
+												  swarmui_save,
+												  swarmui_save_on_api_host,
+												  swarmui_vae,
+												  swarmui_clip_skip],
+										  outputs=swarmui_result_images)
+
+
+				gr.on(
+					triggers=[swarmui_prompt_input.change,
+							  swarmui_negative_prompt_input.change,
+							  swarmui_sampler.change,
+							  swarmui_steps.change,
+							  swarmui_CFG.change,
+							  swarmui_width.change,
+							  swarmui_height.change,
+							  swarmui_Batch.change,
+							  swarmui_n_iter.change,
+							  swarmui_url.change,
+							  swarmui_save.change,
+							  swarmui_save_on_api_host.change,
+							  swarmui_checkpoint.change,
+							  swarmui_vae.change,
+							  swarmui_clip_skip.change, ],
+					fn=ui_code.set_swarmui_settings,
+					inputs=[swarmui_prompt_input,
+							swarmui_negative_prompt_input,
+							swarmui_sampler,
+							swarmui_checkpoint,
+							swarmui_steps,
+							swarmui_CFG,
+							swarmui_width,
+							swarmui_height,
+							swarmui_Batch,
+							swarmui_n_iter,
+							swarmui_url,
+							swarmui_save,
+							swarmui_save_on_api_host,
+							swarmui_vae,
+							swarmui_clip_skip],
+					outputs=None)
+
 
 	with gr.Tab("Interrogation") as interrogation:
 		with gr.Tab("Moondream"):
@@ -1089,6 +1528,25 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_save,
 				 automa_save_on_api_host,
 				 automa_checkpoint]
+	)
+
+	gr.on(
+		triggers=[swarmui.select],
+		fn=ui_code.swarmui_get_last_prompt,
+		inputs=None,
+		outputs=[swarmui_prompt_input,
+				 swarmui_negative_prompt_input,
+				 swarmui_sampler,
+				 swarmui_steps,
+				 swarmui_CFG,
+				 swarmui_width,
+				 swarmui_height,
+				 swarmui_Batch,
+				 swarmui_n_iter,
+				 swarmui_url,
+				 swarmui_save,
+				 swarmui_save_on_api_host,
+				 swarmui_checkpoint]
 	)
 
 	with gr.Tab('Image Scoring'):

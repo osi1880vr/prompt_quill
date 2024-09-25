@@ -187,6 +187,8 @@ class _LLM_INTERFACE:
     def retrieve_llm_completion(self, query,keep_sail_text=False):
         return self.adapter.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
 
+    def swarmui_retrieve_llm_completion(self, query,keep_sail_text=False):
+        return self.adapter.swarmui_retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
 
     def retrieve_model_test_llm_completion(self,query):
         return self.adapter.retrieve_model_test_llm_completion(query)

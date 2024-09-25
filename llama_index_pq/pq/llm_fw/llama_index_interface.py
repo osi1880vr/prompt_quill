@@ -142,13 +142,17 @@ class adapter:
         return out_nodes
 
 
-    def get_context_filter(self):
+
+
+
+
+    def get_context_filter(self, filter_context, filter_text, filter_not_text, neg_filter_context, neg_filter_not_text, neg_filter_text):
 
         must = []
         must_not = []
-        if self.g.settings_data['sail_filter_context']:
-            if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_filter_not_text'].split(','):
+        if filter_context:
+            if len(filter_not_text) > 0:
+                for word in filter_not_text.split(','):
                     must.append(
                         FieldCondition(
                             key="search",
@@ -156,8 +160,8 @@ class adapter:
                         )
                     )
 
-            if len(self.g.settings_data['sail_filter_text']) > 0:
-                for word in self.g.settings_data['sail_filter_text'].split(','):
+            if len(filter_context) > 0:
+                for word in filter_text.split(','):
                     must_not.append(
                         FieldCondition(
                             key="search",
@@ -165,9 +169,9 @@ class adapter:
                         )
                     )
 
-        if self.g.settings_data['sail_neg_filter_context']:
-            if len(self.g.settings_data['sail_neg_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_not_text'].split(','):
+        if neg_filter_context:
+            if len(neg_filter_not_text) > 0:
+                for word in neg_filter_not_text.split(','):
                     must.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -175,8 +179,8 @@ class adapter:
                         )
                     )
 
-            if len(self.g.settings_data['sail_neg_filter_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_text'].split(','):
+            if len(neg_filter_text) > 0:
+                for word in neg_filter_text.split(','):
                     must_not.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -202,26 +206,58 @@ class adapter:
 
     def direct_search(self,query,limit,offset,context_retrieve=False):
 
+        return self.sail_direct_search( query,
+                                        limit,
+                                        offset,
+                                        context_retrieve,
+                                        self.g.settings_data['sail_filter_context'],
+                                        self.g.settings_data['sail_neg_filter_context'],
+                                        self.g.settings_data['sail_depth_preset'],
+                                        self.g.settings_data['collection'],
+                                        self.g.settings_data['sail_filter_not_text'],
+                                        self.g.settings_data['sail_filter_text'],
+                                        self.g.settings_data['sail_neg_filter_text'],
+                                        self.g.settings_data['sail_neg_filter_not_text']
+                                        )
+
+
+
+    def sail_direct_search(self,
+                           query,
+                           limit,
+                           offset,
+                           context_retrieve,
+                           filter_context,
+                           neg_filter_context,
+                           depth_preset,
+                           collection_name,
+                           filter_not_text,
+                           filter_text,
+                           neg_filter_text,
+                           neg_filter_not_text
+                           ):
+
         vector = self.embed_model.get_text_embedding(query)
 
-        filter = self.get_context_filter()
+        filter = self.get_context_filter(filter_context, filter_text, filter_not_text, neg_filter_context, neg_filter_not_text, neg_filter_text)
 
-        if self.g.settings_data['sail_filter_context'] or self.g.settings_data['sail_neg_filter_context']:
-            result = self.document_store.search(collection_name=self.g.settings_data['collection'],
-                                       query_vector=vector,
-                                       limit=limit,
-                                       offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit),
-                                       query_filter=filter,
-                                       search_params=SearchParams(hnsw_ef=128, exact=False),
-                                       )
-
-        else:
-            result = self.document_store.search(collection_name=self.g.settings_data['collection'],
+        if filter_context or neg_filter_context:
+            result = self.document_store.search(collection_name=collection_name,
                                                 query_vector=vector,
                                                 limit=limit,
-                                                offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit)
+                                                offset=depth_preset+((offset+1)*limit),
+                                                query_filter=filter,
+                                                search_params=SearchParams(hnsw_ef=128, exact=False),
+                                                )
+
+        else:
+            result = self.document_store.search(collection_name=collection_name,
+                                                query_vector=vector,
+                                                limit=limit,
+                                                offset=depth_preset+((offset+1)*limit)
                                                 )
         return result
+
 
 
     def set_rephrase_pipeline(self, context):
@@ -384,6 +420,28 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             self.del_llm_model()
 
         return result
+
+    def swarmui_retrieve_llm_completion(self, prompt, keep_sail_text=False):
+
+        self.check_llm_loaded()
+
+        self.llm._model.reset()
+
+        context = self.get_context_text(prompt)
+        self.g.last_context = context
+
+        if keep_sail_text:
+            prompt = self.prepare_prompt(self.g.settings_data['swarmui_sail_text'],context)
+        else:
+            prompt = self.prepare_prompt(prompt,context)
+
+        result = self.create_completion(prompt)
+
+        if self.g.settings_data['unload_llm']:
+            self.del_llm_model()
+
+        return result
+
 
     def retrieve_query(self, query):
         self.check_llm_loaded()

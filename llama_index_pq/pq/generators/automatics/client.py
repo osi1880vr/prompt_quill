@@ -232,6 +232,7 @@ class automa_client:
             return vae_array
         else:
             return -1
+
     def check_avail(self, url):
         self.webui_server_url = url
         vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
