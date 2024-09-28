@@ -27,7 +27,7 @@ import random
 from collections import deque
 from api import v1
 import shared
-
+from ui_share import UiShare
 
 import nltk
 nltk.download('punkt')
@@ -60,8 +60,8 @@ os.makedirs(out_dir_t2i, exist_ok=True)
 
 class ui_actions:
     def __init__(self):
-
         self.g = globals.get_globals()
+        self.ui_share = UiShare()
         self.g.job_running = False
         self.interface = llm_interface_qdrant.get_interface()
         self.settings_io = settings_io()
@@ -79,6 +79,7 @@ class ui_actions:
         self.sinus = 0
         self.sail_depth_start = 0
         self.images_done = 1
+        self.ui_share = UiShare()
 
 
     def run_llm_response(self,query, history):
@@ -139,20 +140,69 @@ class ui_actions:
         self.g.settings_data['automa_clip_skip'] = clip_skip
         self.settings_io.write_settings(self.g.settings_data)
 
-    def set_automa_adetailer(self, automa_adetailer_enable,
-                             automa_adetailer_render_both,
+
+    def set_automa_adetailer_1(self, automa_adetailer_enable,
+                               automa_ad_checkpoint,
                              automa_ad_use_inpaint_width_height,
                              automa_ad_model,
                              automa_ad_denoising_strength,
                              automa_ad_clip_skip,
                              automa_ad_confidence):
-        self.g.settings_data['automa_adetailer_enable'] = automa_adetailer_enable
-        self.g.settings_data['automa_adetailer_render_both'] = automa_adetailer_render_both
-        self.g.settings_data['automa_ad_use_inpaint_width_height'] = automa_ad_use_inpaint_width_height
-        self.g.settings_data['automa_ad_model'] = automa_ad_model
-        self.g.settings_data['automa_ad_denoising_strength'] = automa_ad_denoising_strength
-        self.g.settings_data['automa_ad_clip_skip'] = automa_ad_clip_skip
-        self.g.settings_data['automa_ad_confidence'] = automa_ad_confidence
+        self.g.settings_data['automa_adetailer_enable_1'] = automa_adetailer_enable
+        self.g.settings_data['automa_ad_checkpoint_1'] = automa_ad_checkpoint
+        self.g.settings_data['automa_ad_use_inpaint_width_height_1'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa_ad_model_1'] = automa_ad_model
+        self.g.settings_data['automa_ad_denoising_strength_1'] = automa_ad_denoising_strength
+        self.g.settings_data['automa_ad_clip_skip_1'] = automa_ad_clip_skip
+        self.g.settings_data['automa_ad_confidence_1'] = automa_ad_confidence
+        self.settings_io.write_settings(self.g.settings_data)
+
+    def set_automa_adetailer_2(self, automa_adetailer_enable,
+                               automa_ad_checkpoint,
+                               automa_ad_use_inpaint_width_height,
+                               automa_ad_model,
+                               automa_ad_denoising_strength,
+                               automa_ad_clip_skip,
+                               automa_ad_confidence):
+        self.g.settings_data['automa_adetailer_enable_2'] = automa_adetailer_enable
+        self.g.settings_data['automa_ad_checkpoint_2'] = automa_ad_checkpoint
+        self.g.settings_data['automa_ad_use_inpaint_width_height_2'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa_ad_model_2'] = automa_ad_model
+        self.g.settings_data['automa_ad_denoising_strength_2'] = automa_ad_denoising_strength
+        self.g.settings_data['automa_ad_clip_skip_2'] = automa_ad_clip_skip
+        self.g.settings_data['automa_ad_confidence_2'] = automa_ad_confidence
+        self.settings_io.write_settings(self.g.settings_data)
+
+    def set_automa_adetailer_3(self, automa_adetailer_enable,
+                               automa_ad_checkpoint,
+                               automa_ad_use_inpaint_width_height,
+                               automa_ad_model,
+                               automa_ad_denoising_strength,
+                               automa_ad_clip_skip,
+                               automa_ad_confidence):
+        self.g.settings_data['automa_adetailer_enable_3'] = automa_adetailer_enable
+        self.g.settings_data['automa_ad_checkpoint_3'] = automa_ad_checkpoint
+        self.g.settings_data['automa_ad_use_inpaint_width_height_3'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa_ad_model_3'] = automa_ad_model
+        self.g.settings_data['automa_ad_denoising_strength_3'] = automa_ad_denoising_strength
+        self.g.settings_data['automa_ad_clip_skip_3'] = automa_ad_clip_skip
+        self.g.settings_data['automa_ad_confidence_3'] = automa_ad_confidence
+        self.settings_io.write_settings(self.g.settings_data)
+
+    def set_automa_adetailer_4(self, automa_adetailer_enable,
+                               automa_ad_checkpoint,
+                               automa_ad_use_inpaint_width_height,
+                               automa_ad_model,
+                               automa_ad_denoising_strength,
+                               automa_ad_clip_skip,
+                               automa_ad_confidence):
+        self.g.settings_data['automa_adetailer_enable_4'] = automa_adetailer_enable
+        self.g.settings_data['automa_ad_checkpoint_4'] = automa_ad_checkpoint
+        self.g.settings_data['automa_ad_use_inpaint_width_height_4'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa_ad_model_4'] = automa_ad_model
+        self.g.settings_data['automa_ad_denoising_strength_4'] = automa_ad_denoising_strength
+        self.g.settings_data['automa_ad_clip_skip_4'] = automa_ad_clip_skip
+        self.g.settings_data['automa_ad_confidence_4'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_layerdiffuse(self, automa_layerdiffuse_enable):
@@ -489,6 +539,17 @@ Generate an improved text to image prompt based on the above advice.
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
         self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
         return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae'])
+
+
+    def refresh_adetailer_checkpoints(self):
+        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+        out_array = ['Same']
+        out_array.extend(self.g.settings_data['automa_checkpoints'])
+
+        return gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_1']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_2']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_3']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_4'])
+
+
+
 
     def run_automa_interrogation_batch(self, image_filenames,url, save):
     

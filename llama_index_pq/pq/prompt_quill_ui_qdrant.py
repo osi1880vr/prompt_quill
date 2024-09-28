@@ -20,6 +20,9 @@ g = globals.get_globals()
 g.settings_data = settings_io().load_settings()
 g.settings_data['automa_checkpoints'] = []  # bad hack for now, this should later be updateable via a button
 g.settings_data['automa_samplers'] = []
+from ui_share import UiShare
+
+
 
 import gradio as gr
 
@@ -34,13 +37,24 @@ from style import style
 css = style
 
 ui = ui_staff()
+ui_share = UiShare()
 ui_code = ui_actions()
 image_score = score.aestetic_score()
 
 max_top_k = 50
 textboxes = []
 
-
+adetailer_choices = ["face_yolov8n.pt",
+					 "face_yolov8s.pt",
+					 "hand_yolov8n.pt",
+					 "person_yolov8n-seg.pt",
+					 "female-breast-v4.7.pt",
+					 "yolov8x-worldv2-seg.pt",
+					 "vagina-v4.1.pt",
+					 "mediapipe_face_full.pt",
+					 "mediapipe_face_short.pt",
+					 "mediapipe_face_mesh.pt",
+					 "mediapipe_face_mesh_eyes_only.pt"]
 
 with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 	with gr.Row():
@@ -560,58 +574,25 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										 [input_image_gallery, interrogate_url, save], output_interrogation)
 			with gr.Tab('Extensions') as extensions:
 				with gr.Tab('Adetailer') as adetailer:
-					automa_adetailer_enable = gr.Checkbox(label="Enable Adetailer",
-														  value=g.settings_data['automa_adetailer_enable'])
+					with gr.Row():
 
-					automa_adetailer_render_both = gr.Checkbox(label="Render with and without Adetailer",
-														  value=g.settings_data['automa_adetailer_render_both'])
 
-					automa_ad_use_inpaint_width_height = gr.Checkbox(label="Use inpaint with height",
-																	 value=g.settings_data[
-																		 'automa_ad_use_inpaint_width_height'])
 
-					automa_ad_model = gr.Dropdown(
-						choices=["face_yolov8n.pt",
-								 "face_yolov8s.pt",
-								 "hand_yolov8n.pt",
-								 "person_yolov8n-seg.pt",
-								 "yolov8x-worldv2-seg.pt",
-								 "mediapipe_face_full.pt",
-								 "mediapipe_face_short.pt",
-								 "mediapipe_face_mesh.pt",
-								 "mediapipe_face_mesh_eyes_only.pt"], value=g.settings_data['automa_ad_model'], label='Model')
 
-					automa_ad_denoising_strength = gr.Slider(0, 1, step=0.1,
-															 value=g.settings_data['automa_ad_denoising_strength'],
-															 label="Denoising strength",
-															 info="Denoising strength 0-1.")
 
-					automa_ad_clip_skip = gr.Slider(1, 5, step=1, value=g.settings_data['automa_ad_clip_skip'],
-													label="Clipskip",
-													info="Clipskip 1-5.")
 
-					automa_ad_confidence = gr.Slider(0, 1, step=0.1, value=g.settings_data['automa_ad_confidence'],
-													 label="Confidence",
-													 info="Level of confidence 0-1.")
+						with gr.Column(scale=3):
+							with gr.Tab('Adetailer Stage 1') as adetailer_1:
+								ui_share.generate_ad_block(1, adetailer_choices)
+							with gr.Tab('Adetailer Stage 2') as adetailer_2:
+								ui_share.generate_ad_block(2, adetailer_choices)
+							with gr.Tab('Adetailer Stage 3') as adetailer_3:
+								ui_share.generate_ad_block(3, adetailer_choices)
+							with gr.Tab('Adetailer Stage 4') as adetailer_4:
+								ui_share.generate_ad_block(4, adetailer_choices)
 
-					gr.on(
-						triggers=[automa_adetailer_enable.change,
-								  automa_adetailer_render_both.change,
-								  automa_ad_use_inpaint_width_height.change,
-								  automa_ad_model.change,
-								  automa_ad_denoising_strength.change,
-								  automa_ad_clip_skip.change,
-								  automa_ad_confidence.change],
-						fn=ui_code.set_automa_adetailer,
-						inputs=[automa_adetailer_enable,
-								automa_adetailer_render_both,
-								automa_ad_use_inpaint_width_height,
-								automa_ad_model,
-								automa_ad_denoising_strength,
-								automa_ad_clip_skip,
-								automa_ad_confidence],
-						outputs=None
-					)
+
+
 				with gr.Tab('Layer Diffusion') as layerdiffuse:
 					automa_layerdiffuse_enable = gr.Checkbox(label="Enable Layer Diffusion",
 														  value=g.settings_data['automa_layerdiffuse_enable'])
