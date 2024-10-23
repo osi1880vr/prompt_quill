@@ -445,9 +445,11 @@ Generate an improved text to image prompt based on the above advice.
         if self.g.settings_data['automa_sampler'] == '':
             self.g.settings_data['automa_sampler'] = self.g.settings_data['automa_samplers'][0]
         if self.g.settings_data['automa_checkpoint'] == '':
-            self.g.settings_data['automa_checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
+            if len(self.g.settings_data['automa_checkpoints']) > 0:
+                self.g.settings_data['automa_checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
         if self.g.settings_data['automa_vae'] == '':
-            self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
+            if len(self.g.settings_data['automa_vaes']) > 0:
+                self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
         ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_summary"
         ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
