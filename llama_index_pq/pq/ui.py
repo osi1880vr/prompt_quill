@@ -46,7 +46,6 @@ from interrogate.moon import moon
 from interrogate.get_filename import MoonFilenames
 
 
-
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
 os.makedirs(out_dir_t2t, exist_ok=True)
