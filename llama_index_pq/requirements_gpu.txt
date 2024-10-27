@@ -80,7 +80,7 @@ frozenlist==1.4.1
 fsspec==2024.5.0
 ftfy==6.2.0
 gekko==1.1.1
-gradio==4.29.0
+gradio==4.44.1
 gradio_client==0.16.1
 greenlet==3.0.3
 grpcio==1.63.0
