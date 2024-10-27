@@ -85,88 +85,44 @@ class automa_client:
         return response['caption']
 
 
+    def get_ad_args(self, number, settings_data):
+        args = {
+            'ad_model': settings_data[f'automa_ad_model_{number}'],
+            'ad_use_inpaint_width_height': settings_data[f'automa_ad_use_inpaint_width_height_{number}'],
+            'ad_denoising_strength': settings_data[f'automa_ad_denoising_strength_{number}'],
+            "ad_clip_skip": settings_data[f'automa_ad_clip_skip_{number}'],
+            "ad_confidence": settings_data[f'automa_ad_confidence_{number}'] #,
+            #"ad_restore_face": settings_data[f'automa_ad_restore_face_{number}'],
+            #"ad_use_steps": False,
+            #"ad_steps": settings_data[f'automa_ad_steps_{number}']
+        }
+
+        if settings_data[f'automa_ad_checkpoint_{number}'] != 'Same':
+            args['ad_use_checkpoint'] = True
+            args['ad_checkpoint'] = settings_data[f'automa_ad_checkpoint_{number}']
+        #else:
+        #    args['ad_use_checkpoint'] = False
+
+        return args
+
+    def get_adetailer(self, settings_data):
+        ADetailer = {}
+        if not 'args' in ADetailer:
+            ADetailer['args'] = []
+        number = 1
+        while number <= 4:
+            if settings_data[f'automa_adetailer_enable_{number}']:
+                ADetailer['args'].append(self.get_ad_args(number, settings_data))
+            number += 1
+
+        return ADetailer
+
     def request_generation(self,prompt, negative_prompt, settings_data):
-
-
         self.webui_server_url=settings_data["automa_url"]
         self.save = settings_data["automa_save"]
 
-
-        ADetailer = {}
+        ADetailer = self.get_adetailer(settings_data)
         alwayson_scripts = {}
-        if settings_data['automa_adetailer_enable_1']:
-            if not 'args' in ADetailer:
-                ADetailer['args'] = []
-
-
-            args = {
-                'ad_model': settings_data['automa_ad_model_1'],
-                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height_1'],
-                'ad_denoising_strength': settings_data['automa_ad_denoising_strength_1'],
-                "ad_clip_skip": settings_data['automa_ad_clip_skip_1'],
-                "ad_confidence": settings_data['automa_ad_confidence_1'],
-            }
-
-            if settings_data['automa_ad_checkpoint_1'] != 'Same':
-                args['ad_use_checkpoint'] = True
-                args['ad_checkpoint'] = settings_data['automa_ad_checkpoint_1']
-
-            ADetailer['args'].append(args)
-
-        if settings_data['automa_adetailer_enable_2']:
-            if not 'args' in ADetailer:
-                ADetailer['args'] = []
-
-            args = {
-                'ad_model': settings_data['automa_ad_model_2'],
-                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height_2'],
-                'ad_denoising_strength': settings_data['automa_ad_denoising_strength_2'],
-                "ad_clip_skip": settings_data['automa_ad_clip_skip_2'],
-                "ad_confidence": settings_data['automa_ad_confidence_2'],
-            }
-
-            if settings_data['automa_ad_checkpoint_2'] != 'Same':
-                args['ad_use_checkpoint'] = True
-                args['ad_checkpoint'] = settings_data['automa_ad_checkpoint_2']
-
-            ADetailer['args'].append(args)
-
-        if settings_data['automa_adetailer_enable_3']:
-            if not 'args' in ADetailer:
-                ADetailer['args'] = []
-
-            args = {
-                'ad_model': settings_data['automa_ad_model_3'],
-                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height_3'],
-                'ad_denoising_strength': settings_data['automa_ad_denoising_strength_3'],
-                "ad_clip_skip": settings_data['automa_ad_clip_skip_3'],
-                "ad_confidence": settings_data['automa_ad_confidence_3'],
-            }
-
-            if settings_data['automa_ad_checkpoint_3'] != 'Same':
-                args['ad_use_checkpoint'] = True
-                args['ad_checkpoint'] = settings_data['automa_ad_checkpoint_3']
-
-            ADetailer['args'].append(args)
-
-        if settings_data['automa_adetailer_enable_4']:
-            if not 'args' in ADetailer:
-                ADetailer['args'] = []
-
-            args = {
-                'ad_model': settings_data['automa_ad_model_4'],
-                'ad_use_inpaint_width_height': settings_data['automa_ad_use_inpaint_width_height_4'],
-                'ad_denoising_strength': settings_data['automa_ad_denoising_strength_4'],
-                "ad_clip_skip": settings_data['automa_ad_clip_skip_4'],
-                "ad_confidence": settings_data['automa_ad_confidence_4'],
-            }
-
-            if settings_data['automa_ad_checkpoint_4'] != 'Same':
-                args['ad_use_checkpoint'] = True
-                args['ad_checkpoint'] = settings_data['automa_ad_checkpoint_4']
-
-
-            ADetailer['args'].append(args)
 
         LayerDiffuse = {}
         if settings_data['automa_layerdiffuse_enable']:

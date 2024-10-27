@@ -44,17 +44,7 @@ image_score = score.aestetic_score()
 max_top_k = 50
 textboxes = []
 
-adetailer_choices = ["face_yolov8n.pt",
-					 "face_yolov8s.pt",
-					 "hand_yolov8n.pt",
-					 "person_yolov8n-seg.pt",
-					 "female-breast-v4.7.pt",
-					 "yolov8x-worldv2-seg.pt",
-					 "vagina-v4.1.pt",
-					 "mediapipe_face_full.pt",
-					 "mediapipe_face_short.pt",
-					 "mediapipe_face_mesh.pt",
-					 "mediapipe_face_mesh_eyes_only.pt"]
+
 
 with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 	with gr.Row():
@@ -583,13 +573,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 						with gr.Column(scale=3):
 							with gr.Tab('Adetailer Stage 1') as adetailer_1:
-								ui_share.generate_ad_block(1, adetailer_choices)
+								ui_share.generate_ad_block(1)
 							with gr.Tab('Adetailer Stage 2') as adetailer_2:
-								ui_share.generate_ad_block(2, adetailer_choices)
+								ui_share.generate_ad_block(2)
 							with gr.Tab('Adetailer Stage 3') as adetailer_3:
-								ui_share.generate_ad_block(3, adetailer_choices)
+								ui_share.generate_ad_block(3)
 							with gr.Tab('Adetailer Stage 4') as adetailer_4:
-								ui_share.generate_ad_block(4, adetailer_choices)
+								ui_share.generate_ad_block(4)
 
 
 
@@ -796,11 +786,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						with gr.Column(scale=1):
 							story_teller_status = gr.Textbox('', label=f'Status', placeholder="status")
 
-
-
-
-
-
 		moon_improver_low_mem.change(fn=ui_code.moon_set_low_mem,
 									 inputs=moon_improver_low_mem,
 									 outputs=[moon_batch_low_mem,moon_low_mem])
@@ -811,7 +796,48 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									 inputs=moon_low_mem,
 									 outputs=[moon_batch_low_mem,moon_improver_low_mem])
 
+		with gr.Tab("Molmo"):
+			#with gr.Tab("Interrogate"):
 
+			with gr.Tab("File Renamer"):
+				with gr.Tab("File rename"):
+					with gr.Row():
+						with gr.Column(scale=3):
+							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
+							molmo_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['molmo_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
+
+						with gr.Column(scale=1):
+							molmo_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
+							molmo_folder_submit = gr.Button("Submit")
+							molmo_folder_stop = gr.Button("Stop")
+
+
+					molmo_folder_submit.click(fn=ui_code.molmo_file_rename,
+											 inputs=molmo_folder_name,
+											 outputs=molmo_folder_status)
+					molmo_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
+										   inputs=None,
+										   outputs=molmo_folder_status)
+
+				with gr.Tab("Story Teller"):
+					molmo_story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
+													   value=g.settings_data['story_teller_enabled'])
+
+					molmo_story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['molmo_story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+
+			gr.on(
+				triggers=[molmo_folder_name.change,
+						  molmo_file_renamer_prompt.change,
+						  molmo_story_teller_enabled.change,
+						  molmo_story_teller_prompt.change,
+						  ],
+				fn=ui_code.set_molmo,
+				inputs=[molmo_folder_name,
+						molmo_file_renamer_prompt,
+						molmo_story_teller_enabled,
+						molmo_story_teller_prompt],
+				outputs=None
+			)
 
 		with gr.Tab("PNG Info"):
 			with gr.Row():

@@ -204,6 +204,29 @@ class MoonFilenames:
         self.moon_interrogate = moon()
         self.story_teller = OllamaImageDescriber()
 
+
+    def clean_filename(self, filename):
+        # List of undesirable words that should not be at the end
+        undesirable_end_words = ["with", "on", "in", "where", "by", "at", "to", "from", "under", "over", "of"]
+
+        # Separate the filename from its extension
+        name, extension = os.path.splitext(filename)
+
+        # Split the name part into components based on underscores
+        name_parts = name.split("_")
+
+        # Check the last part of the name and remove if it's undesirable
+        if name_parts[-1] in undesirable_end_words:
+            name_parts = name_parts[:-1]  # Remove the last part
+
+        # Reassemble the name part
+        cleaned_name = "_".join(name_parts)
+
+        # Return the cleaned name with the original extension
+        return cleaned_name + extension
+
+
+
     def fix_draft_filename(self, description):
         # Remove single characters (words with length 1)
         description = ' '.join(word for word in description.split() if len(word) > 1)
@@ -215,10 +238,10 @@ class MoonFilenames:
         # This is to ensure the filename is valid on all filesystems
         filename = re.sub(r'[^\w_]', '', filename)
 
-        return filename
+        return self.clean_filename(filename)
 
     def get_filename(self, img):
-        filename_prompt = 'generate a concise filename for the image that captures its core essence in the fewest words possible.'
+        filename_prompt = 'generate a concise filename for the image that captures its core essence in the fewest words possible. The filename should be no longer than 8 words'
 
         file_name_draft = self.moon_interrogate.run_interrogation(img, filename_prompt, 10)
         filename = self.fix_draft_filename(file_name_draft)

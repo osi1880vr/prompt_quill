@@ -44,7 +44,7 @@ from prompt_iteration import prompt_iterator
 from llm_fw import llm_interface_qdrant
 from interrogate.moon import moon
 from interrogate.get_filename import MoonFilenames
-
+from interrogate.molmo import molmo
 
 out_dir = 'api_out'
 out_dir_t2t = os.path.join(out_dir, 'txt2txt')
@@ -73,6 +73,7 @@ class ui_actions:
         self.gen_step_select = 0
         self.moon_interrogate = moon()
         self.moon_filenames = MoonFilenames()
+        self.molmo = molmo()
         self.sail_log = ''
         self.sail_sinus_count = 1.0
         self.sinus = 0
@@ -259,9 +260,20 @@ class ui_actions:
         self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
         self.g.settings_data['sail_store_folders'] = sail_store_folders
         self.g.settings_data['sail_depth_preset'] = sail_depth_preset
-
-
         self.settings_io.write_settings(self.g.settings_data)
+
+
+    def set_molmo(self, molmo_folder_name,
+                  molmo_file_renamer_prompt,
+                  molmo_story_teller_enabled,
+                  molmo_story_teller_prompt):
+
+        self.g.settings_data['molmo_folder_name'] = molmo_folder_name
+        self.g.settings_data['molmo_file_renamer_prompt'] = molmo_file_renamer_prompt
+        self.g.settings_data['molmo_story_teller_enabled'] = molmo_story_teller_enabled
+        self.g.settings_data['molmo_story_teller_prompt'] = molmo_story_teller_prompt
+        self.settings_io.write_settings(self.g.settings_data)
+
 
 
     def moon_set_low_mem(self, value):
@@ -360,6 +372,22 @@ Generate an improved text to image prompt based on the above advice.
         self.g.job_running = True
         count = self.moon_filenames.process_folder(folder)
         return count
+
+
+    def molmo_file_rename_stop(self):
+        self.g.job_running = False
+        return "Stopped renaming"
+
+    def molmo_file_rename(self, folder):
+        self.interface.del_llm_model()
+        self.g.job_running = True
+        count = self.molmo.process_folder(folder)
+        return count
+
+
+
+
+
 
     def png_info_get(self, img):
         if img is not None:
