@@ -73,8 +73,6 @@ class UiShare:
             self.g.settings_data[f'automa_ad_denoising_strength_{number}'] = 0.2
             self.g.settings_data[f'automa_ad_clip_skip_{number}'] = 1
             self.g.settings_data[f'automa_ad_confidence_{number}'] = 0.7
-            self.g.settings_data[f'automa_ad_restore_face_{number}'] = False
-            self.g.settings_data[f'automa_ad_steps_{number}'] = 8
             self.settings_io.write_settings(self.g.settings_data)
 
     def generate_ad_block(self, number):
