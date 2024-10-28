@@ -89,9 +89,6 @@ class UiShare:
                 automa_adetailer_enable = gr.Checkbox(label="Enable Adetailer",
                                                       value=self.g.settings_data[f'automa_adetailer_enable_{number}'])
 
-                automa_ad_restore_face = gr.Checkbox(label="Enable Restore Face using GFPGAN",
-                                                      value=self.g.settings_data[f'automa_ad_restore_face_{number}'])
-
                 automa_ad_use_inpaint_width_height = gr.Checkbox(label="Use inpaint with height",
                                                                  value=self.g.settings_data[
                                                                      'automa_ad_use_inpaint_width_height_1'])
@@ -104,11 +101,6 @@ class UiShare:
                     value=self.g.settings_data[f'automa_ad_checkpoint_{number}'],
                     label='Checkpoint',
                     allow_custom_value=True)
-
-                automa_ad_steps = gr.Slider(1, 100, step=1,
-                                                         value=self.g.settings_data[f'automa_ad_steps_{number}'],
-                                                         label="Steps",
-                                                         info="Steps.")
 
                 automa_ad_denoising_strength = gr.Slider(0, 1, step=0.1,
                                                          value=self.g.settings_data[f'automa_ad_denoising_strength_{number}'],

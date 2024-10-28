@@ -566,11 +566,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Tab('Adetailer') as adetailer:
 					with gr.Row():
 
-
-
-
-
-
 						with gr.Column(scale=3):
 							with gr.Tab('Adetailer Stage 1') as adetailer_1:
 								ui_share.generate_ad_block(1)
