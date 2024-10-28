@@ -119,6 +119,7 @@ class molmo:
     def get_filename(self, img):
         filename = self.process_image(img, self.g.settings_data['molmo_file_renamer_prompt']).strip()
         filename_no_ext, ext = os.path.splitext(filename)
+        filename_no_ext = re.sub(r'[^\x00-\x7F]', '', filename_no_ext)
         return filename_no_ext
 
 
