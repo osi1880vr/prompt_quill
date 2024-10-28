@@ -798,7 +798,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Tab("File rename"):
 					with gr.Row():
 						with gr.Column(scale=3):
-							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
+							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_path'], placeholder="give a path...", scale=3)
 							molmo_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['molmo_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
 
 						with gr.Column(scale=1):
@@ -816,7 +816,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 				with gr.Tab("Story Teller"):
 					molmo_story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
-													   value=g.settings_data['story_teller_enabled'])
+													   value=g.settings_data['molmo_story_teller_enabled'])
 
 					molmo_story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['molmo_story_teller_prompt'], placeholder="Make it tell a story", scale=3)
 

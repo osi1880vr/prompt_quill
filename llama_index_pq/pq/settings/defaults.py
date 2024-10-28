@@ -196,6 +196,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     "molmo_story_teller_enabled": False,
     "molmo_story_teller_prompt": "Tell a story about this",
     "molmo_file_renamer_prompt": "Create a filename no longer than 8 words from this",
+    "molmo_path": "",
 
     "embedding_model": "BAAI/bge-base-en-v1.5",
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],
