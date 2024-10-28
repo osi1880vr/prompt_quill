@@ -7,6 +7,7 @@ import globals
 import os
 import numpy as np
 from huggingface_hub import snapshot_download
+import re
 
 class molmo:
 
@@ -27,23 +28,31 @@ class molmo:
 
 
     def preprocess_image(self, image):
-        # 将 numpy 数组转换为 PIL Image
+        # Ensure the image is in the right format (1024x1024, 3 channels)
+        pil_image = None
+        if isinstance(image, Image.Image):
+            # Convert directly if it's already a PIL image
+            pil_image = image.convert('RGB')
+        elif isinstance(image, np.ndarray):
+            # If it's a numpy array, ensure correct shape and convert
+            if image.ndim == 4:
+                image = image[0]  # Remove batch dimension if present
+            pil_image = Image.fromarray(np.uint8(image * 255)).convert('RGB')
+        else:
+            raise ValueError("Unsupported image format. Expected a PIL image or numpy array.")
 
-        image = np.array(image)
 
-        pil_image = Image.fromarray(np.uint8(image[0] * 255)).convert('RGB')
-
-        # 计算平均亮度
+        # Calculate average brightness
         gray_image = pil_image.convert('L')
         stat = ImageStat.Stat(gray_image)
         average_brightness = stat.mean[0]
 
-        # 根据亮度定义背景颜色
+        # Define background color based on brightness
         bg_color = (0, 0, 0) if average_brightness > 127 else (255, 255, 255)
 
-        # 创建带有背景色的新图像
+        # Create a new image with the defined background color
         new_image = Image.new('RGB', pil_image.size, bg_color)
-        new_image.paste(pil_image, (0, 0), pil_image if pil_image.mode == 'RGBA' else None)
+        new_image.paste(pil_image, (0, 0))
 
         return new_image
 
@@ -56,7 +65,7 @@ class molmo:
         processed_image = self.preprocess_image(image)
 
         inputs = self.processor.process(
-            images=[image],
+            images=[processed_image],
             text=prompt
         )
         device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -108,10 +117,15 @@ class molmo:
         print("Model and processor have been unloaded, and CUDA cache has been cleared.")
 
     def get_filename(self, img):
-        return self.process_image(img, self.g.settings_data['molmo_file_renamer_prompt'])
+        filename = self.process_image(img, self.g.settings_data['molmo_file_renamer_prompt']).strip()
+        filename_no_ext, ext = os.path.splitext(filename)
+        return filename_no_ext
+
 
     def story_teller(self, img):
-        return self.process_image(img, self.g.settings_data['molmo_story_teller_prompt'])
+        story = self.process_image(img, self.g.settings_data['molmo_story_teller_prompt'])
+        story = re.sub(r'[^\x00-\x7F]', '', story)
+        return story
 
     def process_folder(self, root_folder):
         process_count = 0
