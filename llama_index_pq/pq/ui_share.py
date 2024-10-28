@@ -52,9 +52,7 @@ class UiShare:
                              automa_ad_model,
                              automa_ad_denoising_strength,
                              automa_ad_clip_skip,
-                             automa_ad_confidence,
-                             automa_ad_restore_face,
-                             automa_ad_steps):
+                             automa_ad_confidence):
 
         self.g.settings_data[f'automa_adetailer_enable_{number}'] = automa_adetailer_enable
         self.g.settings_data[f'automa_ad_checkpoint_{number}'] = automa_ad_checkpoint
@@ -63,8 +61,6 @@ class UiShare:
         self.g.settings_data[f'automa_ad_denoising_strength_{number}'] = automa_ad_denoising_strength
         self.g.settings_data[f'automa_ad_clip_skip_{number}'] = automa_ad_clip_skip
         self.g.settings_data[f'automa_ad_confidence_{number}'] = automa_ad_confidence
-        self.g.settings_data[f'automa_ad_restore_face_{number}'] = automa_ad_restore_face
-        self.g.settings_data[f'automa_ad_steps_{number}'] = automa_ad_steps
 
         self.settings_io.write_settings(self.g.settings_data)
 
@@ -131,10 +127,8 @@ class UiShare:
                                           model,             # automa_ad_model from Gradio input
                                           denoising,         # automa_ad_denoising_strength from Gradio input
                                           clip_skip,         # automa_ad_clip_skip from Gradio input
-                                          confidence,         # automa_ad_confidence from Gradio input
-                                          restore_face,
-                                          steps
-                                         )
+                                          confidence         # automa_ad_confidence from Gradio input
+                                        )
 
 
             gr.on(
@@ -144,9 +138,7 @@ class UiShare:
                           automa_ad_model.change,
                           automa_ad_denoising_strength.change,
                           automa_ad_clip_skip.change,
-                          automa_ad_confidence.change,
-                          automa_ad_restore_face.change,
-                          automa_ad_steps.change],
+                          automa_ad_confidence.change],
                 fn=fn,
                 inputs=[automa_adetailer_enable,
                         automa_ad_checkpoint,
@@ -154,9 +146,7 @@ class UiShare:
                         automa_ad_model,
                         automa_ad_denoising_strength,
                         automa_ad_clip_skip,
-                        automa_ad_confidence,
-                        automa_ad_restore_face,
-                        automa_ad_steps],
+                        automa_ad_confidence],
                 outputs=None
             )
 
