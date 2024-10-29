@@ -116,13 +116,33 @@ class molmo:
 
         print("Model and processor have been unloaded, and CUDA cache has been cleared.")
 
+
+    def clean_filename(self, filename, max_length=255):
+        # Remove non-ASCII characters
+        filename = re.sub(r'[^\x00-\x7F]+', '', filename)
+
+        # Remove illegal characters for filenames on most systems, including single quote
+        filename = re.sub(r"[\/:*?\"'<>|]", '', filename)
+
+        # Replace spaces with underscores (optional, but often useful)
+        filename = filename.replace(" ", "_")
+
+        # Truncate the filename if it's too long
+        if len(filename) > max_length:
+            filename = filename[:max_length]
+
+        # Ensure the filename is not empty
+        if not filename:
+            filename = "default_filename"
+
+        return filename
+
+
     def get_filename(self, img):
         filename = self.process_image(img, self.g.settings_data['molmo_file_renamer_prompt']).strip()
-        filename = filename.replace(" ", "_")
-        filename_no_ext, ext = os.path.splitext(filename)
-        filename_no_ext = re.sub(r'[^\x00-\x7F]', '', filename_no_ext)
-        filename_no_ext = filename_no_ext.replace('Filename: ','')
-        return filename_no_ext.strip()
+        filename, ext = os.path.splitext(filename)
+        filename = self.clean_filename(filename)
+        return filename
 
 
     def story_teller(self, img):
