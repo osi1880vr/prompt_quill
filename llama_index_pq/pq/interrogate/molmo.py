@@ -127,6 +127,12 @@ class molmo:
         # Replace spaces with underscores (optional, but often useful)
         filename = filename.replace(" ", "_")
 
+        # Remove non-alphanumeric characters from the beginning of the filename
+        filename = re.sub(r"^[^a-zA-Z0-9]+", '', filename)
+
+        # Replace multiple underscores or hyphens with a single underscore
+        filename = re.sub(r"[-_]+", '_', filename)
+
         # Truncate the filename if it's too long
         if len(filename) > max_length:
             filename = filename[:max_length]
