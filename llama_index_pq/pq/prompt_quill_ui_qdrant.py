@@ -798,7 +798,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Tab("File rename"):
 					with gr.Row():
 						with gr.Column(scale=3):
-							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_path'], placeholder="give a path...", scale=3)
+							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_folder_name'], placeholder="give a path...", scale=3)
 							molmo_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['molmo_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
 
 						with gr.Column(scale=1):
