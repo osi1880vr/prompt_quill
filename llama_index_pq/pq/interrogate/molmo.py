@@ -133,6 +133,9 @@ class molmo:
         # Replace multiple underscores or hyphens with a single underscore
         filename = re.sub(r"[-_]+", '_', filename)
 
+        # Remove repeated words or phrases
+        filename = re.sub(r'(\b\w+\b)(_\1)+', r'\1', filename)
+
         # Truncate the filename if it's too long
         if len(filename) > max_length:
             filename = filename[:max_length]
