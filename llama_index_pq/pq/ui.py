@@ -266,12 +266,22 @@ class ui_actions:
     def set_molmo(self, molmo_folder_name,
                   molmo_file_renamer_prompt,
                   molmo_story_teller_enabled,
-                  molmo_story_teller_prompt):
+                  molmo_story_teller_prompt,
+                  molmo_temperatur,
+                  molmo_max_new_tokens,
+                  molmo_top_k,
+                  molmo_top_p):
 
         self.g.settings_data['molmo_folder_name'] = molmo_folder_name
         self.g.settings_data['molmo_file_renamer_prompt'] = molmo_file_renamer_prompt
         self.g.settings_data['molmo_story_teller_enabled'] = molmo_story_teller_enabled
         self.g.settings_data['molmo_story_teller_prompt'] = molmo_story_teller_prompt
+        self.g.settings_data['molmo_temperatur'] = molmo_temperatur
+        self.g.settings_data['molmo_max_new_tokens'] = molmo_max_new_tokens
+        self.g.settings_data['molmo_top_k'] = molmo_top_k
+        self.g.settings_data['molmo_top_p'] = molmo_top_p
+
+
         self.settings_io.write_settings(self.g.settings_data)
 
 

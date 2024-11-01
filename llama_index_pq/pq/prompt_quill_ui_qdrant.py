@@ -819,18 +819,44 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 													   value=g.settings_data['molmo_story_teller_enabled'])
 
 					molmo_story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['molmo_story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+				with gr.Tab("Settings"):
+					molmo_temperatur = gr.Slider(0.1, 3, step=0.1, value=g.settings_data['molmo_temperatur'],
+											 label="Temperatur",
+											 info="Choose between 1 and 100")
+
+					molmo_max_new_tokens = gr.Slider(1, 1000, step=0.1, value=g.settings_data['molmo_max_new_tokens'],
+												 label="Max new Tokens",
+												 info="Choose between 1 and 1000")
+
+					molmo_top_k = gr.Slider(1, 200, step=0.1, value=g.settings_data['molmo_top_k'],
+													 label="Top K",
+													 info="Choose between 1 and 200")
+
+					molmo_top_p = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['molmo_top_p'],
+													 label="Top P",
+													 info="Choose between 0.1 and 1")
 
 			gr.on(
 				triggers=[molmo_folder_name.change,
 						  molmo_file_renamer_prompt.change,
 						  molmo_story_teller_enabled.change,
 						  molmo_story_teller_prompt.change,
+						  molmo_temperatur.change,
+						  molmo_max_new_tokens.change,
+						  molmo_top_k.change,
+						  molmo_top_p.change
 						  ],
 				fn=ui_code.set_molmo,
 				inputs=[molmo_folder_name,
 						molmo_file_renamer_prompt,
 						molmo_story_teller_enabled,
-						molmo_story_teller_prompt],
+						molmo_story_teller_prompt,
+						molmo_temperatur,
+						molmo_max_new_tokens,
+						molmo_top_k,
+						molmo_top_p
+						],
+
 				outputs=None
 			)
 

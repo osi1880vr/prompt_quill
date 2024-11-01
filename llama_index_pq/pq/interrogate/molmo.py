@@ -17,7 +17,16 @@ class molmo:
         self.molmo_model = 'cyan2k/molmo-7B-D-bnb-4bit'
         self.model_pat = None
         self.model = None
-        
+        self.temperature = None
+        self.reset_temperature()
+
+
+    def reset_temperature(self):
+        self.temperature = self.g.settings_data['molmo_temperature']
+
+
+    def increase_temperature(self):
+        self.temperature += 0.1
 
     def load_model(self):
 
@@ -85,9 +94,11 @@ class molmo:
         generation_config = GenerationConfig( max_new_tokens=self.g.settings_data['molmo_max_new_tokens'],
                                               stop_strings="<|endoftext|>",
                                               do_sample=True,
-                                              temperature=self.g.settings_data['molmo_temperature'],
+                                              temperature=self.temperature,
                                               top_k=self.g.settings_data['molmo_top_k'],
-                                              top_p=self.g.settings_data['molmo_top_p'],)
+                                              top_p=self.g.settings_data['molmo_top_p'],
+                                              )
+
 
         with torch.random.fork_rng(devices=[self.model.device]):
             torch.random.manual_seed(seed)
@@ -117,6 +128,7 @@ class molmo:
         print("Model and processor have been unloaded, and CUDA cache has been cleared.")
 
 
+
     def clean_filename(self, filename, max_length=255):
         # Remove non-ASCII characters
         filename = re.sub(r'[^\x00-\x7F]+', '', filename)
@@ -130,8 +142,6 @@ class molmo:
         # Remove non-alphanumeric characters from the beginning of the filename
         filename = re.sub(r"^[^a-zA-Z0-9]+", '', filename)
 
-        # Remove repeated words or phrases
-        filename = re.sub(r'(\b\w+\b)(_\1)+', r'\1', filename)
 
         # Replace multiple underscores or hyphens with a single underscore
         filename = re.sub(r"[-_]+", '_', filename)
@@ -167,24 +177,44 @@ class molmo:
             for filename in filenames:
                 if filename.lower().endswith(('.png', '.jpg', '.jpeg')):  # Only process image files
                     file_path = os.path.join(dirpath, filename)
+                    self.reset_temperature()
                     try:
                         # Open the image file using Pillow
                         with Image.open(file_path) as img:
 
                             #raw_data = np.array(img)
 
-                            new_file_name = self.get_filename(img)
-                            base_name, extension = os.path.splitext(filename)
-                            new_filename = f"{new_file_name}{extension}"
-                            new_file_path = os.path.join(dirpath, new_filename)
-                            counter = 1
-                            while os.path.exists(new_file_path):
-                                new_filename_numbered = f"{new_file_name}_{counter}{extension}"
-                                new_file_path = os.path.join(dirpath, new_filename_numbered)
-                                counter += 1
+                            retry = True
+                            retry_count = 0
+                            while retry:
+                                try:
+                                    # Generate a new filename
+                                    new_file_name = self.get_filename(img)  # Assuming get_filename generates a unique base name
+                                    base_name, extension = os.path.splitext(filename)
+                                    if retry_count > 10:
+                                        new_file_name = 'broken_filename_please_change_manual'
+                                    new_filename = f"{new_file_name}{extension}"
+                                    new_file_path = os.path.join(dirpath, new_filename)
+                                    counter = 1
 
-                            # Rename the file to the new unique name
-                            os.rename(file_path, new_file_path)
+                                    # Ensure the filename is unique within the folder
+                                    while os.path.exists(new_file_path):
+                                        new_filename_numbered = f"{new_file_name}_{counter}{extension}"
+                                        new_file_path = os.path.join(dirpath, new_filename_numbered)
+                                        counter += 1
+
+                                    # Attempt to rename the file
+                                    os.rename(file_path, new_file_path)
+
+                                    # If rename succeeds, exit the loop
+                                    retry = False
+
+                                except Exception as e:
+                                    # Retry the entire renaming process if an error occurs
+                                    self.increase_temperature()
+                                    retry = True  # This ensures the loop continues until renaming succeeds
+                                finally:
+                                    retry_count += 1
                             if self.g.settings_data["molmo_story_teller_enabled"]:
                                 story = self.story_teller(img)
                                 # Split the file name and extension
