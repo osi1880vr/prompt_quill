@@ -5,7 +5,10 @@ import re
 from PIL import ImageDraw
 from torchvision.transforms.v2 import Resize
 
+
 class moon:
+
+#https://github.com/vikhyat/moondream/blob/main/batch_generate_example.py
 
 
 	def __init__(self):
@@ -29,14 +32,14 @@ class moon:
 	def setModel(self):
 		device, dtype = self.detect_device()
 		model_id = "vikhyatk/moondream2"
-		revision = "2024-05-20"
+		revision = "2024-05-08"
 		self.tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
 		self.model = AutoModelForCausalLM.from_pretrained(
 			model_id,
-			use_flash_attention_2=False,
 			trust_remote_code=True,
 			revision=revision
 		).to(device=device,dtype=dtype)
+
 		self.model.eval()
 
 
@@ -64,19 +67,29 @@ class moon:
 			if '\n' in prompt:
 				questions = prompt.split('\n')
 				for question in questions:
-					question = f"<image>\n\nQuestion: {question}\n\nAnswer:"
+					#answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
+					answer = self.model.answer_question(
+						image_embeds=enc_image,
+						question=question,
+						tokenizer=self.tokenizer,
+					)
 
-					answer = self.model.generate(enc_image, question, self.tokenizer, max_new_tokens=max_new_tokens)[0]
 					answers.append(f'{question}:<br>{answer}<br>')
 			else:
-				prompt = f"<image>\n\nQuestion: {prompt}\n\nAnswer:"
-				answers.append(self.model.generate(enc_image, prompt, self.tokenizer, max_new_tokens=max_new_tokens)[0])
+
+				answer = self.model.answer_question(
+					image_embeds=enc_image,
+					question=prompt,
+					tokenizer=self.tokenizer,
+				)
+				answers.append(answer)
 		except Exception as e:
 			print(e)
-		gc.collect()
-		torch.cuda.empty_cache()
+		finally:
+			gc.collect()
+			torch.cuda.empty_cache()
 
-		return '<br><br>'.join(answers)
+			return '<br><br>'.join(answers)
 
 
 	def extract_floats(self, text):

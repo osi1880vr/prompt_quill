@@ -18,6 +18,7 @@ import base64
 import json
 import time
 import os
+import globals
 
 
 
@@ -36,6 +37,7 @@ class automa_client:
 
     def __init__(self):
         self.webui_server_url = 'http://localhost:7860'
+        self.g = globals.get_globals()
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
 
@@ -67,6 +69,7 @@ class automa_client:
 
     def call_txt2img_api(self,**payload):
         response = self.call_api('sdapi/v1/txt2img', **payload)
+
         if response != '':
             return response
         else:
@@ -118,7 +121,7 @@ class automa_client:
         return ADetailer
 
     def request_generation(self,prompt, negative_prompt, settings_data):
-        self.webui_server_url=settings_data["automa_url"]
+        self.webui_server_url= settings_data["automa_url"]
         self.save = settings_data["automa_save"]
 
         ADetailer = self.get_adetailer(settings_data)
@@ -142,7 +145,7 @@ class automa_client:
                 ]
 
 
-        if len(ADetailer) > 0:
+        if len(ADetailer['args']) > 0:
             alwayson_scripts["ADetailer"] = ADetailer
 
         if len(LayerDiffuse) > 0:
@@ -182,6 +185,7 @@ class automa_client:
             "batch_size": settings_data["automa_batch"],
             "save_images":settings_data["automa_save_on_api_host"],
             "override_settings_restore_afterwards": settings_data['sail_override_settings_restore'],
+
         }
 
         if settings_data['automa_sampler'] != 'None':
@@ -189,6 +193,10 @@ class automa_client:
 
         if override_settings != {}:
             payload["override_settings"] = override_settings
+
+        # here we manage to set additional payloads for the new Forges API version
+        if self.g.settings_data['automa_new_forge']:
+            payload["scheduler"] = self.g.settings_data['automa_scheduler']
 
 
         return self.call_txt2img_api(**payload)
@@ -230,6 +238,19 @@ class automa_client:
         else:
             return -1
 
+
+    def get_schedulers(self, url):
+        self.webui_server_url = url
+        schedulers = self.get_api_endpoint('sdapi/v1/schedulers')
+        if schedulers != '':
+            schedulers_array = []
+            for schedulers in schedulers:
+                schedulers_array.append(schedulers['label'])
+
+            return schedulers_array
+        else:
+            return -1
+
     def get_checkpoints(self, url):
         self.webui_server_url = url
         models = self.get_api_endpoint('sdapi/v1/sd-models')
@@ -244,7 +265,10 @@ class automa_client:
 
     def get_vaes(self, url):
         self.webui_server_url = url
-        vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
+        if self.g.settings_data['automa_new_forge']:
+            vaes = self.get_api_endpoint('sdapi/v1/sd-modules')
+        else:
+            vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
         if vaes != '':
             vae_array = ['None', 'Automatic']
             for model in vaes:
@@ -253,10 +277,17 @@ class automa_client:
             return vae_array
         else:
             return -1
+
     def check_avail(self, url):
         self.webui_server_url = url
-        vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
+        if self.g.settings_data['automa_new_forge']:
+            vaes = self.get_api_endpoint('sdapi/v1/sd-modules')
+        else:
+            vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
         if vaes != '':
             return 'API OK'
         else:
             return 'API NOT OK'
+
+    def unload_checkpoint(self):
+        self.get_api_endpoint('sdapi/v1/unload-checkpoint')

@@ -109,6 +109,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
 														info="Do you want to directly generate the images?",
 														value=g.settings_data['sail_generate'])
+							sail_unload_llm = gr.Checkbox(label="Unload LLM while generate?",
+														value=g.settings_data['sail_unload_llm'])
 							automa_alt_vae = gr.Dropdown(
 								choices=g.settings_data['automa_vaes'],
 								value=g.settings_data['automa_alt_vae'],
@@ -245,6 +247,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								choices=g.settings_data['automa_samplers'],
 								initial_value=g.settings_data['sail_sampler'],
 								label='Sampler')
+							sail_scheduler = ui_code.prompt_iterator.setting_dropdown(
+								choices=g.settings_data['automa_schedulers'],
+								initial_value=g.settings_data['sail_scheduler'],
+								label='Scheduler')
 							sail_checkpoint = ui_code.prompt_iterator.setting_dropdown(
 								choices=g.settings_data['automa_checkpoints'],
 								initial_value=g.settings_data['sail_checkpoint'],
@@ -296,7 +302,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_gen_enabled.change,
 					  sail_override_settings_restore.change,
 					  sail_store_folders.change,
-					  sail_depth_preset.change
+					  sail_depth_preset.change,
+					  sail_scheduler.change,
+					  sail_unload_llm.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
@@ -337,7 +345,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_gen_enabled,
 					sail_override_settings_restore,
 					sail_store_folders,
-					sail_depth_preset
+					sail_depth_preset,
+					sail_scheduler,
+					sail_unload_llm
 					],
 			outputs=None)
 
@@ -377,14 +387,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_gen_steps,
 					 sail_gen_enabled,
 					 sail_override_settings_restore,
-					 sail_store_folders])
+					 sail_store_folders,
+					 sail_scheduler])
 
 
 		gr.on(
 			triggers=[gen_sail.select],
 			fn=ui_code.automa_refresh,
 			inputs=None,
-			outputs=[sail_sampler, sail_checkpoint, sail_vae]
+			outputs=[sail_sampler, sail_checkpoint, sail_vae, sail_scheduler]
 		)
 
 		start_sail = sail_submit_button.click(fn=ui_code.run_t2t_sail,
@@ -407,7 +418,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 									   outputs=sail_filter_status)
 		sail_gen_refresh_button.click(fn=ui_code.automa_refresh,
 									inputs=None,
-									outputs=[sail_sampler, sail_checkpoint, sail_vae])
+									outputs=[sail_sampler, sail_checkpoint, sail_vae, sail_scheduler])
 
 		with gr.Tab('Show'):
 			with gr.Row():
@@ -435,6 +446,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								automa_sampler = gr.Dropdown(
 									choices=g.settings_data['automa_samplers'], value=g.settings_data['automa_sampler'],
 									label='Sampler')
+							with gr.Column(scale=2):
+								automa_scheduler = gr.Dropdown(
+									choices=g.settings_data['automa_schedulers'], value=g.settings_data['automa_scheduler'],
+									label='Scheduler')
+						with gr.Row():
 							with gr.Column(scale=2):
 								automa_checkpoint = gr.Dropdown(
 									choices=g.settings_data['automa_checkpoints'],
@@ -480,6 +496,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?",
 																  value=g.settings_data['automa_save_on_api_host'])
 					with gr.Column(scale=1):
+						automa_new_forge = gr.Checkbox(label="enable new Forge API", value=g.settings_data['automa_new_forge'])
 						automa_refresh_button = gr.Button('Refresh')
 						automa_start_button = gr.Button('Generate')
 						automa_result_images = gr.Gallery(label='output images', )
@@ -490,7 +507,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 				automa_refresh_button.click(fn=ui_code.automa_refresh,
 											inputs=None,
-											outputs=[automa_sampler, automa_checkpoint, automa_vae])
+											outputs=[automa_sampler, automa_checkpoint, automa_vae, automa_scheduler])
 
 				automa_start_button.click(fn=ui_code.run_automatics_generation,
 										  inputs=[automa_prompt_input,
@@ -525,7 +542,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							  automa_save_on_api_host.change,
 							  automa_checkpoint.change,
 							  automa_vae.change,
-							  automa_clip_skip.change, ],
+							  automa_clip_skip.change,
+							  automa_new_forge.change],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
@@ -541,7 +559,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_save,
 							automa_save_on_api_host,
 							automa_vae,
-							automa_clip_skip],
+							automa_clip_skip,
+							automa_new_forge],
 					outputs=None)
 
 			with gr.Tab('Interrogate') as interrogate:
@@ -575,9 +594,6 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								ui_share.generate_ad_block(3)
 							with gr.Tab('Adetailer Stage 4') as adetailer_4:
 								ui_share.generate_ad_block(4)
-
-
-
 				with gr.Tab('Layer Diffusion') as layerdiffuse:
 					automa_layerdiffuse_enable = gr.Checkbox(label="Enable Layer Diffusion",
 														  value=g.settings_data['automa_layerdiffuse_enable'])
@@ -1348,7 +1364,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_url,
 				 automa_save,
 				 automa_save_on_api_host,
-				 automa_checkpoint]
+				 automa_checkpoint,
+				 automa_scheduler]
 	)
 
 	gr.on(

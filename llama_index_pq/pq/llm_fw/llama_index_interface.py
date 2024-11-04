@@ -68,10 +68,8 @@ class adapter:
 
     def get_llm(self):
         return self.llm
+
     def set_llm(self):
-
-
-
 
         return LlamaCPP(
 

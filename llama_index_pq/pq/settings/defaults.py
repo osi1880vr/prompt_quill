@@ -44,9 +44,11 @@ You mix a new prompt based on the context and the query. The query is just addin
     "automa_save_on_api_host": False,
     "automa_adetailer_enable": False,
     "automa_adetailer_render_both": False,
-
+    "automa_new_forge": False,
     "automa_checkpoints": [],
     "automa_samplers": [],
+    "automa_schedulers": [],
+    "automa_scheduler": 'Automatic',
     "automa_vaes": [],
     "automa_layerdiffuse_enable": False,
 
@@ -113,6 +115,7 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_checkpoint": [],
     "sail_sampler": [],
     "sail_vae": [],
+    "sail_scheduler": ['Automatic'],
     "sail_dimensions": ["1024,1024"],
     "sail_gen_any_combination": False,
     "sail_gen_type": "Linear",
@@ -121,6 +124,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_override_settings_restore": False,
     "sail_store_folders": False,
     "sail_depth_preset": 1,
+    "sail_unload_llm": False,
+
 
     "model_test_steps": [20, 25, 30],
     "model_test_cfg": [5, 6, 7],

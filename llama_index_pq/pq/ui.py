@@ -122,7 +122,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, automa_new_forge):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_sampler'] = sampler
@@ -138,6 +138,7 @@ class ui_actions:
         self.g.settings_data['automa_checkpoint'] = checkpoint
         self.g.settings_data['automa_vae'] = vae
         self.g.settings_data['automa_clip_skip'] = clip_skip
+        self.g.settings_data['automa_new_forge'] = automa_new_forge
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -208,6 +209,7 @@ class ui_actions:
     def set_automa_layerdiffuse(self, automa_layerdiffuse_enable):
         self.g.settings_data['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
         self.settings_io.write_settings(self.g.settings_data)
+
     def set_sailing_settings(self,sail_text, keep_sail_text, sail_width, sail_depth, sail_generate,
                              sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
                              sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
@@ -217,7 +219,7 @@ class ui_actions:
                              sail_neg_filter_context, automa_alt_vae, sail_checkpoint,
                              sail_sampler, sail_vae, sail_dimensions, sail_gen_type, sail_gen_any_combination,
                              sail_gen_steps, sail_gen_enabled, sail_override_settings_restore, sail_store_folders,
-                             sail_depth_preset):
+                             sail_depth_preset,sail_scheduler, sail_unload_llm):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -260,6 +262,8 @@ class ui_actions:
         self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
         self.g.settings_data['sail_store_folders'] = sail_store_folders
         self.g.settings_data['sail_depth_preset'] = sail_depth_preset
+        self.g.settings_data['sail_scheduler'] = sail_scheduler
+        self.g.settings_data['sail_unload_llm'] = sail_unload_llm
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -442,6 +446,8 @@ Generate an improved text to image prompt based on the above advice.
             self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
             self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
             self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+            if self.g.settings_data['automa_new_forge']:
+                self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
@@ -468,7 +474,8 @@ Generate an improved text to image prompt based on the above advice.
         return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
                                                                           ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
             'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
-            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'])
+            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data[
+            'automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
     
     
     def get_llm_settings(self):
@@ -488,6 +495,11 @@ Generate an improved text to image prompt based on the above advice.
         if self.g.settings_data['automa_vae'] == '':
             if len(self.g.settings_data['automa_vaes']) > 0:
                 self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
+
+        if self.g.settings_data['automa_new_forge']:
+            if self.g.settings_data['automa_scheduler'] == '':
+                if len(self.g.settings_data['automa_schedulers']) > 0:
+                    self.g.settings_data['automa_scheduler'] = self.g.settings_data['automa_schedulers'][0]
         return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
         ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_summary"
         ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
@@ -500,7 +512,7 @@ Generate an improved text to image prompt based on the above advice.
         ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
         ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
         ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"
-        ],self.g.settings_data["sail_depth_preset"]
+        ],self.g.settings_data["sail_depth_preset"],gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -541,7 +553,7 @@ Generate an improved text to image prompt based on the above advice.
     
     def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip):
         self.g.running = True
-        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip)
+        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, self.g.settings_data['automa_new_forge'])
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
 
@@ -577,8 +589,9 @@ Generate an improved text to image prompt based on the above advice.
     def automa_refresh(self):
         self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+        self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
         self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae'])
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['sail_scheduler'])
 
 
     def refresh_adetailer_checkpoints(self):
@@ -633,6 +646,14 @@ Generate an improved text to image prompt based on the above advice.
         else:
             return []
 
+    def get_automa_schedulers(self):
+        schedulers = self.automa_client.get_schedulers(self.g.settings_data['automa_url'])
+        if schedulers != -1:
+            if self.g.settings_data['automa_schedulers'] == '':
+                self.g.settings_data['automa_scheduler'] = schedulers[0]
+            return schedulers
+        else:
+            return []
 
     def get_automa_vaes(self):
         vaes = self.automa_client.get_vaes(self.g.settings_data['automa_url'])
@@ -729,15 +750,20 @@ Generate an improved text to image prompt based on the above advice.
 
     def run_sail_automa_gen(self, prompt, images,folder=None):
 
-        if folder != None:
-            folder = shared.sanitize_path_component(folder)
-
         if self.g.settings_data['sail_gen_enabled']:
+            if folder != None:
+                folder = shared.sanitize_path_component(folder)
+            if self.g.settings_data['sail_unload_llm']:
+                self.interface.del_llm_model()
+
+
             self.step_gen_data = []
             gen_array = [self.g.settings_data['sail_dimensions'],
                          self.g.settings_data['sail_checkpoint'],
                          self.g.settings_data['sail_sampler'],
-                         self.g.settings_data['sail_vae'],]
+                         self.g.settings_data['sail_vae'],
+                         self.g.settings_data['sail_scheduler'],
+                         ]
             combinations = self.prompt_iterator.combine_all_arrays_to_arrays(gen_array)
             if self.g.settings_data['sail_gen_type'] == 'Linear':
                 if self.gen_step == self.g.settings_data['sail_gen_steps']:
@@ -750,17 +776,20 @@ Generate an improved text to image prompt based on the above advice.
                 step_gen_data = combinations[random.randint(0, len(combinations)-1)]
             self.gen_step += 1
             if len(step_gen_data) > 0:
-
                 self.g.settings_data['automa_width'] = step_gen_data[0].split(',')[0]
                 self.g.settings_data['automa_height'] = step_gen_data[0].split(',')[1]
                 self.g.settings_data['automa_checkpoint'] = step_gen_data[1]
                 self.g.settings_data['automa_sampler'] = step_gen_data[2]
                 self.g.settings_data['automa_vae'] = step_gen_data[3]
+                self.g.settings_data['automa_scheduler'] = step_gen_data[4]
 
         if folder == None and self.g.settings_data['sail_store_folders']:
             folder = shared.sanitize_path_component(self.g.settings_data['automa_checkpoint'])
 
         response = self.sail_automa_gen(prompt)
+        if self.g.settings_data['sail_unload_llm']:
+            self.automa_client.unload_checkpoint()
+
         if response != '':
             for index, image in enumerate(response.get('images')):
                 img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
@@ -773,6 +802,7 @@ Generate an improved text to image prompt based on the above advice.
 
                 self.automa_client.decode_and_save_base64(image, save_path)
                 images.append(img)
+
 
         return images
 
