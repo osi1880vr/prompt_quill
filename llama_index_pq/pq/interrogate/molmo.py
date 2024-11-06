@@ -189,12 +189,13 @@ class molmo:
                             while retry:
                                 try:
                                     # Generate a new filename
-                                    print(f'Processing {file_path} to new path: {new_file_path}')
+                                    print(f'Processing {file_path}')
                                     new_file_name = self.get_filename(img)  # Assuming get_filename generates a unique base name
                                     print(f'new filename: {new_file_name}')
                                     base_name, extension = os.path.splitext(filename)
                                     if retry_count > 5:
                                         new_file_name = 'broken_filename_please_change_manual'
+
                                     new_filename = f"{new_file_name}{extension}"
                                     new_file_path = os.path.join(dirpath, new_filename)
                                     counter = 1
@@ -212,12 +213,15 @@ class molmo:
                                     # If rename succeeds, exit the loop
                                     retry = False
 
+
                                 except Exception as e:
                                     # Retry the entire renaming process if an error occurs
                                     self.increase_temperature()
                                     retry = True  # This ensures the loop continues until renaming succeeds
                                 finally:
                                     retry_count += 1
+                                    if retry_count > 5:
+                                        break
                             if self.g.settings_data["molmo_story_teller_enabled"]:
                                 story = self.story_teller(img)
                                 # Split the file name and extension

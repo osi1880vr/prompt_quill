@@ -840,7 +840,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 											 label="Temperatur",
 											 info="Choose between 1 and 100")
 
-					molmo_max_new_tokens = gr.Slider(1, 1000, step=0.1, value=g.settings_data['molmo_max_new_tokens'],
+					molmo_max_new_tokens = gr.Slider(1, 1000, step=1, value=g.settings_data['molmo_max_new_tokens'],
 												 label="Max new Tokens",
 												 info="Choose between 1 and 1000")
 
