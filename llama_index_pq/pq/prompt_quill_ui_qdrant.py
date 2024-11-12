@@ -1316,7 +1316,23 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				prompt_template_submit_button.click(fn=ui_code.set_prompt_template,
 													inputs=[prompt_template_select, prompt_template, ],
 													outputs=[prompt_template_status])
+		with gr.Tab("Network Settings") as network_settings:
+			with gr.Row():
+				with gr.Column(scale=3):
+					enable_lan_access = gr.Checkbox(
+						label="Enable LAN Access", 
+						info="Allow other computers on your network to access PromptQuill. Requires restart to take effect.",
+						value=g.settings_data['enable_lan_access']
+					)
+				with gr.Column(scale=1):
+					network_status = gr.TextArea('', label="Status", placeholder='Status')
+					network_save_button = gr.Button('Save Network Settings')
 
+			network_save_button.click(
+				fn=ui_code.set_network_settings,
+				inputs=[enable_lan_access],
+				outputs=network_status
+			)
 	gr.on(
 		triggers=[generator.select],
 		fn=ui_code.all_get_last_prompt,
@@ -1379,8 +1395,10 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 if __name__ == "__main__":
-	server_name = "localhost"
-	if os.getenv("SERVER_NAME") is not None:
-		server_name = os.getenv("SERVER_NAME")
-	pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name=server_name,
-				 server_port=49152)  # share=True
+    server_name = "localhost"
+    if os.getenv("SERVER_NAME") is not None:
+        server_name = os.getenv("SERVER_NAME")
+    elif g.settings_data['enable_lan_access']:
+        server_name = "0.0.0.0"  # Allow connections from any IP
+    pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name=server_name,
+                 server_port=49152)  # share=True

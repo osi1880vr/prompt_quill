@@ -266,6 +266,11 @@ class ui_actions:
         self.g.settings_data['sail_unload_llm'] = sail_unload_llm
         self.settings_io.write_settings(self.g.settings_data)
 
+    def set_network_settings(self, enable_lan_access):
+        self.g.settings_data['enable_lan_access'] = enable_lan_access
+        self.settings_io.write_settings(self.g.settings_data)
+        return 'Network settings saved. Restart PromptQuill for changes to take effect.'
+
 
     def set_molmo(self, molmo_folder_name,
                   molmo_file_renamer_prompt,
