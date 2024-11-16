@@ -122,7 +122,7 @@ class ui_actions:
         self.settings_io.write_settings(self.g.settings_data)
 
     
-    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, automa_new_forge):
+    def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, automa_new_forge, automa_scheduler):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
         self.g.settings_data['automa_sampler'] = sampler
@@ -139,6 +139,7 @@ class ui_actions:
         self.g.settings_data['automa_vae'] = vae
         self.g.settings_data['automa_clip_skip'] = clip_skip
         self.g.settings_data['automa_new_forge'] = automa_new_forge
+        self.g.settings_data['automa_scheduler'] = automa_scheduler
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -584,7 +585,7 @@ Generate an improved text to image prompt based on the above advice.
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
     
-    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip):
+    def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip, automa_scheduler):
         self.g.running = True
         self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, self.g.settings_data['automa_new_forge'])
         self.g.last_prompt = prompt

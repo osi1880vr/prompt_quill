@@ -525,7 +525,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 												  automa_save,
 												  automa_save_on_api_host,
 												  automa_vae,
-												  automa_clip_skip],
+												  automa_clip_skip,
+												  automa_scheduler],
 										  outputs=automa_result_images)
 
 				gr.on(
@@ -544,7 +545,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							  automa_checkpoint.change,
 							  automa_vae.change,
 							  automa_clip_skip.change,
-							  automa_new_forge.change],
+							  automa_new_forge.change,
+							  automa_scheduler.change],
 					fn=ui_code.set_automa_settings,
 					inputs=[automa_prompt_input,
 							automa_negative_prompt_input,
@@ -561,7 +563,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							automa_save_on_api_host,
 							automa_vae,
 							automa_clip_skip,
-							automa_new_forge],
+							automa_new_forge,
+							automa_scheduler],
 					outputs=None)
 
 			with gr.Tab('Interrogate') as interrogate:
