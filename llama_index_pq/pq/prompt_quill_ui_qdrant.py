@@ -388,12 +388,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_gen_enabled,
 					 sail_override_settings_restore,
 					 sail_store_folders,
+					 sail_depth_preset,
 					 sail_scheduler])
 
 
 		gr.on(
 			triggers=[gen_sail.select],
-			fn=ui_code.automa_refresh,
+			fn=ui_code.automa_sail_refresh,
 			inputs=None,
 			outputs=[sail_sampler, sail_checkpoint, sail_vae, sail_scheduler]
 		)
@@ -416,7 +417,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		sail_filter_count_button.click(fn=ui_code.count_context,
 									   inputs=None,
 									   outputs=sail_filter_status)
-		sail_gen_refresh_button.click(fn=ui_code.automa_refresh,
+		sail_gen_refresh_button.click(fn=ui_code.automa_sail_refresh,
 									inputs=None,
 									outputs=[sail_sampler, sail_checkpoint, sail_vae, sail_scheduler])
 
@@ -1113,7 +1114,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				 automa_save_on_api_host,
 				 automa_checkpoint,
 				 automa_vae,
-				 automa_clip_skip
+				 automa_clip_skip,
+				 automa_scheduler
 				 ]
 	)
 	gr.on(

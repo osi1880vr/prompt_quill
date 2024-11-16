@@ -210,16 +210,49 @@ class ui_actions:
         self.g.settings_data['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
         self.settings_io.write_settings(self.g.settings_data)
 
-    def set_sailing_settings(self,sail_text, keep_sail_text, sail_width, sail_depth, sail_generate,
-                             sail_summary, sail_rephrase, sail_rephrase_prompt, sail_gen_rephrase, sail_sinus,
-                             sail_sinus_freq, sail_sinus_range, sail_add_style, sail_style, sail_add_search,
-                             sail_search, sail_max_gallery_size, sail_dyn_neg,
-                             sail_add_neg, sail_neg_prompt, sail_filter_text, sail_filter_not_text, sail_filter_context,
-                             sail_filter_prompt, sail_neg_filter_text, sail_neg_filter_not_text,
-                             sail_neg_filter_context, automa_alt_vae, sail_checkpoint,
-                             sail_sampler, sail_vae, sail_dimensions, sail_gen_type, sail_gen_any_combination,
-                             sail_gen_steps, sail_gen_enabled, sail_override_settings_restore, sail_store_folders,
-                             sail_depth_preset,sail_scheduler, sail_unload_llm):
+    def set_sailing_settings(self,
+                             sail_text,
+                             keep_sail_text,
+                             sail_width,
+                             sail_depth,
+                             sail_generate,
+                             sail_summary,
+                             sail_rephrase,
+                             sail_rephrase_prompt,
+                             sail_gen_rephrase,
+                             sail_sinus,
+                             sail_sinus_freq,
+                             sail_sinus_range,
+                             sail_add_style,
+                             sail_style,
+                             sail_add_search,
+                             sail_search,
+                             sail_max_gallery_size,
+                             sail_dyn_neg,
+                             sail_add_neg,
+                             sail_neg_prompt,
+                             sail_filter_text,
+                             sail_filter_not_text,
+                             sail_filter_context,
+                             sail_filter_prompt,
+                             sail_neg_filter_text,
+                             sail_neg_filter_not_text,
+                             sail_neg_filter_context,
+                             automa_alt_vae,
+                             sail_checkpoint,
+                             sail_sampler,
+                             sail_vae,
+                             sail_dimensions,
+                             sail_gen_type,
+                             sail_gen_any_combination,
+                             sail_gen_steps,
+                             sail_gen_enabled,
+                             sail_override_settings_restore,
+                             sail_store_folders,
+                             sail_depth_preset,
+                             sail_scheduler,
+                             sail_unload_llm
+                             ):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -459,7 +492,7 @@ Generate an improved text to image prompt based on the above advice.
             'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
             'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'
         ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']),self.g.settings_data[
-            'automa_clip_skip']
+            'automa_clip_skip'], gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
     
     
 
@@ -512,7 +545,7 @@ Generate an improved text to image prompt based on the above advice.
         ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
         ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
         ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"
-        ],self.g.settings_data["sail_depth_preset"],gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
+        ],self.g.settings_data["sail_depth_preset"],self.g.settings_data['sail_scheduler']
 
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -587,6 +620,13 @@ Generate an improved text to image prompt based on the above advice.
         return automa_height,automa_width
 
     def automa_refresh(self):
+        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+        self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
+        self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
+        self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
+        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
+
+    def automa_sail_refresh(self):
         self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
         self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
         self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()

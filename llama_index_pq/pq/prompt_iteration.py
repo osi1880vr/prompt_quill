@@ -223,8 +223,7 @@ class prompt_iterator:
 			with gr.Column(scale=1):
 				is_all_selected = gr.Checkbox(label="Select All", value=False)
 			with gr.Column(scale=3):
-				dropdown = gr.Dropdown(label=label, choices=choices, value=initial_value, multiselect=True,
-									   allow_custom_value=True)
+				dropdown = gr.Dropdown(label=label, choices=choices, value=initial_value, multiselect=True, allow_custom_value=True)
 
 
 		def select_all_dropdown(is_all_selected_value):
