@@ -87,7 +87,7 @@ def download_qdrant():
     if not os.path.exists(zip_path):
         if not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
             print("Download Qdrant")
-            url = 'https://github.com/qdrant/qdrant/releases/download/v1.10.0/qdrant-x86_64-pc-windows-msvc.zip'
+            url = 'https://github.com/qdrant/qdrant/releases/download/v1.12.3/qdrant-x86_64-pc-windows-msvc.zip'
             status_code = download_file(url, install_path)
             if status_code != 200:
                 print("\033[101;93m Error: Failed to download qdrant-x86_64-pc-windows-msvc.zip HTTP Status Code: {} \033[0m".format(status_code))
@@ -102,7 +102,7 @@ def download_qdrant():
     if not os.path.exists(zip_path):
         if not os.path.exists(os.path.join(install_dir, 'qdrant_loaded.txt')):
             print("Download Qdrant Web UI")
-            url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.29/dist-qdrant.zip'
+            url = 'https://github.com/qdrant/qdrant-web-ui/releases/download/v0.1.33/dist-qdrant.zip'
             status_code = download_file(url, install_path)
             if status_code != 200:
                 print("\033[101;93m Error: Failed to download dist-qdrant.zip HTTP Status Code: {} \033[0m".format(status_code))
