@@ -8,17 +8,111 @@ import os
 import numpy as np
 from huggingface_hub import snapshot_download
 import re
+from io import BytesIO
+from collections import deque
+import base64
+
+
+class i2i:
+
+    def __init__(self, parent):
+        self.parent = parent
+        self.images_done = 0
+        self.sail_log = ''
+        pass
+
+
+
+    def clean_prompt(self, prompt):
+        prompt = prompt.replace('\n', ' ')
+
+        return prompt
+
+
+    def get_image_prompt(self, img):
+
+        prompt = self.parent.process_image(img, self.parent.g.settings_data['iti_description_prompt']).strip()
+
+        prompt = self.clean_prompt(prompt)
+        return prompt
+
+    def process_folder(self,root_folder):
+        process_count = 0
+        self.images_done = 0
+        self.sail_log = ''
+        for dirpath, dirnames, filenames in os.walk(root_folder):
+            for filename in filenames:
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg')):  # Only process image files
+                    file_path = os.path.join(dirpath, filename)
+                    self.parent.reset_temperature()
+                    try:
+                        # Open the image file using Pillow
+                        with Image.open(file_path) as img:
+
+                            #raw_data = np.array(img)
+
+                            retry = True
+                            retry_count = 0
+                            images = deque(maxlen=6)
+                            while retry:
+                                try:
+                                    # Generate a new filename
+                                    print(f'Processing {file_path}')
+                                    prompt = self.get_image_prompt(img)  # Assuming get_filename generates a unique base name
+                                    print(f'Prompt: {prompt}')
+                                    self.sail_log = f'{self.sail_log}\n'
+
+
+                                    if self.parent.g.settings_data['sail_generate']:
+                                        response = self.parent.run_sail_automa_gen(prompt)
+                                        if response != '':
+                                            for index, image in enumerate(response.get('images')):
+                                                img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
+                                                save_path = os.path.join(self.parent.out_dir_t2i, f'txt2img-{self.parent.timestamp()}-{index}.png')
+                                                self.parent.automa_client.decode_and_save_base64(image, save_path)
+                                                self.images_done += 1
+                                                yield self.sail_log, list(images),f'{self.images_done} image(s)'
+                                        else:
+                                            yield self.sail_log, [] , None
+                                    else:
+                                        yield self.sail_log, [], None
+
+                                        yield self.sail_log,[],f'{self.images_done} prompts(s) done'
+                                    retry = False
+
+
+
+                                except Exception as e:
+                                    # Retry the entire renaming process if an error occurs
+                                    self.parent.increase_temperature()
+                                    retry = True  # This ensures the loop continues until renaming succeeds
+                                finally:
+                                    retry_count += 1
+                                    if retry_count > 5:
+                                        break
+
+
+                            process_count += 1
+
+                    except Exception as e:
+                        print(f"Error processing image {file_path}: {e}")
+                if self.parent.g.job_running is False:
+                    break
+
+        return process_count
 
 class molmo:
 
-    def __init__(self):
+    def __init__(self, parent):
         self.g = globals.get_globals()
+        self.parent = parent
         self.arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
         self.molmo_model = 'cyan2k/molmo-7B-D-bnb-4bit'
         self.model_pat = None
         self.model = None
         self.temperature = None
         self.reset_temperature()
+        self.iti = i2i(self)
 
 
     def reset_temperature(self):
@@ -63,7 +157,10 @@ class molmo:
         new_image = Image.new('RGB', pil_image.size, bg_color)
         new_image.paste(pil_image, (0, 0))
 
-        return new_image
+        resized_image = new_image.resize((int(image.width // 3), int(image.height // 3)), Image.Resampling.LANCZOS)
+
+
+        return resized_image
 
 
     def process_image(self, image, prompt):
@@ -240,6 +337,8 @@ class molmo:
                     break
 
         return process_count
+
+
 
 
 

@@ -91,18 +91,27 @@ class automa_client:
     def get_ad_args(self, number, settings_data):
         args = {
             'ad_model': settings_data[f'automa_ad_model_{number}'],
+            "ad_model_classes": "",
+            "ad_tab_enable": True,
+            "ad_prompt": settings_data[f'automa_ad_prompt_{number}'],
+            "ad_negative_prompt": settings_data[f'automa_ad_negative_prompt_{number}'],
             'ad_use_inpaint_width_height': settings_data[f'automa_ad_use_inpaint_width_height_{number}'],
             'ad_denoising_strength': settings_data[f'automa_ad_denoising_strength_{number}'],
+            "ad_use_clip_skip": True,
             "ad_clip_skip": settings_data[f'automa_ad_clip_skip_{number}'],
-            "ad_confidence": settings_data[f'automa_ad_confidence_{number}'] #,
+            "ad_confidence": settings_data[f'automa_ad_confidence_{number}'],
+            "ad_use_checkpoint": True,
+            "ad_checkpoint": "None"
+
+
             #"ad_restore_face": settings_data[f'automa_ad_restore_face_{number}'],
             #"ad_use_steps": False,
             #"ad_steps": settings_data[f'automa_ad_steps_{number}']
         }
 
-        if settings_data[f'automa_ad_checkpoint_{number}'] != 'Same':
-            args['ad_use_checkpoint'] = True
-            args['ad_checkpoint'] = settings_data[f'automa_ad_checkpoint_{number}']
+        #if settings_data[f'automa_ad_checkpoint_{number}'] != 'Same':
+        #    args['ad_use_checkpoint'] = True
+        #    args['ad_checkpoint'] = settings_data[f'automa_ad_checkpoint_{number}']
         #else:
         #    args['ad_use_checkpoint'] = False
 
@@ -111,7 +120,7 @@ class automa_client:
     def get_adetailer(self, settings_data):
         ADetailer = {}
         if not 'args' in ADetailer:
-            ADetailer['args'] = []
+            ADetailer['args'] = [True, False]
         number = 1
         while number <= 4:
             if settings_data[f'automa_adetailer_enable_{number}']:

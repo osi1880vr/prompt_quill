@@ -646,170 +646,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			)
 
 	with gr.Tab("Interrogation") as interrogation:
-		with gr.Tab("Moondream"):
-			with gr.Tab("Single"):
-				with gr.Row():
-					with gr.Column(scale=3):
-						moon_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
-					with gr.Column(scale=1):
-						with gr.Row():
-							moon_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
-							moon_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
-							moon_submit = gr.Button("Submit")
-							moon_get_prompt = gr.Button("Get Prompt")
-						with gr.Row():
-							moon_unload_model = gr.Button("Unload Moondream")
-				with gr.Row():
-					moon_img = gr.Image(type="pil", label="Upload an Image")
-					with gr.Column():
-						moon_output = gr.Markdown(label="Response")
-						#ann = gr.Image(visible=False, label="Annotated Image")
 
-				moon_submit.click(ui_code.moon_answer_question, [moon_img, moon_prompt, moon_max_tokens], moon_output)
-				moon_prompt.submit(ui_code.moon_answer_question, [moon_img, moon_prompt, moon_max_tokens], moon_output)
-				moon_get_prompt.click(ui_code.moon_get_prompt, [moon_img, moon_prompt, moon_max_tokens], moon_output)
-				moon_unload_model.click(ui_code.moon_unload,None,moon_output)
-				#moon_output.change(ui_code.moon_process_answer, [moon_img, moon_output], ann, show_progress=False)
-			with gr.Tab("Batch"):
-				with gr.Row():
-					with gr.Column(scale=3):
-						moon_batch_prompt = gr.Textbox(label="Input Prompt", value='Describe this image.', placeholder="Type here...", scale=3)
-					with gr.Column(scale=1):
-						with gr.Row():
-							moon_batch_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
-							moon_batch_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
-							moon_batch_submit = gr.Button("Submit")
-							moon_batch_get_prompt = gr.Button("Get Prompt")
-						with gr.Row():
-							moon_batch_unload_model = gr.Button("Unload Moondream")
-				with gr.Row():
-						moon_batch_gallery = gr.Gallery(type="pil", label="Upload Images")
-						moon_batch_output = gr.Markdown(label="Response")
-				moon_batch_submit.click(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
-				moon_batch_prompt.submit(ui_code.moon_batch_answer_question, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
-				moon_batch_get_prompt.click(ui_code.moon_batch_get_prompt, [moon_batch_gallery, moon_batch_prompt, moon_batch_max_tokens], moon_batch_output)
-				moon_batch_unload_model.click(ui_code.moon_unload,None,moon_output)
-			with gr.Tab("Image improver"):
-				with gr.Row():
-					with gr.Column(scale=3):
-						moon_improver_prompt = gr.Textbox(label="Input Prompt", value='How to improve this image?', placeholder="Type here...", scale=3)
-					with gr.Column(scale=1):
-						with gr.Row():
-							moon_improver_max_tokens = gr.Dropdown(label='Max Tokens', choices=[16,32,64,128,256,512], value=512)
-							moon_improver_low_mem = gr.Checkbox(label="Low Mem", value=g.settings_data["moon_low_mem"])
-							moon_improver_submit = gr.Button("Submit")
-						with gr.Row():
-							moon_improver_unload_model = gr.Button("Unload Moondream")
-				with gr.Row():
-					moon_improver_gallery = gr.Gallery(type="pil", label="Upload Images")
-					moon_improver_output = gr.Markdown(label="Response")
-					moon_improver_output_gallery = gr.Gallery()
-
-
-				moon_improver_submit.click(fn=ui_code.moon_improver,
-										   inputs=[moon_improver_gallery, moon_improver_prompt, moon_improver_max_tokens],
-										   outputs=[moon_improver_output,moon_improver_output_gallery])
-			with gr.Tab("File Renamer"):
-				with gr.Tab("Rename"):
-					with gr.Row():
-						with gr.Column(scale=3):
-							moon_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value='F:\\test', placeholder="give a path...", scale=3)
-						with gr.Column(scale=1):
-							moon_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
-							moon_folder_submit = gr.Button("Submit")
-							moon_folder_stop = gr.Button("Stop")
-
-						moon_folder_submit.click(fn=ui_code.moon_file_rename,
-												 inputs=moon_folder_name,
-												 outputs=moon_folder_status)
-						moon_folder_stop.click(fn=ui_code.moon_file_rename_stop,
-												 inputs=None,
-												 outputs=moon_folder_status)
-
-				with gr.Tab("Story teller"):
-					gr.Markdown("""<span style="color: red; font-weight: bold;">To use this feature you have to install a Ollama Server</span>""")
-					with gr.Row():
-						with gr.Column(scale=3):
-							story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
-													  value=g.settings_data['story_teller_enabled'])
-
-							story_teller_seconds_step_enabled = gr.Checkbox(label="Enable second step", info="Enable advanced Story telling?",
-															   value=g.settings_data['story_teller_seconds_step_enabled'])
-
-							image_description_model = gr.Dropdown(
-								choices=g.settings_data['image_description_models'],
-								value=g.settings_data['image_description_model'],
-								label='Image description Model')
-
-
-							image_description_system_context = gr.Textbox(label="Image description System Context", value=g.settings_data['image_description_system_context'], placeholder="You are an assistant who describes the content and composition of images. Describe only what you see in the image, not what you think the image is about.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
-							image_description_prompt = gr.Textbox(label="Image description prompt", value=g.settings_data['image_description_prompt'], placeholder="Make it describe the image", scale=3)
-
-							story_teller_model = gr.Dropdown(
-								choices=g.settings_data['story_teller_models'],
-								value=g.settings_data['story_teller_model'],
-								label='Story Teller Model')
-
-							story_teller_system_context = gr.Textbox(label="Story telling System Context", value=g.settings_data['story_teller_system_context'], placeholder="You are an vibrant story teller, you tell fantastic detailed storys about a image description thats given.Be factual and literal. Do not use metaphors or similes. Be concise.", scale=3)
-							story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['story_teller_prompt'], placeholder="Make it tell a story", scale=3)
-
-
-							story_teller_host = gr.Textbox(label="URL for Ollama Server", value=g.settings_data['story_teller_host'], placeholder="http://localhost:11434", scale=3)
-							story_teller_timeout = gr.Textbox(label="Timeout Ollama Server", value=g.settings_data['story_teller_timeout'], placeholder="300", scale=3)
-
-
-							story_teller_temperature = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['story_teller_temperature'],
-														 label="Temperature",
-														 info="Choose between 0.1 and 1")
-							story_teller_max_tokens = gr.Textbox(label="Max Tokens", value=g.settings_data['story_teller_max_tokens'], placeholder="300", scale=3)
-
-
-							gr.on(
-								triggers=[story_teller_enabled.change,
-										  story_teller_seconds_step_enabled.change,
-										  story_teller_model.change,
-										  image_description_model.change,
-										  image_description_system_context.change,
-										  image_description_prompt.change,
-										  story_teller_system_context.change,
-										  story_teller_prompt.change,
-										  story_teller_host.change,
-										  story_teller_timeout.change,
-										  story_teller_temperature.change,
-										  story_teller_max_tokens.change
-										  ],
-								fn=ui_code.set_story_teller,
-								inputs=[story_teller_enabled,
-										story_teller_seconds_step_enabled,
-										story_teller_model,
-										image_description_model,
-										image_description_system_context,
-										image_description_prompt,
-										story_teller_system_context,
-										story_teller_prompt,
-										story_teller_host,
-										story_teller_timeout,
-										story_teller_temperature,
-										story_teller_max_tokens],
-								outputs=None
-							)
-
-
-
-
-
-						with gr.Column(scale=1):
-							story_teller_status = gr.Textbox('', label=f'Status', placeholder="status")
-
-		moon_improver_low_mem.change(fn=ui_code.moon_set_low_mem,
-									 inputs=moon_improver_low_mem,
-									 outputs=[moon_batch_low_mem,moon_low_mem])
-		moon_batch_low_mem.change(fn=ui_code.moon_set_low_mem,
-									 inputs=moon_batch_low_mem,
-									 outputs=[moon_improver_low_mem,moon_low_mem])
-		moon_low_mem.change(fn=ui_code.moon_set_low_mem,
-									 inputs=moon_low_mem,
-									 outputs=[moon_batch_low_mem,moon_improver_low_mem])
 
 		with gr.Tab("Molmo"):
 			#with gr.Tab("Interrogate"):
@@ -825,14 +662,17 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							molmo_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
 							molmo_folder_submit = gr.Button("Submit")
 							molmo_folder_stop = gr.Button("Stop")
-
-
-					molmo_folder_submit.click(fn=ui_code.molmo_file_rename,
-											 inputs=molmo_folder_name,
-											 outputs=molmo_folder_status)
-					molmo_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
-										   inputs=None,
-										   outputs=molmo_folder_status)
+						with gr.Row():
+							sail_max_gallery_size = gr.Slider(1, 500, step=1,
+															  value=g.settings_data['sail_max_gallery_size'],
+															  label="Max Gallery size",
+															  info="Limit the number of images keept in the gallery choose between 1 and 500")
+						molmo_folder_submit.click(fn=ui_code.molmo_file_rename,
+												 inputs=molmo_folder_name,
+												 outputs=molmo_folder_status)
+						molmo_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
+											   inputs=None,
+											   outputs=molmo_folder_status)
 
 				with gr.Tab("Story Teller"):
 					molmo_story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
@@ -855,30 +695,70 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					molmo_top_p = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['molmo_top_p'],
 													 label="Top P",
 													 info="Choose between 0.1 and 1")
+					gr.on(
+						triggers=[molmo_folder_name.change,
+								  molmo_file_renamer_prompt.change,
+								  molmo_story_teller_enabled.change,
+								  molmo_story_teller_prompt.change,
+								  molmo_temperatur.change,
+								  molmo_max_new_tokens.change,
+								  molmo_top_k.change,
+								  molmo_top_p.change
+								  ],
+						fn=ui_code.set_molmo,
+						inputs=[molmo_folder_name,
+								molmo_file_renamer_prompt,
+								molmo_story_teller_enabled,
+								molmo_story_teller_prompt,
+								molmo_temperatur,
+								molmo_max_new_tokens,
+								molmo_top_k,
+								molmo_top_p
+								],
+					)
 
-			gr.on(
-				triggers=[molmo_folder_name.change,
-						  molmo_file_renamer_prompt.change,
-						  molmo_story_teller_enabled.change,
-						  molmo_story_teller_prompt.change,
-						  molmo_temperatur.change,
-						  molmo_max_new_tokens.change,
-						  molmo_top_k.change,
-						  molmo_top_p.change
-						  ],
-				fn=ui_code.set_molmo,
-				inputs=[molmo_folder_name,
-						molmo_file_renamer_prompt,
-						molmo_story_teller_enabled,
-						molmo_story_teller_prompt,
-						molmo_temperatur,
-						molmo_max_new_tokens,
-						molmo_top_k,
-						molmo_top_p
-						],
 
-				outputs=None
-			)
+
+
+			with gr.Tab("Img2Txt2Img"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						iti_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['iti_folder_name'], placeholder="give a path...", scale=3)
+						iti_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['iti_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
+
+					with gr.Column(scale=1):
+						iti_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
+						iti_folder_submit = gr.Button("Submit")
+						iti_folder_stop = gr.Button("Stop")
+
+				with gr.Row():
+					iti_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6, format='png',interactive=True)
+				with gr.Row():
+					iti_result = gr.Textbox("", label=f'Your journey journal', placeholder="Your journey logs",interactive=True,autoscroll=True)
+
+
+
+
+
+					gr.on(
+						triggers=[iti_folder_name.change,
+								  iti_file_renamer_prompt.change,
+								  ],
+						fn=ui_code.set_iti,
+						inputs=[iti_folder_name,
+								iti_file_renamer_prompt,
+								],
+
+					)
+					iti_folder_submit.click(fn=ui_code.run_iti,
+											inputs=iti_folder_name,
+											outputs=[iti_folder_status,
+													 iti_result_images,
+													 iti_result])
+					iti_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
+										  inputs=None,
+										  outputs=iti_folder_status)
+					outputs=None
 
 		with gr.Tab("PNG Info"):
 			with gr.Row():

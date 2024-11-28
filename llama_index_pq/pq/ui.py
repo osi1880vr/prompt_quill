@@ -73,7 +73,7 @@ class ui_actions:
         self.gen_step_select = 0
         self.moon_interrogate = moon()
         self.moon_filenames = MoonFilenames()
-        self.molmo = molmo()
+        self.molmo = molmo(self)
         self.sail_log = ''
         self.sail_sinus_count = 1.0
         self.sinus = 0
@@ -322,6 +322,12 @@ class ui_actions:
 
         self.settings_io.write_settings(self.g.settings_data)
 
+    def set_iti(self, iti_folder_name,
+                iti_file_renamer_prompt):
+
+        self.g.settings_data['iti_folder_name'] = iti_folder_name
+        self.g.settings_data['iti_file_renamer_prompt'] = iti_file_renamer_prompt
+        self.settings_io.write_settings(self.g.settings_data)
 
 
     def moon_set_low_mem(self, value):
@@ -432,7 +438,55 @@ Generate an improved text to image prompt based on the above advice.
         count = self.molmo.process_folder(folder)
         return count
 
+    def run_iti(self, root_folder):
+        self.g.job_running = True
+        process_count = 0
+        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
 
+        #count = self.molmo.iti.process_folder(file_path)
+        self.interface.del_llm_model()
+        for dirpath, dirnames, filenames in os.walk(root_folder):
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                with Image.open(file_path) as img:
+
+                    retry = True
+                    retry_count = 0
+
+                    while retry:
+                        try:
+                            # Generate a new filename
+                            print(f'Processing {file_path}')
+                            prompt = self.molmo.iti.get_image_prompt(img)  # Assuming get_filename generates a unique base name
+                            print(f'Prompt: {prompt}')
+                            self.sail_log = f'{self.sail_log}\n'
+
+                            if self.g.settings_data['sail_generate']:
+                                images = self.run_sail_automa_gen(prompt, images)
+                                if len(images) > 0:
+                                    yield self.sail_log, list(images),f'{self.images_done} prompts(s) done'
+                                else:
+                                    yield self.sail_log, [] , f'{self.images_done} prompts(s) done'
+                            else:
+                                yield self.sail_log, [], f'{self.images_done} prompts(s) done'
+
+                            retry = False
+
+
+
+                        except Exception as e:
+                            # Retry the entire renaming process if an error occurs
+                            self.molmo.increase_temperature()
+                            retry = True  # This ensures the loop continues until renaming succeeds
+                        finally:
+                            retry_count += 1
+                            if retry_count > 5:
+                                break
+
+
+                    process_count += 1
+
+        self.molmo.unload_model()
 
 
 

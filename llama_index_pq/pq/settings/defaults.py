@@ -59,6 +59,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "automa_ad_confidence_1": 0.6,
     "automa_ad_checkpoint_1": None,
     "automa_adetailer_enable_1": False,
+    "automa_ad_prompt_1": "",
+    "automa_ad_negative_prompt_1": "",
 
     "automa_ad_use_inpaint_width_height_2": False,
     "automa_ad_model_2": "",
@@ -67,6 +69,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "automa_ad_confidence_2": 0.6,
     "automa_ad_checkpoint_2": None,
     "automa_adetailer_enable_2": False,
+    "automa_ad_prompt_2": "",
+    "automa_ad_negative_prompt_2": "",
 
     "automa_ad_use_inpaint_width_height_3":False,
     "automa_ad_model_3": "",
@@ -75,6 +79,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "automa_ad_confidence_3": 0.6,
     "automa_ad_checkpoint_3": None,
     "automa_adetailer_enable_3": False,
+    "automa_ad_prompt_3": "",
+    "automa_ad_negative_prompt_3": "",
 
     "automa_ad_use_inpaint_width_height_4": False,
     "automa_ad_model_4": "",
@@ -83,6 +89,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "automa_ad_confidence_4": 0.6,
     "automa_ad_checkpoint_4": None,
     "automa_adetailer_enable_4": False,
+    "automa_ad_prompt_4": "",
+    "automa_ad_negative_prompt_4": "",
 
     "sail_text": "",
     "keep_sail_text": False,
@@ -204,6 +212,10 @@ You mix a new prompt based on the context and the query. The query is just addin
     "molmo_path": "",
     "molmo_temperatur": 0.6,
     "molmo_folder_name": "",
+    "iti_file_renamer_prompt":"",
+    "iti_folder_name": "",
+    "iti_description_prompt": "Create a most detailed description, make it a prompt for a text to image system from this",
+
     "embedding_model": "BAAI/bge-base-en-v1.5",
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],
     "selected_template": "prompt_template_a",

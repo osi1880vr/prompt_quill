@@ -6,6 +6,7 @@ from settings.io import settings_io
 
 
 adetailer_choices = ["face_yolov8n.pt",
+                     "face_yolov8n_v2.pt",
                      "face_yolov8s.pt",
                      "hand_yolov8n.pt",
                      "person_yolov8n-seg.pt",
@@ -47,6 +48,8 @@ class UiShare:
     def set_automa_adetailer(self,
                              number,
                              automa_adetailer_enable,
+                             automa_ad_prompt,
+                             automa_ad_negative_prompt,
                              automa_ad_checkpoint,
                              automa_ad_use_inpaint_width_height,
                              automa_ad_model,
@@ -55,6 +58,8 @@ class UiShare:
                              automa_ad_confidence):
 
         self.g.settings_data[f'automa_adetailer_enable_{number}'] = automa_adetailer_enable
+        self.g.settings_data[f'automa_ad_prompt_{number}'] = automa_ad_prompt
+        self.g.settings_data[f'automa_ad_negative_prompt_{number}'] = automa_ad_negative_prompt
         self.g.settings_data[f'automa_ad_checkpoint_{number}'] = automa_ad_checkpoint
         self.g.settings_data[f'automa_ad_use_inpaint_width_height_{number}'] = automa_ad_use_inpaint_width_height
         self.g.settings_data[f'automa_ad_model_{number}'] = automa_ad_model
@@ -82,6 +87,11 @@ class UiShare:
 
                 automa_adetailer_enable = gr.Checkbox(label="Enable Adetailer",
                                                       value=self.g.settings_data[f'automa_adetailer_enable_{number}'])
+
+
+                automa_ad_prompt = gr.TextArea(lines=1, label="Prompt", value=self.g.settings_data[f'automa_ad_prompt_{number}'])
+                automa_ad_negative_prompt = gr.TextArea(lines=1, label="negative Prompt", value=self.g.settings_data[f'automa_ad_negative_prompt_{number}'])
+
 
                 automa_ad_use_inpaint_width_height = gr.Checkbox(label="Use inpaint with height",
                                                                  value=self.g.settings_data[
@@ -117,9 +127,11 @@ class UiShare:
                                                outputs=[automa_ad_checkpoint])
 
             # Generate the gr.on block
-            fn = lambda enable, ad_checkpoint, use_inpaint, model, denoising, clip_skip, confidence, restore_face, steps: \
+            fn = lambda enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model, denoising, clip_skip, confidence, restore_face, steps: \
                 self.set_automa_adetailer(number,            # Static number argument
                                           enable,            # automa_adetailer_enable from Gradio input
+                                          ad_prompt,
+                                          ad_negative_prompt,
                                           ad_checkpoint,     # automa_ad_checkpoint from Gradio input
                                           use_inpaint,       # automa_ad_use_inpaint_width_height from Gradio input
                                           model,             # automa_ad_model from Gradio input
@@ -131,6 +143,8 @@ class UiShare:
 
             gr.on(
                 triggers=[automa_adetailer_enable.change,
+                          automa_ad_prompt.change,
+                          automa_ad_negative_prompt.change,
                           automa_ad_checkpoint.change,
                           automa_ad_use_inpaint_width_height.change,
                           automa_ad_model.change,
@@ -139,6 +153,8 @@ class UiShare:
                           automa_ad_confidence.change],
                 fn=fn,
                 inputs=[automa_adetailer_enable,
+                        automa_ad_prompt,
+                        automa_ad_negative_prompt,
                         automa_ad_checkpoint,
                         automa_ad_use_inpaint_width_height,
                         automa_ad_model,
