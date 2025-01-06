@@ -80,6 +80,7 @@ class ui_actions:
         self.sail_depth_start = 0
         self.images_done = 1
         self.ui_share = UiShare()
+        self.prompt_array_index = {}
 
 
     def run_llm_response(self,query, history):
@@ -308,7 +309,10 @@ class ui_actions:
                   molmo_temperatur,
                   molmo_max_new_tokens,
                   molmo_top_k,
-                  molmo_top_p):
+                  molmo_top_p,
+                  molmo_source_folder_name,
+                  molmo_destination_folder_name,
+                  molmo_organize_prompt):
 
         self.g.settings_data['molmo_folder_name'] = molmo_folder_name
         self.g.settings_data['molmo_file_renamer_prompt'] = molmo_file_renamer_prompt
@@ -318,7 +322,9 @@ class ui_actions:
         self.g.settings_data['molmo_max_new_tokens'] = molmo_max_new_tokens
         self.g.settings_data['molmo_top_k'] = molmo_top_k
         self.g.settings_data['molmo_top_p'] = molmo_top_p
-
+        self.g.settings_data['molmo_source_folder_name'] = molmo_source_folder_name
+        self.g.settings_data['molmo_destination_folder_name'] = molmo_destination_folder_name
+        self.g.settings_data['molmo_organize_prompt'] = molmo_organize_prompt
 
         self.settings_io.write_settings(self.g.settings_data)
 
@@ -430,13 +436,17 @@ Generate an improved text to image prompt based on the above advice.
 
     def molmo_file_rename_stop(self):
         self.g.job_running = False
-        return "Stopped renaming"
+        return "Stopped"
 
     def molmo_file_rename(self, folder):
         self.interface.del_llm_model()
         self.g.job_running = True
         count = self.molmo.process_folder(folder)
         return count
+
+    def molmo_organize(self, molmo_source_folder_name,molmo_destination_folder_name):
+        self.molmo.organize_images(molmo_source_folder_name,molmo_destination_folder_name)
+
 
     def run_iti(self, root_folder):
         self.g.job_running = True
@@ -788,6 +798,7 @@ Generate an improved text to image prompt based on the above advice.
                 return out
         else:
             return -1
+
     def check_api_avail(self):
         return self.automa_client.check_avail(self.g.settings_data['automa_url'])
 
@@ -952,10 +963,58 @@ Generate an improved text to image prompt based on the above advice.
         query = self.prepare_query(query)
         return self.interface.retrieve_model_test_llm_completion(query)
 
+    def process_prompt_arrays(self, input_string):
+        # Check if there are any arrays (placeholders) in the input string
+        if not re.search(r'\[([^\]]+)\]', input_string):
+            # If no arrays found, return the string as it is
+            return input_string.strip()
 
+        # Regex pattern to identify placeholders like [a,b,c]
+        pattern = r'\[([^\]]+)\]'
+
+        def replace_with_mode(match):
+            # Extract the items inside the brackets, strip leading/trailing spaces, and split by commas
+            array = match.group(1).strip().split(',')
+
+            # Check if the array starts with 'iter' and a number indicating how many times to repeat each item
+            is_iterative = array[0].strip().lower().startswith('iter')
+            if is_iterative:
+                # Extract the number of repetitions (e.g., 'iter 5' -> 5)
+                num_repeats = int(array[0].strip().split()[1])  # Get the number after 'iter'
+                array = array[1:]  # Remove the 'iter n' part from the array
+
+            # Get the array's identifier (for tracking purposes, use the full placeholder)
+            array_key = match.group(0)
+
+            # Track and update the index and count for the array
+            if array_key not in self.prompt_array_index:
+                self.prompt_array_index[array_key] = {'index': 0, 'repeat_count': 0, 'num_repeats': num_repeats if is_iterative else 0}
+
+            # Get the current state of the array
+            current_state = self.prompt_array_index[array_key]
+
+            # Handle array iteration (select an item based on repeat_count)
+            selected_item = array[current_state['index']].strip()  # Default to the item at current index
+            if current_state['repeat_count'] < current_state['num_repeats'] - 1:
+                # If we haven't reached the limit for this item, stay on the same item
+                current_state['repeat_count'] += 1
+            else:
+                # If we reach the repeat limit, move to the next item and reset repeat_count
+                current_state['index'] = (current_state['index'] + 1) % len(array)
+                current_state['repeat_count'] = 0  # Reset repeat count
+
+            # Return the selected item
+            return selected_item
+
+        # Replace all occurrences of the pattern using the replace_with_mode function
+        result = re.sub(pattern, replace_with_mode, input_string)
+
+        # Return the processed string
+        return result.strip()  # Also remove leading/trailing spaces from the whole string
 
     def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False):
         prompt = ''
+
         query = self.prepare_query(query)
         if self.g.settings_data['sail_filter_prompt']:
             while 1:
@@ -990,8 +1049,9 @@ Generate an improved text to image prompt based on the above advice.
             prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
 
         if self.g.settings_data['sail_add_style']:
-            prompt = f'{self.g.settings_data["sail_style"]}, {prompt}'
-            orig_prompt = f'{self.g.settings_data["sail_style"]}, {orig_prompt}'
+            style_prompt = self.process_prompt_arrays(self.g.settings_data["sail_style"])
+            prompt = f'{style_prompt}, {prompt}'
+            orig_prompt = f'{style_prompt}, {orig_prompt}'
 
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
@@ -1059,8 +1119,6 @@ Generate an improved text to image prompt based on the above advice.
         combinations = self.prompt_iterator.get_combinations()
 
         n = 0
-
-
 
         automa_steps = self.g.settings_data["automa_steps"]
         automa_width = self.g.settings_data["automa_width"]
@@ -1154,6 +1212,7 @@ Generate an improved text to image prompt based on the above advice.
         self.sail_log = ''
         self.images_done = 1
         self.g.act_neg_prompt = ''
+        self.prompt_array_index = {}
         query = self.g.settings_data['sail_text']
         images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
@@ -1171,7 +1230,7 @@ Generate an improved text to image prompt based on the above advice.
         possible_images = int(context_count / self.g.settings_data['sail_depth'])-int(self.g.settings_data['sail_depth_preset'] / self.g.settings_data['sail_depth'])
 
         yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(possible_images)} images possible"
-
+        query = self.process_prompt_arrays(query)
         new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
         query = self.get_next_target_new(new_nodes)
 

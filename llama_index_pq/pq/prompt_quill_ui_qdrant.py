@@ -695,30 +695,53 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					molmo_top_p = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['molmo_top_p'],
 													 label="Top P",
 													 info="Choose between 0.1 and 1")
-					gr.on(
-						triggers=[molmo_folder_name.change,
-								  molmo_file_renamer_prompt.change,
-								  molmo_story_teller_enabled.change,
-								  molmo_story_teller_prompt.change,
-								  molmo_temperatur.change,
-								  molmo_max_new_tokens.change,
-								  molmo_top_k.change,
-								  molmo_top_p.change
-								  ],
-						fn=ui_code.set_molmo,
-						inputs=[molmo_folder_name,
-								molmo_file_renamer_prompt,
-								molmo_story_teller_enabled,
-								molmo_story_teller_prompt,
-								molmo_temperatur,
-								molmo_max_new_tokens,
-								molmo_top_k,
-								molmo_top_p
-								],
-					)
 
+			with gr.Tab("File Oranizer"):
+				with gr.Row():
+					with gr.Column(scale=3):
+						molmo_source_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_source_folder_name'], placeholder="give a path...", scale=3)
+						molmo_destination_folder_name = gr.Textbox(label="Destination categories folder", value=g.settings_data['molmo_destination_folder_name'], placeholder="How to make the filename", scale=3)
+						molmo_organize_prompt = gr.Textbox(label="Prompt for the task", value=g.settings_data['molmo_organize_prompt'], placeholder="How to make the filename", scale=3)
+					with gr.Column(scale=1):
+						molmo_organize_status = gr.Textbox('', label=f'Status', placeholder="status")
+						molmo_organize_submit = gr.Button("Submit")
+						molmo_organize_stop = gr.Button("Stop")
 
+						molmo_organize_submit.click(fn=ui_code.molmo_organize,
+												  inputs=[molmo_source_folder_name,molmo_destination_folder_name],
+												  outputs=molmo_folder_status)
 
+						molmo_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
+												inputs=None,
+												outputs=molmo_organize_status)
+
+			gr.on(
+				triggers=[molmo_folder_name.change,
+						  molmo_file_renamer_prompt.change,
+						  molmo_story_teller_enabled.change,
+						  molmo_story_teller_prompt.change,
+						  molmo_temperatur.change,
+						  molmo_max_new_tokens.change,
+						  molmo_top_k.change,
+						  molmo_top_p.change,
+						  molmo_source_folder_name.change,
+						  molmo_destination_folder_name.change,
+						  molmo_organize_prompt.change
+						  ],
+				fn=ui_code.set_molmo,
+				inputs=[molmo_folder_name,
+						molmo_file_renamer_prompt,
+						molmo_story_teller_enabled,
+						molmo_story_teller_prompt,
+						molmo_temperatur,
+						molmo_max_new_tokens,
+						molmo_top_k,
+						molmo_top_p,
+						molmo_source_folder_name,
+						molmo_destination_folder_name,
+						molmo_organize_prompt
+						],
+			)
 
 			with gr.Tab("Img2Txt2Img"):
 				with gr.Row():

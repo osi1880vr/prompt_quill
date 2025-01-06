@@ -17,6 +17,8 @@ import gc
 import os
 import json
 import torch
+import random
+import re
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
@@ -44,6 +46,7 @@ class adapter:
         self.llm = self.set_llm()
         self.set_pipeline()
         self.last_context = []
+        self.prompt_array_index = {}
 
 
     def get_document_store(self):
@@ -296,8 +299,61 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             if len(negative_prompts) > 0:
                 self.g.negative_prompt_list = set(negative_prompts)
 
+    def process_prompt_arrays(self, input_string):
+        # Check if there are any arrays (placeholders) in the input string
+        if not re.search(r'\[([^\]]+)\]', input_string):
+            # If no arrays found, return the string as it is
+            return input_string.strip()
+
+        # Regex pattern to identify placeholders like [a,b,c]
+        pattern = r'\[([^\]]+)\]'
+
+        def replace_with_mode(match):
+            # Extract the items inside the brackets, strip leading/trailing spaces, and split by commas
+            array = match.group(1).strip().split(',')
+
+            # Check if the array starts with 'iter' and a number indicating how many times to repeat each item
+            is_iterative = array[0].strip().lower().startswith('iter')
+            if is_iterative:
+                # Extract the number of repetitions (e.g., 'iter 5' -> 5)
+                num_repeats = int(array[0].strip().split()[1])  # Get the number after 'iter'
+                array = array[1:]  # Remove the 'iter n' part from the array
+
+            # Get the array's identifier (for tracking purposes, use the full placeholder)
+            array_key = match.group(0)
+
+            # Track and update the index and count for the array
+            if array_key not in self.prompt_array_index:
+                self.prompt_array_index[array_key] = {'index': 0, 'repeat_count': 0, 'num_repeats': num_repeats if is_iterative else 0}
+
+            # Get the current state of the array
+            current_state = self.prompt_array_index[array_key]
+
+            # Handle array iteration (select an item based on repeat_count)
+            selected_item = array[current_state['index']].strip()  # Default to the item at current index
+            if current_state['repeat_count'] < current_state['num_repeats'] - 1:
+                # If we haven't reached the limit for this item, stay on the same item
+                current_state['repeat_count'] += 1
+            else:
+                # If we reach the repeat limit, move to the next item and reset repeat_count
+                current_state['index'] = (current_state['index'] + 1) % len(array)
+                current_state['repeat_count'] = 0  # Reset repeat count
+
+            # Return the selected item
+            return selected_item
+
+        # Replace all occurrences of the pattern using the replace_with_mode function
+        result = re.sub(pattern, replace_with_mode, input_string)
+
+        # Return the processed string
+        return result.strip()  # Also remove leading/trailing spaces from the whole string
+
+
 
     def prepare_prompt(self,prompt,context):
+
+        prompt = self.process_prompt_arrays(prompt)
+
         meta_prompt = self.g.settings_data['prompt_templates'][self.g.settings_data['selected_template']]
         meta_prompt = f"{meta_prompt}"
         instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']

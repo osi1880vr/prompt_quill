@@ -1,3 +1,4 @@
+import shutil
 
 from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig, BitsAndBytesConfig
 import torch
@@ -11,7 +12,7 @@ import re
 from io import BytesIO
 from collections import deque
 import base64
-
+from string import Template
 
 class i2i:
 
@@ -338,8 +339,110 @@ class molmo:
 
         return process_count
 
+    def classify_image_molmo_caption(self, image, categories):
+        """Classifies an image using Molmo captioning and keyword matching."""
+
+        prompt = f"Based on the body, the cultural origin of the person, the skin color or any other typical feature you see. if you have to put the image into a single category of out of this list [{categories}] where would you put this. You are creating a technical output so your answer is only one single category." # we dont need a prompt here for captioning
+
+        template = Template(self.g.settings_data["molmo_organize_prompt"])
+        template.substitute(categories=categories)
+        prompt = template.substitute(categories=categories) #self.g.settings_data["molmo_story_teller_enabled"].format(categories=categories) #f"Here's an image. Choose the best category from the following: [{categories}]. Output the most suitable category and explain why."
+
+
+        try:
+            caption = self.process_image(image, prompt) # use your existing process_image function
+        except Exception as e:
+            print(f"Error during image captioning: {e}")
+            return "Error"
+
+        best_match = None
+        highest_score = 0
+
+        for category in categories:
+            score = caption.lower().count(category.lower())
+            if score > highest_score:
+                highest_score = score
+                best_match = category
+
+        if best_match is None or best_match == "":
+            best_match = "Uncategorized"
+
+        return best_match
+
+    def resize_image(self, image_path, max_size=224):
+        """Resizes an image while maintaining aspect ratio."""
+        try:
+            img = Image.open(image_path)
+            img.thumbnail((max_size, max_size))  # Resize while maintaining aspect ratio
+            return img
+        except Exception as e:
+            print(f"Error resizing image {image_path}: {e}")
+            return None
+
+
+    def get_categories(self, output_directory):
+        """Gets category names from subfolders, excluding those with numbers at the end."""
+        categories = []
+        for item in os.listdir(output_directory):
+            item_path = os.path.join(output_directory, item)
+            if os.path.isdir(item_path) and not re.search(r"\d+$", item):  # Check for directory and no trailing numbers
+                categories.append(item)
+        return categories
+
+    def find_unique_filename(self, destination_path, filename, extension):
+        """Finds a unique filename by appending a number if necessary."""
+        base_name, _ = os.path.splitext(filename)
+        new_filename = filename
+        counter = 1
+        while os.path.exists(os.path.join(destination_path, new_filename)):
+            new_filename = f"{base_name}_{counter}{extension}"
+            counter += 1
+        return new_filename
 
 
 
+    def organize_images(self, image_directory, output_directory):
+        """Organizes images using Molmo captioning."""
 
+        categories = self.get_categories(output_directory)
+
+        for category in categories:
+            category_path = os.path.join(output_directory, category)
+            if not os.path.exists(category_path):
+                os.makedirs(category_path)
+        if not os.path.exists(os.path.join(output_directory, "Uncategorized")):
+            os.makedirs(os.path.join(output_directory, "Uncategorized"))
+        n = 0
+        for filename in os.listdir(image_directory):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                image_path = os.path.join(image_directory, filename)
+                try:
+                    resized_image = self.resize_image(image_path=image_path, max_size=512)
+                    if resized_image is None:
+                        print(f"Skipping file {filename}")
+                        continue
+                    category = self.classify_image_molmo_caption(resized_image, categories)
+                    if category == "Error":
+                        print(f"Skipping file {filename}")
+                        continue
+                    continue
+                    new_filename = self.find_unique_filename(os.path.join(output_directory, category), filename, os.path.splitext(filename)[1])
+                    destination_path = os.path.join(output_directory, category, new_filename)
+                    shutil.move(image_path, str(destination_path))
+                    print(f"Moved {filename} to {category} as {new_filename}")
+
+                    # Handle associated .txt file (using the SAME new filename)
+                    txt_filename = os.path.splitext(filename)[0] + ".txt"
+                    txt_path = os.path.join(image_directory, txt_filename)
+                    if os.path.exists(txt_path):
+                        txt_destination_path = os.path.join(output_directory, category, os.path.splitext(new_filename)[0] + ".txt") # use the same base name with .txt extension
+                        shutil.move(txt_path, str(txt_destination_path))
+                        print(f"Moved associated txt file {txt_filename} to {category} as {os.path.splitext(new_filename)[0] + '.txt'}")
+
+                    n += 1
+                except Exception as e:
+                    print(f"Error processing {filename}: {e}")
+
+
+        return n
 

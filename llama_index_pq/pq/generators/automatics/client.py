@@ -101,7 +101,7 @@ class automa_client:
             "ad_clip_skip": settings_data[f'automa_ad_clip_skip_{number}'],
             "ad_confidence": settings_data[f'automa_ad_confidence_{number}'],
             "ad_use_checkpoint": True,
-            "ad_checkpoint": "None"
+            "ad_checkpoint": self.g.settings_data[f'automa_ad_checkpoint_{number}']
 
 
             #"ad_restore_face": settings_data[f'automa_ad_restore_face_{number}'],
