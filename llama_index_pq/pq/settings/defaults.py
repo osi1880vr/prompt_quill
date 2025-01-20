@@ -224,6 +224,31 @@ You mix a new prompt based on the context and the query. The query is just addin
     "selected_template": "prompt_template_a",
     "LLM Model": "TheBloke/Panda-7B-v0.1-GGUF-Q4",
     "model_list": {
+        "TheBloke/Uncensored-Jordan-7B-GGUF-Q4":
+            {
+                "name": "TheBloke/Uncensored-Jordan-7B-GGUF-Q4",
+                "path": "https://huggingface.co/TheBloke/Uncensored-Jordan-7B-GGUF/resolve/main/uncensored-jordan-7b.Q4_K_M.gguf",
+                "instruction_start": "### Instruction:\n",
+                "start_pattern": "",
+                "user_pattern": "",
+                "assistant_pattern": "ASSISTANT:",
+                "context_window": 4096
+            },
+
+        "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q4":
+            {
+                "name": "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q4",
+                "path": "https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q4_K_M.gguf",
+                "instruction_start": "### Instruction:\n",
+                "start_pattern": "",
+                "user_pattern": "",
+                "assistant_pattern": "### Response:\nASSISTANT:",
+                "context_window": 4096
+            },
+
+
+
+
         "TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF-Q4":
             {
                 "name": "TheBloke/Speechless-Llama2-Hermes-Orca-Platypus-WizardLM-13B-GGUF-Q4",

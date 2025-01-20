@@ -1012,7 +1012,7 @@ Generate an improved text to image prompt based on the above advice.
         # Return the processed string
         return result.strip()  # Also remove leading/trailing spaces from the whole string
 
-    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False):
+    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False, retry_count=0):
         prompt = ''
 
         query = self.prepare_query(query)
@@ -1053,6 +1053,14 @@ Generate an improved text to image prompt based on the above advice.
             prompt = f'{style_prompt}, {prompt}'
             orig_prompt = f'{style_prompt}, {orig_prompt}'
 
+
+        if prompt == '' or len(prompt) < 10 and retry_count < 10:
+            print(f'empty or to short prompt will retry {10-retry_count} times, each retry fetches a new query and so dives deeper into the data')
+            n = n + 1
+            retry_count = retry_count + 1
+            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+            query = self.get_next_target_new(new_nodes)
+            return self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=keep_sail_text,retry_count=retry_count)
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
 
