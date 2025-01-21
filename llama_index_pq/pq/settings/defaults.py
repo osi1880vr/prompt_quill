@@ -133,6 +133,8 @@ You mix a new prompt based on the context and the query. The query is just addin
     "sail_store_folders": False,
     "sail_depth_preset": 1,
     "sail_unload_llm": False,
+    "sail_neg_embed": "",
+    "sail_pos_embed": "",
 
 
     "model_test_steps": [20, 25, 30],
@@ -234,7 +236,16 @@ You mix a new prompt based on the context and the query. The query is just addin
                 "assistant_pattern": "ASSISTANT:",
                 "context_window": 4096
             },
-
+        "TheBloke/Uncensored-Jordan-7B-GGUF-Q5":
+            {
+                "name": "TheBloke/Uncensored-Jordan-7B-GGUF-Q5",
+                "path": "https://huggingface.co/TheBloke/Uncensored-Jordan-7B-GGUF/resolve/main/uncensored-jordan-7b.Q5_K_M.gguf",
+                "instruction_start": "### Instruction:\n",
+                "start_pattern": "",
+                "user_pattern": "",
+                "assistant_pattern": "ASSISTANT:",
+                "context_window": 4096
+            },
         "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q4":
             {
                 "name": "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q4",
@@ -245,7 +256,16 @@ You mix a new prompt based on the context and the query. The query is just addin
                 "assistant_pattern": "### Response:\nASSISTANT:",
                 "context_window": 4096
             },
-
+        "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q5":
+            {
+                "name": "TheBloke/Luna-AI-Llama2-Uncensored-GGUF-Q5",
+                "path": "https://huggingface.co/TheBloke/Luna-AI-Llama2-Uncensored-GGUF/resolve/main/luna-ai-llama2-uncensored.Q5_K_M.gguf",
+                "instruction_start": "### Instruction:\n",
+                "start_pattern": "",
+                "user_pattern": "",
+                "assistant_pattern": "### Response:\nASSISTANT:",
+                "context_window": 4096
+            },
 
 
 

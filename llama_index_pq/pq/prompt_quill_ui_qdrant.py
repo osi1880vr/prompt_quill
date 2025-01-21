@@ -191,6 +191,11 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=3):
 						sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
 													 placeholder="Enter your negative prompt addon")
+
+					with gr.Column(scale=3):
+						sail_neg_embed = gr.Textbox(g.settings_data['sail_neg_embed'], label=f'Negative embeddings',
+													 placeholder="Enter your negative prompt embeddings")
+
 				with gr.Row(equal_height=True):
 					with gr.Column(scale=1):
 						sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
@@ -198,6 +203,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=3):
 						sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
 												placeholder="Enter your hardcoded style")
+					with gr.Column(scale=3):
+						sail_pos_embed = gr.Textbox(g.settings_data['sail_pos_embed'], label=f'positive embeddings',
+												placeholder="Enter your positive embeddings")
 
 				with gr.Row():
 					sail_summary = gr.Checkbox(label="Do summary of LLM prompt",

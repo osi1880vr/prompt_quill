@@ -812,7 +812,7 @@ Generate an improved text to image prompt based on the above advice.
 
 
         if self.g.settings_data['sail_add_neg']:
-            negative_prompt = f"{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
+            negative_prompt = f"{self.g.settings_data['sail_neg_embed']},{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
 
         if len(negative_prompt) < 30:
             negative_prompt = self.g.settings_data['negative_prompt']
@@ -1050,8 +1050,8 @@ Generate an improved text to image prompt based on the above advice.
 
         if self.g.settings_data['sail_add_style']:
             style_prompt = self.process_prompt_arrays(self.g.settings_data["sail_style"])
-            prompt = f'{style_prompt}, {prompt}'
-            orig_prompt = f'{style_prompt}, {orig_prompt}'
+            prompt = f'{self.g.settings_data["sail_pos_embed"]}, {style_prompt}, {prompt}'
+            orig_prompt = f'{self.g.settings_data["sail_pos_embed"]}, {style_prompt}, {orig_prompt}'
 
 
         if prompt == '' or len(prompt) < 10 and retry_count < 10:
