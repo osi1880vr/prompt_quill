@@ -147,9 +147,9 @@ class adapter:
 
         must = []
         must_not = []
-        if self.g.settings_data['sail_filter_context']:
-            if len(self.g.settings_data['sail_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_filter_not_text'].split(','):
+        if self.g.settings_data['sailing']['sail_filter_context']:
+            if len(self.g.settings_data['sailing']['sail_filter_not_text']) > 0:
+                for word in self.g.settings_data['sailing']['sail_filter_not_text'].split(','):
                     must.append(
                         FieldCondition(
                             key="search",
@@ -157,8 +157,8 @@ class adapter:
                         )
                     )
 
-            if len(self.g.settings_data['sail_filter_text']) > 0:
-                for word in self.g.settings_data['sail_filter_text'].split(','):
+            if len(self.g.settings_data['sailing']['sail_filter_text']) > 0:
+                for word in self.g.settings_data['sailing']['sail_filter_text'].split(','):
                     must_not.append(
                         FieldCondition(
                             key="search",
@@ -166,9 +166,9 @@ class adapter:
                         )
                     )
 
-        if self.g.settings_data['sail_neg_filter_context']:
-            if len(self.g.settings_data['sail_neg_filter_not_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_not_text'].split(','):
+        if self.g.settings_data['sailing']['sail_neg_filter_context']:
+            if len(self.g.settings_data['sailing']['sail_neg_filter_not_text']) > 0:
+                for word in self.g.settings_data['sailing']['sail_neg_filter_not_text'].split(','):
                     must.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -176,8 +176,8 @@ class adapter:
                         )
                     )
 
-            if len(self.g.settings_data['sail_neg_filter_text']) > 0:
-                for word in self.g.settings_data['sail_neg_filter_text'].split(','):
+            if len(self.g.settings_data['sailing']['sail_neg_filter_text']) > 0:
+                for word in self.g.settings_data['sailing']['sail_neg_filter_text'].split(','):
                     must_not.append(
                         FieldCondition(
                             key="negative_prompt",
@@ -207,11 +207,11 @@ class adapter:
 
         filter = self.get_context_filter()
 
-        if self.g.settings_data['sail_filter_context'] or self.g.settings_data['sail_neg_filter_context']:
+        if self.g.settings_data['sailing']['sail_filter_context'] or self.g.settings_data['sailing']['sail_neg_filter_context']:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                        query_vector=vector,
                                        limit=limit,
-                                       offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit),
+                                       offset=self.g.settings_data['sailing']['sail_depth_preset']+((offset+1)*limit),
                                        query_filter=filter,
                                        search_params=SearchParams(hnsw_ef=128, exact=False),
                                        )
@@ -220,7 +220,7 @@ class adapter:
             result = self.document_store.search(collection_name=self.g.settings_data['collection'],
                                                 query_vector=vector,
                                                 limit=limit,
-                                                offset=self.g.settings_data['sail_depth_preset']+((offset+1)*limit)
+                                                offset=self.g.settings_data['sailing']['sail_depth_preset']+((offset+1)*limit)
                                                 )
         return result
 
@@ -418,7 +418,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         return self.create_completion(prompt)
 
-    def retrieve_llm_completion(self, prompt, keep_sail_text=False):
+    def retrieve_llm_completion(self, prompt, sail_keep_text=False):
 
         self.check_llm_loaded()
 
@@ -427,8 +427,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         context = self.get_context_text(prompt)
         self.g.last_context = context
 
-        if keep_sail_text:
-            prompt = self.prepare_prompt(self.g.settings_data['sail_text'],context)
+        if sail_keep_text:
+            prompt = self.prepare_prompt(self.g.settings_data['sailing']['sail_text'],context)
         else:
             prompt = self.prepare_prompt(prompt,context)
 

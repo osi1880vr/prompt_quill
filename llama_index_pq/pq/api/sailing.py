@@ -58,7 +58,7 @@ class api_sail:
 
         if len(nodes) > 0:
 
-            if self.g.settings_data['sail_target']:
+            if self.g.settings_data['sailing']['sail_target']:
                 node = nodes[len(nodes) - 1]
                 payload = json.loads(node.payload['_node_content'])
                 out = payload['text']
@@ -88,7 +88,7 @@ class api_sail:
             self.api_sail_depth_start = 0
             self.g.api_sail_history = []
             self.api_sail_count = 0
-            self.g.settings_data['sail_text'] = data['query']
+            self.g.settings_data['sailing']['sail_text'] = data['query']
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             self.file_name = f'api_sail_log_{timestamp}.txt'
             self.query_file_name = f'api_sail_query_log_{timestamp}.txt'
@@ -102,8 +102,12 @@ class api_sail:
 
         query = self.last_api_sail_query
 
+        if 'use_all_trip' in data:
+            if data['use_all_trip']:
+                query = data['query']
+
         # if self.g.settings_data['translate']:
-        #    query = self.interface.translate(self.g.settings_data['sail_text'])
+        #    query = self.interface.translate(self.g.settings_data['sailing']['sail_text'])
 
         try:
 
@@ -134,7 +138,7 @@ class api_sail:
             if data['add_style'] is True:
                 prompt = f'{data["style"]}, {prompt}'
 
-            nodes = self.interface.direct_search(self.g.settings_data['sail_text'],
+            nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],
                                                  self.api_sail_depth,
                                                  self.api_sail_count)
             self.api_sail_count += 1

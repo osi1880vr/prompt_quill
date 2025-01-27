@@ -1,5 +1,7 @@
 import json
 import os
+import copy
+
 from settings.defaults import default
 from settings.check_file_name import is_path_exists_or_creatable_portable
 class settings_io:
@@ -15,11 +17,43 @@ class settings_io:
 
     def update_settings_with_defaults(self):
         self.settings['model_list'] = self.default['model_list']
-        self.settings['model_test_dimensions_list'] = self.default['model_test_dimensions_list']
+        self.settings["model_test"]['model_test_dimensions_list'] = self.default["model_test"]['model_test_dimensions_list']
         self.write_settings(self.settings)
+
+
+    def auto_move_sub_objects(self):
+        sub_objects = ["horde", "automa", "sailing", "model_test", "interrogate"]
+        for sub_object in sub_objects:
+            if sub_object not in self.settings:
+                self.settings[sub_object] = {}
+                for key in self.default[sub_object]:
+                    self.settings[sub_object][key] = self.settings[key]
+                    del self.settings[key]
+
+
+    def cleanup_settings(self):
+        settings_keys = copy.deepcopy(self.settings)
+        for key in settings_keys:
+            if key not in self.default:
+                del self.settings[key]
+            else:
+                if type(self.settings[key]) == dict:
+                    sub_keys = copy.deepcopy(self.settings[key])
+                    for sub_key in sub_keys:
+                        if sub_key not in self.default[key]:
+                            del self.settings[key][sub_key]
+
+
+
+
+
+
+
+
 
     def check_missing_seettings(self):
         missing = 0
+        self.auto_move_sub_objects()
         for key in self.default.keys():
             if key not in self.settings:
                 self.settings[key] = self.default[key]
@@ -29,7 +63,7 @@ class settings_io:
                     if subkey not in self.settings[key]:
                         self.settings[key][subkey] = self.default[key][subkey]
                         missing += 1
-
+        self.cleanup_settings()
         if missing != 0:
             self.write_settings(self.settings)
         self.update_settings_with_defaults()
@@ -45,7 +79,7 @@ class settings_io:
 
     def write_settings(self, settings):
         f = open('pq/settings/settings.dat','w')
-        f.write(json.dumps(settings))
+        f.write(json.dumps(settings,indent=4))
         f.close()
 
 

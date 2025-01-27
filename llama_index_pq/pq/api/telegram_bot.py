@@ -32,17 +32,17 @@ class Telegram:
 			prompt = {'prompt':data['query']}
 
 		if data['image_type'] == 'transparent':
-			self.g.settings_data['automa_layerdiffuse_enable'] = True
-			self.g.settings_data["automa_width"] = 1024
-			self.g.settings_data["automa_height"] = 1024
+			self.g.settings_data['automa']['automa_layerdiffuse_enable'] = True
+			self.g.settings_data['automa']["automa_width"] = 1024
+			self.g.settings_data['automa']["automa_height"] = 1024
 		else:
-			self.g.settings_data['automa_layerdiffuse_enable'] = False
-			self.g.settings_data["automa_width"] = data['w']
-			self.g.settings_data["automa_height"] = data['h']
+			self.g.settings_data['automa']['automa_layerdiffuse_enable'] = False
+			self.g.settings_data['automa']["automa_width"] = data['w']
+			self.g.settings_data['automa']["automa_height"] = data['h']
 
-		self.g.settings_data["automa_checkpoint"] = data['model']
-		self.g.settings_data["automa_steps"] = data['steps']
-		self.g.settings_data["automa_cfg_scale"] = data['cfg']
+		self.g.settings_data['automa']["automa_checkpoint"] = data['model']
+		self.g.settings_data['automa']["automa_steps"] = data['steps']
+		self.g.settings_data['automa']["automa_cfg_scale"] = data['cfg']
 
 
 		image = self.automa_gen(prompt['prompt'], self.g.settings_data['negative_prompt'] if data['style'] == '' else data['style_neg_prompt'])

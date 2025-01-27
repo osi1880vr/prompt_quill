@@ -112,35 +112,35 @@ class ui_actions:
 
     
     def set_hordeai_settings(self, api_key, model, sampler, steps, cfg, width, heigth, clipskip):
-        self.g.settings_data['horde_api_key'] = api_key
-        self.g.settings_data['horde_model'] = model
-        self.g.settings_data['horde_sampler'] = sampler
-        self.g.settings_data['horde_steps'] = steps
-        self.g.settings_data['horde_cfg_scale'] = cfg
-        self.g.settings_data['horde_width'] = width
-        self.g.settings_data['horde_height'] = heigth
-        self.g.settings_data['horde_clipskip'] = clipskip
+        self.g.settings_data['horde']['horde_api_key'] = api_key
+        self.g.settings_data['horde']['horde_model'] = model
+        self.g.settings_data['horde']['horde_sampler'] = sampler
+        self.g.settings_data['horde']['horde_steps'] = steps
+        self.g.settings_data['horde']['horde_cfg_scale'] = cfg
+        self.g.settings_data['horde']['horde_width'] = width
+        self.g.settings_data['horde']['horde_height'] = heigth
+        self.g.settings_data['horde']['horde_clipskip'] = clipskip
         self.settings_io.write_settings(self.g.settings_data)
 
     
     def set_automa_settings(self,prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, automa_new_forge, automa_scheduler):
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
-        self.g.settings_data['automa_sampler'] = sampler
-        self.g.settings_data['automa_steps'] = steps
-        self.g.settings_data['automa_cfg_scale'] = cfg
-        self.g.settings_data['automa_width'] = width
-        self.g.settings_data['automa_height'] = heigth
-        self.g.settings_data['automa_batch'] = batch
-        self.g.settings_data['automa_n_iter'] = n_iter
-        self.g.settings_data['automa_url'] = url
-        self.g.settings_data['automa_save'] = save
-        self.g.settings_data['automa_save_on_api_host'] = save_api
-        self.g.settings_data['automa_checkpoint'] = checkpoint
-        self.g.settings_data['automa_vae'] = vae
-        self.g.settings_data['automa_clip_skip'] = clip_skip
-        self.g.settings_data['automa_new_forge'] = automa_new_forge
-        self.g.settings_data['automa_scheduler'] = automa_scheduler
+        self.g.settings_data['automa']['automa_sampler'] = sampler
+        self.g.settings_data['automa']['automa_steps'] = steps
+        self.g.settings_data['automa']['automa_cfg_scale'] = cfg
+        self.g.settings_data['automa']['automa_width'] = width
+        self.g.settings_data['automa']['automa_height'] = heigth
+        self.g.settings_data['automa']['automa_batch'] = batch
+        self.g.settings_data['automa']['automa_n_iter'] = n_iter
+        self.g.settings_data['automa']['automa_url'] = url
+        self.g.settings_data['automa']['automa_save'] = save
+        self.g.settings_data['automa']['automa_save_on_api_host'] = save_api
+        self.g.settings_data['automa']['automa_checkpoint'] = checkpoint
+        self.g.settings_data['automa']['automa_vae'] = vae
+        self.g.settings_data['automa']['automa_clip_skip'] = clip_skip
+        self.g.settings_data['automa']['automa_new_forge'] = automa_new_forge
+        self.g.settings_data['automa']['automa_scheduler'] = automa_scheduler
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -151,13 +151,13 @@ class ui_actions:
                              automa_ad_denoising_strength,
                              automa_ad_clip_skip,
                              automa_ad_confidence):
-        self.g.settings_data['automa_adetailer_enable_1'] = automa_adetailer_enable
-        self.g.settings_data['automa_ad_checkpoint_1'] = automa_ad_checkpoint
-        self.g.settings_data['automa_ad_use_inpaint_width_height_1'] = automa_ad_use_inpaint_width_height
-        self.g.settings_data['automa_ad_model_1'] = automa_ad_model
-        self.g.settings_data['automa_ad_denoising_strength_1'] = automa_ad_denoising_strength
-        self.g.settings_data['automa_ad_clip_skip_1'] = automa_ad_clip_skip
-        self.g.settings_data['automa_ad_confidence_1'] = automa_ad_confidence
+        self.g.settings_data['automa']['automa_adetailer_enable_1'] = automa_adetailer_enable
+        self.g.settings_data['automa']['automa_ad_checkpoint_1'] = automa_ad_checkpoint
+        self.g.settings_data['automa']['automa_ad_use_inpaint_width_height_1'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa']['automa_ad_model_1'] = automa_ad_model
+        self.g.settings_data['automa']['automa_ad_denoising_strength_1'] = automa_ad_denoising_strength
+        self.g.settings_data['automa']['automa_ad_clip_skip_1'] = automa_ad_clip_skip
+        self.g.settings_data['automa']['automa_ad_confidence_1'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer_2(self, automa_adetailer_enable,
@@ -167,13 +167,13 @@ class ui_actions:
                                automa_ad_denoising_strength,
                                automa_ad_clip_skip,
                                automa_ad_confidence):
-        self.g.settings_data['automa_adetailer_enable_2'] = automa_adetailer_enable
-        self.g.settings_data['automa_ad_checkpoint_2'] = automa_ad_checkpoint
-        self.g.settings_data['automa_ad_use_inpaint_width_height_2'] = automa_ad_use_inpaint_width_height
-        self.g.settings_data['automa_ad_model_2'] = automa_ad_model
-        self.g.settings_data['automa_ad_denoising_strength_2'] = automa_ad_denoising_strength
-        self.g.settings_data['automa_ad_clip_skip_2'] = automa_ad_clip_skip
-        self.g.settings_data['automa_ad_confidence_2'] = automa_ad_confidence
+        self.g.settings_data['automa']['automa_adetailer_enable_2'] = automa_adetailer_enable
+        self.g.settings_data['automa']['automa_ad_checkpoint_2'] = automa_ad_checkpoint
+        self.g.settings_data['automa']['automa_ad_use_inpaint_width_height_2'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa']['automa_ad_model_2'] = automa_ad_model
+        self.g.settings_data['automa']['automa_ad_denoising_strength_2'] = automa_ad_denoising_strength
+        self.g.settings_data['automa']['automa_ad_clip_skip_2'] = automa_ad_clip_skip
+        self.g.settings_data['automa']['automa_ad_confidence_2'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer_3(self, automa_adetailer_enable,
@@ -183,13 +183,13 @@ class ui_actions:
                                automa_ad_denoising_strength,
                                automa_ad_clip_skip,
                                automa_ad_confidence):
-        self.g.settings_data['automa_adetailer_enable_3'] = automa_adetailer_enable
-        self.g.settings_data['automa_ad_checkpoint_3'] = automa_ad_checkpoint
-        self.g.settings_data['automa_ad_use_inpaint_width_height_3'] = automa_ad_use_inpaint_width_height
-        self.g.settings_data['automa_ad_model_3'] = automa_ad_model
-        self.g.settings_data['automa_ad_denoising_strength_3'] = automa_ad_denoising_strength
-        self.g.settings_data['automa_ad_clip_skip_3'] = automa_ad_clip_skip
-        self.g.settings_data['automa_ad_confidence_3'] = automa_ad_confidence
+        self.g.settings_data['automa']['automa_adetailer_enable_3'] = automa_adetailer_enable
+        self.g.settings_data['automa']['automa_ad_checkpoint_3'] = automa_ad_checkpoint
+        self.g.settings_data['automa']['automa_ad_use_inpaint_width_height_3'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa']['automa_ad_model_3'] = automa_ad_model
+        self.g.settings_data['automa']['automa_ad_denoising_strength_3'] = automa_ad_denoising_strength
+        self.g.settings_data['automa']['automa_ad_clip_skip_3'] = automa_ad_clip_skip
+        self.g.settings_data['automa']['automa_ad_confidence_3'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_adetailer_4(self, automa_adetailer_enable,
@@ -199,22 +199,22 @@ class ui_actions:
                                automa_ad_denoising_strength,
                                automa_ad_clip_skip,
                                automa_ad_confidence):
-        self.g.settings_data['automa_adetailer_enable_4'] = automa_adetailer_enable
-        self.g.settings_data['automa_ad_checkpoint_4'] = automa_ad_checkpoint
-        self.g.settings_data['automa_ad_use_inpaint_width_height_4'] = automa_ad_use_inpaint_width_height
-        self.g.settings_data['automa_ad_model_4'] = automa_ad_model
-        self.g.settings_data['automa_ad_denoising_strength_4'] = automa_ad_denoising_strength
-        self.g.settings_data['automa_ad_clip_skip_4'] = automa_ad_clip_skip
-        self.g.settings_data['automa_ad_confidence_4'] = automa_ad_confidence
+        self.g.settings_data['automa']['automa_adetailer_enable_4'] = automa_adetailer_enable
+        self.g.settings_data['automa']['automa_ad_checkpoint_4'] = automa_ad_checkpoint
+        self.g.settings_data['automa']['automa_ad_use_inpaint_width_height_4'] = automa_ad_use_inpaint_width_height
+        self.g.settings_data['automa']['automa_ad_model_4'] = automa_ad_model
+        self.g.settings_data['automa']['automa_ad_denoising_strength_4'] = automa_ad_denoising_strength
+        self.g.settings_data['automa']['automa_ad_clip_skip_4'] = automa_ad_clip_skip
+        self.g.settings_data['automa']['automa_ad_confidence_4'] = automa_ad_confidence
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_automa_layerdiffuse(self, automa_layerdiffuse_enable):
-        self.g.settings_data['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
+        self.g.settings_data['automa']['automa_layerdiffuse_enable'] = automa_layerdiffuse_enable
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_sailing_settings(self,
                              sail_text,
-                             keep_sail_text,
+                             sail_keep_text,
                              sail_width,
                              sail_depth,
                              sail_generate,
@@ -253,52 +253,57 @@ class ui_actions:
                              sail_store_folders,
                              sail_depth_preset,
                              sail_scheduler,
-                             sail_unload_llm
+                             sail_unload_llm,
+                             sail_neg_embed,
+                             sail_pos_embed
                              ):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
-        self.g.settings_data['sail_text'] = sail_text
-        self.g.settings_data['keep_sail_text'] = keep_sail_text
-        self.g.settings_data['sail_width'] = sail_width
-        self.g.settings_data['sail_depth'] = sail_depth
-        self.g.settings_data['sail_generate'] = sail_generate
-        self.g.settings_data['sail_summary'] = sail_summary
-        self.g.settings_data['sail_rephrase'] = sail_rephrase
-        self.g.settings_data['sail_rephrase_prompt'] = sail_rephrase_prompt
-        self.g.settings_data['sail_gen_rephrase'] = sail_gen_rephrase
-        self.g.settings_data['sail_sinus'] = sail_sinus
-        self.g.settings_data['sail_sinus_freq'] = sail_sinus_freq
-        self.g.settings_data['sail_sinus_range'] = sail_sinus_range
-        self.g.settings_data['sail_add_style'] = sail_add_style
-        self.g.settings_data['sail_style'] = sail_style
-        self.g.settings_data['sail_add_search'] = sail_add_search
-        self.g.settings_data['sail_search'] = sail_search
-        self.g.settings_data['sail_max_gallery_size'] = sail_max_gallery_size
-        self.g.settings_data['sail_dyn_neg'] = sail_dyn_neg
-        self.g.settings_data['sail_add_neg'] = sail_add_neg
-        self.g.settings_data['sail_neg_prompt'] = sail_neg_prompt
-        self.g.settings_data['sail_filter_text'] = sail_filter_text
-        self.g.settings_data['sail_filter_not_text'] = sail_filter_not_text
-        self.g.settings_data['sail_filter_context'] = sail_filter_context
-        self.g.settings_data['sail_filter_prompt'] = sail_filter_prompt
-        self.g.settings_data['sail_neg_filter_text'] = sail_neg_filter_text
-        self.g.settings_data['sail_neg_filter_not_text'] = sail_neg_filter_not_text
-        self.g.settings_data['sail_neg_filter_context'] = sail_neg_filter_context
-        self.g.settings_data['automa_alt_vae'] = automa_alt_vae
-        self.g.settings_data['sail_checkpoint'] = sail_checkpoint
-        self.g.settings_data['sail_sampler'] = sail_sampler
-        self.g.settings_data['sail_vae'] = sail_vae
-        self.g.settings_data['sail_dimensions'] = sail_dimensions
-        self.g.settings_data['sail_gen_type'] = sail_gen_type
-        self.g.settings_data['sail_gen_any_combination'] = sail_gen_any_combination
-        self.g.settings_data['sail_gen_steps'] = sail_gen_steps
-        self.g.settings_data['sail_gen_enabled'] = sail_gen_enabled
-        self.g.settings_data['sail_override_settings_restore'] = sail_override_settings_restore
-        self.g.settings_data['sail_store_folders'] = sail_store_folders
-        self.g.settings_data['sail_depth_preset'] = sail_depth_preset
-        self.g.settings_data['sail_scheduler'] = sail_scheduler
-        self.g.settings_data['sail_unload_llm'] = sail_unload_llm
+        self.g.settings_data['sailing']['sail_text'] = sail_text
+        self.g.settings_data['sailing']['sail_keep_text'] = sail_keep_text
+        self.g.settings_data['sailing']['sail_width'] = sail_width
+        self.g.settings_data['sailing']['sail_depth'] = sail_depth
+        self.g.settings_data['sailing']['sail_generate'] = sail_generate
+        self.g.settings_data['sailing']['sail_summary'] = sail_summary
+        self.g.settings_data['sailing']['sail_rephrase'] = sail_rephrase
+        self.g.settings_data['sailing']['sail_rephrase_prompt'] = sail_rephrase_prompt
+        self.g.settings_data['sailing']['sail_gen_rephrase'] = sail_gen_rephrase
+        self.g.settings_data['sailing']['sail_sinus'] = sail_sinus
+        self.g.settings_data['sailing']['sail_sinus_freq'] = sail_sinus_freq
+        self.g.settings_data['sailing']['sail_sinus_range'] = sail_sinus_range
+        self.g.settings_data['sailing']['sail_add_style'] = sail_add_style
+        self.g.settings_data['sailing']['sail_style'] = sail_style
+        self.g.settings_data['sailing']['sail_add_search'] = sail_add_search
+        self.g.settings_data['sailing']['sail_search'] = sail_search
+        self.g.settings_data['sailing']['sail_max_gallery_size'] = sail_max_gallery_size
+        self.g.settings_data['sailing']['sail_dyn_neg'] = sail_dyn_neg
+        self.g.settings_data['sailing']['sail_add_neg'] = sail_add_neg
+        self.g.settings_data['sailing']['sail_neg_prompt'] = sail_neg_prompt
+        self.g.settings_data['sailing']['sail_filter_text'] = sail_filter_text
+        self.g.settings_data['sailing']['sail_filter_not_text'] = sail_filter_not_text
+        self.g.settings_data['sailing']['sail_filter_context'] = sail_filter_context
+        self.g.settings_data['sailing']['sail_filter_prompt'] = sail_filter_prompt
+        self.g.settings_data['sailing']['sail_neg_filter_text'] = sail_neg_filter_text
+        self.g.settings_data['sailing']['sail_neg_filter_not_text'] = sail_neg_filter_not_text
+        self.g.settings_data['sailing']['sail_neg_filter_context'] = sail_neg_filter_context
+        self.g.settings_data['automa']['automa_alt_vae'] = automa_alt_vae
+        self.g.settings_data['sailing']['sail_checkpoint'] = sail_checkpoint
+        self.g.settings_data['sailing']['sail_sampler'] = sail_sampler
+        self.g.settings_data['sailing']['sail_vae'] = sail_vae
+        self.g.settings_data['sailing']['sail_dimensions'] = sail_dimensions
+        self.g.settings_data['sailing']['sail_gen_type'] = sail_gen_type
+        self.g.settings_data['sailing']['sail_gen_any_combination'] = sail_gen_any_combination
+        self.g.settings_data['sailing']['sail_gen_steps'] = sail_gen_steps
+        self.g.settings_data['sailing']['sail_gen_enabled'] = sail_gen_enabled
+        self.g.settings_data['sailing']['sail_override_settings_restore'] = sail_override_settings_restore
+        self.g.settings_data['sailing']['sail_store_folders'] = sail_store_folders
+        self.g.settings_data['sailing']['sail_depth_preset'] = sail_depth_preset
+        self.g.settings_data['sailing']['sail_scheduler'] = sail_scheduler
+        self.g.settings_data['sailing']['sail_unload_llm'] = sail_unload_llm
+        self.g.settings_data['sailing']['sail_pos_embed'] = sail_pos_embed
+        self.g.settings_data['sailing']['sail_neg_embed'] = sail_neg_embed
+
         self.settings_io.write_settings(self.g.settings_data)
 
 
@@ -314,39 +319,39 @@ class ui_actions:
                   molmo_destination_folder_name,
                   molmo_organize_prompt):
 
-        self.g.settings_data['molmo_folder_name'] = molmo_folder_name
-        self.g.settings_data['molmo_file_renamer_prompt'] = molmo_file_renamer_prompt
-        self.g.settings_data['molmo_story_teller_enabled'] = molmo_story_teller_enabled
-        self.g.settings_data['molmo_story_teller_prompt'] = molmo_story_teller_prompt
-        self.g.settings_data['molmo_temperatur'] = molmo_temperatur
-        self.g.settings_data['molmo_max_new_tokens'] = molmo_max_new_tokens
-        self.g.settings_data['molmo_top_k'] = molmo_top_k
-        self.g.settings_data['molmo_top_p'] = molmo_top_p
-        self.g.settings_data['molmo_source_folder_name'] = molmo_source_folder_name
-        self.g.settings_data['molmo_destination_folder_name'] = molmo_destination_folder_name
-        self.g.settings_data['molmo_organize_prompt'] = molmo_organize_prompt
+        self.g.settings_data['interrogate']['molmo_folder_name'] = molmo_folder_name
+        self.g.settings_data['interrogate']['molmo_file_renamer_prompt'] = molmo_file_renamer_prompt
+        self.g.settings_data['interrogate']['molmo_story_teller_enabled'] = molmo_story_teller_enabled
+        self.g.settings_data['interrogate']['molmo_story_teller_prompt'] = molmo_story_teller_prompt
+        self.g.settings_data['interrogate']['molmo_temperatur'] = molmo_temperatur
+        self.g.settings_data['interrogate']['molmo_max_new_tokens'] = molmo_max_new_tokens
+        self.g.settings_data['interrogate']['molmo_top_k'] = molmo_top_k
+        self.g.settings_data['interrogate']['molmo_top_p'] = molmo_top_p
+        self.g.settings_data['interrogate']['molmo_source_folder_name'] = molmo_source_folder_name
+        self.g.settings_data['interrogate']['molmo_destination_folder_name'] = molmo_destination_folder_name
+        self.g.settings_data['interrogate']['molmo_organize_prompt'] = molmo_organize_prompt
 
         self.settings_io.write_settings(self.g.settings_data)
 
     def set_iti(self, iti_folder_name,
                 iti_file_renamer_prompt):
 
-        self.g.settings_data['iti_folder_name'] = iti_folder_name
-        self.g.settings_data['iti_file_renamer_prompt'] = iti_file_renamer_prompt
+        self.g.settings_data['interrogate']['iti_folder_name'] = iti_folder_name
+        self.g.settings_data['interrogate']['iti_file_renamer_prompt'] = iti_file_renamer_prompt
         self.settings_io.write_settings(self.g.settings_data)
 
 
     def moon_set_low_mem(self, value):
-        self.g.settings_data["moon_low_mem"] = value
+        self.g.settings_data['interrogate']["moon_low_mem"] = value
         self.settings_io.write_settings(self.g.settings_data)
         return value,value
 
     def moon_low_mem_llm(self):
-        if self.g.settings_data["moon_low_mem"]:
+        if self.g.settings_data['interrogate']["moon_low_mem"]:
             self.interface.del_llm_model()
 
     def moon_low_mem(self):
-        if self.g.settings_data["moon_low_mem"]:
+        if self.g.settings_data['interrogate']["moon_low_mem"]:
             self.moon_unload()
 
 
@@ -451,7 +456,7 @@ Generate an improved text to image prompt based on the above advice.
     def run_iti(self, root_folder):
         self.g.job_running = True
         process_count = 0
-        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
+        images = deque(maxlen=int(self.g.settings_data['sailing']['sail_max_gallery_size']))
 
         #count = self.molmo.iti.process_folder(file_path)
         self.interface.del_llm_model()
@@ -471,7 +476,7 @@ Generate an improved text to image prompt based on the above advice.
                             print(f'Prompt: {prompt}')
                             self.sail_log = f'{self.sail_log}\n'
 
-                            if self.g.settings_data['sail_generate']:
+                            if self.g.settings_data['sailing']['sail_generate']:
                                 images = self.run_sail_automa_gen(prompt, images)
                                 if len(images) > 0:
                                     yield self.sail_log, list(images),f'{self.images_done} prompts(s) done'
@@ -540,78 +545,78 @@ Generate an improved text to image prompt based on the above advice.
     
     
     def all_get_last_prompt(self):
-        if self.g.settings_data['automa_checkpoints'] == []:
-            self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
-            self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-            self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-            if self.g.settings_data['automa_new_forge']:
-                self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
+        if self.g.settings_data['automa']['automa_checkpoints'] == []:
+            self.g.settings_data['automa']['automa_checkpoints'] = self.get_automa_checkpoints()
+            self.g.settings_data['automa']['automa_samplers'] = self.get_automa_sampler()
+            self.g.settings_data['automa']['automa_vaes'] = self.get_automa_vaes()
+            if self.g.settings_data['automa']['automa_new_forge']:
+                self.g.settings_data['automa']['automa_schedulers'] = self.get_automa_schedulers()
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
-            self.g.settings_data['horde_api_key'], self.g.settings_data['horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data[
-            'horde_steps'], self.g.settings_data['horde_cfg_scale'], self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], \
-            self.g.settings_data['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
-            ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data[
-            'automa_n_iter'], self.g.settings_data['automa_url'], self.g.settings_data['automa_save'], self.g.settings_data[
-            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'
-        ]), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']),self.g.settings_data[
-            'automa_clip_skip'], gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
+            self.g.settings_data['horde']['horde_api_key'], self.g.settings_data['horde']['horde_model'], self.g.settings_data['horde']['horde_sampler'], self.g.settings_data[
+            'horde_steps'], self.g.settings_data['horde']['horde_cfg_scale'], self.g.settings_data['horde']['horde_width'], self.g.settings_data['horde']['horde_height'], \
+            self.g.settings_data['horde']['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler']
+            ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data[
+            'automa_n_iter'], self.g.settings_data['automa']['automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data[
+            'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['automa']['automa_checkpoint'
+        ]), gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_vae']),self.g.settings_data[
+            'automa_clip_skip'], gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
     
     
 
     
     def hordeai_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde_api_key'], self.g.settings_data[
-            'horde_model'], self.g.settings_data['horde_sampler'], self.g.settings_data['horde_steps'], self.g.settings_data['horde_cfg_scale'], \
-            self.g.settings_data['horde_width'], self.g.settings_data['horde_height'], self.g.settings_data['horde_clipskip']
+        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde']['horde_api_key'], self.g.settings_data[
+            'horde_model'], self.g.settings_data['horde']['horde_sampler'], self.g.settings_data['horde']['horde_steps'], self.g.settings_data['horde']['horde_cfg_scale'], \
+            self.g.settings_data['horde']['horde_width'], self.g.settings_data['horde']['horde_height'], self.g.settings_data['horde']['horde_clipskip']
     
     
     def automa_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']
-                                                                          ), self.g.settings_data['automa_steps'], self.g.settings_data['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa_height'], self.g.settings_data['automa_batch'],self.g.settings_data['automa_n_iter'], self.g.settings_data[
-            'automa_url'], self.g.settings_data['automa_save'], self.g.settings_data['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data[
-            'automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
+        return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler']
+                                                                          ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data[
+            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data['automa']['automa_n_iter'], self.g.settings_data[
+            'automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data['automa']['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data[
+            'automa_checkpoint']), gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
     
     
     def get_llm_settings(self):
         return gr.update(choices=self.g.settings_data['collections_list'], value=self.g.settings_data['collection']),self.g.settings_data["LLM Model"], self.g.settings_data["embedding_model"],self.g.settings_data['Temperature'], self.g.settings_data['Context Length'], self.g.settings_data['GPU Layers'], self.g.settings_data['max output Tokens'], self.g.settings_data['top_k']
     
     def get_sailing_settings(self):
-        if self.g.settings_data['automa_checkpoints'] == []:
-            self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
-            self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-            self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        if self.g.settings_data['automa_sampler'] == '':
-            if len(self.g.settings_data['automa_samplers']) > 0:
-                self.g.settings_data['automa_sampler'] = self.g.settings_data['automa_samplers'][0]
-        if self.g.settings_data['automa_checkpoint'] == '':
-            if len(self.g.settings_data['automa_checkpoints']) > 0:
-                self.g.settings_data['automa_checkpoint'] = self.g.settings_data['automa_checkpoints'][0]
-        if self.g.settings_data['automa_vae'] == '':
-            if len(self.g.settings_data['automa_vaes']) > 0:
-                self.g.settings_data['automa_vae'] = self.g.settings_data['automa_vaes'][0]
+        if self.g.settings_data['automa']['automa_checkpoints'] == []:
+            self.g.settings_data['automa']['automa_checkpoints'] = self.get_automa_checkpoints()
+            self.g.settings_data['automa']['automa_samplers'] = self.get_automa_sampler()
+            self.g.settings_data['automa']['automa_vaes'] = self.get_automa_vaes()
+        if self.g.settings_data['automa']['automa_sampler'] == '':
+            if len(self.g.settings_data['automa']['automa_samplers']) > 0:
+                self.g.settings_data['automa']['automa_sampler'] = self.g.settings_data['automa']['automa_samplers'][0]
+        if self.g.settings_data['automa']['automa_checkpoint'] == '':
+            if len(self.g.settings_data['automa']['automa_checkpoints']) > 0:
+                self.g.settings_data['automa']['automa_checkpoint'] = self.g.settings_data['automa']['automa_checkpoints'][0]
+        if self.g.settings_data['automa']['automa_vae'] == '':
+            if len(self.g.settings_data['automa']['automa_vaes']) > 0:
+                self.g.settings_data['automa']['automa_vae'] = self.g.settings_data['automa']['automa_vaes'][0]
 
-        if self.g.settings_data['automa_new_forge']:
-            if self.g.settings_data['automa_scheduler'] == '':
-                if len(self.g.settings_data['automa_schedulers']) > 0:
-                    self.g.settings_data['automa_scheduler'] = self.g.settings_data['automa_schedulers'][0]
-        return self.g.settings_data["sail_text"], self.g.settings_data['sail_width'], self.g.settings_data['sail_depth'
-        ],self.g.settings_data["sail_generate"],self.g.settings_data["sail_summary"
-        ],self.g.settings_data["sail_rephrase"],self.g.settings_data["sail_rephrase_prompt"],self.g.settings_data["sail_gen_rephrase"
-        ],self.g.settings_data["sail_sinus"],self.g.settings_data["sail_sinus_freq"],self.g.settings_data["sail_sinus_range"
-        ],self.g.settings_data["sail_add_style"],self.g.settings_data["sail_style"],self.g.settings_data["sail_add_search"
-        ],self.g.settings_data["sail_search"],self.g.settings_data["sail_max_gallery_size"],self.g.settings_data["sail_filter_text"
-        ],self.g.settings_data["sail_filter_not_text"],self.g.settings_data["sail_filter_context"],self.g.settings_data["sail_filter_prompt"
-        ],self.g.settings_data["sail_neg_filter_text"],self.g.settings_data["sail_neg_filter_not_text"],self.g.settings_data["sail_neg_filter_context"
-        ],gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_alt_vae']),self.g.settings_data["sail_checkpoint"
-        ],self.g.settings_data["sail_sampler"],self.g.settings_data["sail_vae"],self.g.settings_data["sail_dimensions"
-        ],self.g.settings_data["sail_gen_type"],self.g.settings_data["sail_gen_steps"],self.g.settings_data["sail_gen_enabled"
-        ],self.g.settings_data["sail_override_settings_restore"],self.g.settings_data["sail_store_folders"
-        ],self.g.settings_data["sail_depth_preset"],self.g.settings_data['sail_scheduler']
-
+        if self.g.settings_data['automa']['automa_new_forge']:
+            if self.g.settings_data['automa']['automa_scheduler'] == '':
+                if len(self.g.settings_data['automa']['automa_schedulers']) > 0:
+                    self.g.settings_data['automa']['automa_scheduler'] = self.g.settings_data['automa']['automa_schedulers'][0]
+        return self.g.settings_data['sailing']["sail_text"], self.g.settings_data['sailing']['sail_width'], self.g.settings_data['sailing']['sail_depth'
+        ],self.g.settings_data['sailing']["sail_generate"],self.g.settings_data['sailing']["sail_summary"
+        ],self.g.settings_data['sailing']["sail_rephrase"],self.g.settings_data['sailing']["sail_rephrase_prompt"],self.g.settings_data['sailing']["sail_gen_rephrase"
+        ],self.g.settings_data['sailing']["sail_sinus"],self.g.settings_data['sailing']["sail_sinus_freq"],self.g.settings_data['sailing']["sail_sinus_range"
+        ],self.g.settings_data['sailing']["sail_add_style"],self.g.settings_data['sailing']["sail_style"],self.g.settings_data['sailing']["sail_add_search"
+        ],self.g.settings_data['sailing']["sail_search"],self.g.settings_data['sailing']["sail_max_gallery_size"],self.g.settings_data['sailing']["sail_filter_text"
+        ],self.g.settings_data['sailing']["sail_filter_not_text"],self.g.settings_data['sailing']["sail_filter_context"],self.g.settings_data['sailing']["sail_filter_prompt"
+        ],self.g.settings_data['sailing']["sail_neg_filter_text"],self.g.settings_data['sailing']["sail_neg_filter_not_text"],self.g.settings_data['sailing']["sail_neg_filter_context"
+        ],gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_alt_vae']),self.g.settings_data['sailing']["sail_checkpoint"
+        ],self.g.settings_data['sailing']["sail_sampler"],self.g.settings_data['sailing']["sail_vae"],self.g.settings_data['sailing']["sail_dimensions"
+        ],self.g.settings_data['sailing']["sail_gen_type"],self.g.settings_data['sailing']["sail_gen_steps"],self.g.settings_data['sailing']["sail_gen_enabled"
+        ],self.g.settings_data['sailing']["sail_override_settings_restore"],self.g.settings_data['sailing']["sail_store_folders"
+        ],self.g.settings_data['sailing']["sail_depth_preset"],self.g.settings_data['sailing']['sail_scheduler'
+        ],self.g.settings_data['sailing']["sail_neg_embed"],self.g.settings_data['sailing']['sail_pos_embed']
     def get_prompt_template(self):
         self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
         return self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
@@ -651,7 +656,7 @@ Generate an improved text to image prompt based on the above advice.
     
     def run_automatics_generation(self, prompt, negative_prompt, sampler,checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save,save_api,vae,clip_skip, automa_scheduler):
         self.g.running = True
-        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, self.g.settings_data['automa_new_forge'])
+        self.set_automa_settings(prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch,n_iter, url, save, save_api,vae,clip_skip, self.g.settings_data['automa']['automa_new_forge'])
         self.g.last_prompt = prompt
         self.g.last_negative_prompt = negative_prompt
 
@@ -661,8 +666,8 @@ Generate an improved text to image prompt based on the above advice.
             for index, image in enumerate(response.get('images')):
                 img = Image.open(BytesIO(base64.b64decode(image))).convert('RGB')
                 if save:
-                    if self.g.settings_data['sail_store_folders']:
-                        sanitized_model_name = shared.sanitize_path_component(self.g.settings_data['automa_ad_model'])
+                    if self.g.settings_data['sailing']['sail_store_folders']:
+                        sanitized_model_name = shared.sanitize_path_component(self.g.settings_data['automa']['automa_ad_model'])
                         save_path = os.path.join(out_dir_t2i, sanitized_model_name, f'txt2img-{self.timestamp()}-{index}.png')
                     else:
                         save_path = os.path.join(out_dir_t2i, f'txt2img-{self.timestamp()}-{index}.png')
@@ -680,31 +685,31 @@ Generate an improved text to image prompt based on the above advice.
 
 
     def automa_switch_size(self,automa_width,automa_height):
-        self.g.settings_data['automa_width'] = automa_height
-        self.g.settings_data['automa_height'] = automa_width
+        self.g.settings_data['automa']['automa_width'] = automa_height
+        self.g.settings_data['automa']['automa_height'] = automa_width
         return automa_height,automa_width
 
     def automa_refresh(self):
-        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
-        self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-        self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
-        self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['automa_vae']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['automa_scheduler'])
+        self.g.settings_data['automa']['automa_checkpoints'] = self.get_automa_checkpoints()
+        self.g.settings_data['automa']['automa_samplers'] = self.get_automa_sampler()
+        self.g.settings_data['automa']['automa_schedulers'] = self.get_automa_schedulers()
+        self.g.settings_data['automa']['automa_vaes'] = self.get_automa_vaes()
+        return gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler']), gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['automa']['automa_checkpoint']), gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_vae']), gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
 
     def automa_sail_refresh(self):
-        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
-        self.g.settings_data['automa_samplers'] = self.get_automa_sampler()
-        self.g.settings_data['automa_schedulers'] = self.get_automa_schedulers()
-        self.g.settings_data['automa_vaes'] = self.get_automa_vaes()
-        return gr.update(choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['sail_sampler']), gr.update(choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa_vaes'], value=self.g.settings_data['sail_vae']), gr.update(choices=self.g.settings_data['automa_schedulers'], value=self.g.settings_data['sail_scheduler'])
+        self.g.settings_data['automa']['automa_checkpoints'] = self.get_automa_checkpoints()
+        self.g.settings_data['automa']['automa_samplers'] = self.get_automa_sampler()
+        self.g.settings_data['automa']['automa_schedulers'] = self.get_automa_schedulers()
+        self.g.settings_data['automa']['automa_vaes'] = self.get_automa_vaes()
+        return gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['sailing']['sail_sampler']), gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['sailing']['sail_checkpoint']), gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['sailing']['sail_vae']), gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['sailing']['sail_scheduler'])
 
 
     def refresh_adetailer_checkpoints(self):
-        self.g.settings_data['automa_checkpoints'] = self.get_automa_checkpoints()
+        self.g.settings_data['automa']['automa_checkpoints'] = self.get_automa_checkpoints()
         out_array = ['Same']
-        out_array.extend(self.g.settings_data['automa_checkpoints'])
+        out_array.extend(self.g.settings_data['automa']['automa_checkpoints'])
 
-        return gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_1']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_2']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_3']),gr.update(choices=out_array, value=self.g.settings_data['automa_ad_checkpoint_4'])
+        return gr.update(choices=out_array, value=self.g.settings_data['automa']['automa_ad_checkpoint_1']),gr.update(choices=out_array, value=self.g.settings_data['automa']['automa_ad_checkpoint_2']),gr.update(choices=out_array, value=self.g.settings_data['automa']['automa_ad_checkpoint_3']),gr.update(choices=out_array, value=self.g.settings_data['automa']['automa_ad_checkpoint_4'])
 
 
 
@@ -734,37 +739,37 @@ Generate an improved text to image prompt based on the above advice.
 
 
     def get_automa_sampler(self):
-        samplers = self.automa_client.get_samplers(self.g.settings_data['automa_url'])
+        samplers = self.automa_client.get_samplers(self.g.settings_data['automa']['automa_url'])
         if samplers != -1:
-            if self.g.settings_data['automa_sampler'] == '':
-                self.g.settings_data['automa_sampler'] = samplers[0]
+            if self.g.settings_data['automa']['automa_sampler'] == '':
+                self.g.settings_data['automa']['automa_sampler'] = samplers[0]
             return samplers
         else:
             return []
 
     def get_automa_checkpoints(self):
-        checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa_url'])
+        checkpoints = self.automa_client.get_checkpoints(self.g.settings_data['automa']['automa_url'])
         if checkpoints != -1:
-            if self.g.settings_data['automa_checkpoint'] == '':
-                self.g.settings_data['automa_checkpoint'] = checkpoints[0]
+            if self.g.settings_data['automa']['automa_checkpoint'] == '':
+                self.g.settings_data['automa']['automa_checkpoint'] = checkpoints[0]
             return checkpoints
         else:
             return []
 
     def get_automa_schedulers(self):
-        schedulers = self.automa_client.get_schedulers(self.g.settings_data['automa_url'])
+        schedulers = self.automa_client.get_schedulers(self.g.settings_data['automa']['automa_url'])
         if schedulers != -1:
-            if self.g.settings_data['automa_schedulers'] == '':
-                self.g.settings_data['automa_scheduler'] = schedulers[0]
+            if self.g.settings_data['automa']['automa_schedulers'] == '':
+                self.g.settings_data['automa']['automa_scheduler'] = schedulers[0]
             return schedulers
         else:
             return []
 
     def get_automa_vaes(self):
-        vaes = self.automa_client.get_vaes(self.g.settings_data['automa_url'])
+        vaes = self.automa_client.get_vaes(self.g.settings_data['automa']['automa_url'])
         if vaes != -1:
-            if self.g.settings_data['automa_vae'] == '':
-                self.g.settings_data['automa_vae'] = vaes[0]
+            if self.g.settings_data['automa']['automa_vae'] == '':
+                self.g.settings_data['automa']['automa_vae'] = vaes[0]
             return vaes
         else:
             return []
@@ -772,19 +777,19 @@ Generate an improved text to image prompt based on the above advice.
 
     def get_next_target_new(self, nodes):
 
-        if len(nodes) < self.g.settings_data['sail_depth']:
-            self.g.settings_data['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
+        if len(nodes) < self.g.settings_data['sailing']['sail_depth']:
+            self.g.settings_data['sailing']['sail_depth'] = self.sail_depth_start + len(self.g.sail_history)
 
-        if self.g.settings_data['sail_sinus']:
-            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sail_sinus_range'])
-            self.sail_sinus_count += self.g.settings_data['sail_sinus_freq']
-            self.g.settings_data['sail_depth'] += self.sinus
-            if self.g.settings_data['sail_depth'] < 0:
-                self.g.settings_data['sail_depth'] = 1
+        if self.g.settings_data['sailing']['sail_sinus']:
+            self.sinus = int(math.sin(self.sail_sinus_count/10.0)*self.g.settings_data['sailing']['sail_sinus_range'])
+            self.sail_sinus_count += self.g.settings_data['sailing']['sail_sinus_freq']
+            self.g.settings_data['sailing']['sail_depth'] += self.sinus
+            if self.g.settings_data['sailing']['sail_depth'] < 0:
+                self.g.settings_data['sailing']['sail_depth'] = 1
 
         if len(nodes) > 0:
 
-            if self.g.settings_data['sail_target']:
+            if self.g.settings_data['sailing']['sail_target']:
                 node = nodes[len(nodes)-1]
                 payload = json.loads(node.payload['_node_content'])
                 out = payload['text']
@@ -800,19 +805,19 @@ Generate an improved text to image prompt based on the above advice.
             return -1
 
     def check_api_avail(self):
-        return self.automa_client.check_avail(self.g.settings_data['automa_url'])
+        return self.automa_client.check_avail(self.g.settings_data['automa']['automa_url'])
 
     def sail_automa_gen(self, query):
 
         negative_prompt = self.g.settings_data['negative_prompt']
 
-        if self.g.settings_data['sail_dyn_neg']:
+        if self.g.settings_data['sailing']['sail_dyn_neg']:
             if len(self.g.negative_prompt_list) > 0:
                 negative_prompt = shared.get_negative_prompt()
 
 
-        if self.g.settings_data['sail_add_neg']:
-            negative_prompt = f"{self.g.settings_data['sail_neg_embed']},{self.g.settings_data['sail_neg_prompt']}, {negative_prompt}"
+        if self.g.settings_data['sailing']['sail_add_neg']:
+            negative_prompt = f"{self.g.settings_data['sailing']['sail_neg_embed']},{self.g.settings_data['sailing']['sail_neg_prompt']}, {negative_prompt}"
 
         if len(negative_prompt) < 30:
             negative_prompt = self.g.settings_data['negative_prompt']
@@ -826,18 +831,18 @@ Generate an improved text to image prompt based on the above advice.
 
     def log_prompt(self, filename, prompt, orig_prompt, n, sail_log):
 
-        if self.g.settings_data['sail_generate']:
+        if self.g.settings_data['sailing']['sail_generate']:
 
-            if self.g.settings_data['sail_sinus']:
+            if self.g.settings_data['sailing']['sail_sinus']:
                 self.interface.log_raw(filename,f'{prompt} \nsinus {self.sinus} {n} ----------')
-                if self.g.settings_data['sail_rephrase']:
+                if self.g.settings_data['sailing']['sail_rephrase']:
                     self.interface.log_raw(filename,f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------')
                     sail_log = sail_log + f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------\n'
 
                 sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
             else:
                 self.interface.log_raw(filename,f'{prompt}\n{n} ----------')
-                if self.g.settings_data['sail_rephrase']:
+                if self.g.settings_data['sailing']['sail_rephrase']:
                     self.interface.log_raw(filename,f'original prompt: {orig_prompt} \n{n} ----------')
                     sail_log = sail_log + f'original prompt: {orig_prompt}\n{n} ----------\n'
 
@@ -846,7 +851,7 @@ Generate an improved text to image prompt based on the above advice.
         else:
             self.interface.log_raw(filename,prompt.replace('\n','').strip())
 
-            if self.g.settings_data['sail_rephrase']:
+            if self.g.settings_data['sailing']['sail_rephrase']:
                 sail_log = sail_log + f'original prompt: {orig_prompt} \nsinus {self.sinus} {n} ----------\n'
             sail_log = sail_log + f'{prompt} \nsinus {self.sinus} {n} ----------\n'
 
@@ -856,23 +861,23 @@ Generate an improved text to image prompt based on the above advice.
 
     def run_sail_automa_gen(self, prompt, images,folder=None):
 
-        if self.g.settings_data['sail_gen_enabled']:
+        if self.g.settings_data['sailing']['sail_gen_enabled']:
             if folder != None:
                 folder = shared.sanitize_path_component(folder)
-            if self.g.settings_data['sail_unload_llm']:
+            if self.g.settings_data['sailing']['sail_unload_llm']:
                 self.interface.del_llm_model()
 
 
             self.step_gen_data = []
-            gen_array = [self.g.settings_data['sail_dimensions'],
-                         self.g.settings_data['sail_checkpoint'],
-                         self.g.settings_data['sail_sampler'],
-                         self.g.settings_data['sail_vae'],
-                         self.g.settings_data['sail_scheduler'],
+            gen_array = [self.g.settings_data['sailing']['sail_dimensions'],
+                         self.g.settings_data['sailing']['sail_checkpoint'],
+                         self.g.settings_data['sailing']['sail_sampler'],
+                         self.g.settings_data['sailing']['sail_vae'],
+                         self.g.settings_data['sailing']['sail_scheduler'],
                          ]
             combinations = self.prompt_iterator.combine_all_arrays_to_arrays(gen_array)
-            if self.g.settings_data['sail_gen_type'] == 'Linear':
-                if self.gen_step == self.g.settings_data['sail_gen_steps']:
+            if self.g.settings_data['sailing']['sail_gen_type'] == 'Linear':
+                if self.gen_step == self.g.settings_data['sailing']['sail_gen_steps']:
                     self.gen_step_select += 1
                     if self.gen_step_select > len(combinations)-1:
                         self.gen_step_select = 0
@@ -882,18 +887,18 @@ Generate an improved text to image prompt based on the above advice.
                 step_gen_data = combinations[random.randint(0, len(combinations)-1)]
             self.gen_step += 1
             if len(step_gen_data) > 0:
-                self.g.settings_data['automa_width'] = step_gen_data[0].split(',')[0]
-                self.g.settings_data['automa_height'] = step_gen_data[0].split(',')[1]
-                self.g.settings_data['automa_checkpoint'] = step_gen_data[1]
-                self.g.settings_data['automa_sampler'] = step_gen_data[2]
-                self.g.settings_data['automa_vae'] = step_gen_data[3]
-                self.g.settings_data['automa_scheduler'] = step_gen_data[4]
+                self.g.settings_data['automa']['automa_width'] = step_gen_data[0].split(',')[0]
+                self.g.settings_data['automa']['automa_height'] = step_gen_data[0].split(',')[1]
+                self.g.settings_data['automa']['automa_checkpoint'] = step_gen_data[1]
+                self.g.settings_data['automa']['automa_sampler'] = step_gen_data[2]
+                self.g.settings_data['automa']['automa_vae'] = step_gen_data[3]
+                self.g.settings_data['automa']['automa_scheduler'] = step_gen_data[4]
 
-        if folder == None and self.g.settings_data['sail_store_folders']:
-            folder = shared.sanitize_path_component(self.g.settings_data['automa_checkpoint'])
+        if folder == None and self.g.settings_data['sailing']['sail_store_folders']:
+            folder = shared.sanitize_path_component(self.g.settings_data['automa']['automa_checkpoint'])
 
         response = self.sail_automa_gen(prompt)
-        if self.g.settings_data['sail_unload_llm']:
+        if self.g.settings_data['sailing']['sail_unload_llm']:
             self.automa_client.unload_checkpoint()
 
         if response != '':
@@ -1012,17 +1017,17 @@ Generate an improved text to image prompt based on the above advice.
         # Return the processed string
         return result.strip()  # Also remove leading/trailing spaces from the whole string
 
-    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=False, retry_count=0):
+    def get_new_prompt(self,query,n,prompt_discard_count,sail_steps,filename, sail_keep_text=False, retry_count=0):
         prompt = ''
 
         query = self.prepare_query(query)
-        if self.g.settings_data['sail_filter_prompt']:
+        if self.g.settings_data['sailing']['sail_filter_prompt']:
             while 1:
 
                 if self.g.job_running is False:
                     break
 
-                prompt = self.interface.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
+                prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
 
                 filtered = shared.check_filtered(query)
 
@@ -1030,37 +1035,38 @@ Generate an improved text to image prompt based on the above advice.
                     self.g.sail_history.append(prompt)
                     break
                 n += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 prompt_discard_count += 1
                 sail_steps += 1
 
         else:
-            prompt = self.interface.retrieve_llm_completion(query, keep_sail_text=keep_sail_text)
+            prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
 
         prompt = shared.clean_llm_artefacts(prompt)
 
 
-        if self.g.settings_data['sail_summary']:
+        if self.g.settings_data['sailing']['sail_summary']:
             prompt = extractive_summary(prompt)
 
         orig_prompt = prompt
-        if self.g.settings_data['sail_rephrase']:
-            prompt = self.interface.rephrase(prompt, self.g.settings_data['sail_rephrase_prompt'])
+        if self.g.settings_data['sailing']['sail_rephrase']:
+            prompt = self.interface.rephrase(prompt, self.g.settings_data['sailing']['sail_rephrase_prompt'])
 
-        if self.g.settings_data['sail_add_style']:
-            style_prompt = self.process_prompt_arrays(self.g.settings_data["sail_style"])
-            prompt = f'{self.g.settings_data["sail_pos_embed"]}, {style_prompt}, {prompt}'
-            orig_prompt = f'{self.g.settings_data["sail_pos_embed"]}, {style_prompt}, {orig_prompt}'
+        style_prompt = ''
+        if self.g.settings_data['sailing']['sail_add_style']:
+            style_prompt = self.process_prompt_arrays(self.g.settings_data['sailing']["sail_style"])
+            prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {prompt}'
+            orig_prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {orig_prompt}'
 
 
-        if prompt == '' or len(prompt) < 10 and retry_count < 10:
+        if prompt == '' or len(prompt) < 10 + (len(style_prompt) + len(self.g.settings_data['sailing']["sail_pos_embed"])) and retry_count < 10:
             print(f'empty or to short prompt will retry {10-retry_count} times, each retry fetches a new query and so dives deeper into the data')
             n = n + 1
             retry_count = retry_count + 1
-            new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+            new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
             query = self.get_next_target_new(new_nodes)
-            return self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=keep_sail_text,retry_count=retry_count)
+            return self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, sail_keep_text=sail_keep_text,retry_count=retry_count)
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
 
@@ -1068,8 +1074,8 @@ Generate an improved text to image prompt based on the above advice.
 
 
     def prepare_query(self,query):
-        if self.g.settings_data['sail_add_search']:
-            query = f'{self.g.settings_data["sail_search"]}, {query}'
+        if self.g.settings_data['sailing']['sail_add_search']:
+            query = f'{self.g.settings_data["sailing"]["sail_search"]}, {query}'
 
         if len(query) > 1000:
             query = extractive_summary(query,num_sentences=2)
@@ -1088,29 +1094,29 @@ Generate an improved text to image prompt based on the above advice.
 
 
     def check_black_images(self, prompt, images, filename):
-        checkimages = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
+        checkimages = deque(maxlen=int(self.g.settings_data['sailing']['sail_max_gallery_size']))
 
-        batch = self.g.settings_data['automa_batch']
-        iter = self.g.settings_data['automa_n_iter']
-        vae = self.g.settings_data['automa_vae']
+        batch = self.g.settings_data['automa']['automa_batch']
+        iter = self.g.settings_data['automa']['automa_n_iter']
+        vae = self.g.settings_data['automa']['automa_vae']
 
-        self.g.settings_data['automa_batch'] = 1
-        self.g.settings_data['automa_n_iter'] = 1
+        self.g.settings_data['automa']['automa_batch'] = 1
+        self.g.settings_data['automa']['automa_n_iter'] = 1
 
         for image in list(images):
 
             if shared.is_image_black(image):
                 self.log_prompt(filename, prompt, self.g.act_neg_prompt, 0, '')
-                self.g.settings_data['automa_vae']  = self.g.settings_data['automa_alt_vae']
+                self.g.settings_data['automa']['automa_vae']  = self.g.settings_data['automa']['automa_alt_vae']
                 images = self.run_sail_automa_gen(prompt, [])
-                self.g.settings_data['automa_vae'] = vae
+                self.g.settings_data['automa']['automa_vae'] = vae
                 checkimages = self.run_sail_automa_gen(prompt, checkimages)
             else:
                 checkimages.append(image)
 
-        self.g.settings_data['automa_vae']  = vae
-        self.g.settings_data['automa_batch'] = batch
-        self.g.settings_data['automa_n_iter'] = iter
+        self.g.settings_data['automa']['automa_vae']  = vae
+        self.g.settings_data['automa']['automa_batch'] = batch
+        self.g.settings_data['automa']['automa_n_iter'] = iter
 
         return checkimages
 
@@ -1120,7 +1126,7 @@ Generate an improved text to image prompt based on the above advice.
         self.g.job_running = True
         filename = os.path.join(out_dir_t2t, f'model_test_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
-        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
+        images = deque(maxlen=int(self.g.settings_data['sailing']['sail_max_gallery_size']))
 
         yield [], 'Preparing the test data'
 
@@ -1128,10 +1134,10 @@ Generate an improved text to image prompt based on the above advice.
 
         n = 0
 
-        automa_steps = self.g.settings_data["automa_steps"]
-        automa_width = self.g.settings_data["automa_width"]
-        automa_height = self.g.settings_data["automa_height"]
-        automa_CFG = self.g.settings_data["automa_cfg_scale"]
+        automa_steps = self.g.settings_data['automa']["automa_steps"]
+        automa_width = self.g.settings_data['automa']["automa_width"]
+        automa_height = self.g.settings_data['automa']["automa_height"]
+        automa_CFG = self.g.settings_data['automa']["automa_cfg_scale"]
 
 
         if len(combinations) > 0:
@@ -1139,10 +1145,10 @@ Generate an improved text to image prompt based on the above advice.
             self.images_done = 0
             for test_query in combinations:
 
-                self.g.settings_data["automa_steps"] = test_query[0][0]
-                self.g.settings_data["automa_width"] = test_query[0][1].split(',')[0]
-                self.g.settings_data["automa_height"] = test_query[0][1].split(',')[1]
-                self.g.settings_data["automa_cfg_scale"] = test_query[0][2]
+                self.g.settings_data['automa']["automa_steps"] = test_query[0][0]
+                self.g.settings_data['automa']["automa_width"] = test_query[0][1].split(',')[0]
+                self.g.settings_data['automa']["automa_height"] = test_query[0][1].split(',')[1]
+                self.g.settings_data['automa']["automa_cfg_scale"] = test_query[0][2]
 
                 prompt = self.get_new_model_test_prompt(test_query[1])
 
@@ -1160,10 +1166,10 @@ Generate an improved text to image prompt based on the above advice.
         else:
             yield [],f'Nothing to do'
 
-        self.g.settings_data["automa_steps"] = automa_steps
-        self.g.settings_data["automa_width"] = automa_width
-        self.g.settings_data["automa_height"] = automa_height
-        self.g.settings_data["automa_cfg_scale"] = automa_CFG
+        self.g.settings_data['automa']["automa_steps"] = automa_steps
+        self.g.settings_data['automa']["automa_width"] = automa_width
+        self.g.settings_data['automa']["automa_height"] = automa_height
+        self.g.settings_data['automa']["automa_cfg_scale"] = automa_CFG
 
 
     def run_t2t_sail(self):
@@ -1211,35 +1217,35 @@ Generate an improved text to image prompt based on the above advice.
         Yields:
             tuple: A tuple containing the accumulated log for the sail and a list of generated images (if any).
         """
-        self.g.settings_data['sail_target'] = True
+        self.g.settings_data['sailing']['sail_target'] = True
         self.g.job_running = True
         self.g.sail_history = []
-        self.sail_depth_start = self.g.settings_data['sail_depth']
+        self.sail_depth_start = self.g.settings_data['sailing']['sail_depth']
         self.sail_sinus_count = 1.0
         self.sinus = 0
         self.sail_log = ''
         self.images_done = 1
         self.g.act_neg_prompt = ''
         self.prompt_array_index = {}
-        query = self.g.settings_data['sail_text']
-        images = deque(maxlen=int(self.g.settings_data['sail_max_gallery_size']))
+        query = self.g.settings_data['sailing']['sail_text']
+        images = deque(maxlen=int(self.g.settings_data['sailing']['sail_max_gallery_size']))
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
         black_images_filename = os.path.join(out_dir_t2t, f'black_images_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
         if self.g.settings_data['translate']:
-            query = self.interface.translate(self.g.settings_data['sail_text'])
+            query = self.interface.translate(self.g.settings_data['sailing']['sail_text'])
 
         prompt_discard_count = 0
         n = 1
-        sail_steps = self.g.settings_data['sail_width']
+        sail_steps = self.g.settings_data['sailing']['sail_width']
 
         context_count = self.get_context_count()
 
-        possible_images = int(context_count / self.g.settings_data['sail_depth'])-int(self.g.settings_data['sail_depth_preset'] / self.g.settings_data['sail_depth'])
+        possible_images = int(context_count / self.g.settings_data['sailing']['sail_depth'])-int(self.g.settings_data['sailing']['sail_depth_preset'] / self.g.settings_data['sailing']['sail_depth'])
 
         yield self.sail_log,[],f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {str(possible_images)} images possible"
         query = self.process_prompt_arrays(query)
-        new_nodes = self.interface.direct_search(query,self.g.settings_data['sail_depth'],0)
+        new_nodes = self.interface.direct_search(query,self.g.settings_data['sailing']['sail_depth'],0)
         query = self.get_next_target_new(new_nodes)
 
         while n < sail_steps+1:
@@ -1250,12 +1256,12 @@ Generate an improved text to image prompt based on the above advice.
                     yield self.sail_log,[],f'Something went wrong, there is no valid query anymore'
                     break
 
-                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, keep_sail_text=self.g.settings_data['keep_sail_text'])
+                prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename, sail_keep_text=self.g.settings_data['sailing']['sail_keep_text'])
 
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
 
-                if self.g.settings_data['sail_generate']:
-                    if self.g.settings_data['sail_gen_rephrase']:
+                if self.g.settings_data['sailing']['sail_generate']:
+                    if self.g.settings_data['sailing']['sail_gen_rephrase']:
                         images = self.run_sail_automa_gen(orig_prompt, images)
                         images = self.check_black_images(prompt,images,black_images_filename)
                         yield self.sail_log,list(images),f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
@@ -1277,7 +1283,7 @@ Generate an improved text to image prompt based on the above advice.
             except Exception as e:
                 n += 1
                 sail_steps += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
@@ -1294,20 +1300,20 @@ Generate an improved text to image prompt based on the above advice.
             stop_reason = 'Finished'
             if self.g.job_running is False:
                 stop_reason = 'Stopped'
-            if self.g.settings_data['sail_generate']:
+            if self.g.settings_data['sailing']['sail_generate']:
                 yield self.sail_log,list(images),f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
             else:
                 yield self.sail_log,[],f'{stop_reason}\n{self.images_done-1} image(s) done\n{prompt_discard_count} prompts filtered'
 
     def run_t2t_show_sail(self):
         self.g.job_running = True
-        self.g.settings_data['automa_batch'] = 1
-        self.g.settings_data['automa_n_iter'] = 1
+        self.g.settings_data['automa']['automa_batch'] = 1
+        self.g.settings_data['automa']['automa_n_iter'] = 1
         self.g.sail_history = []
-        self.sail_depth_start = self.g.settings_data['sail_depth']
+        self.sail_depth_start = self.g.settings_data['sailing']['sail_depth']
         self.sail_sinus_count = 1.0
         sail_log = ''
-        query = self.g.settings_data['sail_text']
+        query = self.g.settings_data['sailing']['sail_text']
 
         filename = os.path.join(out_dir_t2t, f'journey_log_{time.strftime("%Y%m%d-%H%M%S")}.txt')
 
@@ -1317,16 +1323,16 @@ Generate an improved text to image prompt based on the above advice.
 
         prompt_discard_count = 0
         n = 0
-        sail_steps = self.g.settings_data['sail_width']
+        sail_steps = self.g.settings_data['sailing']['sail_width']
         while n < sail_steps:
 
             try:
 
                 prompt,orig_prompt,n,prompt_discard_count,sail_steps = self.get_new_prompt(query,n,prompt_discard_count,sail_steps,filename)
 
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
 
-                if self.g.settings_data['sail_generate']:
+                if self.g.settings_data['sailing']['sail_generate']:
                     response = self.sail_automa_gen(prompt)
                     if response != '':
                         for index, image in enumerate(response.get('images')):
@@ -1345,7 +1351,7 @@ Generate an improved text to image prompt based on the above advice.
                     break
 
             except Exception as e:
-                new_nodes = self.interface.direct_search(self.g.settings_data['sail_text'],self.g.settings_data['sail_depth'],n)
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'],self.g.settings_data['sailing']['sail_depth'],n)
                 query = self.get_next_target_new(new_nodes)
                 print('some error happened: ',str(e))
                 time.sleep(5)
@@ -1450,18 +1456,18 @@ Generate an improved text to image prompt based on the above advice.
                          story_teller_temperature,
                          story_teller_max_tokens):
 
-        self.g.settings_data["story_teller_enabled"] = story_teller_enabled
-        self.g.settings_data["story_teller_seconds_step_enabled"] = story_teller_seconds_step_enabled
-        self.g.settings_data["story_teller_model"] = story_teller_model
-        self.g.settings_data["image_description_model"] = image_description_model
-        self.g.settings_data["image_description_system_context"] = image_description_system_context
-        self.g.settings_data["image_description_prompt"] = image_description_prompt
-        self.g.settings_data["story_teller_system_context"] = story_teller_system_context
-        self.g.settings_data["story_teller_prompt"] = story_teller_prompt
-        self.g.settings_data["story_teller_host"] = story_teller_host
-        self.g.settings_data["story_teller_timeout"] = story_teller_timeout
-        self.g.settings_data["story_teller_temperature"] = story_teller_temperature
-        self.g.settings_data["story_teller_max_tokens"] = story_teller_max_tokens
+        self.g.settings_data['interrogate']["story_teller_enabled"] = story_teller_enabled
+        self.g.settings_data['interrogate']["story_teller_seconds_step_enabled"] = story_teller_seconds_step_enabled
+        self.g.settings_data['interrogate']["story_teller_model"] = story_teller_model
+        self.g.settings_data['interrogate']["image_description_model"] = image_description_model
+        self.g.settings_data['interrogate']["image_description_system_context"] = image_description_system_context
+        self.g.settings_data['interrogate']["image_description_prompt"] = image_description_prompt
+        self.g.settings_data['interrogate']["story_teller_system_context"] = story_teller_system_context
+        self.g.settings_data['interrogate']["story_teller_prompt"] = story_teller_prompt
+        self.g.settings_data['interrogate']["story_teller_host"] = story_teller_host
+        self.g.settings_data['interrogate']["story_teller_timeout"] = story_teller_timeout
+        self.g.settings_data['interrogate']["story_teller_temperature"] = story_teller_temperature
+        self.g.settings_data['interrogate']["story_teller_max_tokens"] = story_teller_max_tokens
 
         self.settings_io.write_settings(self.g.settings_data)
 
@@ -1485,42 +1491,42 @@ class ui_staff:
         self.automa_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
         self.automa_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
 
-        self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde_api_key'], type='password')
-        self.horde_model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde_model'], label='Model')
+        self.horde_api_key = gr.TextArea(lines=1, label="API Key", value=self.g.settings_data['horde']['horde_api_key'], type='password')
+        self.horde_model = gr.Dropdown(choices=self.hordeai_model_list.keys(), value=self.g.settings_data['horde']['horde_model'], label='Model')
         self.horde_sampler = gr.Dropdown(choices=["k_dpmpp_2s_a", "k_lms", "k_heun", "k_heun", "k_euler", "k_euler_a",
                                              "k_dpm_2", "k_dpm_2_a", "k_dpm_fast", "k_dpm_adaptive", "k_dpmpp_2s_a",
                                              "k_dpmpp_2m", "dpmsolver", "k_dpmpp_sde", "lcm", "DDIM"
-                                             ], value=self.g.settings_data['horde_sampler'], label='Sampler')
-        self.horde_steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde_steps'], label="Steps",
+                                             ], value=self.g.settings_data['horde']['horde_sampler'], label='Sampler')
+        self.horde_steps = gr.Slider(0, 100, step=1, value=self.g.settings_data['horde']['horde_steps'], label="Steps",
                                 info="Choose between 1 and 100")
-        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde_cfg_scale'], label="CFG Scale",
+        self.horde_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['horde']['horde_cfg_scale'], label="CFG Scale",
                               info="Choose between 1 and 20")
-        self.horde_width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_width'], label="Width",
+        self.horde_width = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde']['horde_width'], label="Width",
                                 info="Choose between 1 and 2048")
-        self.horde_height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde_height'], label="Height",
+        self.horde_height = gr.Slider(0, 2048, step=1, value=self.g.settings_data['horde']['horde_height'], label="Height",
                                  info="Choose between 1 and 2048")
-        self.horde_clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde_clipskip'], label="Clipskip",
+        self.horde_clipskip = gr.Slider(0, 10, step=1, value=self.g.settings_data['horde']['horde_clipskip'], label="Clipskip",
                                    info="Choose between 1 and 10")
 
-        self.automa_url = gr.TextArea(lines=1, label="API URL", value=self.g.settings_data['automa_url'])
+        self.automa_url = gr.TextArea(lines=1, label="API URL", value=self.g.settings_data['automa']['automa_url'])
         self.automa_sampler = gr.Dropdown(
-            choices=self.g.settings_data['automa_samplers'], value=self.g.settings_data['automa_sampler'], label='Sampler')
+            choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler'], label='Sampler')
         self.automa_checkpoint = gr.Dropdown(
-            choices=self.g.settings_data['automa_checkpoints'], value=self.g.settings_data['automa_checkpoint'], label='Checkpoint')
-        self.automa_steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa_steps'], label="Steps",
+            choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['automa']['automa_checkpoint'], label='Checkpoint')
+        self.automa_steps = gr.Slider(1, 100, step=1, value=self.g.settings_data['automa']['automa_steps'], label="Steps",
                                  info="Choose between 1 and 100")
-        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa_cfg_scale'], label="CFG Scale",
+        self.automa_CFG = gr.Slider(0, 20, step=0.1, value=self.g.settings_data['automa']['automa_cfg_scale'], label="CFG Scale",
                                info="Choose between 1 and 20")
-        self.automa_width = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_width'], label="Width",
+        self.automa_width = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa']['automa_width'], label="Width",
                                  info="Choose between 1 and 2048")
-        self.automa_height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa_height'], label="Height",
+        self.automa_height = gr.Slider(1, 2048, step=1, value=self.g.settings_data['automa']['automa_height'], label="Height",
                                   info="Choose between 1 and 2048")
-        self.automa_Batch = gr.Slider(1, 250, step=1, value=self.g.settings_data['automa_batch'], label="Batch",
+        self.automa_Batch = gr.Slider(1, 250, step=1, value=self.g.settings_data['automa']['automa_batch'], label="Batch",
                                        info="The number of simultaneous images in each batch, range from 1-50.")
-        self.automa_n_iter = gr.Slider(1, 500, step=1, value=self.g.settings_data['automa_n_iter'], label="Iterations",
+        self.automa_n_iter = gr.Slider(1, 500, step=1, value=self.g.settings_data['automa']['automa_n_iter'], label="Iterations",
                                       info="The number of sequential batches to be run, range from 1-500.")
-        self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa_save'])
-        self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa_save_on_api_host'])
+        self.automa_save = gr.Checkbox(label="Save", info="Save the image?", value=self.g.settings_data['automa']['automa_save'])
+        self.automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?", value=self.g.settings_data['automa']['automa_save_on_api_host'])
 
         self.automa_stop_button = gr.Button('Stop')
 

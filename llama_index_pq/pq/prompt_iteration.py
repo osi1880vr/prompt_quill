@@ -68,35 +68,35 @@ class prompt_iterator:
 
 	def check_all_keys(self):
 		defaults = settings_io().get_defaults()
-		for key in defaults['model_test_setup']:
+		for key in defaults['model_test']['model_test_setup']:
 			# If key is not in dict1, add it to dict1 with the value from dict2
-			if key not in self.g.settings_data['model_test_setup']:
-				self.g.settings_data['model_test_setup'][key] = defaults['model_test_setup'][key]
+			if key not in self.g.settings_data['model_test']['model_test_setup']:
+				self.g.settings_data['model_test']['model_test_setup'][key] = defaults['model_test']['model_test_setup'][key]
 
 
 	def get_test_data(self):
 		return {
-			'Character': self.g.settings_data['model_test_setup']['Character'],
-			'Air Creatures': self.g.settings_data['model_test_setup']['Air Creatures'],
-			'Land Cratures': self.g.settings_data['model_test_setup']['Land Creatures'],
-			'Sea Creatures': self.g.settings_data['model_test_setup']['Sea Creatures'],
-			'Character Objects': self.g.settings_data['model_test_setup']['Character Objects'],
-			'Character Adjectives': self.g.settings_data['model_test_setup']['Character Adjectives'],
-			'Air Vehicle': self.g.settings_data['model_test_setup']['Air Vehicle'],
-			'Land Vehicle': self.g.settings_data['model_test_setup']['Land Vehicle'],
-			'Sea Vehicle': self.g.settings_data['model_test_setup']['Sea Vehicle'],
-			'Space Vehicle': self.g.settings_data['model_test_setup']['Space Vehicle'],
-			'Moving relation': self.g.settings_data['model_test_setup']['Moving relation'],
-			'Still relation': self.g.settings_data['model_test_setup']['Still relation'],
-			'Object Adjectives': self.g.settings_data['model_test_setup']['Object Adjectives'],
-			'Visual Adjectives': self.g.settings_data['model_test_setup']['Visual Adjectives'],
-			'Visual Qualities': self.g.settings_data['model_test_setup']['Visual Qualities'],
-			'Setup': self.g.settings_data['model_test_setup']['Setup'],
-			'Colors': self.g.settings_data['model_test_setup']['Colors'],
-			'Styles': self.g.settings_data['model_test_setup']['Styles'],
-			'Artists': self.g.settings_data['model_test_setup']['Artists'],
-			'Things': self.g.settings_data['model_test_setup']['Things'],
-			'Celebrities': self.g.settings_data['model_test_setup']['Celebrities'],
+			'Character': self.g.settings_data['model_test']['model_test_setup']['Character'],
+			'Air Creatures': self.g.settings_data['model_test']['model_test_setup']['Air Creatures'],
+			'Land Cratures': self.g.settings_data['model_test']['model_test_setup']['Land Creatures'],
+			'Sea Creatures': self.g.settings_data['model_test']['model_test_setup']['Sea Creatures'],
+			'Character Objects': self.g.settings_data['model_test']['model_test_setup']['Character Objects'],
+			'Character Adjectives': self.g.settings_data['model_test']['model_test_setup']['Character Adjectives'],
+			'Air Vehicle': self.g.settings_data['model_test']['model_test_setup']['Air Vehicle'],
+			'Land Vehicle': self.g.settings_data['model_test']['model_test_setup']['Land Vehicle'],
+			'Sea Vehicle': self.g.settings_data['model_test']['model_test_setup']['Sea Vehicle'],
+			'Space Vehicle': self.g.settings_data['model_test']['model_test_setup']['Space Vehicle'],
+			'Moving relation': self.g.settings_data['model_test']['model_test_setup']['Moving relation'],
+			'Still relation': self.g.settings_data['model_test']['model_test_setup']['Still relation'],
+			'Object Adjectives': self.g.settings_data['model_test']['model_test_setup']['Object Adjectives'],
+			'Visual Adjectives': self.g.settings_data['model_test']['model_test_setup']['Visual Adjectives'],
+			'Visual Qualities': self.g.settings_data['model_test']['model_test_setup']['Visual Qualities'],
+			'Setup': self.g.settings_data['model_test']['model_test_setup']['Setup'],
+			'Colors': self.g.settings_data['model_test']['model_test_setup']['Colors'],
+			'Styles': self.g.settings_data['model_test']['model_test_setup']['Styles'],
+			'Artists': self.g.settings_data['model_test']['model_test_setup']['Artists'],
+			'Things': self.g.settings_data['model_test']['model_test_setup']['Things'],
+			'Celebrities': self.g.settings_data['model_test']['model_test_setup']['Celebrities'],
 		}
 
 
@@ -105,7 +105,7 @@ class prompt_iterator:
 		test_data = self.get_test_data()
 
 		test_output = ''
-		for entry in self.g.settings_data['model_test_list']:
+		for entry in self.g.settings_data['model_test']['model_test_list']:
 			test_output = f'{test_output} {test_data[entry][0]}'
 
 		yield test_output, 'OK'
@@ -116,21 +116,21 @@ class prompt_iterator:
 		gen_list_out = []
 		test_data = self.get_test_data()
 
-		gen_list = [self.g.settings_data['model_test_steps'] if len(self.g.settings_data['model_test_steps']) > 0 else [25],
-					self.g.settings_data['model_test_dimensions'] if len(self.g.settings_data['model_test_dimensions']) > 0 else [[1024,1024]],
-					self.g.settings_data['model_test_cfg'] if len(self.g.settings_data['model_test_cfg']) > 0 else [7],
+		gen_list = [self.g.settings_data['model_test']['model_test_steps'] if len(self.g.settings_data['model_test']['model_test_steps']) > 0 else [25],
+					self.g.settings_data['model_test']['model_test_dimensions'] if len(self.g.settings_data['model_test']['model_test_dimensions']) > 0 else [[1024,1024]],
+					self.g.settings_data['model_test']['model_test_cfg'] if len(self.g.settings_data['model_test']['model_test_cfg']) > 0 else [7],
 					]
 		# remove empty arrays
 		gen_list = [sub_array for sub_array in gen_list if sub_array]
 
-		if self.g.settings_data['model_test_gen_type'] == 'Largest List':
+		if self.g.settings_data['model_test']['model_test_gen_type'] == 'Largest List':
 			gen_list_out = self.combine_limited_arrays(gen_list)
-		elif self.g.settings_data['model_test_gen_type'] == 'Full Run':
+		elif self.g.settings_data['model_test']['model_test_gen_type'] == 'Full Run':
 			gen_list_out = self.combine_all_arrays_to_arrays(gen_list)
 
 
-		if self.g.settings_data['model_test_list'] is not None and len(self.g.settings_data['model_test_list']) > 0:
-			for entry in self.g.settings_data['model_test_list']:
+		if self.g.settings_data['model_test']['model_test_list'] is not None and len(self.g.settings_data['model_test']['model_test_list']) > 0:
+			for entry in self.g.settings_data['model_test']['model_test_list']:
 				if entry == 'Artists':
 					artist_array = list(map(lambda s: 'in the style of ' + s, test_data[entry]))
 					work_list.append(artist_array)
@@ -140,9 +140,9 @@ class prompt_iterator:
 			# remove empty arrays
 			work_list = [sub_array for sub_array in work_list if sub_array]
 
-			if self.g.settings_data['model_test_type'] == 'Largest List':
+			if self.g.settings_data['model_test']['model_test_type'] == 'Largest List':
 				work_list = self.combine_limited(work_list)
-			elif self.g.settings_data['model_test_type'] == 'Full Run':
+			elif self.g.settings_data['model_test']['model_test_type'] == 'Full Run':
 				work_list = self.combine_all_arrays_to_strings(work_list)
 
 
@@ -172,12 +172,12 @@ class prompt_iterator:
 					   model_test_dimensions,
 					   model_test_gen_type,
 					   model_test_cfg):
-		self.g.settings_data['model_test_list'] = model_test_list
-		self.g.settings_data['model_test_type'] = model_test_type
-		self.g.settings_data['model_test_steps'] = model_test_steps
-		self.g.settings_data['model_test_dimensions'] = model_test_dimensions
-		self.g.settings_data['model_test_gen_type'] = model_test_gen_type
-		self.g.settings_data['model_test_cfg'] = model_test_cfg
+		self.g.settings_data['model_test']['model_test_list'] = model_test_list
+		self.g.settings_data['model_test']['model_test_type'] = model_test_type
+		self.g.settings_data['model_test']['model_test_steps'] = model_test_steps
+		self.g.settings_data['model_test']['model_test_dimensions'] = model_test_dimensions
+		self.g.settings_data['model_test']['model_test_gen_type'] = model_test_gen_type
+		self.g.settings_data['model_test']['model_test_cfg'] = model_test_cfg
 		self.g.settings_data['prompt_templates']['model_test_instruction'] = model_test_inst_prompt
 		settings_io().write_settings(self.g.settings_data)
 
@@ -192,13 +192,13 @@ class prompt_iterator:
 
 
 		def select_all_dropdown(is_all_selected_value):
-			self.g.settings_data['model_test_setup'][label] = choices
+			self.g.settings_data['model_test']['model_test_setup'][label] = choices
 			settings_io().write_settings(self.g.settings_data)
 			return gr.update(choices=choices, value=choices.copy() if is_all_selected_value else [])
 
 
 		def update_dropdown(dropdown):
-			self.g.settings_data['model_test_setup'][label] = dropdown
+			self.g.settings_data['model_test']['model_test_setup'][label] = dropdown
 			settings_io().write_settings(self.g.settings_data)
 			return gr.update(choices=choices, value=dropdown)
 

@@ -18,8 +18,8 @@ from settings.io import settings_io
 
 g = globals.get_globals()
 g.settings_data = settings_io().load_settings()
-g.settings_data['automa_checkpoints'] = []  # bad hack for now, this should later be updateable via a button
-g.settings_data['automa_samplers'] = []
+g.settings_data['automa']['automa_checkpoints'] = []  # bad hack for now, this should later be updateable via a button
+g.settings_data['automa']['automa_samplers'] = []
 from ui_share import UiShare
 
 
@@ -83,37 +83,37 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab('Main view'):
 				with gr.Row():
 					with gr.Column(scale=3):
-						sail_text = gr.Textbox(g.settings_data['sail_text'],
+						sail_text = gr.Textbox(g.settings_data['sailing']['sail_text'],
 											   label=f'Start your journey with this search. This will be used all along. Change it during sailing to change course.',
 											   placeholder="Where do we set our sails", elem_id='sail-input-text')
-						keep_sail_text = gr.Checkbox(label="Use the input during the whole trip",
+						sail_keep_text = gr.Checkbox(label="Use the input during the whole trip",
 												 info="if set to true there is no dynamic prompting, only the context is changed by the sailing.",
-												 value=g.settings_data['keep_sail_text'])
+												 value=g.settings_data['sailing']['sail_keep_text'])
 						with gr.Row():
-							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_width'],
+							sail_width = gr.Slider(1, 10000, step=1, value=g.settings_data['sailing']['sail_width'],
 												   label="Sail steps", info="Choose between 1 and 10000")
-							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sail_depth'],
+							sail_depth = gr.Slider(1, 10000, step=1, value=g.settings_data['sailing']['sail_depth'],
 												   label="Sail distance", info="Choose between 1 and 10000")
-							sail_depth_preset = gr.Slider(0, 1000000, step=1, value=g.settings_data['sail_depth_preset'],
+							sail_depth_preset = gr.Slider(0, 1000000, step=1, value=g.settings_data['sailing']['sail_depth_preset'],
 												   label="Sail distance preset", info="Choose between 1 and 1000000")
 
 						with gr.Row():
 							sail_sinus = gr.Checkbox(label="Add a sinus to the distance",
 													 info="This will create a sinus wave based movement along the distance.",
-													 value=g.settings_data['sail_sinus'])
-							sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sail_sinus_freq'],
+													 value=g.settings_data['sailing']['sail_sinus'])
+							sail_sinus_freq = gr.Slider(0.1, 10, step=0.1, value=g.settings_data['sailing']['sail_sinus_freq'],
 														label="Sinus Frequency", info="Choose between 0.1 and 10")
-							sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sail_sinus_range'],
+							sail_sinus_range = gr.Slider(1, 500, step=1, value=g.settings_data['sailing']['sail_sinus_range'],
 														 label="Sinus Multiplier", info="Choose between 1 and 500")
 						with gr.Row():
 							sail_generate = gr.Checkbox(label="Generate with A1111 / SD Forge",
 														info="Do you want to directly generate the images?",
-														value=g.settings_data['sail_generate'])
+														value=g.settings_data['sailing']['sail_generate'])
 							sail_unload_llm = gr.Checkbox(label="Unload LLM while generate?",
-														value=g.settings_data['sail_unload_llm'])
+														value=g.settings_data['sailing']['sail_unload_llm'])
 							automa_alt_vae = gr.Dropdown(
-								choices=g.settings_data['automa_vaes'],
-								value=g.settings_data['automa_alt_vae'],
+								choices=g.settings_data['automa']['automa_vaes'],
+								value=g.settings_data['automa']['automa_alt_vae'],
 								label='Alternate VAE for fixing black images')
 					with gr.Column(scale=1):
 						with gr.Row():
@@ -126,7 +126,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 						with gr.Row():
 							sail_max_gallery_size = gr.Slider(1, 500, step=1,
-															  value=g.settings_data['sail_max_gallery_size'],
+															  value=g.settings_data['sailing']['sail_max_gallery_size'],
 															  label="Max Gallery size",
 															  info="Limit the number of images keept in the gallery choose between 1 and 500")
 
@@ -144,28 +144,28 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=1):
 						sail_filter_prompt = gr.Checkbox(label="Filter on prompt Level?",
 														 info="With this you filter entries from the prompt generation. It may lead to long wait time until a prompt will match.",
-														 value=g.settings_data['sail_filter_prompt'])
+														 value=g.settings_data['sailing']['sail_filter_prompt'])
 						sail_filter_context = gr.Checkbox(label="Filter on context Level?",
 														  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
-														  value=g.settings_data['sail_filter_context'])
+														  value=g.settings_data['sailing']['sail_filter_context'])
 
 					with gr.Column(scale=3):
-						sail_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+						sail_filter_text = gr.Textbox(g.settings_data['sailing']['sail_filter_text'],
 													  label=f'List of negative words, words that are not allowed to be in context.',
 													  placeholder="Comma separated list of words you dont want in your prompt")
-						sail_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+						sail_filter_not_text = gr.Textbox(g.settings_data['sailing']['sail_filter_not_text'],
 														  label=f'List of positive words, words that must be in context.',
 														  placeholder="Comma separated list of words that must be part of the prompt")
 				with gr.Row():
 					with gr.Column(scale=1):
 						sail_neg_filter_context = gr.Checkbox(label="Filter on negative prompt context Level?",
 															  info="With this you filter entries from the context prior to prompt generation. It may lead to empty context.",
-															  value=g.settings_data['sail_filter_context'])
+															  value=g.settings_data['sailing']['sail_filter_context'])
 					with gr.Column(scale=3):
-						sail_neg_filter_text = gr.Textbox(g.settings_data['sail_filter_text'],
+						sail_neg_filter_text = gr.Textbox(g.settings_data['sailing']['sail_filter_text'],
 														  label=f'List of negative words, words that are not allowed to be in negative prompt context.',
 														  placeholder="Comma separated list of words you dont want in your negative prompt ")
-						sail_neg_filter_not_text = gr.Textbox(g.settings_data['sail_filter_not_text'],
+						sail_neg_filter_not_text = gr.Textbox(g.settings_data['sailing']['sail_filter_not_text'],
 															  label=f'List of positive words, words that must be in negative prompt context.',
 															  placeholder="Comma separated list of words that must be part of the negative prompt ")
 
@@ -173,55 +173,55 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					with gr.Column(scale=1):
 						sail_add_search = gr.Checkbox(label="Add search specification",
 													  info="Add a text to each vector search.",
-													  value=g.settings_data['sail_add_search'])
+													  value=g.settings_data['sailing']['sail_add_search'])
 					with gr.Column(scale=3):
-						sail_search = gr.Textbox(g.settings_data['sail_search'], label=f'Search Spec',
+						sail_search = gr.Textbox(g.settings_data['sailing']['sail_search'], label=f'Search Spec',
 												 placeholder="Enter your additional search")
 			with gr.Tab('Prompt manipulation'):
 				with gr.Row():
 					sail_dyn_neg = gr.Checkbox(label="Use dynamic Negative Prompt",
 											   info="Uses the negative if we find one, or the default. Be warned this can cause black images or other troubles.",
-											   value=g.settings_data['sail_dyn_neg'])
+											   value=g.settings_data['sailing']['sail_dyn_neg'])
 
 				with gr.Row(equal_height=True):
 					with gr.Column(scale=1):
 						sail_add_neg = gr.Checkbox(label="Add to negative prompt",
 												   info="Add a text to each negative prompt",
-												   value=g.settings_data['sail_add_neg'])
+												   value=g.settings_data['sailing']['sail_add_neg'])
 					with gr.Column(scale=3):
-						sail_neg_prompt = gr.Textbox(g.settings_data['sail_neg_prompt'], label=f'Negative Prompt addon',
+						sail_neg_prompt = gr.Textbox(g.settings_data['sailing']['sail_neg_prompt'], label=f'Negative Prompt addon',
 													 placeholder="Enter your negative prompt addon")
 
 					with gr.Column(scale=3):
-						sail_neg_embed = gr.Textbox(g.settings_data['sail_neg_embed'], label=f'Negative embeddings',
+						sail_neg_embed = gr.Textbox(g.settings_data['sailing']['sail_neg_embed'], label=f'Negative embeddings',
 													 placeholder="Enter your negative prompt embeddings")
 
 				with gr.Row(equal_height=True):
 					with gr.Column(scale=1):
 						sail_add_style = gr.Checkbox(label="Add style specification", info="Add a text to each prompt",
-													 value=g.settings_data['sail_add_style'])
+													 value=g.settings_data['sailing']['sail_add_style'])
 					with gr.Column(scale=3):
-						sail_style = gr.Textbox(g.settings_data['sail_style'], label=f'Style Spec',
+						sail_style = gr.Textbox(g.settings_data['sailing']['sail_style'], label=f'Style Spec',
 												placeholder="Enter your hardcoded style")
 					with gr.Column(scale=3):
-						sail_pos_embed = gr.Textbox(g.settings_data['sail_pos_embed'], label=f'positive embeddings',
+						sail_pos_embed = gr.Textbox(g.settings_data['sailing']['sail_pos_embed'], label=f'positive embeddings',
 												placeholder="Enter your positive embeddings")
 
 				with gr.Row():
 					sail_summary = gr.Checkbox(label="Do summary of LLM prompt",
 											   info="The prompt will get reduced to a summary",
-											   value=g.settings_data['sail_summary'])
+											   value=g.settings_data['sailing']['sail_summary'])
 
 				with gr.Row(equal_height=True):
 					with gr.Column(scale=1):
 						sail_rephrase = gr.Checkbox(label="Rephrase LLM prompt",
 													info="The prompt gets rephrased based on the rephrase prompt",
-													value=g.settings_data['sail_rephrase'])
+													value=g.settings_data['sailing']['sail_rephrase'])
 						sail_gen_rephrase = gr.Checkbox(label="Generate the input Prompt too",
 														info="To see the effect of the rephrasing you can check here to get both prompts generated",
-														value=g.settings_data['sail_gen_rephrase'])
+														value=g.settings_data['sailing']['sail_gen_rephrase'])
 					with gr.Column(scale=3):
-						sail_rephrase_prompt = gr.Textbox(g.settings_data['sail_rephrase_prompt'],
+						sail_rephrase_prompt = gr.Textbox(g.settings_data['sailing']['sail_rephrase_prompt'],
 														  label=f'Rephrase Prompt',
 														  placeholder="Enter your rephrase prompt",
 														  lines=4)
@@ -231,41 +231,41 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						with gr.Row():
 							with gr.Column():
 								sail_gen_enabled = gr.Checkbox(label="Enable generation parameters", info="Enable dynamic generation parameters?",
-														  value=g.settings_data['sail_gen_enabled'])
+														  value=g.settings_data['sailing']['sail_gen_enabled'])
 								sail_override_settings_restore = gr.Checkbox(label="Restore overriden Settings after each image", info="If set to true the Checkpoint and VAE will be set to the settings in SD Forge/Auto1111. It will slow down the process, but might heping with black images.",
-															   value=g.settings_data['sail_override_settings_restore'])
+															   value=g.settings_data['sailing']['sail_override_settings_restore'])
 								sail_store_folders = gr.Checkbox(label="store the images in folders per model?", info="Should the images be stored in different Folders per model?",
-															   value=g.settings_data['sail_store_folders'])
+															   value=g.settings_data['sailing']['sail_store_folders'])
 							with gr.Column():
 								sail_gen_any_combination = gr.Checkbox(label="Generate any combination selected for any single prompt?", info="Should any prompt be generated for any possible combination?",
-																 value=g.settings_data['sail_gen_any_combination'])
+																 value=g.settings_data['sailing']['sail_gen_any_combination'])
 								sail_gen_type = gr.Radio(['Random', 'Linear'],
 														 label='Select type of change, Ranodm or linear after n steps',
-														 value=g.settings_data['sail_gen_type'], interactive=True)
+														 value=g.settings_data['sailing']['sail_gen_type'], interactive=True)
 
-								sail_gen_steps = gr.Slider(1, 100, step=1, value=g.settings_data['sail_gen_steps'],
+								sail_gen_steps = gr.Slider(1, 100, step=1, value=g.settings_data['sailing']['sail_gen_steps'],
 														   label="Steps",
 														   info="Rotate after n steps")
 						with gr.Row():
 							sail_dimensions = ui_code.prompt_iterator.setting_dropdown(label='Dimensions',
-														  choices=g.settings_data['model_test_dimensions_list'],
-														initial_value=g.settings_data['sail_dimensions'])
+														  choices=g.settings_data['model_test']['model_test_dimensions_list'],
+														initial_value=g.settings_data['sailing']['sail_dimensions'])
 						with gr.Row():
 							sail_sampler = ui_code.prompt_iterator.setting_dropdown(
-								choices=g.settings_data['automa_samplers'],
-								initial_value=g.settings_data['sail_sampler'],
+								choices=g.settings_data['automa']['automa_samplers'],
+								initial_value=g.settings_data['sailing']['sail_sampler'],
 								label='Sampler')
 							sail_scheduler = ui_code.prompt_iterator.setting_dropdown(
-								choices=g.settings_data['automa_schedulers'],
-								initial_value=g.settings_data['sail_scheduler'],
+								choices=g.settings_data['automa']['automa_schedulers'],
+								initial_value=g.settings_data['sailing']['sail_scheduler'],
 								label='Scheduler')
 							sail_checkpoint = ui_code.prompt_iterator.setting_dropdown(
-								choices=g.settings_data['automa_checkpoints'],
-								initial_value=g.settings_data['sail_checkpoint'],
+								choices=g.settings_data['automa']['automa_checkpoints'],
+								initial_value=g.settings_data['sailing']['sail_checkpoint'],
 								label='Checkpoint')
 							sail_vae = ui_code.prompt_iterator.setting_dropdown(
-								choices=g.settings_data['automa_vaes'],
-								initial_value=g.settings_data['sail_vae'],
+								choices=g.settings_data['automa']['automa_vaes'],
+								initial_value=g.settings_data['sailing']['sail_vae'],
 								label='VAE')
 
 					with gr.Column(scale=1):
@@ -273,7 +273,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 		gr.on(
 			triggers=[sail_text.change,
-					  keep_sail_text.change,
+					  sail_keep_text.change,
 					  sail_width.change,
 					  sail_depth.change,
 					  sail_generate.change,
@@ -312,11 +312,13 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					  sail_store_folders.change,
 					  sail_depth_preset.change,
 					  sail_scheduler.change,
-					  sail_unload_llm.change
+					  sail_unload_llm.change,
+					  sail_neg_embed.change,
+					  sail_pos_embed.change
 					  ],
 			fn=ui_code.set_sailing_settings,
 			inputs=[sail_text,
-					keep_sail_text,
+					sail_keep_text,
 					sail_width,
 					sail_depth,
 					sail_generate,
@@ -355,7 +357,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					sail_store_folders,
 					sail_depth_preset,
 					sail_scheduler,
-					sail_unload_llm
+					sail_unload_llm,
+					sail_neg_embed,
+					sail_pos_embed
 					],
 			outputs=None)
 
@@ -397,7 +401,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					 sail_override_settings_restore,
 					 sail_store_folders,
 					 sail_depth_preset,
-					 sail_scheduler])
+					 sail_scheduler,
+					 sail_neg_embed,
+					 sail_pos_embed])
 
 
 		gr.on(
@@ -453,59 +459,59 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 						with gr.Row():
 							with gr.Column(scale=2):
 								automa_sampler = gr.Dropdown(
-									choices=g.settings_data['automa_samplers'], value=g.settings_data['automa_sampler'],
+									choices=g.settings_data['automa']['automa_samplers'], value=g.settings_data['automa']['automa_sampler'],
 									label='Sampler')
 							with gr.Column(scale=2):
 								automa_scheduler = gr.Dropdown(
-									choices=g.settings_data['automa_schedulers'], value=g.settings_data['automa_scheduler'],
+									choices=g.settings_data['automa']['automa_schedulers'], value=g.settings_data['automa']['automa_scheduler'],
 									label='Scheduler')
 						with gr.Row():
 							with gr.Column(scale=2):
 								automa_checkpoint = gr.Dropdown(
-									choices=g.settings_data['automa_checkpoints'],
-									value=g.settings_data['automa_checkpoint'],
+									choices=g.settings_data['automa']['automa_checkpoints'],
+									value=g.settings_data['automa']['automa_checkpoint'],
 									label='Checkpoint')
 							with gr.Column(scale=2):
 								automa_vae = gr.Dropdown(
-									choices=g.settings_data['automa_vaes'],
-									value=g.settings_data['automa_vae'],
+									choices=g.settings_data['automa']['automa_vaes'],
+									value=g.settings_data['automa']['automa_vae'],
 									label='VAE')
 
 						with gr.Row():
-							automa_steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa_steps'],
+							automa_steps = gr.Slider(1, 100, step=1, value=g.settings_data['automa']['automa_steps'],
 													 label="Steps",
 													 info="Choose between 1 and 100")
-							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa_cfg_scale'],
+							automa_CFG = gr.Slider(0, 20, step=0.1, value=g.settings_data['automa']['automa_cfg_scale'],
 												   label="CFG Scale",
 												   info="Choose between 1 and 20")
-							automa_clip_skip = gr.Slider(0, 12, step=1, value=g.settings_data['automa_clip_skip'],
+							automa_clip_skip = gr.Slider(0, 12, step=1, value=g.settings_data['automa']['automa_clip_skip'],
 														 label="Clip Skip",
 														 info="Choose between 1 and 12")
 						with gr.Row():
 							with gr.Column(scale=3):
-								automa_width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_width'],
+								automa_width = gr.Slider(1, 2048, step=1, value=g.settings_data['automa']['automa_width'],
 														 label="Width",
 														 info="Choose between 1 and 2048")
-								automa_height = gr.Slider(1, 2048, step=1, value=g.settings_data['automa_height'],
+								automa_height = gr.Slider(1, 2048, step=1, value=g.settings_data['automa']['automa_height'],
 														  label="Height",
 														  info="Choose between 1 and 2048")
 							with gr.Column(scale=0):
 								automa_size_button = gr.Button('Switch size', elem_classes="gr-small-button")
 							with gr.Column(scale=1):
-								automa_Batch = gr.Slider(1, 250, step=1, value=g.settings_data['automa_batch'],
+								automa_Batch = gr.Slider(1, 250, step=1, value=g.settings_data['automa']['automa_batch'],
 														 label="Batch",
 														 info="The number of simultaneous images in each batch, range from 1-250.")
-								automa_n_iter = gr.Slider(1, 500, step=1, value=g.settings_data['automa_n_iter'],
+								automa_n_iter = gr.Slider(1, 500, step=1, value=g.settings_data['automa']['automa_n_iter'],
 														  label="Iterations",
 														  info="The number of sequential batches to be run, range from 1-500.")
 						with gr.Row():
-							automa_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
+							automa_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa']['automa_url'])
 							automa_save = gr.Checkbox(label="Save", info="Save the image?",
-													  value=g.settings_data['automa_save'])
+													  value=g.settings_data['automa']['automa_save'])
 							automa_save_on_api_host = gr.Checkbox(label="Save", info="Save the image on API host?",
-																  value=g.settings_data['automa_save_on_api_host'])
+																  value=g.settings_data['automa']['automa_save_on_api_host'])
 					with gr.Column(scale=1):
-						automa_new_forge = gr.Checkbox(label="enable new Forge API", value=g.settings_data['automa_new_forge'])
+						automa_new_forge = gr.Checkbox(label="enable new Forge API", value=g.settings_data['automa']['automa_new_forge'])
 						automa_refresh_button = gr.Button('Refresh')
 						automa_start_button = gr.Button('Generate')
 						automa_result_images = gr.Gallery(label='output images', )
@@ -578,7 +584,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab('Interrogate') as interrogate:
 				input_image = gr.Image(type='filepath', height=300)
 				output_interrogation = gr.Textbox()
-				interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
+				interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa']['automa_url'])
 				button_interrogate = gr.Button('Interrogate')
 				button_interrogate.click(ui_code.run_automa_interrogation, [input_image, interrogate_url],
 										 output_interrogation)
@@ -589,7 +595,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				output_interrogation = gr.Textbox()
 				with gr.Row():
 					save = gr.Checkbox(label="Save to File", info="Save the whole to a file?", value=True)
-					interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa_url'])
+					interrogate_url = gr.TextArea(lines=1, label="API URL", value=g.settings_data['automa']['automa_url'])
 				button_interrogate = gr.Button('Interrogate')
 				button_interrogate.click(ui_code.run_automa_interrogation_batch,
 										 [input_image_gallery, interrogate_url, save], output_interrogation)
@@ -608,7 +614,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 								ui_share.generate_ad_block(4)
 				with gr.Tab('Layer Diffusion') as layerdiffuse:
 					automa_layerdiffuse_enable = gr.Checkbox(label="Enable Layer Diffusion",
-														  value=g.settings_data['automa_layerdiffuse_enable'])
+														  value=g.settings_data['automa']['automa_layerdiffuse_enable'])
 
 					gr.on(
 						triggers=[automa_layerdiffuse_enable.change],
@@ -663,8 +669,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Tab("File rename"):
 					with gr.Row():
 						with gr.Column(scale=3):
-							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_folder_name'], placeholder="give a path...", scale=3)
-							molmo_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['molmo_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
+							molmo_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['interrogate']['molmo_folder_name'], placeholder="give a path...", scale=3)
+							molmo_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['interrogate']['molmo_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
 
 						with gr.Column(scale=1):
 							molmo_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
@@ -672,7 +678,7 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 							molmo_folder_stop = gr.Button("Stop")
 						with gr.Row():
 							sail_max_gallery_size = gr.Slider(1, 500, step=1,
-															  value=g.settings_data['sail_max_gallery_size'],
+															  value=g.settings_data['sailing']['sail_max_gallery_size'],
 															  label="Max Gallery size",
 															  info="Limit the number of images keept in the gallery choose between 1 and 500")
 						molmo_folder_submit.click(fn=ui_code.molmo_file_rename,
@@ -684,32 +690,32 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 				with gr.Tab("Story Teller"):
 					molmo_story_teller_enabled = gr.Checkbox(label="Enable", info="Enable Story telling?",
-													   value=g.settings_data['molmo_story_teller_enabled'])
+													   value=g.settings_data['interrogate']['molmo_story_teller_enabled'])
 
-					molmo_story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['molmo_story_teller_prompt'], placeholder="Make it tell a story", scale=3)
+					molmo_story_teller_prompt = gr.Textbox(label="Story telling prompt", value=g.settings_data['interrogate']['molmo_story_teller_prompt'], placeholder="Make it tell a story", scale=3)
 				with gr.Tab("Settings"):
-					molmo_temperatur = gr.Slider(0.1, 3, step=0.1, value=g.settings_data['molmo_temperatur'],
+					molmo_temperatur = gr.Slider(0.1, 3, step=0.1, value=g.settings_data['interrogate']['molmo_temperatur'],
 											 label="Temperatur",
 											 info="Choose between 1 and 100")
 
-					molmo_max_new_tokens = gr.Slider(1, 1000, step=1, value=g.settings_data['molmo_max_new_tokens'],
+					molmo_max_new_tokens = gr.Slider(1, 1000, step=1, value=g.settings_data['interrogate']['molmo_max_new_tokens'],
 												 label="Max new Tokens",
 												 info="Choose between 1 and 1000")
 
-					molmo_top_k = gr.Slider(1, 200, step=0.1, value=g.settings_data['molmo_top_k'],
+					molmo_top_k = gr.Slider(1, 200, step=0.1, value=g.settings_data['interrogate']['molmo_top_k'],
 													 label="Top K",
 													 info="Choose between 1 and 200")
 
-					molmo_top_p = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['molmo_top_p'],
+					molmo_top_p = gr.Slider(0.1, 1, step=0.1, value=g.settings_data['interrogate']['molmo_top_p'],
 													 label="Top P",
 													 info="Choose between 0.1 and 1")
 
 			with gr.Tab("File Oranizer"):
 				with gr.Row():
 					with gr.Column(scale=3):
-						molmo_source_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['molmo_source_folder_name'], placeholder="give a path...", scale=3)
-						molmo_destination_folder_name = gr.Textbox(label="Destination categories folder", value=g.settings_data['molmo_destination_folder_name'], placeholder="How to make the filename", scale=3)
-						molmo_organize_prompt = gr.Textbox(label="Prompt for the task", value=g.settings_data['molmo_organize_prompt'], placeholder="How to make the filename", scale=3)
+						molmo_source_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['interrogate']['molmo_source_folder_name'], placeholder="give a path...", scale=3)
+						molmo_destination_folder_name = gr.Textbox(label="Destination categories folder", value=g.settings_data['interrogate']['molmo_destination_folder_name'], placeholder="How to make the filename", scale=3)
+						molmo_organize_prompt = gr.Textbox(label="Prompt for the task", value=g.settings_data['interrogate']['molmo_organize_prompt'], placeholder="How to make the filename", scale=3)
 					with gr.Column(scale=1):
 						molmo_organize_status = gr.Textbox('', label=f'Status', placeholder="status")
 						molmo_organize_submit = gr.Button("Submit")
@@ -754,8 +760,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 			with gr.Tab("Img2Txt2Img"):
 				with gr.Row():
 					with gr.Column(scale=3):
-						iti_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['iti_folder_name'], placeholder="give a path...", scale=3)
-						iti_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['iti_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
+						iti_folder_name = gr.Textbox(label="The path and all its substructures will be processed?'", value=g.settings_data['interrogate']['iti_folder_name'], placeholder="give a path...", scale=3)
+						iti_file_renamer_prompt = gr.Textbox(label="File renamer prompt", value=g.settings_data['interrogate']['iti_file_renamer_prompt'], placeholder="How to make the filename", scale=3)
 
 					with gr.Column(scale=1):
 						iti_folder_status = gr.Textbox('', label=f'Status', placeholder="status")
@@ -807,15 +813,15 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 				with gr.Column(scale=3):
 					model_test_list = gr.Dropdown(label='Select the List(s) you want to use',
 												  choices=ui_code.prompt_iterator.selectors,
-												  multiselect=True, value=g.settings_data['model_test_list'],
+												  multiselect=True, value=g.settings_data['model_test']['model_test_list'],
 												  interactive=True)
 					with gr.Row():
 						model_test_type = gr.Radio(['Largest List', 'Full Run'],
 												   label='Select type of test, Full run may take very long time',
-												   value=g.settings_data['model_test_type'], interactive=True)
+												   value=g.settings_data['model_test']['model_test_type'], interactive=True)
 						model_test_gen_type = gr.Radio(['Largest List', 'Full Run'],
 													   label='Select type of test generation params, Full run may take very long time',
-													   value=g.settings_data['model_test_gen_type'], interactive=True)
+													   value=g.settings_data['model_test']['model_test_gen_type'], interactive=True)
 					model_test_result_images = gr.Gallery(label='output images', height=300, rows=1, columns=6,
 														  format='png')
 					model_test_sample = gr.Textbox(label=f'A sample of your selection', placeholder="Sample", lines=5)
@@ -828,99 +834,99 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					model_test_stop_button = gr.Button('Stop test')
 
 		with gr.Tab('Generation Settings'):
-			model_test_steps = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_steps_list'],
+			model_test_steps = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test']['model_test_steps_list'],
 																		'Steps',
-																		g.settings_data['model_test_steps'])
-			model_test_cfg = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test_cfg_list'], 'CFG',
-																	  g.settings_data['model_test_cfg'])
+																		g.settings_data['model_test']['model_test_steps'])
+			model_test_cfg = ui_code.prompt_iterator.setting_dropdown(g.settings_data['model_test']['model_test_cfg_list'], 'CFG',
+																	  g.settings_data['model_test']['model_test_cfg'])
 			model_test_dimensions = ui_code.prompt_iterator.setting_dropdown(
-				g.settings_data['model_test_dimensions_list'],
+				g.settings_data['model_test']['model_test_dimensions_list'],
 				'Image Dimension',
-				g.settings_data['model_test_dimensions'])
+				g.settings_data['model_test']['model_test_dimensions'])
 
 		with gr.Tab('Characters'):
 			model_test_character = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character, 'Character',
-																		 g.settings_data['model_test_setup'][
+																		 g.settings_data['model_test']['model_test_setup'][
 																			 'Character'])
 
 			model_test_celebrities = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.celebrities,
 																		   'Celebrities',
-																		   g.settings_data['model_test_setup'][
+																		   g.settings_data['model_test']['model_test_setup'][
 																			   'Celebrities'])
 			model_test_creature_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_air,
 																			'Air Creatures',
-																			g.settings_data['model_test_setup'][
+																			g.settings_data['model_test']['model_test_setup'][
 																				'Air Creatures'])
 			model_test_creature_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_land,
 																			 'Land Creatures',
-																			 g.settings_data['model_test_setup'][
+																			 g.settings_data['model_test']['model_test_setup'][
 																				 'Land Creatures'])
 			model_test_creature_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.creature_sea,
 																			'Sea Creatures',
-																			g.settings_data['model_test_setup'][
+																			g.settings_data['model_test']['model_test_setup'][
 																				'Sea Creatures'])
 			model_test_character_objects = ui_code.prompt_iterator.data_dropdown(
 				ui_code.prompt_iterator.character_objects,
 				'Character Objects',
-				g.settings_data['model_test_setup'][
+				g.settings_data['model_test']['model_test_setup'][
 					'Character Objects'])
 			model_test_character_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.character_adj,
 																			 'Character Adjectives',
-																			 g.settings_data['model_test_setup'][
+																			 g.settings_data['model_test']['model_test_setup'][
 																				 'Character Adjectives'])
 
 		with gr.Tab('Vehicles'):
 			model_test_vehicles_air = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_air,
 																			'Air Vehicle',
-																			g.settings_data['model_test_setup'][
+																			g.settings_data['model_test']['model_test_setup'][
 																				'Air Vehicle'])
 			model_test_vehicles_land = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_land,
 																			 'Land Vehicle',
-																			 g.settings_data['model_test_setup'][
+																			 g.settings_data['model_test']['model_test_setup'][
 																				 'Land Vehicle'])
 			model_test_vehicles_sea = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_sea,
 																			'Sea Vehicle',
-																			g.settings_data['model_test_setup'][
+																			g.settings_data['model_test']['model_test_setup'][
 																				'Sea Vehicle'])
 			model_test_vehicles_space = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.vehicles_space,
 																			  'Space Vehicle',
-																			  g.settings_data['model_test_setup'][
+																			  g.settings_data['model_test']['model_test_setup'][
 																				  'Space Vehicle'])
 		with gr.Tab('Relations'):
 			model_test_moving_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.moving_relation,
 																			   'Moving relation',
-																			   g.settings_data['model_test_setup'][
+																			   g.settings_data['model_test']['model_test_setup'][
 																				   'Moving relation'])
 			model_test_still_relation = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.still_relation,
 																			  'Still relation',
-																			  g.settings_data['model_test_setup'][
+																			  g.settings_data['model_test']['model_test_setup'][
 																				  'Still relation'])
 		with gr.Tab('Adjectives'):
 			model_test_object_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.object_adj,
 																		  'Object Adjectives',
-																		  g.settings_data['model_test_setup'][
+																		  g.settings_data['model_test']['model_test_setup'][
 																			  'Object Adjectives'])
 			model_test_visual_adj = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.visual_adj,
 																		  'Visual Adjectives',
-																		  g.settings_data['model_test_setup'][
+																		  g.settings_data['model_test']['model_test_setup'][
 																			  'Visual Adjectives'])
 			model_test_visual_qualities = ui_code.prompt_iterator.data_dropdown(
 				ui_code.prompt_iterator.visual_qualities,
 				'Visual Qualities',
-				g.settings_data['model_test_setup'][
+				g.settings_data['model_test']['model_test_setup'][
 					'Visual Qualities'])
 		with gr.Tab('Settings'):
 			model_test_settings = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.settings, 'Setup',
-																		g.settings_data['model_test_setup']['Setup'])
+																		g.settings_data['model_test']['model_test_setup']['Setup'])
 			model_test_things = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.things, 'Things',
-																	  g.settings_data['model_test_setup']['Things'])
+																	  g.settings_data['model_test']['model_test_setup']['Things'])
 		with gr.Tab('Style'):
 			model_test_colors = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.colors, 'Colors',
-																	  g.settings_data['model_test_setup']['Colors'])
+																	  g.settings_data['model_test']['model_test_setup']['Colors'])
 			model_test_styles = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.styles, 'Styles',
-																	  g.settings_data['model_test_setup']['Styles'])
+																	  g.settings_data['model_test']['model_test_setup']['Styles'])
 			model_test_artists = ui_code.prompt_iterator.data_dropdown(ui_code.prompt_iterator.artists, 'Artists',
-																	   g.settings_data['model_test_setup']['Artists'])
+																	   g.settings_data['model_test']['model_test_setup']['Artists'])
 
 		with gr.Tab('Instruction Prompt'):
 			model_test_inst_prompt = gr.Textbox(label=f'Prompt instruction for Model test',

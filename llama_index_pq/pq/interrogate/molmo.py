@@ -64,7 +64,7 @@ class i2i:
                                     self.sail_log = f'{self.sail_log}\n'
 
 
-                                    if self.parent.g.settings_data['sail_generate']:
+                                    if self.parent.g.settings_data['sailing']['sail_generate']:
                                         response = self.parent.run_sail_automa_gen(prompt)
                                         if response != '':
                                             for index, image in enumerate(response.get('images')):
@@ -117,7 +117,7 @@ class molmo:
 
 
     def reset_temperature(self):
-        self.temperature = self.g.settings_data['molmo_temperature']
+        self.temperature = self.g.settings_data['interrogate']['molmo_temperature']
 
 
     def increase_temperature(self):
@@ -189,12 +189,12 @@ class molmo:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
-        generation_config = GenerationConfig( max_new_tokens=self.g.settings_data['molmo_max_new_tokens'],
+        generation_config = GenerationConfig( max_new_tokens=self.g.settings_data['interrogate']['molmo_max_new_tokens'],
                                               stop_strings="<|endoftext|>",
                                               do_sample=True,
                                               temperature=self.temperature,
-                                              top_k=self.g.settings_data['molmo_top_k'],
-                                              top_p=self.g.settings_data['molmo_top_p'],
+                                              top_k=self.g.settings_data['interrogate']['molmo_top_k'],
+                                              top_p=self.g.settings_data['interrogate']['molmo_top_p'],
                                               )
 
 
@@ -210,7 +210,7 @@ class molmo:
         generated_tokens = output[0, inputs["input_ids"].size(1):]
         generated_text = self.processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-        if self.g.settings_data['molmo_unload_model_after_generation']:
+        if self.g.settings_data['interrogate']['molmo_unload_model_after_generation']:
             self.unload_model()
         return generated_text
 
@@ -258,14 +258,14 @@ class molmo:
 
 
     def get_filename(self, img):
-        filename = self.process_image(img, self.g.settings_data['molmo_file_renamer_prompt']).strip()
+        filename = self.process_image(img, self.g.settings_data['interrogate']['molmo_file_renamer_prompt']).strip()
         filename, ext = os.path.splitext(filename)
         filename = self.clean_filename(filename)
         return filename
 
 
     def story_teller(self, img):
-        story = self.process_image(img, self.g.settings_data['molmo_story_teller_prompt'])
+        story = self.process_image(img, self.g.settings_data['interrogate']['molmo_story_teller_prompt'])
         story = re.sub(r'[^\x00-\x7F]', '', story)
         return story
 
@@ -320,7 +320,7 @@ class molmo:
                                     retry_count += 1
                                     if retry_count > 5:
                                         break
-                            if self.g.settings_data["molmo_story_teller_enabled"]:
+                            if self.g.settings_data['interrogate']["molmo_story_teller_enabled"]:
                                 story = self.story_teller(img)
                                 # Split the file name and extension
                                 name, ext = os.path.splitext(new_file_path)
@@ -344,9 +344,9 @@ class molmo:
 
         prompt = f"Based on the body, the cultural origin of the person, the skin color or any other typical feature you see. if you have to put the image into a single category of out of this list [{categories}] where would you put this. You are creating a technical output so your answer is only one single category." # we dont need a prompt here for captioning
 
-        template = Template(self.g.settings_data["molmo_organize_prompt"])
+        template = Template(self.g.settings_data['interrogate']["molmo_organize_prompt"])
         template.substitute(categories=categories)
-        prompt = template.substitute(categories=categories) #self.g.settings_data["molmo_story_teller_enabled"].format(categories=categories) #f"Here's an image. Choose the best category from the following: [{categories}]. Output the most suitable category and explain why."
+        prompt = template.substitute(categories=categories) #self.g.settings_data['interrogate']["molmo_story_teller_enabled"].format(categories=categories) #f"Here's an image. Choose the best category from the following: [{categories}]. Output the most suitable category and explain why."
 
 
         try:

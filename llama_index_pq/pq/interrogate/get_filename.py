@@ -99,14 +99,14 @@ class OllamaImageDescriber:
     def get_story(self, description):
 
 
-        client = Client(host=self.g.settings_data["story_teller_host"],
-                        timeout=int(self.g.settings_data["story_teller_timeout"]))
+        client = Client(host=self.g.settings_data['interrogate']["story_teller_host"],
+                        timeout=int(self.g.settings_data['interrogate']["story_teller_timeout"]))
 
         ollama_util = OllamaUtil()
 
         models = [model_l['name'] for model_l in client.list()['models']]
 
-        model = self.g.settings_data["story_teller_model"]
+        model = self.g.settings_data['interrogate']["story_teller_model"]
 
 
         if model not in models:
@@ -114,13 +114,13 @@ class OllamaImageDescriber:
             ollama_util.pull_model(model, client)
 
         full_response = client.generate(model=model,
-                                        system=self.g.settings_data["story_teller_system_context"],
-                                        prompt=f'{self.g.settings_data["story_teller_prompt"]} {description}',
+                                        system=self.g.settings_data['interrogate']["story_teller_system_context"],
+                                        prompt=f'{self.g.settings_data["interrogate"]["story_teller_prompt"]} {description}',
                                         keep_alive=-1,
                                         stream=False,
                                         options={
-                                            'num_predict': int(self.g.settings_data["story_teller_max_tokens"]),
-                                            'temperature': float(self.g.settings_data["story_teller_temperature"]),
+                                            'num_predict': int(self.g.settings_data['interrogate']["story_teller_max_tokens"]),
+                                            'temperature': float(self.g.settings_data['interrogate']["story_teller_temperature"]),
                                             'top_k': 40,
                                             'top_p': 0.9,
                                             'repeat_penalty': 1.1,
@@ -150,14 +150,14 @@ class OllamaImageDescriber:
             file.write(single_line_text + '\n')
 
     def ollama_image_describe(self, image_name):
-        client = Client(host=self.g.settings_data["story_teller_host"],
-                        timeout=int(self.g.settings_data["story_teller_timeout"]))
+        client = Client(host=self.g.settings_data['interrogate']["story_teller_host"],
+                        timeout=int(self.g.settings_data['interrogate']["story_teller_timeout"]))
 
         ollama_util = OllamaUtil()
 
         models = [model_l['name'] for model_l in client.list()['models']]
 
-        model = self.g.settings_data["image_description_model"].split(' ')[0].strip()
+        model = self.g.settings_data['interrogate']["image_description_model"].split(' ')[0].strip()
 
         if model not in models:
             print(f"Downloading model: {model}")
@@ -172,14 +172,14 @@ class OllamaImageDescriber:
 
         print('Generating Description from Image')
         full_response = client.generate(model=model,
-                                        system=self.g.settings_data["image_description_system_context"],
-                                        prompt=self.g.settings_data["image_description_prompt"],
+                                        system=self.g.settings_data['interrogate']["image_description_system_context"],
+                                        prompt=self.g.settings_data['interrogate']["image_description_prompt"],
                                         images=images_base64,
                                         keep_alive=-1,
                                         stream=False,
                                         options={
-                                            'num_predict': int(self.g.settings_data["story_teller_max_tokens"]),
-                                            'temperature': float(self.g.settings_data["story_teller_temperature"]),
+                                            'num_predict': int(self.g.settings_data['interrogate']["story_teller_max_tokens"]),
+                                            'temperature': float(self.g.settings_data['interrogate']["story_teller_temperature"]),
                                             'top_k': 40,
                                             'top_p': 0.9,
                                             'repeat_penalty': 1.1,
@@ -190,7 +190,7 @@ class OllamaImageDescriber:
 
         result = full_response['response']
 
-        if self.g.settings_data["story_teller_seconds_step_enabled"]:
+        if self.g.settings_data['interrogate']["story_teller_seconds_step_enabled"]:
             result = self.get_story(result)
         self.write_story_file(result)
         print('Finalized')
@@ -271,7 +271,7 @@ class MoonFilenames:
 
                             # Rename the file to the new unique name
                             os.rename(file_path, new_file_path)
-                            if self.g.settings_data["story_teller_enabled"]:
+                            if self.g.settings_data['interrogate']["story_teller_enabled"]:
                                 story = self.story_teller.ollama_image_describe(new_file_path)
                                 # Split the file name and extension
                                 name, ext = os.path.splitext(new_file_path)

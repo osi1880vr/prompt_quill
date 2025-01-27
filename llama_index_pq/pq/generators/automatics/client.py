@@ -90,28 +90,28 @@ class automa_client:
 
     def get_ad_args(self, number, settings_data):
         args = {
-            'ad_model': settings_data[f'automa_ad_model_{number}'],
+            'ad_model': settings_data['automa'][f'automa_ad_model_{number}'],
             "ad_model_classes": "",
             "ad_tab_enable": True,
-            "ad_prompt": settings_data[f'automa_ad_prompt_{number}'],
-            "ad_negative_prompt": settings_data[f'automa_ad_negative_prompt_{number}'],
-            'ad_use_inpaint_width_height': settings_data[f'automa_ad_use_inpaint_width_height_{number}'],
-            'ad_denoising_strength': settings_data[f'automa_ad_denoising_strength_{number}'],
+            "ad_prompt": settings_data['automa'][f'automa_ad_prompt_{number}'],
+            "ad_negative_prompt": settings_data['automa'][f'automa_ad_negative_prompt_{number}'],
+            'ad_use_inpaint_width_height': settings_data['automa'][f'automa_ad_use_inpaint_width_height_{number}'],
+            'ad_denoising_strength': settings_data['automa'][f'automa_ad_denoising_strength_{number}'],
             "ad_use_clip_skip": True,
-            "ad_clip_skip": settings_data[f'automa_ad_clip_skip_{number}'],
-            "ad_confidence": settings_data[f'automa_ad_confidence_{number}'],
+            "ad_clip_skip": settings_data['automa'][f'automa_ad_clip_skip_{number}'],
+            "ad_confidence": settings_data['automa'][f'automa_ad_confidence_{number}'],
             "ad_use_checkpoint": True,
-            "ad_checkpoint": self.g.settings_data[f'automa_ad_checkpoint_{number}']
+            "ad_checkpoint": self.g.settings_data['automa'][f'automa_ad_checkpoint_{number}']
 
 
-            #"ad_restore_face": settings_data[f'automa_ad_restore_face_{number}'],
+            #"ad_restore_face": settings_data['automa'][f'automa_ad_restore_face_{number}'],
             #"ad_use_steps": False,
-            #"ad_steps": settings_data[f'automa_ad_steps_{number}']
+            #"ad_steps": settings_data['automa'][f'automa_ad_steps_{number}']
         }
 
-        #if settings_data[f'automa_ad_checkpoint_{number}'] != 'Same':
+        #if settings_data['automa'][f'automa_ad_checkpoint_{number}'] != 'Same':
         #    args['ad_use_checkpoint'] = True
-        #    args['ad_checkpoint'] = settings_data[f'automa_ad_checkpoint_{number}']
+        #    args['ad_checkpoint'] = settings_data['automa'][f'automa_ad_checkpoint_{number}']
         #else:
         #    args['ad_use_checkpoint'] = False
 
@@ -123,21 +123,21 @@ class automa_client:
             ADetailer['args'] = [True, False]
         number = 1
         while number <= 4:
-            if settings_data[f'automa_adetailer_enable_{number}']:
+            if settings_data['automa'][f'automa_adetailer_enable_{number}']:
                 ADetailer['args'].append(self.get_ad_args(number, settings_data))
             number += 1
 
         return ADetailer
 
     def request_generation(self,prompt, negative_prompt, settings_data):
-        self.webui_server_url= settings_data["automa_url"]
-        self.save = settings_data["automa_save"]
+        self.webui_server_url= settings_data['automa']["automa_url"]
+        self.save = settings_data['automa']["automa_save"]
 
         ADetailer = self.get_adetailer(settings_data)
         alwayson_scripts = {}
 
         LayerDiffuse = {}
-        if settings_data['automa_layerdiffuse_enable']:
+        if settings_data['automa']['automa_layerdiffuse_enable']:
             LayerDiffuse["args"] = [
                     {
                         #   "(SDXL) Only Generate Transparent Image (Attention Injection)"
@@ -172,40 +172,40 @@ class automa_client:
 
         override_settings= {}
 
-        if settings_data['automa_checkpoint'] != '' and settings_data['automa_checkpoint'] != 'None':
-            override_settings["sd_model_checkpoint"] = settings_data['automa_checkpoint']
+        if settings_data['automa']['automa_checkpoint'] != '' and settings_data['automa']['automa_checkpoint'] != 'None':
+            override_settings["sd_model_checkpoint"] = settings_data['automa']['automa_checkpoint']
 
-        if settings_data['automa_vae'] != '' and settings_data['automa_vae'] != 'None':
-            override_settings["sd_vae"] = settings_data['automa_vae']
+        if settings_data['automa']['automa_vae'] != '' and settings_data['automa']['automa_vae'] != 'None':
+            override_settings["sd_vae"] = settings_data['automa']['automa_vae']
 
-        if settings_data['automa_clip_skip'] > 0:
-            override_settings["CLIP_stop_at_last_layers"] = settings_data['automa_clip_skip']
+        if settings_data['automa']['automa_clip_skip'] > 0:
+            override_settings["CLIP_stop_at_last_layers"] = settings_data['automa']['automa_clip_skip']
 
         payload = {
             "alwayson_scripts": alwayson_scripts,
             "prompt": prompt,  # extra networks also in prompts
             "negative_prompt": negative_prompt,
             "seed": -1,
-            "steps": settings_data["automa_steps"],
-            "width": settings_data["automa_width"],
-            "height": settings_data["automa_height"],
-            "cfg_scale": settings_data["automa_cfg_scale"],
-            "n_iter": settings_data["automa_n_iter"],
-            "batch_size": settings_data["automa_batch"],
-            "save_images":settings_data["automa_save_on_api_host"],
-            "override_settings_restore_afterwards": settings_data['sail_override_settings_restore'],
+            "steps": settings_data['automa']["automa_steps"],
+            "width": settings_data['automa']["automa_width"],
+            "height": settings_data['automa']["automa_height"],
+            "cfg_scale": settings_data['automa']["automa_cfg_scale"],
+            "n_iter": settings_data['automa']["automa_n_iter"],
+            "batch_size": settings_data['automa']["automa_batch"],
+            "save_images":settings_data['automa']["automa_save_on_api_host"],
+            "override_settings_restore_afterwards": settings_data['sailing']['sail_override_settings_restore'],
 
         }
 
-        if settings_data['automa_sampler'] != 'None':
-            payload["sampler_name"] = settings_data['automa_sampler']
+        if settings_data['automa']['automa_sampler'] != 'None':
+            payload["sampler_name"] = settings_data['automa']['automa_sampler']
 
         if override_settings != {}:
             payload["override_settings"] = override_settings
 
         # here we manage to set additional payloads for the new Forges API version
-        if self.g.settings_data['automa_new_forge']:
-            payload["scheduler"] = self.g.settings_data['automa_scheduler']
+        if self.g.settings_data['automa']['automa_new_forge']:
+            payload["scheduler"] = self.g.settings_data['automa']['automa_scheduler']
 
 
         return self.call_txt2img_api(**payload)
@@ -274,7 +274,7 @@ class automa_client:
 
     def get_vaes(self, url):
         self.webui_server_url = url
-        if self.g.settings_data['automa_new_forge']:
+        if self.g.settings_data['automa']['automa_new_forge']:
             vaes = self.get_api_endpoint('sdapi/v1/sd-modules')
         else:
             vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
@@ -289,7 +289,7 @@ class automa_client:
 
     def check_avail(self, url):
         self.webui_server_url = url
-        if self.g.settings_data['automa_new_forge']:
+        if self.g.settings_data['automa']['automa_new_forge']:
             vaes = self.get_api_endpoint('sdapi/v1/sd-modules')
         else:
             vaes = self.get_api_endpoint('sdapi/v1/sd-vae')
