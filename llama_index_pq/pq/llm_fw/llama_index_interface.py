@@ -19,6 +19,10 @@ import json
 import torch
 import random
 import re
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_path" has conflict')
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_url" has conflict')
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_kwargs" has conflict')
 
 from llama_index.core.prompts import PromptTemplate
 from llama_index.llms.llama_cpp import LlamaCPP
@@ -31,11 +35,9 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchText, SearchP
 import qdrant_client
 from settings.io import settings_io
 import shared
-import warnings
 
-warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_path" has conflict')
-warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_url" has conflict')
-warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_kwargs" has conflict')
+
+
 
 
 url = "http://localhost:6333"
