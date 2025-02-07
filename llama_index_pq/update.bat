@@ -22,13 +22,26 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || (
     echo. && echo Miniconda hook not found. Exiting. && exit /b 1
 )
 
-REM Step 3: Install or upgrade dependencies from requirements.txt
+REM Step 3: ask to install torch update
+echo Do you want to install the extra PyTorch update? (yes/no)
+set /p userinput=
+
+if /I "%userinput%"=="yes" (
+    echo Installing extra update...
+    pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
+) else (
+    echo Skipping extra update.
+)
+
+
+REM Step 4: Install or upgrade dependencies from requirements.txt
 echo Installing/upgrading dependencies from requirements.txt...
 pip install --upgrade -r "updates.txt"
 if errorlevel 1 (
     echo Failed to install requirements. Exiting.
     exit /b 1
 )
+
 
 echo Update complete.
 pause
