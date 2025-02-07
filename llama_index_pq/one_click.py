@@ -27,9 +27,9 @@ import shutil
 
 
 # Define the required PyTorch version
-TORCH_VERSION = "2.2.1"
-TORCHVISION_VERSION = "0.17.1"
-TORCHAUDIO_VERSION = "2.2.1"
+TORCH_VERSION = "2.4.1"
+TORCHVISION_VERSION = "0.19.1"
+TORCHAUDIO_VERSION = "2.4.1"
 
 index_url = os.environ.get('INDEX_URL', "")
 python = sys.executable
