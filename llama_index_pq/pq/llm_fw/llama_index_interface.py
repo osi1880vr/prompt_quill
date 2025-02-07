@@ -31,6 +31,11 @@ from qdrant_client.http.models import Filter, FieldCondition, MatchText, SearchP
 import qdrant_client
 from settings.io import settings_io
 import shared
+import warnings
+
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_path" has conflict')
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_url" has conflict')
+warnings.filterwarnings('ignore', category=UserWarning, message='Field "model_kwargs" has conflict')
 
 
 url = "http://localhost:6333"
@@ -257,13 +262,11 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def get_context_text(self, query):
         nodes = self.retrieve_context(query)
         self.prepare_meta_data_from_nodes(nodes)
-        context = ''
         self.g.last_context_list = []
         for node in nodes:
             payload = json.loads(node.payload['_node_content'])
-            context = context + payload['text']
             self.g.last_context_list.append(payload['text'])
-        return [context]
+        return "\n".join(list(set(self.g.last_context_list)))
 
 
     def prepare_meta_data_from_nodes(self, nodes):
@@ -403,6 +406,10 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         gc.collect()
         torch.cuda.empty_cache()
+
+        if '</think>' in output:
+            output = re.sub(r".*?</think>", "", output, flags=re.DOTALL)
+
         return output.strip()
 
     def check_llm_loaded(self):

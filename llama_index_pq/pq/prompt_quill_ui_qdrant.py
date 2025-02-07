@@ -789,9 +789,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 					)
 					iti_folder_submit.click(fn=ui_code.run_iti,
 											inputs=iti_folder_name,
-											outputs=[iti_folder_status,
+											outputs=[iti_result,
 													 iti_result_images,
-													 iti_result])
+													 iti_folder_status])
 					iti_folder_stop.click(fn=ui_code.molmo_file_rename_stop,
 										  inputs=None,
 										  outputs=iti_folder_status)
@@ -1141,9 +1141,9 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 										info="Choose between 1 and 8192")
 					gpu_layers = gr.Slider(0, 1024, step=1, value=g.settings_data['GPU Layers'], label="GPU Layers",
 										   info="Choose between 1 and 1024")
-					max_out_token = gr.Slider(0, 1024, step=1, value=g.settings_data['max output Tokens'],
+					max_out_token = gr.Slider(0, 10240, step=1, value=g.settings_data['max output Tokens'],
 											  label="max output Tokens",
-											  info="Choose between 1 and 1024")
+											  info="Choose between 1 and 10240")
 					top_k = gr.Slider(0, g.settings_data['max_top_k'], step=1, value=g.settings_data['top_k'],
 									  label="how many entrys to be fetched from the vector store",
 									  info="Choose between 1 and 50 be careful not to overload the context window of the LLM")

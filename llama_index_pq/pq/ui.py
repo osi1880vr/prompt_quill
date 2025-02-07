@@ -474,14 +474,14 @@ Generate an improved text to image prompt based on the above advice.
                             print(f'Processing {file_path}')
                             prompt = self.molmo.iti.get_image_prompt(img)  # Assuming get_filename generates a unique base name
                             print(f'Prompt: {prompt}')
-                            self.sail_log = f'{self.sail_log}\n'
+                            self.sail_log = f'{prompt}\n\n{self.sail_log}'
 
                             if self.g.settings_data['sailing']['sail_generate']:
                                 images = self.run_sail_automa_gen(prompt, images)
                                 if len(images) > 0:
                                     yield self.sail_log, list(images),f'{self.images_done} prompts(s) done'
                                 else:
-                                    yield self.sail_log, [] , f'{self.images_done} prompts(s) done'
+                                    yield self.sail_log, [], f'{self.images_done} prompts(s) done'
                             else:
                                 yield self.sail_log, [], f'{self.images_done} prompts(s) done'
 

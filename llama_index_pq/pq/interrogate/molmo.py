@@ -32,7 +32,7 @@ class i2i:
 
     def get_image_prompt(self, img):
 
-        prompt = self.parent.process_image(img, self.parent.g.settings_data['iti_description_prompt']).strip()
+        prompt = self.parent.process_image(img, self.parent.g.settings_data['interrogate']['iti_description_prompt']).strip()
 
         prompt = self.clean_prompt(prompt)
         return prompt
@@ -114,6 +114,7 @@ class molmo:
         self.temperature = None
         self.reset_temperature()
         self.iti = i2i(self)
+        self.processor = None
 
 
     def reset_temperature(self):
@@ -124,11 +125,9 @@ class molmo:
         self.temperature += 0.1
 
     def load_model(self):
-
-        quant_config = BitsAndBytesConfig(load_in_4bit=True)
         self.model_path = snapshot_download(repo_id=self.molmo_model)
         self.processor = AutoProcessor.from_pretrained(self.model_path, **self.arguments)
-        self.model = AutoModelForCausalLM.from_pretrained(self.model_path, quantization_config=quant_config, **self.arguments)
+        self.model = AutoModelForCausalLM.from_pretrained(self.model_path, **self.arguments)
 
 
     def preprocess_image(self, image):

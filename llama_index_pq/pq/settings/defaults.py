@@ -228,6 +228,7 @@ You mix a new prompt based on the context and the query. The query is just addin
         "molmo_organize_prompt":"",
         "iti_folder_name": "",
         "iti_file_renamer_prompt": "",
+        "iti_description_prompt": ""
     },
 
     "embedding_model": "BAAI/bge-base-en-v1.5",
@@ -235,6 +236,22 @@ You mix a new prompt based on the context and the query. The query is just addin
     "selected_template": "prompt_template_a",
     "LLM Model": "TheBloke/Panda-7B-v0.1-GGUF-Q4",
     "model_list": {
+        "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF-Q5":
+            {
+                "name": "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF-Q5",
+                "path": "https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF/resolve/main/DeepSeek-R1-Distill-Qwen-7B-Q5_K_M.gguf",
+                "instruction_start": "### Instruction:\n",
+                "start_pattern": "",
+                "user_pattern": "",
+                "assistant_pattern": "ASSISTANT:",
+                "context_window": 4096,
+                "repo_id":"unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF",
+                "filename":"DeepSeek-R1-Distill-Qwen-7B-Q5_K_M.gguf"
+
+
+
+            },
+
         "TheBloke/Uncensored-Jordan-7B-GGUF-Q4":
             {
                 "name": "TheBloke/Uncensored-Jordan-7B-GGUF-Q4",
@@ -243,7 +260,9 @@ You mix a new prompt based on the context and the query. The query is just addin
                 "start_pattern": "",
                 "user_pattern": "",
                 "assistant_pattern": "ASSISTANT:",
-                "context_window": 4096
+                "context_window": 4096,
+                "repo_id":"TheBloke/Uncensored-Jordan-7B-GGUF",
+                "filename":"uncensored-jordan-7b.Q4_K_M.gguf"
             },
         "TheBloke/Uncensored-Jordan-7B-GGUF-Q5":
             {
