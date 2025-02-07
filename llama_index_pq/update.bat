@@ -23,26 +23,35 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || (
 )
 
 REM Step 3: ask to install torch update
+:ask
 echo Do you want to install the extra PyTorch update? (yes/no)
 set /p userinput=
 
 if /I "%userinput%"=="yes" (
     echo Installing extra update...
     pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
-) else (
-    echo Skipping extra update.
+    goto dependencies
 )
 
+if /I "%userinput%"=="no" (
+    echo Skipping extra update.
+    goto dependencies
+)
 
+echo Invalid input. Please enter "yes" or "no".
+goto ask
+
+:dependencies
 REM Step 4: Install or upgrade dependencies from requirements.txt
 echo Installing/upgrading dependencies from requirements.txt...
 pip install --upgrade -r "updates.txt"
 if errorlevel 1 (
     echo Failed to install requirements. Exiting.
+    pause
     exit /b 1
 )
 
-
+:end
 echo Update complete.
 pause
 exit
