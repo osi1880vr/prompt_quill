@@ -6,17 +6,13 @@ from settings.io import settings_io
 
 
 adetailer_choices = ["face_yolov8n.pt",
+                     "face_yolov8m.pt",
                      "face_yolov8n_v2.pt",
-                     "face_yolov8s.pt",
+                     "face_yolov9c.pt",
                      "hand_yolov8n.pt",
-                     "person_yolov8n-seg.pt",
+                     "hand_yolov8s.pt",
                      "female-breast-v4.7.pt",
-                     "yolov8x-worldv2-seg.pt",
-                     "vagina-v4.1.pt",
-                     "mediapipe_face_full",
-                     "mediapipe_face_short",
-                     "mediapipe_face_mesh",
-                     "mediapipe_face_mesh_eyes_only"]
+                     "vagina-v4.1.pt"]
 
 class UiShare:
 

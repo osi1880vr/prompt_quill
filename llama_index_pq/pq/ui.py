@@ -554,30 +554,30 @@ Generate an improved text to image prompt based on the above advice.
 
 
         return self.g.last_prompt, self.g.last_negative_prompt, \
-            self.g.settings_data['horde']['horde_api_key'], self.g.settings_data['horde']['horde_model'], self.g.settings_data['horde']['horde_sampler'], self.g.settings_data[
+            self.g.settings_data['horde']['horde_api_key'], self.g.settings_data['horde']['horde_model'], self.g.settings_data['horde']['horde_sampler'], self.g.settings_data['horde'][
             'horde_steps'], self.g.settings_data['horde']['horde_cfg_scale'], self.g.settings_data['horde']['horde_width'], self.g.settings_data['horde']['horde_height'], \
             self.g.settings_data['horde']['horde_clipskip'], self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler']
-            ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data[
-            'automa_n_iter'], self.g.settings_data['automa']['automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data[
+            ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data['automa'][
+            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data['automa'][
+            'automa_n_iter'], self.g.settings_data['automa']['automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data['automa'][
             'automa_save_on_api_host'] , gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['automa']['automa_checkpoint'
-        ]), gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_vae']),self.g.settings_data[
+        ]), gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_vae']),self.g.settings_data['automa'][
             'automa_clip_skip'], gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
     
     
 
     
     def hordeai_get_last_prompt(self):
-        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde']['horde_api_key'], self.g.settings_data[
+        return self.g.last_prompt, self.g.last_negative_prompt, self.g.settings_data['horde']['horde_api_key'], self.g.settings_data['horde'][
             'horde_model'], self.g.settings_data['horde']['horde_sampler'], self.g.settings_data['horde']['horde_steps'], self.g.settings_data['horde']['horde_cfg_scale'], \
             self.g.settings_data['horde']['horde_width'], self.g.settings_data['horde']['horde_height'], self.g.settings_data['horde']['horde_clipskip']
     
     
     def automa_get_last_prompt(self):
         return self.g.last_prompt, self.g.last_negative_prompt, gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['automa']['automa_sampler']
-                                                                          ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data[
-            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data['automa']['automa_n_iter'], self.g.settings_data[
-            'automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data['automa']['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data[
+                                                                          ), self.g.settings_data['automa']['automa_steps'], self.g.settings_data['automa']['automa_cfg_scale'], self.g.settings_data['automa'][
+            'automa_width'], self.g.settings_data['automa']['automa_height'], self.g.settings_data['automa']['automa_batch'],self.g.settings_data['automa']['automa_n_iter'], self.g.settings_data['automa'][
+            'automa_url'], self.g.settings_data['automa']['automa_save'], self.g.settings_data['automa']['automa_save_on_api_host'], gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['automa'][
             'automa_checkpoint']), gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
     
     
