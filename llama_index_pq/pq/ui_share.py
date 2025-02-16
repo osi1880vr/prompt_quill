@@ -14,6 +14,8 @@ adetailer_choices = ["face_yolov8n.pt",
                      "female-breast-v4.7.pt",
                      "vagina-v4.1.pt"]
 
+
+# noinspection PyTypeChecker
 class UiShare:
 
 
@@ -66,7 +68,7 @@ class UiShare:
         self.settings_io.write_settings(self.g.settings_data)
 
     def check_variables(self, number):
-        if f'automa_adetailer_enable_{number}' not in self.g.settings_data:
+        if f'automa_adetailer_enable_{number}' not in self.g.settings_data['automa']:
             self.g.settings_data['automa'][f'automa_adetailer_enable_{number}'] = False
             self.g.settings_data['automa'][f'automa_ad_checkpoint_{number}'] = 'None'
             self.g.settings_data['automa'][f'automa_ad_use_inpaint_width_height_{number}'] = False
@@ -121,8 +123,8 @@ class UiShare:
                                                inputs=None,
                                                outputs=[automa_ad_checkpoint])
 
-            # Generate the gr.on block
-            fn = lambda enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model, denoising, clip_skip, confidence, restore_face, steps: \
+            # Generate the gr.on block                     #, restore_face, steps: \
+            fn = lambda enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model, denoising, clip_skip, confidence: \
                 self.set_automa_adetailer(number,            # Static number argument
                                           enable,            # automa_adetailer_enable from Gradio input
                                           ad_prompt,

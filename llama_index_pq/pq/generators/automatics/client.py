@@ -119,11 +119,12 @@ class automa_client:
 
     def get_adetailer(self, settings_data):
         ADetailer = {}
-        if not 'args' in ADetailer:
-            ADetailer['args'] = [True, False]
+
         number = 1
         while number <= 4:
             if settings_data['automa'][f'automa_adetailer_enable_{number}']:
+                if not 'args' in ADetailer:
+                    ADetailer['args'] = [True, False]
                 ADetailer['args'].append(self.get_ad_args(number, settings_data))
             number += 1
 
@@ -154,7 +155,7 @@ class automa_client:
                 ]
 
 
-        if len(ADetailer['args']) > 0:
+        if 'args' in ADetailer and len(ADetailer['args']) > 2:
             alwayson_scripts["ADetailer"] = ADetailer
 
         if len(LayerDiffuse) > 0:
