@@ -175,24 +175,35 @@ class WildcardResolver:
 		self.iter_state: Dict[str, int] = {}
 		os.makedirs(wildcards_dir, exist_ok=True)
 
-
-	def load_wildcard_file(self, wildcard: str) -> List[str]:
-		# Check flat directory first
-		wildcard_file = os.path.join(self.wildcards_dir, f"{wildcard}.txt")
-		if os.path.exists(wildcard_file):
-			with open(wildcard_file, "r", encoding="utf-8") as f:
-				options = [line.strip() for line in f if line.strip()]
-			return options if options else [f"__{wildcard}__"]
-
-		# Search subfolders of unknown depth
-		for root, _, files in os.walk(self.wildcards_dir):
-			if f"{wildcard}.txt" in files:
-				wildcard_file = os.path.join(root, f"{wildcard}.txt")
+	def load_wildcard_file(self, wildcard: str, count: int = 1) -> List[str]:
+		if wildcard in self.wildcard_cache and self.cache_files:
+			options = self.wildcard_cache[wildcard]
+		else:
+			wildcard_file = os.path.join(self.wildcards_dir, f"{wildcard}.txt")
+			if os.path.exists(wildcard_file):
 				with open(wildcard_file, "r", encoding="utf-8") as f:
 					options = [line.strip() for line in f if line.strip()]
-				return options if options else [f"__{wildcard}__"]
+			else:
+				for root, _, files in os.walk(self.wildcards_dir):
+					if f"{wildcard}.txt" in files:
+						wildcard_file = os.path.join(root, f"{wildcard}.txt")
+						with open(wildcard_file, "r", encoding="utf-8") as f:
+							options = [line.strip() for line in f if line.strip()]
+						break
+				else:
+					options = [f"__{wildcard}__"]
+			if self.cache_files:
+				self.wildcard_cache[wildcard] = options
 
-		return [f"__{wildcard}__"]
+		if not options:
+			return [f"__{wildcard}__"] * count
+
+		unique_options = list(set(options))
+		if len(unique_options) < count:
+			selected = unique_options
+		else:
+			selected = random.sample(unique_options, count)
+		return selected
 
 	def parse_inline_options(self, options_str: str) -> List[Tuple[str, float]]:
 		if not options_str:
@@ -213,26 +224,48 @@ class WildcardResolver:
 				parts = parts[1:]
 
 		options = []
-		wildcard_pattern = r"__([^_]+)__"
-		resolved_options = []
+		wildcard_pattern = r"(\d*)x?__([^_]+)__"
 		for part in parts:
 			part = part.strip()
-			if part.startswith('"') and part.endswith('"'):
-				opt = part[1:-1]
-				if re.match(wildcard_pattern, opt):
-					wildcard = re.findall(wildcard_pattern, opt)[0]
-					resolved_options.append(random.choice(self.load_wildcard_file(wildcard)))
-				else:
-					resolved_options.append(opt)
+			# Parse weight (e.g., "red:0.7")
+			if ':' in part and not part.startswith('"'):
+				opt, weight = part.rsplit(':', 1)
+				try:
+					weight = float(weight)
+					if weight < 0:
+						weight = 0.0  # No negative weights
+				except ValueError:
+					weight = 1.0  # Default if invalid
+				opt = opt.strip()
 			else:
-				if re.match(wildcard_pattern, part):
-					wildcard = re.findall(wildcard_pattern, part)[0]
-					resolved_options.append(random.choice(self.load_wildcard_file(wildcard)))
+				opt = part
+				weight = 1.0
+
+			if opt.startswith('"') and opt.endswith('"'):
+				opt = opt[1:-1]
+				if re.match(wildcard_pattern, opt):
+					match = re.findall(wildcard_pattern, opt)[0]
+					count = int(match[0]) if match[0] else 1
+					wildcard = match[1]
+					options.extend([(item, weight) for item in self.load_wildcard_file(wildcard, count)])
 				else:
-					resolved_options.append(part)
-		# Pick one resolved option now
-		options.append((random.choice(resolved_options), 1.0))
-		return [("iter", repeat_count, options)] if is_iter else options
+					options.append((opt, weight))
+			else:
+				if re.match(wildcard_pattern, opt):
+					match = re.findall(wildcard_pattern, opt)[0]
+					count = int(match[0]) if match[0] else 1
+					wildcard = match[1]
+					options.extend([(item, weight) for item in self.load_wildcard_file(wildcard, count)])
+				else:
+					options.append((opt, weight))
+
+		if is_iter:
+			return [("iter", repeat_count, options)]
+		# Weighted random choice
+		if options:
+			items, weights = zip(*options)
+			return [(random.choices(items, weights=weights, k=1)[0], 1.0)]
+		return [(" ", 1.0)]
 
 	def find_inline_matches(self, prompt: str) -> List[str]:
 		matches = []
@@ -257,47 +290,95 @@ class WildcardResolver:
 			prompt: str,
 			max_combinations: Optional[int] = None,
 			recursive: bool = True,
-			separator: str = "|"
+			separator: str = " and ",
+			max_depth: int = 10,
+			max_retries: int = 3
 	) -> Union[str, List[str]]:
-		wildcard_pattern = r"__([\w-]+)__"  # Catch underscores and hyphens
+		wildcard_pattern = r"(\d*)x?__([\w-]+)__"
+		multi_wildcard_pattern = r"\{(\d+)\$\$__([\w-]+)__(:[\d\.]+)?\}"
 
 		wildcards = re.findall(wildcard_pattern, prompt)
+		multi_wildcards = re.findall(multi_wildcard_pattern, prompt)
 		inline_matches = self.find_inline_matches(prompt)
-
-		if not wildcards and not inline_matches:
-			return prompt if max_combinations is None else [prompt]
-
-		wildcard_options = {}
-		processed_wildcards = set()
-		for wildcard in set(wildcards):
-			options = self.load_wildcard_file(wildcard)
-			wildcard_options[wildcard] = options
-			processed_wildcards.add(wildcard)
-
 		inline_options = [self.parse_inline_options(match) for match in inline_matches]
 
-		num_outputs = 1 if max_combinations is None else (max_combinations if max_combinations >= 0 else 1)
-		results = []
-		for _ in range(num_outputs):
+		if not wildcards and not multi_wildcards and not inline_matches:
+			return prompt if max_combinations is None else [prompt]
+
+		def attempt_resolution(prompt):
+			processed_wildcards = set()  # Fresh set per attempt
+			wildcard_options = {}
+			for count, wildcard in set(wildcards):
+				count = int(count) if count else 1
+				options = self.load_wildcard_file(wildcard, count)
+				wildcard_options[(count, wildcard)] = options
+				processed_wildcards.add(wildcard)
+			for count, wildcard, weight in set(multi_wildcards):
+				count = int(count)
+				weight = float(weight[1:]) if weight else 1.0
+				if random.random() < weight:
+					options = self.load_wildcard_file(wildcard, count)
+				else:
+					options = [""]
+				wildcard_options[(count, wildcard, "multi")] = options
+				processed_wildcards.add(wildcard)
+
 			resolved = prompt
-			for wildcard in set(wildcards):
-				replacement = random.choice(wildcard_options[wildcard])
-				resolved = resolved.replace(f"__{wildcard}__", replacement, 1)
+			depth = 0
+			for count, wildcard in set(wildcards):
+				count = int(count) if count else 1
+				replacements = wildcard_options[(count, wildcard)]
+				resolved = resolved.replace(f"{count if count > 1 else ''}x__{wildcard}__", separator.join(replacements), 1)
+			for count, wildcard, weight in set(multi_wildcards):
+				count = int(count)
+				replacements = wildcard_options[(count, wildcard, "multi")]
+				resolved = resolved.replace(f"{{{count}$$__{wildcard}__{weight if weight else ''}}}", separator.join(replacements), 1)
 
 			if recursive:
-				while re.search(wildcard_pattern, resolved):
-					nested_wildcards = re.findall(wildcard_pattern, resolved)
-					progress_made = False
-					for wildcard in set(nested_wildcards):
-						if wildcard not in processed_wildcards:
-							options = self.load_wildcard_file(wildcard)
-							replacement = random.choice(options)
-							if replacement != f"__{wildcard}__":
-								resolved = resolved.replace(f"__{wildcard}__", replacement, 1)
-								processed_wildcards.add(wildcard)
-								progress_made = True
-					if not progress_made:
+				while re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved):
+					if depth >= max_depth:
 						break
+					nested_wildcards = re.findall(wildcard_pattern, resolved)
+					nested_multi_wildcards = re.findall(multi_wildcard_pattern, resolved)
+					progress_made = False
+					for count, wildcard in set(nested_wildcards):
+						if wildcard not in processed_wildcards:
+							try:
+								count = int(count) if count else 0
+							except ValueError:
+								count = 0
+							options = self.load_wildcard_file(wildcard, count if count > 0 else 1)
+							target = f"{count}x__{wildcard}__" if count > 0 else f"__{wildcard}__"
+							resolved = resolved.replace(target, separator.join(options), 1)
+							processed_wildcards.add(wildcard)
+							progress_made = True
+					for count, wildcard, weight in set(nested_multi_wildcards):
+						if wildcard not in processed_wildcards:
+							count = int(count)
+							weight = float(weight[1:]) if weight else 1.0
+							if random.random() < weight:
+								options = self.load_wildcard_file(wildcard, count)
+							else:
+								options = [""]
+							resolved = resolved.replace(f"{{{count}$$__{wildcard}__{weight if weight else ''}}}", separator.join(options), 1)
+							processed_wildcards.add(wildcard)
+							progress_made = True
+					# Removed early break on no progress, let max_depth handle cycles
+					depth += 1
+			return resolved, processed_wildcards
+
+		num_outputs = 1 if max_combinations is None else 1
+		results = []
+		for _ in range(num_outputs):
+			best_resolved = prompt
+			cycle_detected = False
+
+			for attempt in range(max_retries):
+				resolved, _ = attempt_resolution(prompt)  # Fresh start each retry
+				best_resolved = resolved
+				if not (re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved)):
+					break
+				cycle_detected = True
 
 			for match, opts in zip(inline_matches, inline_options):
 				if len(opts) == 1 and isinstance(opts[0], tuple) and opts[0][0] == "iter":
@@ -309,18 +390,17 @@ class WildcardResolver:
 					current_idx = self.iter_state[state_key] % total_items
 					opt_idx = current_idx // repeat_count
 					replacement = iter_opts[opt_idx][0]
-					if recursive and re.search(r"[\[\]]|__[\w-]+__", replacement):  # Update inline regex too
+					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
 						replacement = self.resolve_prompt(replacement, None, True, separator)
 					self.iter_state[state_key] += 1
 				else:
-					replacement = random.choice([opt[0] for opt in opts])
-					if recursive and re.search(r"[\[\]]|__[\w-]+__", replacement):
+					replacement = opts[0][0]
+					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
 						replacement = self.resolve_prompt(replacement, None, True, separator)
-				resolved = resolved.replace(f"[{match}]", replacement, 1)
-			results.append(resolved)
-		return results[0] if max_combinations is None else results
+				best_resolved = best_resolved.replace(f"[{match}]", replacement, 1)
+			results.append(best_resolved)
 
-
+		return results[0]
 
 
 def timestamp():
