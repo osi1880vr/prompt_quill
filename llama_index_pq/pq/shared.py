@@ -1,10 +1,324 @@
 import time
 import datetime
 import re
+import os
 import numpy as np
 import globals
+import random
+from typing import Dict, Union, Optional, Tuple, List
+
 
 g = globals.get_globals()
+
+
+class PromptProcessor:
+	def __init__(self):
+		# This dictionary tracks state for each array token.
+		# The key is the array token's full text.
+		# For sequential modes, we store a dict with keys:
+		#   "index"     -> current position in the array,
+		#   "rep_count" -> how many times the current item has been repeated,
+		#   "rep_target"-> the number of times to repeat the item (1 for "iter", or n for "iter n")
+		self.prompt_array_index = {}
+
+	def process_prompt_arrays(self, input_string):
+		tokens = self.tokenize_input(input_string)
+		output_tokens = []
+
+		for token_type, token_value in tokens:
+			if token_type == 'text':
+				# Literal text is passed through unchanged.
+				output_tokens.append(token_value)
+			elif token_type == 'array':
+				# Process the array token.
+				# token_value includes the outer brackets.
+				array_content = token_value[1:-1]  # remove [ and ]
+				elements = self.parse_array(array_content)
+
+				# Determine the mode and repetition.
+				# Default mode: random selection.
+				mode = "random"
+				rep = 1
+				if elements and elements[0].lower().startswith("iter"):
+					parts = elements[0].split()
+					if len(parts) == 1:
+						mode = "sequential"
+						rep = 1
+					elif len(parts) == 2 and parts[0].lower() == "iter":
+						try:
+							rep = int(parts[1])
+							mode = "sequential"
+						except ValueError:
+							mode = "random"
+					# Remove the iteration marker from the choices.
+					elements = elements[1:]
+
+				# Process nested arrays recursively in each element.
+				processed_elements = []
+				for item in elements:
+					if '[' in item and ']' in item:
+						processed_elements.append(self.process_prompt_arrays(item))
+					else:
+						processed_elements.append(item)
+
+				if mode == "sequential":
+					# Get state for this token.
+					state = self.prompt_array_index.get(token_value, {"index": 0, "rep_count": 0, "rep_target": rep})
+					if processed_elements:
+						selected_item = processed_elements[state["index"]]
+						# Update state:
+						if state["rep_count"] < rep - 1:
+							state["rep_count"] += 1
+						else:
+							state["rep_count"] = 0
+							state["index"] = (state["index"] + 1) % len(processed_elements)
+						self.prompt_array_index[token_value] = state
+					else:
+						selected_item = ""
+				else:
+					# Default (random) mode: choose a random element.
+					selected_item = random.choice(processed_elements) if processed_elements else ""
+
+				output_tokens.append(selected_item)
+		return "".join(output_tokens).strip()
+
+	def find_balanced_bracket(self, s, start_idx):
+		"""
+        Starting at s[start_idx] (which should be '['), finds the matching ']'
+        while handling nested brackets and quoted strings.
+        """
+		i = start_idx
+		bracket_count = 0
+		in_quotes = False
+
+		while i < len(s):
+			char = s[i]
+			if char == '"' and (i == start_idx or s[i - 1] != '\\'):
+				in_quotes = not in_quotes
+			elif char == '[' and not in_quotes:
+				bracket_count += 1
+			elif char == ']' and not in_quotes:
+				bracket_count -= 1
+				if bracket_count == 0:
+					return i
+			i += 1
+		return -1  # No matching bracket found.
+
+	def tokenize_input(self, s):
+		"""
+        Splits the input string into tokens:
+          - ("text", literal text)
+          - ("array", full array text including surrounding [ and ]).
+        """
+		tokens = []
+		i = 0
+		last = 0
+		while i < len(s):
+			if s[i] == '[':
+				if i > last:
+					tokens.append(("text", s[last:i]))
+				end_idx = self.find_balanced_bracket(s, i)
+				if end_idx != -1:
+					tokens.append(("array", s[i:end_idx + 1]))
+					i = end_idx + 1
+					last = i
+					continue
+			i += 1
+		if last < len(s):
+			tokens.append(("text", s[last:]))
+		return tokens
+
+	def parse_array(self, array_string):
+		"""
+        Parses an array string (without the outer brackets) into items.
+        Respects quoted substrings and ignores commas inside quotes or nested brackets.
+        Returns a list of strings with any outer quotes removed.
+        """
+		elements = []
+		buffer = ""
+		in_quotes = False
+		bracket_level = 0
+		i = 0
+		while i < len(array_string):
+			char = array_string[i]
+			if char == '"' and (i == 0 or array_string[i - 1] != '\\'):
+				in_quotes = not in_quotes
+				buffer += char
+			elif char == '[' and not in_quotes:
+				bracket_level += 1
+				buffer += char
+			elif char == ']' and not in_quotes:
+				bracket_level -= 1
+				buffer += char
+			elif char == ',' and not in_quotes and bracket_level == 0:
+				elements.append(buffer.strip())
+				buffer = ""
+			else:
+				buffer += char
+			i += 1
+		if buffer.strip():
+			elements.append(buffer.strip())
+		# Remove outer quotes from each element if they exist.
+		result = []
+		for el in elements:
+			if el.startswith('"') and el.endswith('"'):
+				result.append(el[1:-1])
+			else:
+				result.append(el)
+		return result
+
+class WildcardResolver:
+	def __init__(self, wildcards_dir: str = "wildcards", cache_files: bool = True):
+		self.wildcards_dir = wildcards_dir
+		self.cache_files = cache_files
+		self.wildcard_cache: Dict[str, List[str]] = {}
+		self.iter_state: Dict[str, int] = {}
+		os.makedirs(wildcards_dir, exist_ok=True)
+
+
+	def load_wildcard_file(self, wildcard: str) -> List[str]:
+		# Check flat directory first
+		wildcard_file = os.path.join(self.wildcards_dir, f"{wildcard}.txt")
+		if os.path.exists(wildcard_file):
+			with open(wildcard_file, "r", encoding="utf-8") as f:
+				options = [line.strip() for line in f if line.strip()]
+			return options if options else [f"__{wildcard}__"]
+
+		# Search subfolders of unknown depth
+		for root, _, files in os.walk(self.wildcards_dir):
+			if f"{wildcard}.txt" in files:
+				wildcard_file = os.path.join(root, f"{wildcard}.txt")
+				with open(wildcard_file, "r", encoding="utf-8") as f:
+					options = [line.strip() for line in f if line.strip()]
+				return options if options else [f"__{wildcard}__"]
+
+		return [f"__{wildcard}__"]
+
+	def parse_inline_options(self, options_str: str) -> List[Tuple[str, float]]:
+		if not options_str:
+			return [(" ", 1.0)]
+		parts = re.split(r',(?=(?:[^"]*"[^"]*")*[^"]*$)', options_str)
+		is_iter = False
+		repeat_count = 1
+		if parts and parts[0].strip().startswith("iter"):
+			is_iter = True
+			iter_part = parts[0].strip()
+			if iter_part.startswith("iter "):
+				try:
+					repeat_count = int(iter_part.split(" ")[1])
+					parts = parts[1:]
+				except (IndexError, ValueError):
+					parts = parts[1:]
+			else:
+				parts = parts[1:]
+
+		options = []
+		wildcard_pattern = r"__([^_]+)__"
+		resolved_options = []
+		for part in parts:
+			part = part.strip()
+			if part.startswith('"') and part.endswith('"'):
+				opt = part[1:-1]
+				if re.match(wildcard_pattern, opt):
+					wildcard = re.findall(wildcard_pattern, opt)[0]
+					resolved_options.append(random.choice(self.load_wildcard_file(wildcard)))
+				else:
+					resolved_options.append(opt)
+			else:
+				if re.match(wildcard_pattern, part):
+					wildcard = re.findall(wildcard_pattern, part)[0]
+					resolved_options.append(random.choice(self.load_wildcard_file(wildcard)))
+				else:
+					resolved_options.append(part)
+		# Pick one resolved option now
+		options.append((random.choice(resolved_options), 1.0))
+		return [("iter", repeat_count, options)] if is_iter else options
+
+	def find_inline_matches(self, prompt: str) -> List[str]:
+		matches = []
+		i = 0
+		while i < len(prompt):
+			if prompt[i] == '[':
+				start = i + 1
+				depth = 1
+				while i + 1 < len(prompt) and depth > 0:
+					i += 1
+					if prompt[i] == '[':
+						depth += 1
+					elif prompt[i] == ']':
+						depth -= 1
+				if depth == 0:
+					matches.append(prompt[start:i])
+			i += 1
+		return matches
+
+	def resolve_prompt(
+			self,
+			prompt: str,
+			max_combinations: Optional[int] = None,
+			recursive: bool = True,
+			separator: str = "|"
+	) -> Union[str, List[str]]:
+		wildcard_pattern = r"__([\w-]+)__"  # Catch underscores and hyphens
+
+		wildcards = re.findall(wildcard_pattern, prompt)
+		inline_matches = self.find_inline_matches(prompt)
+
+		if not wildcards and not inline_matches:
+			return prompt if max_combinations is None else [prompt]
+
+		wildcard_options = {}
+		processed_wildcards = set()
+		for wildcard in set(wildcards):
+			options = self.load_wildcard_file(wildcard)
+			wildcard_options[wildcard] = options
+			processed_wildcards.add(wildcard)
+
+		inline_options = [self.parse_inline_options(match) for match in inline_matches]
+
+		num_outputs = 1 if max_combinations is None else (max_combinations if max_combinations >= 0 else 1)
+		results = []
+		for _ in range(num_outputs):
+			resolved = prompt
+			for wildcard in set(wildcards):
+				replacement = random.choice(wildcard_options[wildcard])
+				resolved = resolved.replace(f"__{wildcard}__", replacement, 1)
+
+			if recursive:
+				while re.search(wildcard_pattern, resolved):
+					nested_wildcards = re.findall(wildcard_pattern, resolved)
+					progress_made = False
+					for wildcard in set(nested_wildcards):
+						if wildcard not in processed_wildcards:
+							options = self.load_wildcard_file(wildcard)
+							replacement = random.choice(options)
+							if replacement != f"__{wildcard}__":
+								resolved = resolved.replace(f"__{wildcard}__", replacement, 1)
+								processed_wildcards.add(wildcard)
+								progress_made = True
+					if not progress_made:
+						break
+
+			for match, opts in zip(inline_matches, inline_options):
+				if len(opts) == 1 and isinstance(opts[0], tuple) and opts[0][0] == "iter":
+					repeat_count, iter_opts = opts[0][1], opts[0][2]
+					state_key = match
+					if state_key not in self.iter_state:
+						self.iter_state[state_key] = 0
+					total_items = len(iter_opts) * repeat_count
+					current_idx = self.iter_state[state_key] % total_items
+					opt_idx = current_idx // repeat_count
+					replacement = iter_opts[opt_idx][0]
+					if recursive and re.search(r"[\[\]]|__[\w-]+__", replacement):  # Update inline regex too
+						replacement = self.resolve_prompt(replacement, None, True, separator)
+					self.iter_state[state_key] += 1
+				else:
+					replacement = random.choice([opt[0] for opt in opts])
+					if recursive and re.search(r"[\[\]]|__[\w-]+__", replacement):
+						replacement = self.resolve_prompt(replacement, None, True, separator)
+				resolved = resolved.replace(f"[{match}]", replacement, 1)
+			results.append(resolved)
+		return results[0] if max_combinations is None else results
 
 
 
