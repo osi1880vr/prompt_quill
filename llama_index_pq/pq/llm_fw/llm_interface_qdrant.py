@@ -17,7 +17,7 @@ import threading
 import shared
 
 
-from llm_fw.llama_index_interface import adapter
+from .llama_index_interface import adapter
 
 from post_process.summary import extractive_summary
 from deep_translator import GoogleTranslator

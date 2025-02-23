@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from interrogate.moon import moon
+from .moon import moon
 import os
 from PIL import Image
 import re

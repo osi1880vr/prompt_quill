@@ -264,7 +264,7 @@ class molmo:
 
 
     def story_teller(self, img):
-        story = self.process_image(img, self.g.settings_data['interrogate']['molmo_story_teller_prompt'])
+        story = self.process_image(img, self.g.settings_data['interrogate']['molmo_story_teller_prompt']).lstrip()
         story = re.sub(r'[^\x00-\x7F]', '', story)
         return story
 
@@ -320,7 +320,7 @@ class molmo:
                                     if retry_count > 5:
                                         break
                             if self.g.settings_data['interrogate']["molmo_story_teller_enabled"]:
-                                story = self.story_teller(img)
+                                story = self.story_teller(img).strip()
                                 # Split the file name and extension
                                 name, ext = os.path.splitext(new_file_path)
 

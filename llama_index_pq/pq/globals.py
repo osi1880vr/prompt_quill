@@ -17,7 +17,10 @@ import threading
 class _globals_store:
     globals_store = None
     sail_running = False
-
+    settings_data = None  # Holds settings loaded from settings_io
+    last_context_list = []  # For Deep Dive tab
+    last_prompt = ""  # Used in Generator tab
+    last_negative_prompt = ""  # Used in Generator tab
 
     def __init__(self):
         if _globals_store.globals_store == None:

@@ -2,8 +2,8 @@ import json
 import os
 import copy
 
-from settings.defaults import default
-from settings.check_file_name import is_path_exists_or_creatable_portable
+from .defaults import default
+from .check_file_name import is_path_exists_or_creatable_portable
 class settings_io:
 
 

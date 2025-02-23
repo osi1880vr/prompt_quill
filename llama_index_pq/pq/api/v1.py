@@ -2,8 +2,8 @@ import time
 import threading
 import json
 from flask import Flask, request, jsonify
-from api.sailing import api_sail
-from api.telegram_bot import Telegram
+from .sailing import api_sail
+from .telegram_bot import Telegram
 from llm_fw import llm_interface_qdrant
 
 app = Flask(__name__)
