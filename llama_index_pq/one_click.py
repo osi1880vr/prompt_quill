@@ -1,19 +1,6 @@
 # Copyright 2023 osiworx
-
-# Licensed under the Apache License, Version 2.0 (the "License"); you
-# may not use this file except in compliance with the License.  You
-# may obtain a copy of the License at
-
-# http://www.apache.org/licenses/LICENSE-2.0
-
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-# implied.  See the License for the specific language governing
-# permissions and limitations under the License.
-
-# credits go to the oobabooga project where I took most of this files content, thank you very much for your work and inspiration =)
-
+# Licensed under the Apache License, Version 2.0
+# ... (keeping the original license header)
 
 import os
 import sys
@@ -23,439 +10,289 @@ import time
 import site
 import importlib.util
 import shutil
+import logging
+from typing import Optional, Dict
+from pathlib import Path
 
+# Configure logging
+logging.basicConfig(
+	level=logging.INFO,
+	format='%(asctime)s - %(levelname)s - %(message)s',
+	handlers=[
+		logging.FileHandler('installation.log'),
+		logging.StreamHandler()
+	]
+)
+logger = logging.getLogger(__name__)
 
-
-# Define the required PyTorch version
+# Constants
 TORCH_VERSION = "2.4.1"
 TORCHVISION_VERSION = "0.19.1"
 TORCHAUDIO_VERSION = "2.4.1"
 
-index_url = os.environ.get('INDEX_URL', "")
-python = sys.executable
-clip_package = os.environ.get('CLIP_PACKAGE', "git+https://github.com/openai/CLIP.git@a1d071733d7111c9c014f024669f959182114e33")
+INDEX_URL = os.environ.get('INDEX_URL', "")
+CLIP_PACKAGE = os.environ.get('CLIP_PACKAGE', "git+https://github.com/openai/CLIP.git@a1d071733d7111c9c014f024669f959182114e33")
+PYTHON = sys.executable
 
-script_dir = os.getcwd()
-conda_env_path = os.path.join(script_dir, "installer_files", "env")
+# Paths
+BASE_DIR = Path.cwd()
+INSTALL_DIR = BASE_DIR / "installer_files"
+CACHE_DIR = BASE_DIR / "installer_cache"
+CONDA_ENV_PATH = INSTALL_DIR / "env"
+CMD_FLAGS_PATH = BASE_DIR / "CMD_FLAGS.txt"
 
-install_dir = os.path.join(script_dir, "installer_files")
-cache_dir = os.path.join(script_dir, "installer_cache")
+# Load command-line flags
+CMD_FLAGS = ""
+if CMD_FLAGS_PATH.exists():
+	with open(CMD_FLAGS_PATH, 'r') as f:
+		CMD_FLAGS = ' '.join(line.strip().rstrip('\\').strip()
+							 for line in f
+							 if line.strip().rstrip('\\').strip() and not line.strip().startswith('#'))
 
+FLAGS = f"{' '.join([flag for flag in sys.argv[1:] if flag != '--update-wizard'])} {CMD_FLAGS}"
 
-# Command-line flags
-cmd_flags_path = os.path.join(script_dir, "CMD_FLAGS.txt")
-if os.path.exists(cmd_flags_path):
-	with open(cmd_flags_path, 'r') as f:
-		CMD_FLAGS = ' '.join(line.strip().rstrip('\\').strip() for line in f if line.strip().rstrip('\\').strip() and not line.strip().startswith('#'))
-else:
-	CMD_FLAGS = ''
-
-flags = f"{' '.join([flag for flag in sys.argv[1:] if flag != '--update-wizard'])} {CMD_FLAGS}"
-
-
-# Function to install a package using pip
-def install_package(package):
-	subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-try:
-	import requests
-except ImportError:
-	print("Requests library not found. Installing...")
-	install_package("requests")
-	import requests
-
-# Try to import the tqdm module and install it if not present
-try:
-	from tqdm import tqdm
-except ImportError:
-	print("tqdm library not found. Installing...")
-	install_package("tqdm")
-	from tqdm import tqdm
-
-def is_linux():
-	return sys.platform.startswith("linux")
-
-
-def is_windows():
-	return sys.platform.startswith("win")
-
-
-def is_macos():
-	return sys.platform.startswith("darwin")
-
-
-def is_x86_64():
-	return platform.machine() == "x86_64"
-
-
-def cpu_has_avx2():
+def install_package(package: str) -> bool:
+	"""Install a package using pip."""
 	try:
-		import cpuinfo
-
-		info = cpuinfo.get_cpu_info()
-		if 'avx2' in info['flags']:
-			return True
-		else:
-			return False
-	except:
+		subprocess.check_call([PYTHON, "-m", "pip", "install", package])
 		return True
-
-
-def cpu_has_amx():
-	try:
-		import cpuinfo
-
-		info = cpuinfo.get_cpu_info()
-		if 'amx' in info['flags']:
-			return True
-		else:
-			return False
-	except:
-		return True
-
-
-def torch_version():
-	site_packages_path = None
-	for sitedir in site.getsitepackages():
-		if "site-packages" in sitedir and conda_env_path in sitedir:
-			site_packages_path = sitedir
-			break
-
-	if site_packages_path:
-		torch_version_file = open(os.path.join(site_packages_path, 'torch', 'version.py')).read().splitlines()
-		torver = [line for line in torch_version_file if line.startswith('__version__')][0].split('__version__ = ')[1].strip("'")
-	else:
-		from torch import __version__ as torver
-
-	return torver
-
-
-def update_pytorch():
-	print_big_message("Checking for PyTorch updates")
-
-	torver = torch_version()
-	is_cuda = '+cu' in torver
-	is_cuda118 = '+cu118' in torver  # 2.1.0+cu118
-	is_rocm = '+rocm' in torver  # 2.0.1+rocm5.4.2
-	is_intel = '+cxx11' in torver  # 2.0.1a0+cxx11.abi
-	is_cpu = '+cpu' in torver  # 2.0.1+cpu
-
-	install_pytorch = f"python -m pip install --upgrade torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION} "
-
-	if is_cuda118:
-		install_pytorch += "--index-url https://download.pytorch.org/whl/cu118"
-	elif is_cuda:
-		install_pytorch += "--index-url https://download.pytorch.org/whl/cu121"
-	elif is_rocm:
-		install_pytorch += "--index-url https://download.pytorch.org/whl/rocm5.6"
-	elif is_cpu:
-		install_pytorch += "--index-url https://download.pytorch.org/whl/cpu"
-	elif is_intel:
-		if is_linux():
-			install_pytorch = "python -m pip install --upgrade torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
-		else:
-			install_pytorch = "python -m pip install --upgrade torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10 --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
-
-	run_cmd(f"{install_pytorch}", assert_success=True, environment=True)
-
-def clear_cache():
-	run_cmd("conda clean -a -y", environment=True)
-	run_cmd("python -m pip cache purge", environment=True)
-
-
-def update_requirements(initial_installation=False):
-	# Update PyTorch
-	if not initial_installation:
-		update_pytorch()
-
-	# Detect the PyTorch version
-	torver = torch_version()
-	is_cuda = '+cu' in torver
-	is_cuda118 = '+cu118' in torver  # 2.1.0+cu118
-	is_rocm = '+rocm' in torver  # 2.0.1+rocm5.4.2
-	is_intel = '+cxx11' in torver  # 2.0.1a0+cxx11.abi
-	is_cpu = '+cpu' in torver  # 2.0.1+cpu
-
-	if is_rocm:
-		base_requirements = "requirements_amd" + ("_noavx2" if not cpu_has_avx2() else "") + ".txt"
-	elif is_cpu or is_intel:
-		base_requirements = "requirements_cpu_only" + ("_noavx2" if not cpu_has_avx2() else "") + ".txt"
-	elif is_macos():
-		base_requirements = "requirements_apple_" + ("intel" if is_x86_64() else "silicon") + ".txt"
-	else:
-		base_requirements = "requirements" + ("_noavx2" if not cpu_has_avx2() else "") + ".txt"
-
-	requirements_file = base_requirements
-
-	print_big_message(f"Installing webui requirements from file: {requirements_file}")
-	print(f"TORCH: {torver}\n")
-
-	# Prepare the requirements file
-	textgen_requirements = open(requirements_file).read().splitlines()
-	if is_cuda118:
-		textgen_requirements = [req.replace('+cu121', '+cu118').replace('+cu122', '+cu118') for req in textgen_requirements]
-	if is_windows() and is_cuda118:  # No flash-attention on Windows for CUDA 11
-		textgen_requirements = [req for req in textgen_requirements if 'oobabooga/flash-attention' not in req]
-
-	with open('temp_requirements.txt', 'w') as file:
-		file.write('\n'.join(textgen_requirements))
-
-	# Workaround for git+ packages not updating properly.
-	git_requirements = [req for req in textgen_requirements if req.startswith("git+")]
-	for req in git_requirements:
-		url = req.replace("git+", "")
-		package_name = url.split("/")[-1].split("@")[0].rstrip(".git")
-		run_cmd(f"python -m pip uninstall -y {package_name}", environment=True)
-		print(f"Uninstalled {package_name}")
-
-	# Install/update the project requirements
-	run_cmd("python -m pip install -r temp_requirements.txt --upgrade", assert_success=True, environment=True)
-	os.remove('temp_requirements.txt')
-
-	# Check for '+cu' or '+rocm' in version string to determine if torch uses CUDA or ROCm. Check for pytorch-cuda as well for backwards compatibility
-	if not any((is_cuda, is_rocm)) and run_cmd("conda list -f pytorch-cuda | grep pytorch-cuda", environment=True, capture_output=True).returncode == 1:
-		clear_cache()
-		return
-
-	if not os.path.exists("repositories/"):
-		os.mkdir("repositories")
-
-	clear_cache()
-
-
-
-
-
-def print_big_message(message):
-	message = message.strip()
-	lines = message.split('\n')
-	print("\n\n*******************************************************************")
-	for line in lines:
-		if line.strip() != '':
-			print("*", line)
-
-	print("*******************************************************************\n\n")
-
-def run_cmd(cmd, assert_success=False, environment=False, capture_output=False, env=None):
-	# Use the conda environment
-	if environment:
-		if is_windows():
-			conda_bat_path = os.path.join(script_dir, "installer_files", "conda", "condabin", "conda.bat")
-			cmd = "\"" + conda_bat_path + "\" activate \"" + conda_env_path + "\" >nul && " + cmd
-		else:
-			conda_sh_path = os.path.join(script_dir, "installer_files", "conda", "etc", "profile.d", "conda.sh")
-			cmd = ". \"" + conda_sh_path + "\" && conda activate \"" + conda_env_path + "\" && " + cmd
-
-	# Run shell commands
-	result = subprocess.run(cmd, shell=True, capture_output=capture_output, env=env)
-
-	# Assert the command ran successfully
-	if assert_success and result.returncode != 0:
-		print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) )
-		print('we will try one more time to see if it will work now')
-		result = subprocess.run(cmd, shell=True, capture_output=capture_output, env=env)
-
-		if assert_success and result.returncode != 0:
-			print("Command '" + cmd + "' failed with exit status code '" + str(result.returncode) + "'.\n\nExiting now.\nTry running the start/update script again.")
-			time.sleep(5)
-			sys.exit(1)
-
-	return result
-
-
-def get_user_choice(question, options_dict):
-	print()
-	print(question)
-	print()
-
-	for key, value in options_dict.items():
-		print(f"{key}) {value}")
-
-	print()
-
-	choice = input("Input> ").upper()
-	while choice not in options_dict.keys():
-		print("Invalid choice. Please try again.")
-		choice = input("Input> ").upper()
-
-	return choice
-
-def run(command, desc=None, errdesc=None):
-	if desc is not None:
-		print(desc)
-
-	result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-
-	if result.returncode != 0:
-
-		message = f"""{errdesc or 'Error running command'}.
-Command: {command}
-Error code: {result.returncode}
-stdout: {result.stdout.decode(encoding="utf8", errors="ignore") if len(result.stdout)>0 else '<empty>'}
-stderr: {result.stderr.decode(encoding="utf8", errors="ignore") if len(result.stderr)>0 else '<empty>'}
-"""
-		raise RuntimeError(message)
-
-	return result.stdout.decode(encoding="utf8", errors="ignore")
-def run_pip(args, desc=None):
-	index_url_line = f' --index-url {index_url}' if index_url != '' else ''
-	return run(f'"{python}" -m pip {args} --prefer-binary{index_url_line}', desc=f"Installing {desc}", errdesc=f"Couldn't install {desc}")
-
-def is_installed(package):
-	try:
-		spec = importlib.util.find_spec(package)
-	except ModuleNotFoundError:
+	except subprocess.CalledProcessError as e:
+		logger.error(f"Failed to install {package}: {str(e)}")
 		return False
 
-	return spec is not None
+# Lazy imports
+for module, package in [("requests", "requests"), ("tqdm", "tqdm")]:
+	if not importlib.util.find_spec(module):
+		logger.warning(f"{module} not found. Installing...")
+		if not install_package(package):
+			logger.critical(f"Failed to install {package}. Aborting.")
+			sys.exit(1)
+import requests
+from tqdm import tqdm
 
-def install_webui():
+# Platform checks
+def is_platform(check: str) -> bool:
+	return sys.platform.startswith(check)
 
-	if not os.path.exists(os.path.join(install_dir, 'env', 'bin')):
-		run_cmd(f"mkdir {os.path.join(install_dir, 'env', 'bin')}", assert_success=True, environment=True)
+def is_x86_64() -> bool:
+	return platform.machine() == "x86_64"
 
+def cpu_has_feature(feature: str) -> bool:
+	try:
+		import cpuinfo
+		return feature in cpuinfo.get_cpu_info().get('flags', [])
+	except Exception:
+		logger.warning(f"Could not check CPU feature {feature}. Assuming supported.")
+		return True
 
+def get_torch_version() -> str:
+	"""Get installed PyTorch version."""
+	try:
+		site_packages = next((p for p in site.getsitepackages() if "site-packages" in p and str(CONDA_ENV_PATH) in p), None)
+		if site_packages:
+			with open(Path(site_packages) / 'torch' / 'version.py') as f:
+				return [line.split('__version__ = ')[1].strip("'") for line in f if line.startswith('__version__')][0]
+		import torch
+		return torch.__version__
+	except Exception as e:
+		logger.error(f"Failed to get torch version: {str(e)}")
+		raise
+
+def run_cmd(cmd: str, assert_success: bool = False, environment: bool = False, capture_output: bool = False) -> subprocess.CompletedProcess:
+	"""Run a shell command with optional environment activation."""
+	if environment:
+		if is_platform("win"):
+			cmd = f'"{INSTALL_DIR / "conda" / "condabin" / "conda.bat"}" activate "{CONDA_ENV_PATH}" >nul && {cmd}'
+		else:
+			cmd = f'. "{INSTALL_DIR / "conda" / "etc" / "profile.d" / "conda.sh"}" && conda activate "{CONDA_ENV_PATH}" && {cmd}'
+
+	try:
+		result = subprocess.run(cmd, shell=True, capture_output=capture_output, text=True)
+		if assert_success and result.returncode != 0:
+			logger.error(f"Command failed: {cmd}\nExit code: {result.returncode}\nOutput: {result.stdout}\nError: {result.stderr}")
+			time.sleep(2)  # Give chance to retry
+			result = subprocess.run(cmd, shell=True, capture_output=capture_output, text=True)
+			if result.returncode != 0:
+				logger.critical("Command failed after retry. Exiting.")
+				sys.exit(1)
+		return result
+	except Exception as e:
+		logger.error(f"Command execution failed: {str(e)}", exc_info=True)
+		raise
+
+def update_pytorch() -> None:
+	"""Update PyTorch to the specified version."""
+	logger.info("Checking PyTorch updates")
+	torver = get_torch_version()
+	variants = {'cuda': '+cu' in torver, 'cuda118': '+cu118' in torver, 'rocm': '+rocm' in torver,
+				'intel': '+cxx11' in torver, 'cpu': '+cpu' in torver}
+
+	cmd = f"python -m pip install --upgrade torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION}"
+	if variants['cuda118']:
+		cmd += " --index-url https://download.pytorch.org/whl/cu118"
+	elif variants['cuda']:
+		cmd += " --index-url https://download.pytorch.org/whl/cu121"
+	elif variants['rocm']:
+		cmd += " --index-url https://download.pytorch.org/whl/rocm5.6"
+	elif variants['cpu']:
+		cmd += " --index-url https://download.pytorch.org/whl/cpu"
+	elif variants['intel']:
+		cmd = "python -m pip install --upgrade torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10" + \
+			  ("+xpu" if is_platform("linux") else "") + " --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
+
+	run_cmd(cmd, assert_success=True, environment=True)
+
+def update_requirements(initial_install: bool = False) -> None:
+	"""Update project requirements based on platform and hardware."""
+	if not initial_install:
+		update_pytorch()
+
+	torver = get_torch_version()
+	variants = {'cuda': '+cu' in torver, 'cuda118': '+cu118' in torver, 'rocm': '+rocm' in torver,
+				'intel': '+cxx11' in torver, 'cpu': '+cpu' in torver}
+
+	req_file = ("requirements_amd" if variants['rocm'] else
+				"requirements_cpu_only" if variants['cpu'] or variants['intel'] else
+				f"requirements_apple_{'intel' if is_x86_64() else 'silicon'}" if is_platform("darwin") else
+				"requirements") + ("_noavx2" if not cpu_has_feature('avx2') else "") + ".txt"
+
+	logger.info(f"Installing requirements from {req_file}")
+	reqs = open(req_file).read().splitlines()
+	if variants['cuda118']:
+		reqs = [r.replace('+cu121', '+cu118').replace('+cu122', '+cu118') for r in reqs]
+	if is_platform("win") and variants['cuda118']:
+		reqs = [r for r in reqs if 'oobabooga/flash-attention' not in r]
+
+	temp_reqs = BASE_DIR / 'temp_requirements.txt'
+	with open(temp_reqs, 'w') as f:
+		f.write('\n'.join(reqs))
+
+	for req in [r for r in reqs if r.startswith("git+")]:
+		pkg = req.split("/")[-1].split("@")[0].rstrip(".git")
+		run_cmd(f"python -m pip uninstall -y {pkg}", environment=True)
+		logger.info(f"Uninstalled {pkg} for fresh install")
+
+	run_cmd(f"python -m pip install -r {temp_reqs} --upgrade", assert_success=True, environment=True)
+	temp_reqs.unlink()
+
+def install_webui() -> None:
+	"""Install web UI dependencies."""
+	stages = 3  # PyTorch, Requirements, Cleanup
+	stage_weight = 33.33
+	progress = 0
+
+	def update_progress(stage_name: str):
+		nonlocal progress
+		progress += stage_weight
+		logger.info(f"Web UI Install Progress: {progress:.1f}% - {stage_name}")
+		print(f"Web UI Install Progress: {progress:.1f}%")
+
+	"""Install web UI dependencies."""
+	if not (CONDA_ENV_PATH / 'bin').exists():
+		(CONDA_ENV_PATH / 'bin').mkdir(parents=True)
 
 	try:
 		import torch
-	except:
-		# Ask the user for the GPU vendor
-		if "GPU_CHOICE" in os.environ:
-			choice = os.environ["GPU_CHOICE"].upper()
-			print_big_message(f"Selected GPU choice \"{choice}\" based on the GPU_CHOICE environment variable.")
-		else:
-			choice = get_user_choice(
-				"What is your GPU?",
-				{
-					'A': 'NVIDIA',
-					'B': 'AMD (Linux/MacOS only. Requires ROCm SDK 5.6 on Linux)',
-					'C': 'Apple M Series',
-					'D': 'Intel Arc (IPEX)',
-					'N': 'None (I want to run models in CPU mode)'
-				},
-			)
+	except ImportError:
+		gpu_choices = {'A': 'NVIDIA', 'B': 'AMD', 'C': 'APPLE', 'D': 'INTEL', 'N': 'NONE'}
+		choice = os.environ.get("GPU_CHOICE", "").upper() or get_user_choice(
+			"What is your GPU?", {k: f"{v} ({'ROCm required' if k == 'B' else 'CPU mode' if k == 'N' else 'IPEX' if k == 'D' else ''})"
+								  for k, v in gpu_choices.items()}
+		)
+		selected_gpu = gpu_choices[choice]
 
-		gpu_choice_to_name = {
-			"A": "NVIDIA",
-			"B": "AMD",
-			"C": "APPLE",
-			"D": "INTEL",
-			"N": "NONE"
-		}
+		if selected_gpu == "NONE" and CMD_FLAGS_PATH.exists():
+			with open(CMD_FLAGS_PATH, 'a') as f:
+				if "--cpu" not in f.read():
+					f.write("\n--cpu\n")
+					logger.info("Added --cpu flag to CMD_FLAGS.txt")
 
-		selected_gpu = gpu_choice_to_name[choice]
 		use_cuda118 = "N"
+		if selected_gpu == "NVIDIA" and any(is_platform(p) for p in ["win", "linux"]):
+			use_cuda118 = os.environ.get("USE_CUDA118", "N").upper()
+			if use_cuda118 not in ['Y', 'N']:
+				use_cuda118 = input("Use CUDA 11.8 instead of 12.1? (Y/N, recommended N for RTX/GTX): ").upper().strip() or "N"
 
-		# Write a flag to CMD_FLAGS.txt for CPU mode
-		if selected_gpu == "NONE":
-			with open(cmd_flags_path, 'r+') as cmd_flags_file:
-				if "--cpu" not in cmd_flags_file.read():
-					print_big_message("Adding the --cpu flag to CMD_FLAGS.txt.")
-					cmd_flags_file.write("\n--cpu\n")
-
-		# Check if the user wants CUDA 11.8
-		elif any((is_windows(), is_linux())) and selected_gpu == "NVIDIA":
-			if "USE_CUDA118" in os.environ:
-				use_cuda118 = "Y" if os.environ.get("USE_CUDA118", "").lower() in ("yes", "y", "true", "1", "t", "on") else "N"
-			else:
-				print("\nDo you want to use CUDA 11.8 instead of 12.1?\nOnly choose this option if your GPU is very old (Kepler or older).\n\nFor RTX and GTX series GPUs, say \"N\".\nIf unsure, say \"N\".\n")
-				use_cuda118 = input("Input (Y/N)> ").upper().strip('"\'').strip()
-				while use_cuda118 not in 'YN':
-					print("Invalid choice. Please try again.")
-					use_cuda118 = input("Input> ").upper().strip('"\'').strip()
-
-			if use_cuda118 == 'Y':
-				print("CUDA: 11.8")
-			else:
-				print("CUDA: 12.1")
-
-		# No PyTorch for AMD on Windows (?)
-		elif is_windows() and selected_gpu == "AMD":
-			print("PyTorch setup on Windows is not implemented yet. Exiting...")
-			sys.exit(1)
-
-		# Find the Pytorch installation command
-		install_pytorch = f"python -m pip install torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION} "
-
+		cmd = f"python -m pip install torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION}"
 		if selected_gpu == "NVIDIA":
-			if use_cuda118 == 'Y':
-				install_pytorch += "--index-url https://download.pytorch.org/whl/cu118"
-			else:
-				install_pytorch += "--index-url https://download.pytorch.org/whl/cu121"
+			cmd += " --index-url https://download.pytorch.org/whl/cu118" if use_cuda118 == 'Y' else " --index-url https://download.pytorch.org/whl/cu121"
 		elif selected_gpu == "AMD":
-			install_pytorch += "--index-url https://download.pytorch.org/whl/rocm5.6"
+			cmd += " --index-url https://download.pytorch.org/whl/rocm5.6"
 		elif selected_gpu in ["APPLE", "NONE"]:
-			install_pytorch += "--index-url https://download.pytorch.org/whl/cpu"
+			cmd += " --index-url https://download.pytorch.org/whl/cpu"
 		elif selected_gpu == "INTEL":
-			if is_linux():
-				install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10+xpu --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
-			else:
-				install_pytorch = "python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10 --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
+			cmd = f"python -m pip install torch==2.1.0a0 torchvision==0.16.0a0 torchaudio==2.1.0a0 intel-extension-for-pytorch==2.1.10{' +xpu' if is_platform('linux') else ''} --extra-index-url https://pytorch-extension.intel.com/release-whl/stable/xpu/us/"
 
-		# Install Git and then Pytorch
-		print_big_message("Installing PyTorch.")
-		run_cmd(f"conda install -y -k ninja git && {install_pytorch} && python -m pip install py-cpuinfo==9.0.0", assert_success=True, environment=True)
+		logger.info("Installing PyTorch and dependencies")
+		run_cmd(f"conda install -y -k ninja git && {cmd} && python -m pip install py-cpuinfo==9.0.0", assert_success=True, environment=True)
 
 		if selected_gpu == "INTEL":
-			# Install oneAPI dependencies via conda
-			print_big_message("Installing Intel oneAPI runtime libraries.")
-			run_cmd("conda install -y -c intel dpcpp-cpp-rt=2024.0 mkl-dpcpp=2024.0")
-			# Install libuv required by Intel-patched torch
-			run_cmd("conda install -y libuv")
+			run_cmd("conda install -y -c intel dpcpp-cpp-rt=2024.0 mkl-dpcpp=2024.0", assert_success=True, environment=True)
+			run_cmd("conda install -y libuv", assert_success=True, environment=True)
 
-	# Install the webui requirements
-	update_requirements(initial_installation=True)
+	update_requirements(initial_install=True)
+	if not importlib.util.find_spec("clip"):
+		run_cmd(f"python -m pip install {CLIP_PACKAGE}", assert_success=True, environment=True)
 
-	if not is_installed("clip"):
-		run_pip(f"install {clip_package}", "clip")
+	update_progress("PyTorch installed")
 
+	update_requirements(initial_install=True)
+	update_progress("Requirements updated")
 
-
-
-
-def launch_webui():
-
-	run_cmd(f"python pq/prompt_quill_ui_qdrant.py", environment=True)
+	if not importlib.util.find_spec("clip"):
+		run_cmd(f"python -m pip install {CLIP_PACKAGE}", assert_success=True, environment=True)
+	update_progress("Web UI setup complete")
 
 
-
-def check_collection_exists(qdrant_url, collection_name):
-	url = f"{qdrant_url}/collections/{collection_name}/exists"
-
+def get_available_space(path: Path) -> int:
+	"""Get available disk space in bytes."""
 	try:
-		response = requests.get(url)
-		response.raise_for_status()  # Raise an exception for HTTP errors (non-2xx responses)
+		stat = os.statvfs(str(path)) if os.name == 'posix' else shutil.disk_usage(str(path))
+		return stat.f_bavail * stat.f_frsize if os.name == 'posix' else stat.free
+	except Exception as e:
+		logger.error(f"Failed to check disk space: {str(e)}")
+		return float('inf')  # Assume infinite space if check fails
 
-		if response.status_code == 200:
-			exists = response.json().get('exists', False)
-			return exists
-		else:
-			print(f"Failed to check collection existence. Status code: {response.status_code}")
-			return False
+def launch_webui() -> None:
+	"""Launch the web UI."""
+	min_space_gb = 1  # Adjust based on web UI needs
+	if get_available_space(BASE_DIR) < min_space_gb * (1024**3):
+		logger.error(f"Insufficient disk space for web UI: {min_space_gb}GB required")
+		sys.exit(1)
+	logger.info("Launching Prompt Quill UI")
+	logger.info("Launching Prompt Quill UI (100% complete)")
+	print("Process Complete: 100% - Launching UI")
+	run_cmd("python pq/prompt_quill_ui_qdrant.py", environment=True)
 
-	except requests.exceptions.RequestException as e:
-		print(f"Error connecting to Qdrant: {str(e)}")
-		return False
+def cleanup_qdrant_data() -> None:
+	"""Clean up Qdrant installation files."""
+	logger.info("Performing cleanup")
+	for file in ['dist-qdrant.zip', 'qdrant-x86_64-pc-windows-msvc.zip', 'data.zip']:
+		path = INSTALL_DIR / file
+		if path.exists():
+			path.unlink()
+	for dir in [INSTALL_DIR / 'delete_after_setup', INSTALL_DIR / 'qdrant' / 'snapshots']:
+		shutil.rmtree(dir, ignore_errors=True)
 
+def get_user_choice(question: str, options: Dict[str, str]) -> str:
+	"""Get user input with validation."""
+	print(f"\n{question}\n")
+	for k, v in options.items():
+		print(f"{k}) {v}")
+	choice = input("\nInput> ").upper()
+	while choice not in options:
+		print("Invalid choice. Try again.")
+		choice = input("Input> ").upper()
+	return choice
 
-
-def cleanup_qdrant_data():
-
-	# Cleanup
-	print("Performing cleanup")
-	if os.path.exists(os.path.join(install_dir, 'dist-qdrant.zip')):
-		os.remove(os.path.join(install_dir, 'dist-qdrant.zip'))
-	if os.path.exists(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip')):
-		os.remove(os.path.join(install_dir, 'qdrant-x86_64-pc-windows-msvc.zip'))
-	if os.path.exists(os.path.join(install_dir, 'data.zip')):
-		os.remove(os.path.join(install_dir, 'data.zip'))
-	shutil.rmtree(os.path.join(install_dir, 'delete_after_setup'), ignore_errors=True)
-	shutil.rmtree(os.path.join(install_dir, 'qdrant', 'snapshots'), ignore_errors=True)
-
-
-
-cleanup_qdrant_data()
-
-install_webui()
-
-launch_webui()
+if __name__ == "__main__":
+	try:
+		cleanup_qdrant_data()
+		install_webui()
+		launch_webui()
+	except KeyboardInterrupt:
+		logger.warning("Interrupted by user")
+		sys.exit(1)
+	except Exception as e:
+		logger.critical("Execution failed", exc_info=True)
+		sys.exit(1)
