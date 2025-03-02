@@ -8,7 +8,7 @@ echo [%date% %time%] Starting installation script > "%LOG_FILE%"
 
 :: Progress stages (total weight = 100)
 set "STAGES_TOTAL=8" :: Git check, Miniconda download, install, env create, activate, pip install, qdrant install, final run
-set "STAGE_WEIGHT=12.5" :: 100 / 8
+set "STAGE_WEIGHT=12" :: 100 / 8
 set "PROGRESS=0"
 
 :: Function to update progress
