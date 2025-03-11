@@ -11,4 +11,4 @@
 /llama_index_pq/magic_prompt_logfile.txt
 /llama_index_pq/pq/settings/models_temp.txt
 /llama_index_pq/installer_cache/
-/llama_index_pq/__pycache__
+**/__pycache__/
