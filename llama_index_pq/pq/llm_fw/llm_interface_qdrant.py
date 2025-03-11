@@ -55,13 +55,20 @@ class _LLM_INTERFACE:
         return self.adapter.set_prompt(prompt_text)
 
 
-    def log(self,logfile, text):
-        f = open(logfile, 'a')
-        try:
-            f.write(f"QUERY: {text} \n")
-        except:
-            pass
-        f.close()
+    def log(self, logfile, message):  # Assuming this is a method in a class
+        # If logfile is just a filename (no path), default to script's directory
+        if not os.path.isabs(logfile) and '\\' not in logfile and '/' not in logfile:
+            base_dir = os.path.dirname(os.path.abspath(__file__))  # Directory of llm_interface_qdrant.py
+            logfile = os.path.join(base_dir, logfile)
+
+        # Get directory and ensure it exists
+        log_dir = os.path.dirname(logfile)
+        if log_dir:  # Only call makedirs if there’s a directory to create
+            os.makedirs(log_dir, exist_ok=True)
+
+        # Open and write
+        with open(logfile, 'a+') as f:
+            f.write(f"{message}\n")
 
 
 
