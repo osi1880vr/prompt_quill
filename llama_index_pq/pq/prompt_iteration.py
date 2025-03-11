@@ -219,23 +219,26 @@ class prompt_iterator:
 
 
 	def setting_dropdown(self, choices, label, initial_value=None):
+		print(f"Creating dropdown with choices: {choices}")
+		local_choices = choices.copy()  # Snapshot at creation
 		with gr.Row():
 			with gr.Column(scale=1):
 				is_all_selected = gr.Checkbox(label="Select All", value=False)
 			with gr.Column(scale=3):
-				dropdown = gr.Dropdown(label=label, choices=choices, value=initial_value, multiselect=True, allow_custom_value=True)
-
+				dropdown = gr.Dropdown(label=label, choices=local_choices, value=initial_value, multiselect=True, allow_custom_value=True)
 
 		def select_all_dropdown(is_all_selected_value):
-			self.g.settings_data[label] = choices
+			print(f"Checkbox: {is_all_selected_value}, Choices: {local_choices}")
+			new_value = local_choices.copy() if is_all_selected_value else []
+			self.g.settings_data[label] = new_value  # Sync settings
 			settings_io().write_settings(self.g.settings_data)
-			return gr.update(choices=choices, value=choices.copy() if is_all_selected_value else [])
-
+			print(f"Returning dropdown value: {new_value}")
+			return gr.update(choices=local_choices, value=new_value)
 
 		def update_dropdown(dropdown):
+			print(f"Dropdown updated to: {dropdown}")
 			self.g.settings_data[label] = dropdown
 			settings_io().write_settings(self.g.settings_data)
-
 
 		gr.on(
 			triggers=[is_all_selected.change],
@@ -249,7 +252,6 @@ class prompt_iterator:
 			outputs=None)
 
 		dropdown.interactive = True
-
 		return dropdown
 
 

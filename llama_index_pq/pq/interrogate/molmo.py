@@ -162,8 +162,56 @@ class molmo:
 
         return resized_image
 
+    def process_prompt(self, prompt):
+        if self.model is None:
+            self.load_model()
 
-    def process_image(self, image, prompt):
+        inputs = self.processor.process(
+            images=[],
+            text=prompt
+        )
+
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        # move inputs to the correct device and make a batch of size 1
+        inputs = {k: v.to(device).unsqueeze(0) for k, v in inputs.items()}
+
+        seed = random.randint(0, 2**32 - 1)
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+
+        # 确保 CuDNN 使用确定性算法
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+        generation_config = GenerationConfig( max_new_tokens=ext_max_tokens if ext_max_tokens else self.g.settings_data['interrogate']['molmo_max_new_tokens'],
+                                              stop_strings="<|endoftext|>",
+                                              do_sample=True,
+                                              temperature=self.temperature,
+                                              top_k=self.g.settings_data['interrogate']['molmo_top_k'],
+                                              top_p=self.g.settings_data['interrogate']['molmo_top_p'],
+                                              )
+
+
+        with torch.random.fork_rng(devices=[self.model.device]):
+            torch.random.manual_seed(seed)
+
+            output = self.model.generate_from_batch(
+                inputs,
+                generation_config,
+                tokenizer=self.processor.tokenizer
+            )
+
+        generated_tokens = output[0, inputs["input_ids"].size(1):]
+        generated_text = self.processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+
+        if self.g.settings_data['interrogate']['molmo_unload_model_after_generation']:
+            self.unload_model()
+        return generated_text
+
+
+    def process_image(self, image, prompt, ext_max_tokens=None):
 
         if self.model is None:
             self.load_model()
@@ -188,7 +236,7 @@ class molmo:
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
 
-        generation_config = GenerationConfig( max_new_tokens=self.g.settings_data['interrogate']['molmo_max_new_tokens'],
+        generation_config = GenerationConfig( max_new_tokens=ext_max_tokens if ext_max_tokens else self.g.settings_data['interrogate']['molmo_max_new_tokens'],
                                               stop_strings="<|endoftext|>",
                                               do_sample=True,
                                               temperature=self.temperature,
@@ -221,7 +269,7 @@ class molmo:
         if self.processor is not None:
             del self.processor
             self.processor = None
-
+        torch.cuda.empty_cache()  # Free VRAM
         print("Model and processor have been unloaded, and CUDA cache has been cleared.")
 
 

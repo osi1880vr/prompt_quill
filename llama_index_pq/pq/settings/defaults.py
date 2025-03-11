@@ -32,6 +32,7 @@ You mix a new prompt based on the context and the query. The query is just addin
 
     "automa": {
         "automa_sampler": "DPM++ 2M Karras",
+        "automa_seed": -1,
         "automa_checkpoint": "",
         "automa_vae": "",
         "automa_alt_vae": "",
@@ -51,6 +52,8 @@ You mix a new prompt based on the context and the query. The query is just addin
         "automa_checkpoints": [],
         "automa_samplers": [],
         "automa_schedulers": [],
+        "automa_loras":[],
+        "automa_embeddings":[],
         "automa_scheduler": 'Automatic',
         "automa_vaes": [],
         "automa_layerdiffuse_enable": False,
@@ -64,6 +67,12 @@ You mix a new prompt based on the context and the query. The query is just addin
         "automa_adetailer_enable_1": False,
         "automa_ad_prompt_1": "",
         "automa_ad_negative_prompt_1": "",
+        "automa_ad_mask_blur_1": 8,
+        "automa_ad_inpaint_only_masked_1": True,
+        "automa_ad_inpaint_only_masked_padding_1": 64,
+        "automa_ad_mask_merge_invert_1": "None",
+        "automa_ad_restore_face_1": True,
+        "automa_ad_sep_prompt_1": "",
 
         "automa_ad_use_inpaint_width_height_2": False,
         "automa_ad_model_2": "",
@@ -74,8 +83,14 @@ You mix a new prompt based on the context and the query. The query is just addin
         "automa_adetailer_enable_2": False,
         "automa_ad_prompt_2": "",
         "automa_ad_negative_prompt_2": "",
+        "automa_ad_mask_blur_2": 8,
+        "automa_ad_inpaint_only_masked_2": True,
+        "automa_ad_inpaint_only_masked_padding_2": 64,
+        "automa_ad_mask_merge_invert_2": "None",
+        "automa_ad_restore_face_2": True,
+        "automa_ad_sep_prompt_2": "",
 
-        "automa_ad_use_inpaint_width_height_3":False,
+        "automa_ad_use_inpaint_width_height_3": False,
         "automa_ad_model_3": "",
         "automa_ad_denoising_strength_3": 0.2,
         "automa_ad_clip_skip_3": 2,
@@ -84,6 +99,12 @@ You mix a new prompt based on the context and the query. The query is just addin
         "automa_adetailer_enable_3": False,
         "automa_ad_prompt_3": "",
         "automa_ad_negative_prompt_3": "",
+        "automa_ad_mask_blur_3": 8,
+        "automa_ad_inpaint_only_masked_3": True,
+        "automa_ad_inpaint_only_masked_padding_3": 64,
+        "automa_ad_mask_merge_invert_3": "None",
+        "automa_ad_restore_face_3": True,
+        "automa_ad_sep_prompt_3": "",
 
         "automa_ad_use_inpaint_width_height_4": False,
         "automa_ad_model_4": "",
@@ -94,6 +115,13 @@ You mix a new prompt based on the context and the query. The query is just addin
         "automa_adetailer_enable_4": False,
         "automa_ad_prompt_4": "",
         "automa_ad_negative_prompt_4": "",
+        "automa_ad_mask_blur_4": 8,
+        "automa_ad_inpaint_only_masked_4": True,
+        "automa_ad_inpaint_only_masked_padding_4": 64,
+        "automa_ad_mask_merge_invert_4": "None",
+        "automa_ad_restore_face_4": True,
+        "automa_ad_sep_prompt_4": "",
+
     },
 
     "sailing": {
@@ -230,6 +258,92 @@ You mix a new prompt based on the context and the query. The query is just addin
         "iti_file_renamer_prompt": "",
         "iti_description_prompt": ""
     },
+
+    "iti": {
+        "enhance_prompt": False,
+        "input_folder": "C:/Images/TannedModels",
+        "output_dirs": {
+            "good": "./good",
+            "drafts": "./drafts"
+        },
+        "molmo": {
+            "prompt_style": "Describe colors, style, and key elements for Stable Diffusion",
+            "max_tokens": 100,
+            "refine_max_tokens": 200,
+            "negative_prompt": False,
+            "custom_prompt": "",
+            "refine_prompt": ""
+        },
+        "automa": {
+            "negative_prompt": "",
+            "image_count": 1
+        },
+        "scorers": {
+            "clip": {"enabled": True, "weight": 0.3},
+            "ssim": {"enabled": True, "weight": 0.15},
+            "color": {"enabled": True, "weight": 0.1},
+            "phash": {"enabled": True, "weight": 0.1},
+            "aesthetic": {"enabled": True, "weight": 0.15},
+            "detail": {"enabled": True, "weight": 0.15},
+            "gen_clip": {"enabled": True, "weight": 0.15},
+            "blur": {"enabled": True, "weight": 0.15},
+            "artifacts": {"enabled": True, "weight": 0.15}
+
+        },
+        "scorers_single": {
+            "aesthetic": {"enabled": True, "weight": 0.25},
+            "detail": {"enabled": True, "weight": 0.20},
+            "gen_clip": {"enabled": True, "weight": 0.25},
+            "blur": {"enabled": True, "weight": 0.15},
+            "artifacts": {"enabled": True, "weight": 0.15}
+        },
+        "refinement": {
+            "max_iterations": 5,
+            "target_score": 80,
+            "llm_max_tokens": 50,
+            "feedback_style": "detailed",
+            "revert_on_drop": True,
+            "early_stop_gain": 5,
+            "improvement_threshold": 20,  # New!
+            "combo_size": 20,
+            "enable_model_cycle": False,
+            "enhance_prompt": False,
+            "cycle_enhance_prompt": False
+        },
+        "output": {
+            "save_metadata": False,
+            "log_file": "./iti_log.txt"
+        },
+        "meta_prompt": """{instruction_start}Context information is below.\n---------------------\n{context}\n---------------------\nYou are an expert in creating prompts for text-to-image generation models like Stable Diffusion.Your task is to refine the prompt to boost weak scores.Output ONLY a comma-separated list of 50+ tokens—short keywords or phrases for subject, details,style, mood, and quality. Focus on style, colors, composition. Order matters: start with image-specific tokens, end with quality/style. No explanations, no sentences.{user_pattern}USER: Refine the prompt now.{assistant_pattern}""",
+        "prompt": {
+            "pos_style": "",
+            "pos_lora": "",
+            "neg_style": "",
+            "neg_lora": "",
+        },
+        "sailing": {
+            "enable_sailing_step": False,
+            "enable_sailing": False,
+            "sail_enhance_prompt": False,
+            "sail_steps": 5,
+            "sail_sampler": "",
+            "sail_scheduler": "",
+            "sail_checkpoint": "",
+            "sail_vae": "",
+            "pos_sail_embedding": "",
+            "neg_sail_embedding": "",
+            "pos_sail_lora": "",
+            "neg_sail_lora": ""
+        },
+        "research": {
+            "prompts": [["", ""], ["", ""], ["", ""]]
+        },
+        "model_lists": {
+            "models": ["artcore_v10", "rundiffusionXL_beta"],
+            "loras": ["add_details_xl", "SDXLHighDetail_v5"]
+        }
+    },
+
 
     "embedding_model": "BAAI/bge-base-en-v1.5",
     "embedding_model_list": ["sentence-transformers/all-MiniLM-L12-v2", "BAAI/bge-base-en-v1.5"],

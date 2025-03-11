@@ -139,6 +139,20 @@ def setup_generator_tab(generator, ui, generator_manager, ui_share):
                             ui_share.generate_ad_block(3)
                         with gr.Tab('Adetailer Stage 4') as adetailer_4:
                             ui_share.generate_ad_block(4)
+            with gr.Tab("ADetailer Help"):
+                gr.Markdown("""### ADetailer Prompt Tips
+- **Basic Prompt**: One prompt applies to all detected faces (e.g., "realistic face").
+- **Per-Face Prompts**: Use commas to set unique prompts for each face in detection order (e.g., "smiling face, serious face, angry face").
+- **Negative Prompts**: Same deal—global (e.g., "blurry") or per-face (e.g., "blurry, dark circles, distorted").
+- **Wildcards**: Add dynamic variety with `*` or custom lists (e.g., "face with * hairstyle") if supported by extensions.
+- **Style Control**: Match your base model (e.g., "anime face" for Pony) for seamless blending.
+- **Multiple Blocks**: Each block (1-4) can target different areas (e.g., Block 1: faces, Block 2: hands).
+- **[SEP]**: You can separate the prompts with [SEP] to apply them in order.
+- **[SKIP]**: If the prompt for any part is [SKIP], that part is skipped without inpainting.
+- **[PROMPT]**: The [PROMPT] token is replaced with the original prompt (or negative prompt).
+- **unknown faces**: positive prompt: generic diverse face, unique features, no known identity negative prompt: famous person, celebrity, cartoon character, specific likeness
+""")
+
 
             with gr.Tab('Layer Diffusion') as layerdiffuse:
                 components['automa_layerdiffuse_enable'] = gr.Checkbox(label="Enable Layer Diffusion",

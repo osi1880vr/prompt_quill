@@ -50,10 +50,12 @@ class adapter:
     def __init__(self):
         self.g = globals.get_globals()
         self.set_document_store()
+        self.llm_state = None
         self.llm = self.set_llm()
         self.set_pipeline()
         self.last_context = []
         self.prompt_array_index = {}
+
 
 
     def get_document_store(self):
@@ -321,6 +323,17 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
         return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
 
+
+    def prepare_meta_prompt(self,meta_prompt, context):
+
+        instruction_start = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['instruction_start']
+        start_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['start_pattern']
+        user_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['user_pattern']
+        assistant_pattern = self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['assistant_pattern']
+        return meta_prompt.format(context=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
+
+
+
     def prepare_model_test_prompt(self,prompt,context):
         meta_prompt = self.g.settings_data['prompt_templates']['model_test_instruction']
         meta_prompt = f"{meta_prompt}"
@@ -331,21 +344,31 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         return meta_prompt.format(query_str=prompt, context_str=context, instruction_start=instruction_start,start_pattern=start_pattern,user_pattern=user_pattern,assistant_pattern=assistant_pattern)
 
 
+
+    def save_state(self):
+        if self.llm:
+            self.llm_state = self.llm._model.save_state()
+
+    def reload_state(self):
+        if self.llm_state:
+            self.llm._model.load_state(state=self.llm_state)
+
     def create_completion(self, prompt):
 
         self.check_llm_loaded()
+        self.reset_model()
 
         completion_chunks = self.llm._model.create_completion(
             prompt=prompt,
             temperature=self.g.settings_data["Temperature"],
             max_tokens=self.g.settings_data["max output Tokens"],
-            top_p=1,
+            top_p=0.9,
             min_p=0.05,
             typical_p=1,
             frequency_penalty=0,
             presence_penalty=0,
-            repeat_penalty=1,
-            top_k=0,
+            repeat_penalty=1.1,
+            top_k=40,
             stream=True,
             seed=None,
             tfs_z=1,
@@ -371,9 +394,10 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def check_llm_loaded(self):
         if not hasattr(self, 'llm'):
             self.llm = self.set_llm()
+            self.reload_state()
 
     def retrieve_model_test_llm_completion(self, prompt):
-        self.llm._model.reset()
+        self.reset_model()
 
         context = self.get_context_text(prompt)
         self.g.last_context = context
@@ -385,7 +409,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         self.check_llm_loaded()
 
-        self.llm._model.reset()
+        self.reset_model()
 
         context = self.get_context_text(prompt)
         self.g.last_context = context
@@ -406,7 +430,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         self.check_llm_loaded()
 
         try:
-            self.llm._model.reset()
+            self.reset_model()
             answer = self.retrieve_llm_completion(query)
             gc.collect()
             torch.cuda.empty_cache()
@@ -419,7 +443,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
         self.check_llm_loaded()
         self.set_rephrase_pipeline(context)
-        self.llm._model.reset()
+        self.reset_model()
         response =  self.query_rephrase_engine.query(query)
         gc.collect()
         torch.cuda.empty_cache()
@@ -428,11 +452,17 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
     def del_llm_model(self):
         if hasattr(self, 'llm'):
+            #self.save_state()
             self.llm._model = None
             del self.llm
         # delete the model from Ram
         gc.collect()
         torch.cuda.empty_cache()
+
+    def reset_model(self):
+        if self.llm:
+            self.llm._model.reset()
+            #self.reload_state()
 
     def change_model(self,model,temperature,n_ctx,n_gpu_layers,max_tokens,top_k):
 

@@ -55,7 +55,7 @@ def settings_model_settings(ui_code):
                     info="If you dont know better, use all-MiniLM-L12-v2!"
                 )
                 components['temperature'] = create_slider(
-                    "Temperature", g.settings_data['Temperature'], min_val=0, max_val=1, step=0.1,
+                    "Temperature", g.settings_data['Temperature'], min_val=0, max_val=2, step=0.1,
                     info="Choose between 0 and 1"
                 )
                 components['context'] = create_slider(

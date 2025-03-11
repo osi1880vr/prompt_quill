@@ -7,6 +7,7 @@ from io import BytesIO
 import time
 import os
 import shared
+import sqlite3
 from settings.io import settings_io
 from generators.hordeai.client import hordeai_client
 from generators.automatics.client import automa_client
@@ -57,7 +58,12 @@ class GeneratorManager:
         return automa_height, automa_width
 
     def automa_refresh(self):
-        self.g.settings_data['automa']['automa_checkpoints'] = self.automa_client.get_checkpoints(self.g.settings_data['automa']['automa_url'])
+        model_scores = self.get_model_scores()
+        models = self.automa_client.get_checkpoints(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_checkpoints'] = [
+            f"{model} (Score: {model_scores.get(model, 'N/A')})" if model in model_scores else model
+            for model in models
+        ]
         self.g.settings_data['automa']['automa_samplers'] = self.automa_client.get_samplers(self.g.settings_data['automa']['automa_url'])
         self.g.settings_data['automa']['automa_schedulers'] = self.automa_client.get_schedulers(self.g.settings_data['automa']['automa_url'])
         self.g.settings_data['automa']['automa_vaes'] = self.automa_client.get_vaes(self.g.settings_data['automa']['automa_url'])
@@ -67,6 +73,52 @@ class GeneratorManager:
             gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['automa']['automa_vae']),
             gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['automa']['automa_scheduler'])
         )
+
+
+    def get_model_scores(self):
+        """Calculate average score per model from image_scores.db."""
+        model_scores = {}
+        try:
+            with sqlite3.connect("image_scores.db") as db:
+                rows = db.execute("""
+                    SELECT model, AVG(score) as avg_score, COUNT(*) as runs
+                    FROM image_scores
+                    GROUP BY model
+                    HAVING runs >= 3  -- Optional: min runs for reliability
+                """).fetchall()
+                for model, avg_score, _ in rows:
+                    model_scores[model] = int(avg_score)  # Round to int for display
+        except sqlite3.OperationalError as e:
+            print(f"No image_scores.db or table yet: {e}—returning empty scores")
+        return model_scores
+
+    def iti_automa_refresh(self):
+        model_scores = self.get_model_scores()
+        models = self.automa_client.get_checkpoints(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_checkpoints'] = [
+            f"{model} (Score: {model_scores.get(model, 'N/A')})" if model in model_scores else model
+            for model in models
+        ]
+        self.g.settings_data['automa']['automa_samplers'] = self.automa_client.get_samplers(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_schedulers'] = self.automa_client.get_schedulers(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_vaes'] = self.automa_client.get_vaes(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_loras'] = self.automa_client.get_loras(self.g.settings_data['automa']['automa_url'])
+        self.g.settings_data['automa']['automa_embeddings'] = self.automa_client.get_embeddings(self.g.settings_data['automa']['automa_url'])
+
+        return (
+            gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data["iti"]['sailing']['sail_sampler']),
+            gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data["iti"]['sailing']['sail_checkpoint']),
+            gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data["iti"]['sailing']['sail_vae']),
+            gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data["iti"]['sailing']['sail_scheduler']),
+            gr.update(choices=self.g.settings_data['automa']['automa_loras'], value=self.g.settings_data["iti"]['sailing']['pos_sail_lora']),
+            gr.update(choices=self.g.settings_data['automa']['automa_loras'], value=self.g.settings_data["iti"]['sailing']['neg_sail_lora']),
+            gr.update(choices=self.g.settings_data['automa']['automa_embeddings'], value=self.g.settings_data["iti"]['sailing']['pos_sail_embedding']),
+            gr.update(choices=self.g.settings_data['automa']['automa_embeddings'], value=self.g.settings_data["iti"]['sailing']['neg_sail_embedding'])
+        )
+
+
+
+
 
     def run_automatics_generation(self, prompt, negative_prompt, sampler, checkpoint, steps, cfg, width, heigth, batch, n_iter, url, save, save_api, vae, clip_skip, automa_scheduler):
         self.g.running = True

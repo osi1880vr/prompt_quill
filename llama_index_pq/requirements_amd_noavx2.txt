@@ -24,3 +24,5 @@ bitsandbytes
 accelerate
 tensorflow
 tf-keras
+opencv-python
+imagehash

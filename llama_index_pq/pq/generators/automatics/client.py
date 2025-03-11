@@ -19,7 +19,7 @@ import json
 import time
 import os
 import globals
-
+from enhancer.prompts import PromptEnhance
 
 
 
@@ -38,6 +38,9 @@ class automa_client:
     def __init__(self):
         self.webui_server_url = 'http://localhost:7860'
         self.g = globals.get_globals()
+        self.prompt_enhancer = PromptEnhance()
+
+
     def timestamp(self):
         return datetime.fromtimestamp(time.time()).strftime("%Y%m%d-%H%M%S")
 
@@ -88,12 +91,18 @@ class automa_client:
         return response['caption']
 
 
-    def get_ad_args(self, number, settings_data):
+    def get_ad_args(self, number, settings_data, prompt):
+
+        ad_prompt = settings_data['automa'][f'automa_ad_prompt_{number}']
+        if "face" in settings_data['automa'][f'automa_ad_model_{number}']:
+            ad_prompt = self.prompt_enhancer.enhance_faces(ad_prompt, prompt, settings_data['automa'][f'automa_ad_model_{number}'])
+        ad_prompt = self.prompt_enhancer.process_wildcards(ad_prompt)
+
         args = {
             'ad_model': settings_data['automa'][f'automa_ad_model_{number}'],
             "ad_model_classes": "",
             "ad_tab_enable": True,
-            "ad_prompt": settings_data['automa'][f'automa_ad_prompt_{number}'],
+            "ad_prompt": ad_prompt,
             "ad_negative_prompt": settings_data['automa'][f'automa_ad_negative_prompt_{number}'],
             'ad_use_inpaint_width_height': settings_data['automa'][f'automa_ad_use_inpaint_width_height_{number}'],
             'ad_denoising_strength': settings_data['automa'][f'automa_ad_denoising_strength_{number}'],
@@ -101,10 +110,14 @@ class automa_client:
             "ad_clip_skip": settings_data['automa'][f'automa_ad_clip_skip_{number}'],
             "ad_confidence": settings_data['automa'][f'automa_ad_confidence_{number}'],
             "ad_use_checkpoint": True,
-            "ad_checkpoint": self.g.settings_data['automa'][f'automa_ad_checkpoint_{number}']
+            "ad_checkpoint": self.g.settings_data['automa'][f'automa_ad_checkpoint_{number}'],
+            "ad_mask_blur": 8,
+            "ad_inpaint_only_masked": True,
+            "ad_inpaint_only_masked_padding": 32,
+            "ad_mask_merge_invert": "None",
+            "ad_restore_face": True
 
-
-            #"ad_restore_face": settings_data['automa'][f'automa_ad_restore_face_{number}'],
+        #"ad_restore_face": settings_data['automa'][f'automa_ad_restore_face_{number}'],
             #"ad_use_steps": False,
             #"ad_steps": settings_data['automa'][f'automa_ad_steps_{number}']
         }
@@ -117,7 +130,7 @@ class automa_client:
 
         return args
 
-    def get_adetailer(self, settings_data):
+    def get_adetailer(self, settings_data, prompt):
         ADetailer = {}
 
         number = 1
@@ -125,7 +138,7 @@ class automa_client:
             if settings_data['automa'][f'automa_adetailer_enable_{number}']:
                 if not 'args' in ADetailer:
                     ADetailer['args'] = [True, False]
-                ADetailer['args'].append(self.get_ad_args(number, settings_data))
+                ADetailer['args'].append(self.get_ad_args(number, settings_data, prompt))
             number += 1
 
         return ADetailer
@@ -134,7 +147,7 @@ class automa_client:
         self.webui_server_url= settings_data['automa']["automa_url"]
         self.save = settings_data['automa']["automa_save"]
 
-        ADetailer = self.get_adetailer(settings_data)
+        ADetailer = self.get_adetailer(settings_data, prompt)
         alwayson_scripts = {}
 
         LayerDiffuse = {}
@@ -186,7 +199,7 @@ class automa_client:
             "alwayson_scripts": alwayson_scripts,
             "prompt": prompt,  # extra networks also in prompts
             "negative_prompt": negative_prompt,
-            "seed": -1,
+            "seed": settings_data['automa']["automa_seed"],
             "steps": settings_data['automa']["automa_steps"],
             "width": settings_data['automa']["automa_width"],
             "height": settings_data['automa']["automa_height"],
@@ -236,6 +249,22 @@ class automa_client:
             return ''
 
 
+    def post_api_endpoint(self,api_endpoint):
+        endpoint = f"{self.webui_server_url}/{api_endpoint}"  # Assuming webui_server_url exists
+        request = urllib.request.Request(
+            endpoint,
+            data=b'{}',  # Empty JSON payload—forces POST
+            headers={'Content-Type': 'application/json'},
+            method='POST'  # Explicit POST
+        )
+        try:
+            response = urllib.request.urlopen(request)
+        except Exception as e:
+            print(e)
+            return ''
+
+
+
     def get_samplers(self, url):
         self.webui_server_url = url
         samplers = self.get_api_endpoint('sdapi/v1/samplers')
@@ -246,7 +275,7 @@ class automa_client:
 
             return sampler_array
         else:
-            return -1
+            return ["None"]
 
 
     def get_schedulers(self, url):
@@ -259,7 +288,7 @@ class automa_client:
 
             return schedulers_array
         else:
-            return -1
+            return ["None"]
 
     def get_checkpoints(self, url):
         self.webui_server_url = url
@@ -271,7 +300,7 @@ class automa_client:
 
             return model_array
         else:
-            return -1
+            return ["None"]
 
     def get_vaes(self, url):
         self.webui_server_url = url
@@ -286,7 +315,29 @@ class automa_client:
 
             return vae_array
         else:
-            return -1
+            return ["None"]
+
+    def get_loras(self, url):
+        self.webui_server_url = url
+        loras = self.get_api_endpoint('sdapi/v1/loras')
+        if loras != '':
+            loras_array = ['None']
+            for lora in loras:
+                loras_array.append(lora['name'])
+            return loras_array
+        else:
+            return ["None"]
+
+    def get_embeddings(self, url):
+        self.webui_server_url = url
+        embeddings = self.get_api_endpoint('sdapi/v1/embeddings')
+        if embeddings != '':
+            embeddings_array = ['None']
+            for embedding in embeddings['loaded'].keys():
+                embeddings_array.append(embedding)
+            return embeddings_array
+        else:
+            return ["None"]
 
     def check_avail(self, url):
         self.webui_server_url = url
@@ -300,4 +351,4 @@ class automa_client:
             return 'API NOT OK'
 
     def unload_checkpoint(self):
-        self.get_api_endpoint('sdapi/v1/unload-checkpoint')
+        self.post_api_endpoint('sdapi/v1/unload-checkpoint')

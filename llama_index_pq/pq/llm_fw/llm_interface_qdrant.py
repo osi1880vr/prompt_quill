@@ -109,6 +109,9 @@ class _LLM_INTERFACE:
     def create_completion(self, prompt):
         return self.adapter.create_completion(prompt)
 
+    def reset_model(self):
+        self.adapter.reset_model()
+
 
     def run_llm_response_batch(self, query):
 

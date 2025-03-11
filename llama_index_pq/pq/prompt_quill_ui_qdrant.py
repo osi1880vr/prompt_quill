@@ -42,6 +42,8 @@ from ui.chat_manager import ChatManager  # New import
 from ui.file2file_manager import File2FileManager  # New import
 from ui.generator_manager import GeneratorManager  # New import
 from ui.interrogation_manager import InterrogationManager  # New import
+from ui.iti_manager import ITIManager  # New
+
 
 from ui.ui_chat import setup_chat_tab
 from ui.ui_sailing import setup_sailing_tab
@@ -53,6 +55,7 @@ from ui.ui_image_scoring import setup_image_scoring_tab
 from ui.ui_file2file import setup_file2file_tab
 from ui.ui_settings import setup_settings_tab
 from ui.ui_wildcards import setup_wildcards_tab  # Updated import
+from ui.ui_iti import setup_iti_tab  # New
 
 css = style
 
@@ -67,6 +70,7 @@ chat_manager = ChatManager()  # New instantiation
 file2file_manager = File2FileManager()  # New instantiation
 generator_manager = GeneratorManager()  # New instantiation
 interrogation_manager = InterrogationManager()  # New instantiation
+iti_manager = ITIManager()  # New instantiation—no () in tab!
 
 image_score = score.aestetic_score()
 
@@ -86,6 +90,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 		setup_chat_tab(chat, ui, chat_manager)  # Use chat_manager instead of ui_code
 	with gr.Tab("Sail the data ocean") as sailor:
 		setup_sailing_tab(sailor, sailing_manager)  # Pass sailing_manager instead of ui_code
+	with gr.Tab("ItTtI") as iti:  # Typo fixed!
+		iti_components = setup_iti_tab(iti, iti_manager, generator_manager, ui_code)  # No ui—lean!
 	with gr.Tab("Generator") as generator:
 		generator_components = setup_generator_tab(generator, ui, generator_manager, ui_share)  # Use generator_manager
 	with gr.Tab("Interrogation") as interrogation:

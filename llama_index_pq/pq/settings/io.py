@@ -43,29 +43,24 @@ class settings_io:
                         if sub_key not in self.default[key]:
                             del self.settings[key][sub_key]
 
+    def check_missing_settings(self):
+        def recursive_update(defaults, settings):
+            missing = 0
+            for key, value in defaults.items():
+                if key not in settings:
+                    settings[key] = value
+                    missing += 1
+                elif isinstance(value, dict) and isinstance(settings[key], dict):
+                    missing += recursive_update(value, settings[key])
+            return missing
 
-
-
-
-
-
-
-
-    def check_missing_seettings(self):
-        missing = 0
         self.auto_move_sub_objects()
-        for key in self.default.keys():
-            if key not in self.settings:
-                self.settings[key] = self.default[key]
-                missing += 1
-            if type(self.settings[key]) == dict:
-                for subkey in self.default[key]:
-                    if subkey not in self.settings[key]:
-                        self.settings[key][subkey] = self.default[key][subkey]
-                        missing += 1
+        missing = recursive_update(self.default, self.settings)
         self.cleanup_settings()
-        if missing != 0:
+
+        if missing:
             self.write_settings(self.settings)
+
         self.update_settings_with_defaults()
 
     def load_settings(self):
@@ -73,7 +68,7 @@ class settings_io:
             f = open('pq/settings/settings.dat','r')
             self.settings = json.loads(f.read())
             f.close()
-            self.check_missing_seettings()
+            self.check_missing_settings()
         return self.settings
 
 
