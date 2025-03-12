@@ -71,10 +71,20 @@ def sailing_main_view():
     components = {}
     with gr.Row():
         with gr.Column(scale=3):
-            components['sail_text'] = create_textbox(
-                "Start your journey with this search. This will be used all along. Change it during sailing to change course.",
-                g.settings_data['sailing']['sail_text'], "Where do we set our sails", elem_id='sail-input-text'
-            )
+            with gr.Row():
+                components['sail_result_images'] = create_gallery("output images")
+            with gr.Row():
+                with gr.Column(scale=3):
+                    components['sail_text'] = create_textbox(
+                        "Start your journey with this search. This will be used all along. Change it during sailing to change course.",
+                        g.settings_data['sailing']['sail_text'], "Where do we set our sails", elem_id='sail-input-text'
+                    )
+                with gr.Column(scale=1):
+                    components['sail_keep_text'] = create_checkbox(
+                        "Use the input during the whole trip",
+                        g.settings_data['sailing']['sail_keep_text'],
+                        "if set to true there is no dynamic prompting, only the context is changed by the sailing."
+                    )
             with gr.Row():
                 components['sail_suggestions_checkbox'] = create_checkbox(
                     "Enable Wildcard Suggestions", False, "Show wildcard suggestions for text input"
@@ -86,17 +96,50 @@ def sailing_main_view():
                 components['sail_text_suggestions'] = gr.Dropdown(
                     label="Suggested Wildcards", choices=[], interactive=True, visible=False
                 )
-            components['sail_keep_text'] = create_checkbox(
-                "Use the input during the whole trip",
-                g.settings_data['sailing']['sail_keep_text'],
-                "if set to true there is no dynamic prompting, only the context is changed by the sailing."
+
+            with gr.Row():
+                components['sail_result'] = create_textbox("Your journey journal", "", "Your journey logs", autoscroll=True)
+        with gr.Column(scale=1):
+            components['sail_status'] = create_textbox("Status", "", "status")
+            components['sail_suggestion_status'] = create_textbox("Suggestion Status", "No suggestions available", interactive=False)  # New field
+            with gr.Row():
+                components['sail_submit_button'] = create_button("Start your journey")
+                components['sail_stop_button'] = create_button("Interrupt your journey")
+                components['sail_count_button'] = create_button("Count possible results")
+                components['sail_check_connect_button'] = create_button("Check API Available")
+            components['sail_max_gallery_size'] = create_slider(
+                "Max Gallery size", g.settings_data['sailing']['sail_max_gallery_size'], max_val=500,
+                info="Limit the number of images kept in the gallery choose between 1 and 500"
             )
+
+
+    components['sail_text_suggestions'].change(
+        fn=insert_wildcard,
+        inputs=[components['sail_text'], components['sail_text_suggestions']],
+        outputs=components['sail_text']
+    )
+
+    components['sail_text'].change(
+        fn=get_wildcard_suggestions,
+        inputs=[components['sail_text'], components['sail_suggestions_checkbox'], components['sail_phrase_cap']],
+        outputs=[components['sail_text_suggestions'], components['sail_suggestion_status']]
+    )
+
+
+    return components
+
+
+def sailing_setup_view():
+    components = {}
+    with gr.Row():
+        with gr.Column(scale=3):
             with gr.Row():
                 components['sail_width'] = create_slider("Sail steps", g.settings_data['sailing']['sail_width'])
                 components['sail_depth'] = create_slider("Sail distance", g.settings_data['sailing']['sail_depth'])
                 components['sail_depth_preset'] = create_slider(
                     "Sail distance preset", g.settings_data['sailing']['sail_depth_preset'], max_val=1000000
                 )
+
             with gr.Row():
                 components['sail_sinus'] = create_checkbox(
                     "Add a sinus to the distance",
@@ -124,37 +167,10 @@ def sailing_main_view():
                     g.settings_data['automa']['automa_vaes'],
                     g.settings_data['automa']['automa_alt_vae']
                 )
-        with gr.Column(scale=1):
-            components['sail_status'] = create_textbox("Status", "", "status")
-            components['sail_suggestion_status'] = create_textbox("Suggestion Status", "No suggestions available", interactive=False)  # New field
-            with gr.Row():
-                components['sail_submit_button'] = create_button("Start your journey")
-                components['sail_stop_button'] = create_button("Interrupt your journey")
-                components['sail_count_button'] = create_button("Count possible results")
-                components['sail_check_connect_button'] = create_button("Check API Available")
-            components['sail_max_gallery_size'] = create_slider(
-                "Max Gallery size", g.settings_data['sailing']['sail_max_gallery_size'], max_val=500,
-                info="Limit the number of images kept in the gallery choose between 1 and 500"
-            )
-
-
-    with gr.Row():
-        components['sail_result_images'] = create_gallery("output images")
-    with gr.Row():
-        components['sail_result'] = create_textbox("Your journey journal", "", "Your journey logs", autoscroll=True)
-
-    components['sail_text'].change(
-        fn=get_wildcard_suggestions,
-        inputs=[components['sail_text'], components['sail_suggestions_checkbox'], components['sail_phrase_cap']],
-        outputs=[components['sail_text_suggestions'], components['sail_suggestion_status']]
-    )
-    components['sail_text_suggestions'].change(
-        fn=insert_wildcard,
-        inputs=[components['sail_text'], components['sail_text_suggestions']],
-        outputs=components['sail_text']
-    )
 
     return components
+
+
 
 def sailing_filters():
     components = {}
@@ -397,6 +413,8 @@ def setup_sailing_tab(sailor, ui_code):
     with gr.Tab("Sailing") as sailing:
         with gr.Tab("Main view"):
             main_components = sailing_main_view()
+        with gr.Tab("Setup"):
+            setup_components = sailing_setup_view()
         with gr.Tab("Filters"):
             filter_components = sailing_filters()
         with gr.Tab("Prompt manipulation"):
@@ -406,7 +424,7 @@ def setup_sailing_tab(sailor, ui_code):
     with gr.Tab("Show"):
         show_components = sailing_show()
 
-    all_components = {**main_components, **filter_components, **prompt_components, **gen_components, **show_components}
+    all_components = {**main_components,**setup_components, **filter_components, **prompt_components, **gen_components, **show_components}
 
     inputs = [
         all_components[key] for key in [
