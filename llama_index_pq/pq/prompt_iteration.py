@@ -255,6 +255,81 @@ class prompt_iterator:
 		return dropdown
 
 
+	def setting_filter_dropdown(self, choices, label, initial_value=None):
+		print(f"Creating dropdown with choices: {choices}")
+		local_choices = choices.copy()  # Snapshot at creation
+		with gr.Row():
+			with gr.Column(scale=1):
+				is_all_selected = gr.Checkbox(label="Select All", value=False)
+				auto_select_checkbox = gr.Checkbox(label="Auto-Select Filtered", value=False)
+			with gr.Column(scale=3):
+				# Textbox for filtering
+				search_box = gr.Textbox(label="Type to filter entries", placeholder="Start typing...")
+				# Dropdown with State to track choices
+				choices_state = gr.State(value=local_choices)  # Track current choices
+				dropdown = gr.Dropdown(
+					label=label,
+					choices=local_choices,
+					value=initial_value,
+					multiselect=True,
+					allow_custom_value=True
+				)
+
+		def select_all_dropdown(is_all_selected_value, choices_state):
+			print(f"Checkbox: {is_all_selected_value}, Choices: {choices_state}")
+			new_value = choices_state.copy() if is_all_selected_value else []
+			self.g.settings_data[label] = new_value  # Sync settings
+			settings_io().write_settings(self.g.settings_data)
+			print(f"Returning dropdown value: {new_value}")
+			return gr.update(choices=choices_state, value=new_value)  # No change to choices
+
+		def update_dropdown(dropdown):
+			print(f"Dropdown updated to: {dropdown}")
+			self.g.settings_data[label] = dropdown
+			settings_io().write_settings(self.g.settings_data)
+
+
+		def filter_dropdown(query, selections, current_choices, auto_select):
+			"""
+			Filter choices and optionally select all filtered entries.
+			"""
+			# Filter based on query
+
+			filtered = [c for c in current_choices if query.lower() in c.lower()] if query else current_choices
+
+			# Decide what to select
+			new_value = filtered if auto_select else selections  # Select filtered if checkbox is on, else keep current
+
+			return (
+				gr.update(choices=filtered, value=new_value),  # Update Dropdown
+				filtered                                       # Update choices_state
+			)
+
+
+		# Event: Update Dropdown and choices_state when typing
+		search_box.change(
+			fn=filter_dropdown,
+			inputs=[search_box, dropdown, choices_state, auto_select_checkbox],
+			outputs=[dropdown, choices_state]
+		)
+
+		gr.on(
+			triggers=[is_all_selected.change],
+			fn=select_all_dropdown,
+			inputs=[is_all_selected, choices_state],
+			outputs=[dropdown]
+		)
+
+		gr.on(
+			triggers=[dropdown.change],
+			fn=update_dropdown,
+			inputs=[dropdown],
+			outputs=None
+		)
+
+		dropdown.interactive = True
+		return dropdown, choices_state  # Return both for later access
+
 	def combine_all_arrays_to_arrays(self, data):
 		string_combinations = []
 		for element in product(*data):

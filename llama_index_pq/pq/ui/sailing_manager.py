@@ -145,11 +145,15 @@ class SailingManager:
                 self.g.settings_data['automa']['automa_sampler'] = step_gen_data[2]
                 self.g.settings_data['automa']['automa_vae'] = step_gen_data[3]
                 self.g.settings_data['automa']['automa_scheduler'] = step_gen_data[4]
+                print('Sail Gen done with: ', step_gen_data)
 
         if not folder and self.g.settings_data['sailing']['sail_store_folders']:
             folder = shared.sanitize_path_component(self.g.settings_data['automa']['automa_checkpoint'])
 
         response = self.sail_automa_gen(prompt)
+        if response == '':
+            self.g.job_running = False
+            print('Sailing stopped due to no response from image generator')
         if self.g.settings_data['sailing']['sail_unload_llm']:
             self.automa_client.unload_checkpoint()
 
@@ -314,7 +318,8 @@ class SailingManager:
             gr.update(choices=self.g.settings_data['automa']['automa_samplers'], value=self.g.settings_data['sailing']['sail_sampler']),
             gr.update(choices=self.g.settings_data['automa']['automa_checkpoints'], value=self.g.settings_data['sailing']['sail_checkpoint']),
             gr.update(choices=self.g.settings_data['automa']['automa_vaes'], value=self.g.settings_data['sailing']['sail_vae']),
-            gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['sailing']['sail_scheduler'])
+            gr.update(choices=self.g.settings_data['automa']['automa_schedulers'], value=self.g.settings_data['sailing']['sail_scheduler']),
+            self.g.settings_data['automa']['automa_checkpoints']
         )
 
     def run_t2t_sail(self):
@@ -363,6 +368,11 @@ class SailingManager:
                         yield self.sail_log, list(images), f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                     images = self.run_sail_automa_gen(prompt, images)
                     images = self.check_black_images(prompt, images, black_images_filename)
+
+
+
+
+
                     yield self.sail_log, list(images), f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:
                     yield self.sail_log, [], f'{self.images_done} prompts(s) done\n{prompt_discard_count} prompts filtered'

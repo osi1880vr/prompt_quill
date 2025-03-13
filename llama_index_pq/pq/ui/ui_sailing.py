@@ -387,7 +387,7 @@ def sailing_generation_sailing(ui_code):
                     choices=g.settings_data['automa']['automa_schedulers'],
                     initial_value=g.settings_data['sailing']['sail_scheduler'], label='Scheduler'
                 )
-                components['sail_checkpoint'] = ui_code.prompt_iterator.setting_dropdown(
+                components['sail_checkpoint'], components['sail_checkpoint_choices'] = ui_code.prompt_iterator.setting_filter_dropdown(
                     choices=g.settings_data['automa']['automa_checkpoints'],
                     initial_value=g.settings_data['sailing']['sail_checkpoint'], label='Checkpoint'
                 )
@@ -474,7 +474,7 @@ def setup_sailing_tab(sailor, ui_code):
     all_components['sail_filter_count_button'].click(fn=ui_code.count_context, inputs=None, outputs=all_components['sail_filter_status'])
     all_components['sail_gen_refresh_button'].click(
         fn=ui_code.automa_sail_refresh, inputs=None,
-        outputs=[all_components['sail_sampler'], all_components['sail_checkpoint'], all_components['sail_vae'], all_components['sail_scheduler']]
+        outputs=[all_components['sail_sampler'], all_components['sail_checkpoint'], all_components['sail_vae'], all_components['sail_scheduler'], all_components['sail_checkpoint_choices']]
     )
 
     start_sail_show = all_components['sail_show_submit_button'].click(
