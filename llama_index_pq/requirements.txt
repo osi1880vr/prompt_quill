@@ -47,6 +47,6 @@ tf-keras
 
 opencv-python
 imagehash
-
-
+skimage
+spacy
 
