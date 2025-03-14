@@ -27,6 +27,7 @@ import sys
 import itertools
 
 from enhancer.prompts import PromptEnhance
+import shared
 
 class ITIManager:
     def __init__(self):
@@ -1188,6 +1189,11 @@ class ITIManager:
         negative_prompt = settings["iti"]["automa"]["negative_prompt"]
         gen_prompt = f'{settings["iti"]["prompt"]["pos_style"]}, {prompt}, {settings["iti"]["prompt"]["pos_lora"]}'
         gen_neg_prompt = f'{settings["iti"]["prompt"]["neg_style"]}, {negative_prompt}, {settings["iti"]["prompt"]["neg_lora"]}'
+
+        processor = shared.WildcardResolver()
+        gen_prompt = processor.resolve_prompt(gen_prompt)
+        gen_neg_prompt = processor.resolve_prompt(gen_neg_prompt)
+
         self.log_step(f"final prompt for generating {gen_prompt}")
         response = self.generator.request_generation(gen_prompt, gen_neg_prompt, settings_data=settings)
         self.generator.unload_checkpoint()

@@ -98,6 +98,8 @@ class automa_client:
             ad_prompt = self.prompt_enhancer.enhance_faces(ad_prompt, prompt, settings_data['automa'][f'automa_ad_model_{number}'])
         ad_prompt = self.prompt_enhancer.process_wildcards(ad_prompt)
 
+        print(f'adetailer_{number} used this adetailer prompt: {ad_prompt}')
+
         args = {
             'ad_model': settings_data['automa'][f'automa_ad_model_{number}'],
             "ad_model_classes": "",
