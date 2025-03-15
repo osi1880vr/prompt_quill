@@ -44,5 +44,5 @@ tensorflow
 tf-keras
 opencv-python
 imagehash
-skimage
+scikit-image
 spacy

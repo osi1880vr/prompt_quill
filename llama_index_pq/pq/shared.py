@@ -292,7 +292,8 @@ class WildcardResolver:
 			recursive: bool = True,
 			separator: str = " and ",
 			max_depth: int = 10,
-			max_retries: int = 1  # Reduce retries since we resolve/skip each time
+			max_retries: int = 1,
+			resolved_values: Optional[dict] = None  # Pass resolved values across recursion
 	) -> Union[str, List[str]]:
 		wildcard_pattern = r"(\d*)x?__([\w-]+)__"
 		multi_wildcard_pattern = r"\{(\d+)\$\$__([\w-]+)__(:[\d\.]+)?\}"
@@ -307,117 +308,102 @@ class WildcardResolver:
 		if not wildcards and not multi_wildcards and not weighted_wildcards and not inline_matches:
 			return prompt if max_combinations is None else [prompt]
 
-		def attempt_resolution(prompt, attempt):
-			processed_wildcards = set()
-			wildcard_options = {}
-			# Plain wildcards (no weight)
-			for count, wildcard in wildcards:
-				if wildcard not in [w for w, _ in weighted_wildcards]:
-					count = int(count) if count else 0
-					options = self.load_wildcard_file(wildcard, count if count > 0 else 1)
-					wildcard_options[(count, wildcard)] = separator.join(options)
-			# Weighted plain wildcards
-			for wildcard, weight in weighted_wildcards:
-				weight_value = float(weight)
-				options = self.load_wildcard_file(wildcard, 1)
-				replacement = separator.join(options) if random.random() < weight_value else ""
-				wildcard_options[(0, wildcard, "weighted", weight)] = replacement
-			# Multi-wildcards (store full options)
-			for count, wildcard, weight in multi_wildcards:
-				count = int(count)
+		# Initialize resolved_values if not provided (top-level call)
+		if resolved_values is None:
+			resolved_values = {}
+
+		def resolve_wildcard_replacement(key, count, wildcard, type=None, weight=None, depth=0):
+			if depth >= max_depth:
+				return f"{{MAX_DEPTH_REACHED:{wildcard}}}"  # Indicate unprocessed wildcard
+
+			# Check if already resolved
+			if key in resolved_values:
+				return resolved_values[key]
+
+			# Load and resolve the wildcard
+			if type == "multi":
 				options = self.load_wildcard_file(wildcard, count)
 				if len(options) < count:
 					options = options * (count // len(options) + 1)[:count]
-				wildcard_options[(count, wildcard, "multi", weight)] = separator.join(options)
+				weight_value = float(weight[1:]) if weight else 1.0
+				replacement = separator.join(options) if random.random() < weight_value else ""
+			elif type == "weighted":
+				weight_value = float(weight)
+				options = self.load_wildcard_file(wildcard, 1)
+				replacement = separator.join(options) if random.random() < weight_value else ""
+			else:
+				options = self.load_wildcard_file(wildcard, count if count > 0 else 1)
+				replacement = separator.join(options)
+
+			# Recursively resolve any wildcards in the replacement
+			if recursive and (
+					re.search(wildcard_pattern, replacement) or
+					re.search(multi_wildcard_pattern, replacement) or
+					re.search(weighted_wildcard_pattern, replacement)
+			):
+				replacement = self.resolve_prompt(
+					replacement,
+					None,
+					recursive,
+					separator,
+					max_depth,
+					max_retries,
+					resolved_values
+				)
+
+			resolved_values[key] = replacement
+			return replacement
+
+		def attempt_resolution(prompt, attempt, depth=0):
+			if depth >= max_depth:
+				return prompt
 
 			resolved = prompt
-			# Multi-wildcards first
-			for key, replacement in wildcard_options.items():
-				if len(key) == 4 and key[2] == "multi":
-					count, wildcard, _, weight = key
-					weight_value = float(weight[1:]) if weight else 1.0
-					weight_str = weight if weight else ""
-					target = f"{{{count}$$__{wildcard}__{weight_str}}}"
-					if target in resolved:
-						if random.random() < weight_value:
-							resolved = resolved.replace(target, replacement, 1)
-						else:
-							resolved = resolved.replace(target, "")  # Remove on skip
-						processed_wildcards.add(wildcard)  # Mark as processed either way
-			# Then weighted plain wildcards
-			for key, replacement in wildcard_options.items():
-				if len(key) == 4 and key[2] == "weighted":
-					_, wildcard, _, weight = key
-					target = f"__{wildcard}__:{weight}"
-					if target in resolved:
-						resolved = resolved.replace(target, replacement, 1)
-						processed_wildcards.add(wildcard)
-			# Then plain wildcards
-			for key, replacement in wildcard_options.items():
-				if len(key) == 2:
-					count, wildcard = key
-					target = f"{count}x__{wildcard}__" if count > 0 else f"__{wildcard}__"
-					if target in resolved:
-						resolved = resolved.replace(target, replacement, 1)
-						processed_wildcards.add(wildcard)
+			# Multi-wildcards
+			for count, wildcard, weight in multi_wildcards:
+				count = int(count)
+				key = (count, wildcard, "multi", weight)
+				if key not in resolved_values:
+					replacement = resolve_wildcard_replacement(key, count, wildcard, "multi", weight, depth + 1)
+				else:
+					replacement = resolved_values[key]
+				weight_str = weight if weight else ""
+				target = f"{{{count}$$__{wildcard}__{weight_str}}}"
+				resolved = re.sub(re.escape(target), replacement, resolved)
 
-			depth = 0
-			if recursive:
-				while re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved) or re.search(weighted_wildcard_pattern, resolved):
-					if depth >= max_depth:
-						break
-					nested_wildcards = re.findall(wildcard_pattern, resolved)
-					nested_multi_wildcards = re.findall(multi_wildcard_pattern, resolved)
-					nested_weighted_wildcards = re.findall(weighted_wildcard_pattern, resolved)
-					for count, wildcard in nested_wildcards:
-						if wildcard not in processed_wildcards and wildcard not in [w for w, _ in nested_weighted_wildcards]:
-							count = int(count) if count else 0
-							options = self.load_wildcard_file(wildcard, count if count > 0 else 1)
-							target = f"{count}x__{wildcard}__" if count > 0 else f"__{wildcard}__"
-							if target in resolved:
-								resolved = resolved.replace(target, separator.join(options), 1)
-								processed_wildcards.add(wildcard)
-					for wildcard, weight in nested_weighted_wildcards:
-						if wildcard not in processed_wildcards:
-							weight_value = float(weight)
-							if random.random() < weight_value:
-								options = self.load_wildcard_file(wildcard, 1)
-								replacement = separator.join(options)
-							else:
-								replacement = ""
-							target = f"__{wildcard}__:{weight}"
-							if target in resolved:
-								resolved = resolved.replace(target, replacement, 1)
-								processed_wildcards.add(wildcard)
-					for count, wildcard, weight in nested_multi_wildcards:
-						if wildcard not in processed_wildcards:
-							count = int(count)
-							weight_value = float(weight[1:]) if weight else 1.0
-							if random.random() < weight_value:
-								options = self.load_wildcard_file(wildcard, count)
-								if len(options) < count:
-									options = options * (count // len(options) + 1)[:count]
-							else:
-								options = [""]
-							target = f"{{{count}$$__{wildcard}__{weight if weight else ''}}}"
-							if target in resolved:
-								resolved = resolved.replace(target, separator.join(options), 1)
-								processed_wildcards.add(wildcard)
-					depth += 1
-			return resolved, processed_wildcards
+			# Weighted plain wildcards
+			for wildcard, weight in weighted_wildcards:
+				key = (0, wildcard, "weighted", weight)
+				if key not in resolved_values:
+					replacement = resolve_wildcard_replacement(key, 0, wildcard, "weighted", weight, depth + 1)
+				else:
+					replacement = resolved_values[key]
+				target = f"__{wildcard}__:{weight}"
+				resolved = re.sub(re.escape(target), replacement, resolved)
+
+			# Plain wildcards
+			for count, wildcard in wildcards:
+				if wildcard not in [w for w, _ in weighted_wildcards]:
+					count = int(count) if count else 0
+					key = (count, wildcard)
+					if key not in resolved_values:
+						replacement = resolve_wildcard_replacement(key, count, wildcard, depth=depth + 1)
+					else:
+						replacement = resolved_values[key]
+					target = f"{count}x__{wildcard}__" if count > 0 else f"__{wildcard}__"
+					resolved = re.sub(re.escape(target), replacement, resolved)
+
+			return resolved
 
 		num_outputs = 1 if max_combinations is None else 1
 		results = []
 		for _ in range(num_outputs):
 			best_resolved = prompt
-			cycle_detected = False
-
 			for attempt in range(max_retries):
-				resolved, _ = attempt_resolution(prompt, attempt)
+				resolved = attempt_resolution(prompt, attempt)
 				best_resolved = resolved
 				if not (re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved) or re.search(weighted_wildcard_pattern, resolved)):
 					break
-				cycle_detected = True
 
 			for match, opts in zip(inline_matches, inline_options):
 				if len(opts) == 1 and isinstance(opts[0], tuple) and opts[0][0] == "iter":
@@ -430,12 +416,12 @@ class WildcardResolver:
 					opt_idx = current_idx // repeat_count
 					replacement = iter_opts[opt_idx][0]
 					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
-						replacement = self.resolve_prompt(replacement, None, True, separator)
+						replacement = self.resolve_prompt(replacement, None, True, separator, max_depth, max_retries, resolved_values)
 					self.iter_state[state_key] += 1
 				else:
 					replacement = opts[0][0]
 					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
-						replacement = self.resolve_prompt(replacement, None, True, separator)
+						replacement = self.resolve_prompt(replacement, None, True, separator, max_depth, max_retries, resolved_values)
 				best_resolved = best_resolved.replace(f"[{match}]", replacement, 1)
 			results.append(best_resolved)
 

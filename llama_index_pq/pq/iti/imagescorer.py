@@ -103,7 +103,7 @@ class ImageScorer:
         with torch.no_grad():
             features = self.clip_model.get_image_features(**inputs)
             score = self.aesthetic_model(features).item()  # 0-10 scale
-        return int(min(max(score, 0), 10) * 10)  # Scale to 0-100
+        return score #int(min(max(score, 0), 10) * 10)  # Scale to 0-100
 
     def score_(self, original_path, generated_path):
         original = self.load_image_safe(original_path)

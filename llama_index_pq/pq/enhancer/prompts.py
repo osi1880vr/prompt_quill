@@ -63,33 +63,52 @@ class PromptEnhance:
         return prompt
 
     def swap_category_terms(self, prompt, category):
-        """Swap terms or phrases from a specific category with random alternatives."""
+        """Swap exact terms or phrases from a specific category with consistent random alternatives."""
         options = self.cache.get_auto_swap_options(category)
         if not options:
             return prompt
 
-        pattern = r"\b(" + "|".join(re.escape(opt) for opt in options) + r")\b"
-        matches = re.finditer(pattern, prompt.lower())
+        # Build a replacement dictionary for this category
+        pattern = r"(?<!\w)(" + "|".join(re.escape(opt) for opt in options) + r")(?!\w)"
+        matches = list(re.finditer(pattern, prompt.lower()))
 
+        if not matches:
+            return prompt
+
+        # Group by term and pick one replacement per term
+        replacements = {}
         for match in matches:
-            original_term = match.group(0)
-            available_options = [opt for opt in options if opt.lower() != original_term.lower()]
-            if available_options:
-                new_term = random.choice(available_options)
-                start, end = match.span()
-                prompt = prompt[:start] + new_term + prompt[end:]
+            original_term = match.group(1)
+            if original_term not in replacements:
+                available_options = [opt for opt in options if opt.lower() != original_term.lower()]
+                replacements[original_term] = random.choice(available_options) if available_options else original_term
 
-        return prompt
+        # Debug replacements
+        print(f"Category: {category}")
+        for orig, new in replacements.items():
+            print(f"Replacing '{orig}' with '{new}'")
+
+        # Apply all replacements in one pass using a case-preserving approach
+        def replace_match(match):
+            orig = match.group(0)  # Full match in original case
+            lower_orig = orig.lower()
+            new_term = replacements.get(lower_orig, orig)
+            # Preserve original case if possible
+            if orig.isupper():
+                return new_term.upper()
+            elif orig[0].isupper():
+                return new_term.capitalize()
+            return new_term
+
+        # Use re.sub with the pattern and replacement function
+        updated_prompt = re.sub(pattern, replace_match, prompt, flags=re.IGNORECASE)
+        return updated_prompt
 
     def enhance_prompt(self, prompt):
-        # Always check for new autowildcards files before swapping
         self.cache.load_auto_swap_categories()
-
-        # Swap terms from all auto-detected categories
         for category in self.cache.auto_swap_data.keys():
             prompt = self.swap_category_terms(prompt, category)
 
-        # Rest of your existing wildcard logic
         files = self.cache.get_file_list()
         keywords = {f[:-4].split("_")[0]: f for f in files}
         keyword_files = {f[:-4].split("_")[0]: f for f in files}
@@ -97,7 +116,8 @@ class PromptEnhance:
         words = prompt.lower().split()
         used_enhancements = set(part.strip() for part in prompt.split(",") if part.strip())
 
-        for word in words:
+        keyword_positions = {}
+        for i, word in enumerate(words):
             filename = None
             if word in keywords:
                 filename = keyword_files[word]
@@ -107,19 +127,27 @@ class PromptEnhance:
                     filename = keyword_files[singular]
 
             if filename and filename not in [f"{cat}.txt" for cat in self.cache.auto_swap_data.keys()]:
-                options = self.cache.load_wildcards(filename)
-                if options:
-                    cleaned_prompt = self.clean_prompt(prompt, options)
-                    available_options = [opt for opt in options if opt not in used_enhancements]
-                    if available_options:
-                        max_limit = self.get_max_from_filename(filename)
-                        num_additions = random.randint(1, len(available_options))
-                        if max_limit is not None and num_additions > max_limit:
-                            num_additions = max_limit
-                        chosen = random.sample(available_options, num_additions)
-                        used_enhancements.update(chosen)
-                        additions = ", ".join(chosen)
-                        prompt = f"{cleaned_prompt}, {additions}"
+                if filename not in keyword_positions:
+                    keyword_positions[filename] = []
+                keyword_positions[filename].append(i)
+
+        for filename, positions in keyword_positions.items():
+            options = self.cache.load_wildcards(filename)
+            if options:
+                available_options = [opt for opt in options if opt not in used_enhancements]
+                if available_options:
+                    max_limit = self.get_max_from_filename(filename)
+                    num_additions = random.randint(1, len(available_options))
+                    if max_limit is not None and num_additions > max_limit:
+                        num_additions = max_limit
+                    chosen = random.sample(available_options, num_additions)
+                    used_enhancements.update(chosen)
+                    additions = ", ".join(chosen)
+                    cleaned_prompt = prompt
+                    for pos in positions:
+                        cleaned_prompt = self.clean_prompt(cleaned_prompt, options)
+                        cleaned_prompt = f"{cleaned_prompt}, {additions}"
+                    prompt = cleaned_prompt
 
         return prompt
 
