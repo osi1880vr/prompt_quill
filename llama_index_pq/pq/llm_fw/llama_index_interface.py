@@ -48,11 +48,17 @@ if os.getenv("QDRANT_URL") is not None:
 class adapter:
 
     def __init__(self):
+        self.qa_prompt_tmpl = None
+        self.query_engine = None
+        self.retriever = None
+        self.embed_model = None
+        self.vector_index = None
+        self.vector_store = None
         self.g = globals.get_globals()
         self.set_document_store()
         self.llm_state = None
-        self.llm = self.set_llm()
-        self.set_pipeline()
+        self.llm = None #self.set_llm()
+        #self.set_pipeline()
         self.last_context = []
         self.prompt_array_index = {}
 
@@ -83,7 +89,7 @@ class adapter:
 
     def set_llm(self):
 
-        return LlamaCPP(
+        self.llm = LlamaCPP(
 
             model_url=self.g.settings_data['model_list'][self.g.settings_data['LLM Model']]['path'],
 
@@ -108,6 +114,10 @@ class adapter:
             completion_to_prompt=completion_to_prompt,
             verbose=True,
         )
+
+        if not self.embed_model:
+            self.set_pipeline()
+        return self.llm
 
 
 
@@ -392,7 +402,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
         return output.strip()
 
     def check_llm_loaded(self):
-        if not hasattr(self, 'llm'):
+        if not hasattr(self, 'llm') or not self.llm:
             self.llm = self.set_llm()
             self.reload_state()
 

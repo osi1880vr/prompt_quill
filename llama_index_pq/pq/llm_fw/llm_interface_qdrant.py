@@ -204,6 +204,8 @@ class _LLM_INTERFACE:
 
     def run_llm_response(self, query, history):
 
+        self.adapter.check_llm_loaded()
+
         if self.g.settings_data['translate']:
             query = self.translate(query)
 

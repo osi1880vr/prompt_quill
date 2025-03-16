@@ -251,7 +251,7 @@ class ui_staff:
         self.max_top_k = 50
 
 
-        self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative", container=False, scale=7)
+        self.prompt_input = gr.Textbox(placeholder="Make your prompts more creative. (first run will load the model be patient)", container=False, scale=7)
 
         self.hordeai_prompt_input = gr.TextArea(self.g.last_prompt, lines=10, label="Prompt")
         self.hordeai_negative_prompt_input = gr.TextArea(self.g.last_negative_prompt, lines=5, label="Negative Prompt")
