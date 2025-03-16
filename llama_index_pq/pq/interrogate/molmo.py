@@ -108,7 +108,7 @@ class molmo:
         self.g = globals.get_globals()
         self.parent = parent
         self.arguments = {"device_map": "auto", "torch_dtype": "auto", "trust_remote_code": True}
-        self.molmo_model = 'cyan2k/molmo-7B-D-bnb-4bit'
+        self.molmo_model = 'ctranslate2-4you/molmo-7B-D-0924-bnb-4bit' # 'cyan2k/molmo-7B-D-bnb-4bit'
         self.model_pat = None
         self.model = None
         self.temperature = None

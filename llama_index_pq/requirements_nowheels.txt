@@ -17,4 +17,4 @@ opencv-python
 imagehash
 scikit-image
 spacy
-transformers==4.48.2
+transformers
