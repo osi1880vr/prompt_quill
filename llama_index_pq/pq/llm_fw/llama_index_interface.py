@@ -122,6 +122,7 @@ class adapter:
 
 
     def get_retriever(self, similarity_top_k):
+        self.check_llm_loaded()
         return self.vector_index.as_retriever(similarity_top_k=similarity_top_k)
 
     def set_pipeline(self):
@@ -213,7 +214,7 @@ class adapter:
         return filter
 
     def count_context(self):
-
+        self.check_llm_loaded()
         filter = self.get_context_filter()
         result = self.document_store.count(collection_name=self.g.settings_data['collection'],
                                            count_filter=filter,
@@ -221,6 +222,7 @@ class adapter:
         return result
 
     def direct_search(self,query,limit,offset,context_retrieve=False):
+        self.check_llm_loaded()
 
         vector = self.embed_model.get_text_embedding(query)
 
@@ -274,6 +276,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
 
 
     def get_context_text(self, query):
+        self.check_llm_loaded()
         nodes = self.retrieve_context(query)
         self.prepare_meta_data_from_nodes(nodes)
         self.g.last_context_list = []
