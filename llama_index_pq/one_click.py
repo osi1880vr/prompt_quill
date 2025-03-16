@@ -213,6 +213,7 @@ def install_webui() -> None:
         cmd = f"python -m pip install torch=={TORCH_VERSION} torchvision=={TORCHVISION_VERSION} torchaudio=={TORCHAUDIO_VERSION}"
         if selected_gpu == "NVIDIA":
             cmd += " --index-url https://download.pytorch.org/whl/cu118" if use_cuda118 == 'Y' else " --index-url https://download.pytorch.org/whl/cu121"
+            print('make sure you got nvidia drivers installed as well a CuDNN for Cuda and also Cuda support. \nIf something of those is missing you may see errors that llama-cpp does not load the needed llama.dll files.')
         elif selected_gpu == "AMD":
             cmd += " --index-url https://download.pytorch.org/whl/rocm5.6"
         elif selected_gpu in ["APPLE", "NONE"]:
