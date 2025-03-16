@@ -11,15 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
+import os
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"  # Disable analytics via env var
 
 import globals
-import os
 from settings.io import settings_io
 
 g = globals.get_globals()
 g.settings_data = settings_io().load_settings()
 g.settings_data['automa']['automa_checkpoints'] = []  # bad hack for now, this should later be updateable via a button
 g.settings_data['automa']['automa_samplers'] = []
+
+
+
 from ui.ui_share import UiShare
 
 from llm_fw.llama_cpp_hijack import llama_cpp_hijack
@@ -29,7 +33,14 @@ hijack = llama_cpp_hijack()
 from generators.aesthetic import score
 from style import style
 
+
 import gradio as gr
+
+
+import importlib
+
+from extension_base import PromptQuillExtension  # Assuming this exists already
+
 
 
 #import the UI stuff
@@ -77,6 +88,31 @@ image_score = score.aestetic_score()
 max_top_k = 50
 textboxes = []
 
+def load_extensions():
+	extensions = {}
+	extension_dir = "extensions"
+	if not os.path.exists(extension_dir):
+		os.makedirs(extension_dir)
+		print(f"Created {extension_dir} directory")
+	print(f"Looking for extensions in {extension_dir}...")
+	for dir_name in os.listdir(extension_dir):
+		dir_path = os.path.join(extension_dir, dir_name)
+		if os.path.isdir(dir_path) and not dir_name.startswith('__'):
+			print(f"Loading extension: {dir_name}")
+			try:
+				module = importlib.import_module(f"extensions.{dir_name}")
+				for attr_name in dir(module):
+					attr = getattr(module, attr_name)
+					if (isinstance(attr, type) and
+							issubclass(attr, PromptQuillExtension) and
+							attr != PromptQuillExtension):
+						extension_instance = attr()
+						extensions[extension_instance.name] = extension_instance
+						print(f"Loaded {extension_instance.name} from {dir_name}")
+			except Exception as e:
+				print(f"Error loading {dir_name}: {e}")
+	print(f"Found extensions: {list(extensions.keys())}")
+	return extensions
 
 with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 	with gr.Row():
@@ -109,11 +145,40 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 	with gr.Tab("Settings"):
 		settings_components = setup_settings_tab(settings_manager)  # Use settings_manager
 
+	extensions = load_extensions()
+	tab_map = {
+		"Chat": chat,
+		"Sail the data ocean": sailor,
+		"ItTtI": iti,
+		"Generator": generator,
+		"Interrogation": interrogation,
+		"Model testing": model_test,
+		"Deep Dive": deep_dive,
+		"File2File": batch_run,
+		"Image Scoring": None,
+		"Settings": None,
+	}
+	for ext_name, extension in extensions.items():
+		print(f"Setting up {ext_name}...")
+		if extension.tab_name and extension.tab_name in tab_map:
+			tab = tab_map[extension.tab_name]
+			if extension.tab_name == "Chat":
+				extension.setup(tab, ui, chat_manager)
+				print(f"Added {ext_name} to Chat tab")
+			# ... add other tab cases as needed ...
+		else:
+			print(f"Building new tab for {ext_name}...")
+			with gr.Tab(extension.name) as new_tab:
+				extension.setup(new_tab)
+			print(f"New tab {ext_name} is ready")
 
 
 if __name__ == "__main__":
 	server_name = "localhost"
 	if os.getenv("SERVER_NAME") is not None:
 		server_name = os.getenv("SERVER_NAME")
-	pq_ui.launch(favicon_path='logo/favicon32x32.ico', inbrowser=True, server_name=server_name,
+
+	pq_ui.launch(favicon_path='logo/favicon32x32.ico',
+				 inbrowser=True,
+				 server_name=server_name,
 				 server_port=49152)  # share=True
