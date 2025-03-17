@@ -293,11 +293,23 @@ class WildcardResolver:
 			separator: str = " and ",
 			max_depth: int = 10,
 			max_retries: int = 1,
-			resolved_values: Optional[dict] = None  # Pass resolved values across recursion
+			resolved_values: Optional[dict] = None,
+			depth: int = 0,  # Track recursion depth
+			active_wildcards: Optional[set] = None  # Track active wildcards for cycle detection
 	) -> Union[str, List[str]]:
 		wildcard_pattern = r"(\d*)x?__([\w-]+)__"
 		multi_wildcard_pattern = r"\{(\d+)\$\$__([\w-]+)__(:[\d\.]+)?\}"
 		weighted_wildcard_pattern = r"__([\w-]+)__:([\d\.]+)"
+
+		# Stop if max depth is reached
+		if depth >= max_depth:
+			return prompt if max_combinations is None else [prompt]
+
+		# Initialize resolved_values and active_wildcards if not provided (top-level call)
+		if resolved_values is None:
+			resolved_values = {}
+		if active_wildcards is None:
+			active_wildcards = set()
 
 		wildcards = re.findall(wildcard_pattern, prompt)
 		multi_wildcards = re.findall(multi_wildcard_pattern, prompt)
@@ -308,16 +320,17 @@ class WildcardResolver:
 		if not wildcards and not multi_wildcards and not weighted_wildcards and not inline_matches:
 			return prompt if max_combinations is None else [prompt]
 
-		# Initialize resolved_values if not provided (top-level call)
-		if resolved_values is None:
-			resolved_values = {}
-
 		def resolve_wildcard_replacement(key, count, wildcard, type=None, weight=None, depth=0):
 			if depth >= max_depth:
-				return f"{{MAX_DEPTH_REACHED:{wildcard}}}"  # Indicate unprocessed wildcard
+				return f"{{MAX_DEPTH_REACHED:{wildcard}}}"
+			if key in active_wildcards:
+				return f"{{CYCLE_DETECTED:{wildcard}}}"
+
+			active_wildcards.add(key)
 
 			# Check if already resolved
 			if key in resolved_values:
+				active_wildcards.remove(key)
 				return resolved_values[key]
 
 			# Load and resolve the wildcard
@@ -348,9 +361,12 @@ class WildcardResolver:
 					separator,
 					max_depth,
 					max_retries,
-					resolved_values
+					resolved_values,
+					depth + 1,  # Increment depth
+					active_wildcards  # Pass active wildcards
 				)
 
+			active_wildcards.remove(key)
 			resolved_values[key] = replacement
 			return replacement
 
@@ -400,7 +416,7 @@ class WildcardResolver:
 		for _ in range(num_outputs):
 			best_resolved = prompt
 			for attempt in range(max_retries):
-				resolved = attempt_resolution(prompt, attempt)
+				resolved = attempt_resolution(prompt, attempt, depth)
 				best_resolved = resolved
 				if not (re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved) or re.search(weighted_wildcard_pattern, resolved)):
 					break
@@ -416,12 +432,32 @@ class WildcardResolver:
 					opt_idx = current_idx // repeat_count
 					replacement = iter_opts[opt_idx][0]
 					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
-						replacement = self.resolve_prompt(replacement, None, True, separator, max_depth, max_retries, resolved_values)
+						replacement = self.resolve_prompt(
+							replacement,
+							None,
+							True,
+							separator,
+							max_depth,
+							max_retries,
+							resolved_values,
+							depth + 1,  # Increment depth
+							active_wildcards  # Pass active wildcards
+						)
 					self.iter_state[state_key] += 1
 				else:
 					replacement = opts[0][0]
 					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
-						replacement = self.resolve_prompt(replacement, None, True, separator, max_depth, max_retries, resolved_values)
+						replacement = self.resolve_prompt(
+							replacement,
+							None,
+							True,
+							separator,
+							max_depth,
+							max_retries,
+							resolved_values,
+							depth + 1,  # Increment depth
+							active_wildcards  # Pass active wildcards
+						)
 				best_resolved = best_resolved.replace(f"[{match}]", replacement, 1)
 			results.append(best_resolved)
 
