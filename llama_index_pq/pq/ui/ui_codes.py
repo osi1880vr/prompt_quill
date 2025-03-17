@@ -29,8 +29,8 @@ import shared
 from ui.ui_share import UiShare
 
 import nltk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+nltk.download('punkt', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet=True)
 
 
 from generators.automatics.client import automa_client

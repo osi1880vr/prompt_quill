@@ -51,6 +51,31 @@ if CMD_FLAGS_PATH.exists():
                              if line.strip().rstrip('\\').strip() and not line.strip().startswith('#'))
 FLAGS = f"{' '.join([flag for flag in sys.argv[1:] if flag != '--update-wizard'])} {CMD_FLAGS}"
 
+
+# Near the top, after imports and constants
+def get_extensions_names() -> list:
+    """Return list of extension names with a requirements.txt, excluding examples."""
+    extensions_dir = BASE_DIR / "extensions"
+    if not extensions_dir.exists():
+        return []
+    return [folder.name for folder in extensions_dir.iterdir()
+            if folder.is_dir() and not folder.name.startswith('__') and folder.name != 'examples'
+            and (folder / "requirements.txt").exists()]
+
+def install_extensions_requirements() -> None:
+    """Install requirements for all extensions."""
+    extensions = get_extensions_names()
+    if not extensions:
+        logger.info("No extensions found to install.")
+        return
+    print_big_message("Installing extensions requirements.\nSome may fail on Windows—don’t worry, they won’t affect the main app.")
+    for i, extension in enumerate(extensions, 1):
+        print(f"\n\n--- [{i}/{len(extensions)}]: {extension}\n\n")
+        extension_req_path = BASE_DIR / "extensions" / extension / "requirements.txt"
+        run_cmd(f"python -m pip install -r {extension_req_path} --upgrade", assert_success=False, environment=True)
+
+
+
 # Signal handler for clean exit
 def signal_handler(sig, frame):
     logger.info("Received interrupt signal. Exiting cleanly.")
@@ -186,7 +211,7 @@ def update_requirements(initial_install: bool = False, pull: bool = True) -> Non
         before_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
         print_big_message("Updating repository with 'git pull'")
 
-        files_to_check = ['pq/prompt_quill_ui_qdrant.py']  # Add your critical files here
+        files_to_check = ['pq/prompt_quill_ui_qdrant.py']  # Add more critical files if needed
         before_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
 
         run_cmd("git pull --autostash", assert_success=True, environment=True)
@@ -231,8 +256,12 @@ def update_requirements(initial_install: bool = False, pull: bool = True) -> Non
     run_cmd(f"python -m pip install -r {temp_reqs} --upgrade", assert_success=True, environment=True)
     temp_reqs.unlink()
 
+    # Install/update extensions after git pull
+    if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
+        install_extensions_requirements()
+
 def install_webui() -> None:
-    stages = 4  # PyTorch, Requirements, CLIP, Cleanup
+    stages = 4  # PyTorch, Requirements, CLIP, Extensions+Cleanup
     stage_weight = 25.0
     progress = 0
 
@@ -292,6 +321,9 @@ def install_webui() -> None:
         run_cmd(f"python -m pip install {CLIP_PACKAGE}", assert_success=True, environment=True)
     update_progress("CLIP installed")
 
+    # Extensions and cleanup
+    if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
+        install_extensions_requirements()
     cleanup_qdrant_data()
     update_progress("Setup complete")
 

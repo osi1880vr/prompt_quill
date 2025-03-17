@@ -21,6 +21,7 @@ scikit-image
 spacy
 transformers==4.49.*
 pillow==10.4.0
+waitress
 
 
 # llama-cpp-python (CPU only, no AVX2)

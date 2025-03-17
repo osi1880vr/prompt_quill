@@ -340,7 +340,7 @@ class ITIManager:
         self.vision.unload_model()
         self.vision = None
 
-    def learn_model_performance(self, input_folder, num_prompts=3):
+    def learn_model_performance(self, input_folder=None, num_prompts=3):
         self.g.job_running = True
         if self.llm:
             self.llm.del_llm_model()

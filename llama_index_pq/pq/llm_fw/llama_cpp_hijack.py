@@ -13,7 +13,8 @@
 # permissions and limitations under the License.
 
 import sys
-
+from pydantic import BaseModel
+BaseModel.model_config['protected_namespaces'] = ()
 
 class llama_cpp_hijack:
     def __init__(self):

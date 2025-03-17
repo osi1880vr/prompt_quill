@@ -57,13 +57,11 @@ class WildcardCache:
             for filename in auto_files:
                 category = filename[:-4]  # e.g., "colors", "haircolors"
                 self.auto_swap_data[category] = self.load_wildcards(filename, AUTOWILDCARD_DIR)
-                if self.auto_swap_data[category]:
-                    print(f"Loaded auto category '{category}': {len(self.auto_swap_data[category])} entries")
-                else:
+                if not self.auto_swap_data[category]:
                     print(f"Warning: No data loaded for '{category}' from {filename}")
             self.auto_last_count = current_auto_count
             self.auto_last_check = current_time
-            print(f"Refreshed autowildcards: {len(self.auto_swap_data)} categories")
+
 
     def get_auto_swap_options(self, category):
         return self.auto_swap_data.get(category, [])

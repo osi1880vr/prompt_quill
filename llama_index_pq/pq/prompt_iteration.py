@@ -219,7 +219,6 @@ class prompt_iterator:
 
 
 	def setting_dropdown(self, choices, label, initial_value=None):
-		print(f"Creating dropdown with choices: {choices}")
 		local_choices = choices.copy()  # Snapshot at creation
 		with gr.Row():
 			with gr.Column(scale=1):
@@ -256,7 +255,6 @@ class prompt_iterator:
 
 
 	def setting_filter_dropdown(self, choices, label, initial_value=None):
-		print(f"Creating dropdown with choices: {choices}")
 		local_choices = choices.copy()  # Snapshot at creation
 		with gr.Row():
 			with gr.Column(scale=1):

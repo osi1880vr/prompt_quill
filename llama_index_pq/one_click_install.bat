@@ -144,9 +144,9 @@ if !LAST_STAGE! LEQ 7 (
     echo Starting Qdrant server - this might take a moment to get ready, please wait...
     set "QDRANT_PATH=!INSTALL_DIR!\qdrant\qdrant.exe"
     start "Qdrant Server" cmd /k "cd /d !INSTALL_DIR!\qdrant && qdrant.exe"
-    echo Waiting 60 seconds for Qdrant to start - hang tight, it’s getting ready!
+    echo Waiting 60 seconds for Qdrant to start - hang tight, it's getting ready!
     timeout /t 60 /nobreak >nul
-    echo Qdrant server is up and running - let’s load the data!
+    echo Qdrant server is up and running - let's load the data!
 
     echo [%date% %time%] DEBUG: Checking Qdrant storage after startup: !INSTALL_DIR!\qdrant\storage >> "%LOG_FILE%"
     dir "!INSTALL_DIR!\qdrant\storage" >> "%LOG_FILE%" 2>&1
@@ -159,7 +159,7 @@ if !LAST_STAGE! LEQ 7 (
         set "LAST_STAGE=7"
         goto :error_exit
     )
-    echo Snapshot loaded into Qdrant successfully - awesome, the big data’s in!
+    echo Snapshot loaded into Qdrant successfully - awesome, the big data's in!
 
     echo [%date% %time%] INFO: Verifying Qdrant collection... >> "%LOG_FILE%"
     curl "http://localhost:6333/collections/prompts_ng_gte" >> "%LOG_FILE%" 2>&1 || (
@@ -170,7 +170,7 @@ if !LAST_STAGE! LEQ 7 (
     echo [%date% %time%] DEBUG: Checking Qdrant storage after snapshot load: !INSTALL_DIR!\qdrant\storage >> "%LOG_FILE%"
     dir "!INSTALL_DIR!\qdrant\storage" >> "%LOG_FILE%" 2>&1
 
-    echo Qdrant setup complete - 19GB of data loaded and verified, you’re crushing it!
+    echo Qdrant setup complete - 19GB of data loaded and verified, you're crushing it!
     echo [%date% %time%] INFO: Qdrant fully installed and ready - moving to final setup! >> "%LOG_FILE%"
     echo 7 > "%STATE_FILE%"
     call :UpdateProgress

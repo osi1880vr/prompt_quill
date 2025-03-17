@@ -248,109 +248,75 @@ class UiShare:
                     info="Level of confidence (0-1); higher values need stronger confidence in detection."
                 )
 
-                # New ADetailer settings added here
                 automa_ad_mask_blur = gr.Slider(
                     0, 32,
                     step=1,
-                    value=self.g.settings_data['automa'].get(f'automa_ad_mask_blur_{number}', 8),  # Default 8
+                    value=self.g.settings_data['automa'].get(f'automa_ad_mask_blur_{number}', 8),
                     label="Mask Blur",
                     info="Blur the mask edges (0-32) to soften transitions for smoother blending into the image."
                 )
 
                 automa_ad_inpaint_only_masked = gr.Checkbox(
                     label="Inpaint Only Masked Area",
-                    value=self.g.settings_data['automa'].get(f'automa_ad_inpaint_only_masked_{number}', True),  # Default True
+                    value=self.g.settings_data['automa'].get(f'automa_ad_inpaint_only_masked_{number}', True),
                     info="Limit inpainting to masked area, leaving the rest of the image unchanged."
                 )
 
                 automa_ad_inpaint_only_masked_padding = gr.Slider(
                     0, 256,
                     step=16,
-                    value=self.g.settings_data['automa'].get(f'automa_ad_inpaint_only_masked_padding_{number}', 64),  # Default 64
+                    value=self.g.settings_data['automa'].get(f'automa_ad_inpaint_only_masked_padding_{number}', 64),
                     label="Masked Padding",
                     info="Padding around mask (0-256 pixels) to extend inpainting area for smoother blending with the original image."
                 )
 
                 automa_ad_mask_merge_invert = gr.Dropdown(
                     choices=["None", "Merge", "Merge and Invert"],
-                    value=self.g.settings_data['automa'].get(f'automa_ad_mask_merge_invert_{number}', "None"),  # Default "None"
+                    value=self.g.settings_data['automa'].get(f'automa_ad_mask_merge_invert_{number}', "None"),
                     label="Mask Merge Mode",
                     info="How to handle mask merging; 'Merge' blends original with inpainted area."
                 )
 
                 automa_ad_restore_face = gr.Checkbox(
                     label="Restore Face",
-                    value=self.g.settings_data['automa'].get(f'automa_ad_restore_face_{number}', True),  # Default True
+                    value=self.g.settings_data['automa'].get(f'automa_ad_restore_face_{number}', True),
                     info="Apply face restoration after inpainting to enhance facial details."
                 )
 
             with gr.Column(scale=1):
                 adetailer_refresh_button = gr.Button('Refresh')
 
+                # Fixed refresh button
                 adetailer_refresh_button.click(
-                    lambda checkpoint: self.refresh_adetailer_checkpoints(checkpoint, number),
-                    inputs=None,
-                    outputs=[automa_ad_checkpoint]
+                    fn=lambda checkpoint: self.refresh_adetailer_checkpoints(checkpoint, number),
+                    inputs=automa_ad_checkpoint,
+                    outputs=automa_ad_checkpoint
                 )
 
-                # Updated lambda function with new parameters
-                fn = lambda enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model, denoising, clip_skip, confidence, \
-                            mask_blur, inpaint_only_masked, inpaint_padding, mask_merge_invert, restore_face, automa_ad_sep_prompt: \
+                # Define update function
+                def update_adetailer(enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model,
+                                     denoising, clip_skip, confidence, mask_blur, inpaint_only_masked,
+                                     inpaint_padding, mask_merge_invert, restore_face, automa_ad_sep_prompt):
                     self.set_automa_adetailer(
-                        number,            # Static number argument
-                        enable,            # automa_adetailer_enable
-                        ad_prompt,         # automa_ad_prompt
-                        ad_negative_prompt,# automa_ad_negative_prompt
-                        ad_checkpoint,     # automa_ad_checkpoint
-                        use_inpaint,       # automa_ad_use_inpaint_width_height
-                        model,             # automa_ad_model
-                        denoising,         # automa_ad_denoising_strength
-                        clip_skip,         # automa_ad_clip_skip
-                        confidence,        # automa_ad_confidence
-                        mask_blur,         # automa_ad_mask_blur
-                        inpaint_only_masked,  # automa_ad_inpaint_only_masked
-                        inpaint_padding,   # automa_ad_inpaint_only_masked_padding
-                        mask_merge_invert, # automa_ad_mask_merge_invert
-                        restore_face,      # automa_ad_restore_face
-                        automa_ad_sep_prompt
+                        number, enable, ad_prompt, ad_negative_prompt, ad_checkpoint, use_inpaint, model,
+                        denoising, clip_skip, confidence, mask_blur, inpaint_only_masked, inpaint_padding,
+                        mask_merge_invert, restore_face, automa_ad_sep_prompt
                     )
+                    return None
 
-                # Updated triggers and inputs with new components
-                gr.on(
-                    triggers=[
-                        automa_adetailer_enable.change,
-                        automa_ad_prompt.change,
-                        automa_ad_negative_prompt.change,
-                        automa_ad_checkpoint.change,
-                        automa_ad_use_inpaint_width_height.change,
-                        automa_ad_model.change,
-                        automa_ad_denoising_strength.change,
-                        automa_ad_clip_skip.change,
-                        automa_ad_confidence.change,
-                        automa_ad_mask_blur.change,              # New
-                        automa_ad_inpaint_only_masked.change,    # New
-                        automa_ad_inpaint_only_masked_padding.change,  # New
-                        automa_ad_mask_merge_invert.change,      # New
-                        automa_ad_restore_face.change,            # New
-                        automa_ad_sep_prompt.change
-                    ],
-                    fn=fn,
-                    inputs=[
-                        automa_adetailer_enable,
-                        automa_ad_prompt,
-                        automa_ad_negative_prompt,
-                        automa_ad_checkpoint,
-                        automa_ad_use_inpaint_width_height,
-                        automa_ad_model,
-                        automa_ad_denoising_strength,
-                        automa_ad_clip_skip,
-                        automa_ad_confidence,
-                        automa_ad_mask_blur,                    # New
-                        automa_ad_inpaint_only_masked,          # New
-                        automa_ad_inpaint_only_masked_padding,  # New
-                        automa_ad_mask_merge_invert,            # New
-                        automa_ad_restore_face,                 # New
-                        automa_ad_sep_prompt
-                    ],
-                    outputs=None
-                )
+                # List of all components
+                components = [
+                    automa_adetailer_enable, automa_ad_prompt, automa_ad_negative_prompt, automa_ad_checkpoint,
+                    automa_ad_use_inpaint_width_height, automa_ad_model, automa_ad_denoising_strength,
+                    automa_ad_clip_skip, automa_ad_confidence, automa_ad_mask_blur, automa_ad_inpaint_only_masked,
+                    automa_ad_inpaint_only_masked_padding, automa_ad_mask_merge_invert, automa_ad_restore_face,
+                    automa_ad_sep_prompt
+                ]
+
+                # Attach change handlers to all components
+                for component in components:
+                    component.change(
+                        fn=lambda *args: update_adetailer(*args),
+                        inputs=components,
+                        outputs=None
+                    )

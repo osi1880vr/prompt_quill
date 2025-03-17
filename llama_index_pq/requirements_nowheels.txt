@@ -21,3 +21,4 @@ scikit-image
 spacy
 transformers==4.49.*
 pillow==10.4.0
+waitress

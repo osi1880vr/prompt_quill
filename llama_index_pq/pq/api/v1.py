@@ -2,6 +2,7 @@ import time
 import threading
 import json
 from flask import Flask, request, jsonify
+from waitress import serve
 from .sailing import api_sail
 from .telegram_bot import Telegram
 from llm_fw import llm_interface_qdrant
@@ -53,7 +54,7 @@ def get_next_prompt():
 
 
 def web():
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=64738)
+    serve(app, host='0.0.0.0', port=64738, threads=4)
 
 
 def run_api():

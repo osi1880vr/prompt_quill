@@ -12,7 +12,24 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 import os
+import warnings
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"  # Disable analytics via env var
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=info, 1=warn, 2=error, 3=fatal
+
+# Suppress TensorFlow deprecation warnings more aggressively
+warnings.filterwarnings(
+	"ignore",
+	category=DeprecationWarning,
+	module="tf_keras.*"  # Catch all tf_keras submodules
+)
+
+warnings.filterwarnings(
+	"ignore",
+	message="The value passed into gr.Dropdown.*",
+	category=UserWarning,
+	module="gradio.components.dropdown"
+)
 
 import globals
 from settings.io import settings_io
@@ -97,7 +114,7 @@ def load_extensions():
 	print(f"Looking for extensions in {extension_dir}...")
 	for dir_name in os.listdir(extension_dir):
 		dir_path = os.path.join(extension_dir, dir_name)
-		if os.path.isdir(dir_path) and not dir_name.startswith('__'):
+		if os.path.isdir(dir_path) and not dir_name.startswith('__') and 'examples' not in dir_name:
 			print(f"Loading extension: {dir_name}")
 			try:
 				module = importlib.import_module(f"extensions.{dir_name}")
@@ -174,6 +191,8 @@ with gr.Blocks(css=css, title='Prompt Quill') as pq_ui:
 
 
 if __name__ == "__main__":
+	print('If you see a message about : The name tf.losses.sparse_softmax_cross_entropy is deprecated..... you can ignore it, its out of my control and even the very latest version spill that warning.')
+
 	server_name = "localhost"
 	if os.getenv("SERVER_NAME") is not None:
 		server_name = os.getenv("SERVER_NAME")
