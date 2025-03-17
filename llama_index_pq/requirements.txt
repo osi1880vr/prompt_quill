@@ -9,18 +9,18 @@ horde_sdk==0.17.1
 ollama
 git+https://github.com/openai/CLIP.git
 pytorch_lightning
-bitsandbytes
-accelerate
+bitsandbytes==0.45.*
+accelerate==1.4.*
 tensorflow
 tf-keras
-
+safetensors==0.5.*
 
 opencv-python
 imagehash
 scikit-image
 spacy
-transformers
-
+transformers==4.49.*
+pillow==10.4.0
 
 # llama-cpp-python (CPU only, AVX2)
 https://github.com/oobabooga/llama-cpp-python-cuBLAS-wheels/releases/download/cpu/llama_cpp_python-0.3.8+cpuavx2-cp311-cp311-linux_x86_64.whl; platform_system == "Linux" and platform_machine == "x86_64" and python_version == "3.11"

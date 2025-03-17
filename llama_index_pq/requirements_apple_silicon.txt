@@ -9,15 +9,18 @@ horde_sdk==0.17.1
 ollama
 git+https://github.com/openai/CLIP.git
 pytorch_lightning
-bitsandbytes
-accelerate
+bitsandbytes==0.45.*
+accelerate==1.4.*
 tensorflow
 tf-keras
+safetensors==0.5.*
+
 opencv-python
 imagehash
 scikit-image
 spacy
-transformers
+transformers==4.49.*
+pillow==10.4.0
 
 # Mac wheels
 https://github.com/oobabooga/llama-cpp-python-cuBLAS-wheels/releases/download/metal/llama_cpp_python-0.3.8-cp311-cp311-macosx_15_0_arm64.whl; platform_system == "Darwin" and platform_release >= "24.0.0" and platform_release < "25.0.0" and python_version == "3.11"

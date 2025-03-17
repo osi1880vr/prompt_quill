@@ -44,7 +44,7 @@ goto ask
 :dependencies
 REM Step 4: Install or upgrade dependencies from requirements.txt
 echo Installing/upgrading dependencies from requirements.txt...
-pip install --upgrade -r "updates.txt"
+pip one_click.py --update-wizard
 if errorlevel 1 (
     echo Failed to install requirements. Exiting.
     pause

@@ -21,11 +21,14 @@ class llama_cpp_hijack:
         # Try to import different versions of llama_cpp
         try:
             import llama_cpp_cuda_tensorcores as hijacked_llama
-        except ImportError:
+        except Exception as e:
+            print(f'no tensor cores due to {e}')
             try:
                 import llama_cpp_cuda as hijacked_llama
-            except ImportError:
-                import llama_cpp  as hijacked_llama# Default to CPU version if no GPU versions exist
+            except Exception as e:
+                print(f'no cudo cores due to {e}')
+                print(f'running CPU only')
+                import llama_cpp as hijacked_llama# Default to CPU version if no GPU versions exist
 
         # Replace `llama_cpp` globally
         sys.modules["llama_cpp"] = hijacked_llama
