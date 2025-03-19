@@ -201,7 +201,7 @@ def get_requirements_file() -> str:
             f"requirements_apple_{'intel' if is_x86_64() else 'silicon'}" if is_platform("darwin") else
             "requirements") + ("_noavx2" if not cpu_has_feature('avx2') else "") + ".txt"
 
-def update_requirements(initial_install: bool = False, pull: bool = True) -> None:
+def update_requirements(initial_install: bool = False, pull: bool = True, cuda_choice: str = 'A') -> None:
     state = load_state()
     current_commit = get_current_commit()
     wheels_changed = state.get('wheels_changed', False) or state.get('last_installed_commit') != current_commit
@@ -211,7 +211,7 @@ def update_requirements(initial_install: bool = False, pull: bool = True) -> Non
         before_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
         print_big_message("Updating repository with 'git pull'")
 
-        files_to_check = ['pq/prompt_quill_ui_qdrant.py']  # Add more critical files if needed
+        files_to_check = ['pq/prompt_quill_ui_qdrant.py']
         before_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
 
         run_cmd("git pull --autostash", assert_success=True, environment=True)
@@ -235,6 +235,13 @@ def update_requirements(initial_install: bool = False, pull: bool = True) -> Non
     print_big_message(f"Installing requirements from {req_file}")
     reqs = open(req_file).read().splitlines()
 
+    # Adjust based on user's CUDA choice
+    cuda_version = "12.1" if cuda_choice == 'A' else "11.8" if cuda_choice == 'B' else None
+    if cuda_version:
+        reqs = [r.replace('CUDA_VERSION', cuda_version) for r in reqs]  # Replace cudatoolkit version
+    else:
+        reqs = [r for r in reqs if 'cudatoolkit' not in r]  # Remove cudatoolkit for non-NVIDIA
+
     torver = get_torch_version()
     if '+cu118' in torver:
         reqs = [r.replace('+cu121', '+cu118').replace('+cu122', '+cu118') for r in reqs]
@@ -253,10 +260,15 @@ def update_requirements(initial_install: bool = False, pull: bool = True) -> Non
         run_cmd(f"python -m pip uninstall -y {pkg}", environment=True)
         logger.info(f"Uninstalled {pkg} for fresh install")
 
+    # Install Conda packages first (e.g., cudatoolkit)
+    conda_reqs = [r for r in reqs if 'cudatoolkit' in r]
+    if conda_reqs:
+        run_cmd(f"conda install -y {' '.join(conda_reqs)}", assert_success=True, environment=True)
+
+    # Then install pip packages
     run_cmd(f"python -m pip install -r {temp_reqs} --upgrade", assert_success=True, environment=True)
     temp_reqs.unlink()
 
-    # Install/update extensions after git pull
     if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
         install_extensions_requirements()
 
@@ -289,6 +301,10 @@ def install_webui() -> None:
         selected_gpu = {'A': 'NVIDIA', 'B': 'NVIDIA', 'C': 'AMD', 'D': 'APPLE', 'E': 'INTEL', 'N': 'NONE'}[choice]
         use_cuda118 = (choice == 'B')
 
+        # Save GPU choice for consistency (optional, if batch still needs it)
+        with open(BASE_DIR / "gpu_choice.txt", 'w') as f:
+            f.write(choice)
+
         if selected_gpu == "NONE" and CMD_FLAGS_PATH.exists():
             with open(CMD_FLAGS_PATH, 'a') as f:
                 if "--cpu" not in f.read():
@@ -314,14 +330,13 @@ def install_webui() -> None:
             run_cmd("conda install -y libuv", assert_success=True, environment=True)
 
     update_progress("PyTorch installed")
-    update_requirements(initial_install=True)
+    update_requirements(initial_install=True, cuda_choice=choice)  # Pass the user's choice
     update_progress("Requirements updated")
 
     if not importlib.util.find_spec("clip"):
         run_cmd(f"python -m pip install {CLIP_PACKAGE}", assert_success=True, environment=True)
     update_progress("CLIP installed")
 
-    # Extensions and cleanup
     if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
         install_extensions_requirements()
     cleanup_qdrant_data()

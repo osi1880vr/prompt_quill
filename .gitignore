@@ -12,3 +12,4 @@
 /llama_index_pq/pq/settings/models_temp.txt
 /llama_index_pq/installer_cache/
 **/__pycache__/
+/llama_index_pq/wildcards/

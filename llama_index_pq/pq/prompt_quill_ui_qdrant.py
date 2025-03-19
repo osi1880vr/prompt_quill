@@ -14,6 +14,7 @@
 import os
 import warnings
 os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"  # Disable analytics via env var
+os.environ['BITSANDBYTES_NOWELCOME'] = '1'
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0=info, 1=warn, 2=error, 3=fatal
 

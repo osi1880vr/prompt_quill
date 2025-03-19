@@ -466,7 +466,8 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def del_llm_model(self):
         if hasattr(self, 'llm'):
             #self.save_state()
-            self.llm._model = None
+            if hasattr(self.llm, '_model'):
+                self.llm._model = None
             del self.llm
         # delete the model from Ram
         gc.collect()

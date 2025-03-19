@@ -173,36 +173,50 @@ class WildcardResolver:
 		self.cache_files = cache_files
 		self.wildcard_cache: Dict[str, List[str]] = {}
 		self.iter_state: Dict[str, int] = {}
+		self.separator = " and "
+		self.max_depth = 10
+		self.max_retries = 1
+		self.resolved_values = {}
+		self.active_wildcards = set()
 		os.makedirs(wildcards_dir, exist_ok=True)
 
 	def load_wildcard_file(self, wildcard: str, count: int = 1) -> List[str]:
+		#print(f"Loading wildcard: {wildcard} (count={count})")
 		if wildcard in self.wildcard_cache and self.cache_files:
 			options = self.wildcard_cache[wildcard]
+		#	print(f"  From cache: {options}")
 		else:
 			wildcard_file = os.path.join(self.wildcards_dir, f"{wildcard}.txt")
 			if os.path.exists(wildcard_file):
 				with open(wildcard_file, "r", encoding="utf-8") as f:
 					options = [line.strip() for line in f if line.strip()]
+		#		print(f"  Loaded from {wildcard_file}: {options}")
 			else:
 				for root, _, files in os.walk(self.wildcards_dir):
 					if f"{wildcard}.txt" in files:
 						wildcard_file = os.path.join(root, f"{wildcard}.txt")
 						with open(wildcard_file, "r", encoding="utf-8") as f:
 							options = [line.strip() for line in f if line.strip()]
+		#				print(f"  Found in subdir {wildcard_file}: {options}")
 						break
 				else:
-					options = [f"__{wildcard}__"]
+					options = []
+					print(f"  File not found: {wildcard}.txt")
 			if self.cache_files:
 				self.wildcard_cache[wildcard] = options
 
 		if not options:
-			return [f"__{wildcard}__"] * count
+			result = ["MISSING_FILE"] * count
+		#	print(f"  Returning for empty options: {result}")
+			return result
 
 		unique_options = list(set(options))
 		if len(unique_options) < count:
 			selected = unique_options
+		#	print(f"  Using all unique: {selected}")
 		else:
 			selected = random.sample(unique_options, count)
+		#	print(f"  Selected {count} from {len(unique_options)}: {selected}")
 		return selected
 
 	def parse_inline_options(self, options_str: str) -> List[Tuple[str, float]]:
@@ -300,6 +314,7 @@ class WildcardResolver:
 		wildcard_pattern = r"(\d*)x?__([\w-]+)__"
 		multi_wildcard_pattern = r"\{(\d+)\$\$__([\w-]+)__(:[\d\.]+)?\}"
 		weighted_wildcard_pattern = r"__([\w-]+)__:([\d\.]+)"
+		choice_pattern = r"\{([^}]+)\}"  # New pattern for {option a|option b|...}
 
 		# Stop if max depth is reached
 		if depth >= max_depth:
@@ -316,8 +331,9 @@ class WildcardResolver:
 		weighted_wildcards = re.findall(weighted_wildcard_pattern, prompt)
 		inline_matches = self.find_inline_matches(prompt)
 		inline_options = [self.parse_inline_options(match) for match in inline_matches]
+		choice_matches = re.findall(choice_pattern, prompt)  # Find new choice patterns
 
-		if not wildcards and not multi_wildcards and not weighted_wildcards and not inline_matches:
+		if not wildcards and not multi_wildcards and not weighted_wildcards and not inline_matches and not choice_matches:
 			return prompt if max_combinations is None else [prompt]
 
 		def resolve_wildcard_replacement(key, count, wildcard, type=None, weight=None, depth=0):
@@ -328,12 +344,10 @@ class WildcardResolver:
 
 			active_wildcards.add(key)
 
-			# Check if already resolved
 			if key in resolved_values:
 				active_wildcards.remove(key)
 				return resolved_values[key]
 
-			# Load and resolve the wildcard
 			if type == "multi":
 				options = self.load_wildcard_file(wildcard, count)
 				if len(options) < count:
@@ -348,11 +362,11 @@ class WildcardResolver:
 				options = self.load_wildcard_file(wildcard, count if count > 0 else 1)
 				replacement = separator.join(options)
 
-			# Recursively resolve any wildcards in the replacement
 			if recursive and (
 					re.search(wildcard_pattern, replacement) or
 					re.search(multi_wildcard_pattern, replacement) or
-					re.search(weighted_wildcard_pattern, replacement)
+					re.search(weighted_wildcard_pattern, replacement) or
+					re.search(choice_pattern, replacement)  # Check for new pattern too
 			):
 				replacement = self.resolve_prompt(
 					replacement,
@@ -362,19 +376,41 @@ class WildcardResolver:
 					max_depth,
 					max_retries,
 					resolved_values,
-					depth + 1,  # Increment depth
-					active_wildcards  # Pass active wildcards
+					depth + 1,
+					active_wildcards
 				)
 
 			active_wildcards.remove(key)
 			resolved_values[key] = replacement
 			return replacement
 
-		def attempt_resolution(prompt, attempt, depth=0):
+		def attempt_resolution(prompt, attempt, depth=0, recursive=True):
 			if depth >= max_depth:
 				return prompt
-
 			resolved = prompt
+
+			# Choice pattern first
+			choice_matches = re.findall(r"\{([^}\$]+)\}", resolved)
+			for match in choice_matches:
+				print(f"  Processing choice: {{{match}}}")
+				options = [opt.strip() for opt in match.split("|")]
+				if options:
+					replacement = random.choice(options)
+					print(f"    Chose: {replacement}")
+					if recursive and (
+							re.search(r"(\d*)x?__([\w-]+)__", replacement) or
+							re.search(r"\{(\d+)\$\$__([\w-]+)__(:[\d\.]+)?\}", replacement) or
+							re.search(r"__([\w-]+)__:([\d\.]+)", replacement) or
+							re.search(r"\{([^}\$]+)\}", replacement)
+					):
+						replacement = self.resolve_prompt(
+							replacement, None, recursive, self.separator, self.max_depth, self.max_retries, self.resolved_values, depth + 1, self.active_wildcards
+						)
+						print(f"    After recursive resolve: {replacement}")
+					target = f"{{{match}}}"
+					resolved = re.sub(re.escape(target), replacement, resolved)
+					print(f"    Updated prompt: {resolved}")
+
 			# Multi-wildcards
 			for count, wildcard, weight in multi_wildcards:
 				count = int(count)
@@ -409,6 +445,32 @@ class WildcardResolver:
 					target = f"{count}x__{wildcard}__" if count > 0 else f"__{wildcard}__"
 					resolved = re.sub(re.escape(target), replacement, resolved)
 
+			# New choice pattern resolution
+			for match in choice_matches:
+				options = [opt.strip() for opt in match.split("|")]  # Split by "|" and clean up
+				if options:
+					replacement = random.choice(options)  # Pick one randomly
+					# Recursively resolve if the replacement contains wildcards
+					if recursive and (
+							re.search(wildcard_pattern, replacement) or
+							re.search(multi_wildcard_pattern, replacement) or
+							re.search(weighted_wildcard_pattern, replacement) or
+							re.search(choice_pattern, replacement)
+					):
+						replacement = self.resolve_prompt(
+							replacement,
+							None,
+							recursive,
+							separator,
+							max_depth,
+							max_retries,
+							resolved_values,
+							depth + 1,
+							active_wildcards
+						)
+					target = f"{{{match}}}"
+					resolved = re.sub(re.escape(target), replacement, resolved)
+
 			return resolved
 
 		num_outputs = 1 if max_combinations is None else 1
@@ -418,7 +480,10 @@ class WildcardResolver:
 			for attempt in range(max_retries):
 				resolved = attempt_resolution(prompt, attempt, depth)
 				best_resolved = resolved
-				if not (re.search(wildcard_pattern, resolved) or re.search(multi_wildcard_pattern, resolved) or re.search(weighted_wildcard_pattern, resolved)):
+				if not (re.search(wildcard_pattern, resolved) or
+						re.search(multi_wildcard_pattern, resolved) or
+						re.search(weighted_wildcard_pattern, resolved) or
+						re.search(choice_pattern, resolved)):  # Check new pattern too
 					break
 
 			for match, opts in zip(inline_matches, inline_options):
@@ -426,7 +491,7 @@ class WildcardResolver:
 					repeat_count, iter_opts = opts[0][1], opts[0][2]
 					state_key = match
 					if state_key not in self.iter_state:
-						self.iter_state[state_key] = 0
+						self.iter_state[state_key] = 0  # Initialize the iterator state
 					total_items = len(iter_opts) * repeat_count
 					current_idx = self.iter_state[state_key] % total_items
 					opt_idx = current_idx // repeat_count
@@ -440,10 +505,10 @@ class WildcardResolver:
 							max_depth,
 							max_retries,
 							resolved_values,
-							depth + 1,  # Increment depth
-							active_wildcards  # Pass active wildcards
+							depth + 1,
+							active_wildcards
 						)
-					self.iter_state[state_key] += 1
+					self.iter_state[state_key] += 1  # Increment the iterator state
 				else:
 					replacement = opts[0][0]
 					if recursive and re.search(r"[\[\]]|(\d*)x?__[\w-]+__|\{(\d+)\$\$__[\w-]+__\}", best_resolved):
@@ -455,8 +520,8 @@ class WildcardResolver:
 							max_depth,
 							max_retries,
 							resolved_values,
-							depth + 1,  # Increment depth
-							active_wildcards  # Pass active wildcards
+							depth + 1,
+							active_wildcards
 						)
 				best_resolved = best_resolved.replace(f"[{match}]", replacement, 1)
 			results.append(best_resolved)

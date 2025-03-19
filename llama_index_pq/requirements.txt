@@ -2,6 +2,10 @@ llama-index==0.12.16
 llama-index-vector-stores-qdrant==0.4.3
 llama-index-llms-llama-cpp==0.4.0
 llama-index-embeddings-huggingface==0.5.1
+
+# CUDA toolkit (version to be replaced by install_webui.py)
+cudatoolkit==CUDA_VERSION
+
 gradio==4.44.1
 flask==3.1.0
 deep_translator==1.11.4

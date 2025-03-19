@@ -11,7 +11,10 @@ if exist "%INSTALL_DIR%\bin" (
     set CUDA_PATH=%INSTALL_ENV_DIR%
     set CUDA_HOME=%INSTALL_ENV_DIR%
 )
-
+@rem environment isolation
+set PYTHONNOUSERSITE=1
+set PYTHONPATH=
+set PYTHONHOME=
 set "CUDA_PATH=%INSTALL_ENV_DIR%"
 set "CUDA_HOME=%CUDA_PATH%"
 
