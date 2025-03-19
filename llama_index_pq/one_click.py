@@ -201,76 +201,6 @@ def get_requirements_file() -> str:
             f"requirements_apple_{'intel' if is_x86_64() else 'silicon'}" if is_platform("darwin") else
             "requirements") + ("_noavx2" if not cpu_has_feature('avx2') else "") + ".txt"
 
-def update_requirements(initial_install: bool = False, pull: bool = True, cuda_choice: str = 'A') -> None:
-    state = load_state()
-    current_commit = get_current_commit()
-    wheels_changed = state.get('wheels_changed', False) or state.get('last_installed_commit') != current_commit
-
-    if pull and current_commit:  # Only if Git is initialized
-        req_file = get_requirements_file()
-        before_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
-        print_big_message("Updating repository with 'git pull'")
-
-        files_to_check = ['pq/prompt_quill_ui_qdrant.py']
-        before_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
-
-        run_cmd("git pull --autostash", assert_success=True, environment=True)
-
-        after_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
-        after_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
-        wheels_changed = wheels_changed or (before_whl != after_whl)
-
-        for f in files_to_check:
-            if before_hashes[f] != after_hashes[f]:
-                print_big_message(f"File '{f}' updated. Please rerun the script.")
-                save_state({'last_installed_commit': current_commit, 'wheels_changed': wheels_changed})
-                sys.exit(1)
-
-    save_state({'last_installed_commit': current_commit, 'wheels_changed': False})
-
-    if not initial_install:
-        update_pytorch()
-
-    req_file = get_requirements_file()
-    print_big_message(f"Installing requirements from {req_file}")
-    reqs = open(req_file).read().splitlines()
-
-    # Adjust based on user's CUDA choice
-    cuda_version = "12.1" if cuda_choice == 'A' else "11.8" if cuda_choice == 'B' else None
-    if cuda_version:
-        reqs = [r.replace('CUDA_VERSION', cuda_version) for r in reqs]  # Replace cudatoolkit version
-    else:
-        reqs = [r for r in reqs if 'cudatoolkit' not in r]  # Remove cudatoolkit for non-NVIDIA
-
-    torver = get_torch_version()
-    if '+cu118' in torver:
-        reqs = [r.replace('+cu121', '+cu118').replace('+cu122', '+cu118') for r in reqs]
-    if is_platform("win") and '+cu118' in torver:
-        reqs = [r for r in reqs if 'flash-attention' not in r.lower()]
-
-    if not initial_install and not wheels_changed:
-        reqs = [r for r in reqs if '.whl' not in r]
-
-    temp_reqs = BASE_DIR / 'temp_requirements.txt'
-    with open(temp_reqs, 'w') as f:
-        f.write('\n'.join(reqs))
-
-    for req in [r for r in reqs if r.startswith("git+")]:
-        pkg = req.split("/")[-1].split("@")[0].rstrip(".git")
-        run_cmd(f"python -m pip uninstall -y {pkg}", environment=True)
-        logger.info(f"Uninstalled {pkg} for fresh install")
-
-    # Install Conda packages first (e.g., cudatoolkit)
-    conda_reqs = [r for r in reqs if 'cudatoolkit' in r]
-    if conda_reqs:
-        run_cmd(f"conda install -y {' '.join(conda_reqs)}", assert_success=True, environment=True)
-
-    # Then install pip packages
-    run_cmd(f"python -m pip install -r {temp_reqs} --upgrade", assert_success=True, environment=True)
-    temp_reqs.unlink()
-
-    if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
-        install_extensions_requirements()
 
 def install_webui() -> None:
     stages = 4  # PyTorch, Requirements, CLIP, Extensions+Cleanup
@@ -301,7 +231,6 @@ def install_webui() -> None:
         selected_gpu = {'A': 'NVIDIA', 'B': 'NVIDIA', 'C': 'AMD', 'D': 'APPLE', 'E': 'INTEL', 'N': 'NONE'}[choice]
         use_cuda118 = (choice == 'B')
 
-        # Save GPU choice for consistency (optional, if batch still needs it)
         with open(BASE_DIR / "gpu_choice.txt", 'w') as f:
             f.write(choice)
 
@@ -330,7 +259,7 @@ def install_webui() -> None:
             run_cmd("conda install -y libuv", assert_success=True, environment=True)
 
     update_progress("PyTorch installed")
-    update_requirements(initial_install=True, cuda_choice=choice)  # Pass the user's choice
+    update_requirements(initial_install=True, cuda_choice=choice)
     update_progress("Requirements updated")
 
     if not importlib.util.find_spec("clip"):
@@ -342,12 +271,83 @@ def install_webui() -> None:
     cleanup_qdrant_data()
     update_progress("Setup complete")
 
+
+def update_requirements(initial_install: bool = False, pull: bool = True, cuda_choice: str = 'A') -> None:
+    state = load_state()
+    current_commit = get_current_commit()
+    wheels_changed = state.get('wheels_changed', False) or state.get('last_installed_commit') != current_commit
+
+    if pull and current_commit:
+        req_file = get_requirements_file()
+        before_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
+        print_big_message("Updating repository with 'git pull'")
+
+        files_to_check = ['pq/prompt_quill_ui_qdrant.py']
+        before_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
+
+        run_cmd("git pull --autostash", assert_success=True, environment=True)
+
+        after_hashes = {f: calculate_file_hash(BASE_DIR / f) for f in files_to_check}
+        after_whl = [line for line in open(req_file).read().splitlines() if '.whl' in line] if Path(req_file).exists() else []
+        wheels_changed = wheels_changed or (before_whl != after_whl)
+
+        for f in files_to_check:
+            if before_hashes[f] != after_hashes[f]:
+                print_big_message(f"File '{f}' updated. Please rerun the script.")
+                save_state({'last_installed_commit': current_commit, 'wheels_changed': wheels_changed})
+                sys.exit(1)
+
+    save_state({'last_installed_commit': current_commit, 'wheels_changed': False})
+
+    if not initial_install:
+        update_pytorch()
+
+    req_file = get_requirements_file()
+    print_big_message(f"Installing requirements from {req_file}")
+    reqs = open(req_file).read().splitlines()
+
+    cuda_version = "12.1" if cuda_choice == 'A' else "11.8" if cuda_choice == 'B' else None
+    if cuda_version:
+        reqs = [r.replace('CUDA_VERSION', cuda_version) for r in reqs]
+    else:
+        reqs = [r for r in reqs if 'cudatoolkit' not in r]
+
+    torver = get_torch_version()
+    if '+cu118' in torver:
+        reqs = [r.replace('+cu121', '+cu118').replace('+cu122', '+cu118') for r in reqs]
+    if is_platform("win") and '+cu118' in torver:
+        reqs = [r for r in reqs if 'flash-attention' not in r.lower()]
+
+    if not initial_install and not wheels_changed:
+        reqs = [r for r in reqs if '.whl' not in r]
+
+    temp_reqs = BASE_DIR / 'temp_requirements.txt'
+    with open(temp_reqs, 'w') as f:
+        f.write('\n'.join(reqs))
+
+    for req in [r for r in reqs if r.startswith("git+")]:
+        pkg = req.split("/")[-1].split("@")[0].rstrip(".git")
+        run_cmd(f"python -m pip uninstall -y {pkg}", environment=True)
+        logger.info(f"Uninstalled {pkg} for fresh install")
+
+    conda_reqs = [r for r in reqs if 'cudatoolkit' in r]
+    if conda_reqs:
+        run_cmd(f"conda install -y {' '.join(conda_reqs)}", assert_success=True, environment=True)
+
+    run_cmd(f"python -m pip install -r {temp_reqs} --upgrade", assert_success=True, environment=True)
+    temp_reqs.unlink()
+
+    if os.environ.get("INSTALL_EXTENSIONS", "").lower() in ("yes", "y", "true", "1", "t", "on"):
+        install_extensions_requirements()
+
+
 def get_available_space(path: Path) -> int:
     try:
         stat = os.statvfs(str(path)) if os.name == 'posix' else shutil.disk_usage(str(path))
         return stat.f_bavail * stat.f_frsize if os.name == 'posix' else stat.free
     except Exception:
         return float('inf')
+
 
 def launch_webui() -> None:
     min_space_gb = 1
@@ -357,12 +357,14 @@ def launch_webui() -> None:
     print_big_message("Launching Prompt Quill UI")
     run_cmd(f"python pq/prompt_quill_ui_qdrant.py {FLAGS}", environment=True)
 
+
 def cleanup_qdrant_data() -> None:
     logger.info("Performing cleanup")
     for file in ['dist-qdrant.zip', 'qdrant-x86_64-pc-windows-msvc.zip', 'data.zip']:
         (INSTALL_DIR / file).unlink(missing_ok=True)
     for dir in [INSTALL_DIR / 'delete_after_setup', INSTALL_DIR / 'qdrant' / 'snapshots']:
         shutil.rmtree(dir, ignore_errors=True)
+
 
 def get_user_choice(question: str, options: Dict[str, str]) -> str:
     print_big_message(question)
@@ -373,6 +375,7 @@ def get_user_choice(question: str, options: Dict[str, str]) -> str:
         print("Invalid choice. Try again.")
         choice = input("Input> ").upper()
     return choice
+
 
 def update_wizard():
     while True:
@@ -388,6 +391,7 @@ def update_wizard():
             run_cmd("git reset --hard", assert_success=True, environment=True)
         elif choice == 'N':
             sys.exit(0)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
