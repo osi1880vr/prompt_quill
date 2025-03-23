@@ -168,51 +168,62 @@ class SailingManager:
 
     def get_new_prompt(self, query, n, prompt_discard_count, sail_steps, filename, sail_keep_text=False, retry_count=0):
         prompt = ''
-        query = self.prepare_query(query)
-        if self.g.settings_data['sailing']['sail_filter_prompt']:
-            while True:
-                if not self.g.job_running:
-                    break
-                prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
-                filtered = shared.check_filtered(query)
-                if not filtered and prompt not in self.g.sail_history:
-                    self.g.sail_history.append(prompt)
-                    break
-                n += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
-                query = self.get_next_target_new(new_nodes)
-                prompt_discard_count += 1
-                sail_steps += 1
-        else:
-            prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
+        processor = shared.WildcardResolver()
+        # if LLM enabled
+        if self.g.settings_data['sailing']['sail_wildcards_only']:
+            query = self.prepare_query(query)
 
-        prompt = shared.clean_llm_artefacts(prompt)
-        if self.g.settings_data['sailing']['sail_summary']:
-            prompt = extractive_summary(prompt)
-        orig_prompt = prompt
-        if self.g.settings_data['sailing']['sail_rephrase']:
-            prompt = self.interface.rephrase(prompt, self.g.settings_data['sailing']['sail_rephrase_prompt'])
+            if self.g.settings_data['sailing']['sail_filter_prompt']:
+                while True:
+                    if not self.g.job_running:
+                        break
+                    prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
+                    filtered = shared.check_filtered(query)
+                    if not filtered and prompt not in self.g.sail_history:
+                        self.g.sail_history.append(prompt)
+                        break
+                    n += 1
+                    new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
+                    query = self.get_next_target_new(new_nodes)
+                    prompt_discard_count += 1
+                    sail_steps += 1
+            else:
+                prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
+
+            prompt = shared.clean_llm_artefacts(prompt)
+            if self.g.settings_data['sailing']['sail_summary']:
+                prompt = extractive_summary(prompt)
+            orig_prompt = prompt
+            if self.g.settings_data['sailing']['sail_rephrase']:
+                prompt = self.interface.rephrase(prompt, self.g.settings_data['sailing']['sail_rephrase_prompt'])
+
+        else:
+            prompt = processor.resolve_prompt(query)
+            orig_prompt = prompt
 
         style_prompt = ''
         if self.g.settings_data['sailing']['sail_add_style']:
-            processor = shared.WildcardResolver()
+
             style_prompt = processor.resolve_prompt(self.g.settings_data['sailing']["sail_style"])
+            quality_prompt = processor.resolve_prompt(self.g.settings_data["sailing"]["sail_quality"])
             if '%%PROMPT%%' in style_prompt:
                 prompt = style_prompt.replace('%%PROMPT%%', prompt)
-                prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]},{prompt}'
+                prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {prompt}, {quality_prompt}'
                 orig_prompt = style_prompt.replace('%%PROMPT%%', orig_prompt)
-                orig_prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {orig_prompt}'
+                orig_prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {orig_prompt}, {quality_prompt}'
             else:
-                prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {prompt}'
-                orig_prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {orig_prompt}'
+                prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {prompt}, {quality_prompt}'
+                orig_prompt = f'{self.g.settings_data["sailing"]["sail_pos_embed"]}, {style_prompt}, {orig_prompt}, {quality_prompt}'
 
-        if not prompt or len(prompt) < 10 + len(style_prompt) + len(self.g.settings_data['sailing']["sail_pos_embed"]) and retry_count < 10:
-            print(f'empty or too short prompt will retry {10 - retry_count} times, each retry fetches a new query and so dives deeper into the data')
-            n += 1
-            retry_count += 1
-            new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
-            query = self.get_next_target_new(new_nodes)
-            return self.get_new_prompt(query, n, prompt_discard_count, sail_steps, filename, sail_keep_text, retry_count)
+        # if LLM enabled
+        if self.g.settings_data['sailing']['sail_wildcards_only']:
+            if not prompt or len(prompt) < 10 + len(style_prompt) + len(self.g.settings_data['sailing']["sail_pos_embed"]) and retry_count < 10:
+                print(f'empty or too short prompt will retry {10 - retry_count} times, each retry fetches a new query and so dives deeper into the data')
+                n += 1
+                retry_count += 1
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
+                query = self.get_next_target_new(new_nodes)
+                return self.get_new_prompt(query, n, prompt_discard_count, sail_steps, filename, sail_keep_text, retry_count)
 
         self.sail_log = self.log_prompt(filename, prompt, orig_prompt, n, self.sail_log)
         return prompt.strip(), orig_prompt.strip(), n, prompt_discard_count, sail_steps
@@ -253,7 +264,8 @@ class SailingManager:
                              sail_neg_filter_not_text, sail_neg_filter_context, automa_alt_vae, sail_checkpoint,
                              sail_sampler, sail_vae, sail_dimensions, sail_gen_type, sail_gen_any_combination,
                              sail_gen_steps, sail_gen_enabled, sail_override_settings_restore, sail_store_folders,
-                             sail_depth_preset, sail_scheduler, sail_unload_llm, sail_neg_embed, sail_pos_embed):
+                             sail_depth_preset, sail_scheduler, sail_unload_llm, sail_neg_embed, sail_pos_embed,
+                             sail_quality, sail_wildcards_only):
         if self.g.job_running:
             self.sail_depth_start = sail_depth
 
@@ -274,7 +286,8 @@ class SailingManager:
             'sail_gen_steps': sail_gen_steps, 'sail_gen_enabled': sail_gen_enabled,
             'sail_override_settings_restore': sail_override_settings_restore, 'sail_store_folders': sail_store_folders,
             'sail_depth_preset': sail_depth_preset, 'sail_scheduler': sail_scheduler, 'sail_unload_llm': sail_unload_llm,
-            'sail_pos_embed': sail_pos_embed, 'sail_neg_embed': sail_neg_embed
+            'sail_pos_embed': sail_pos_embed, 'sail_neg_embed': sail_neg_embed, 'sail_quality': sail_quality,
+            'sail_wildcards_only': not sail_wildcards_only
         })
         self.g.settings_data['automa']['automa_alt_vae'] = automa_alt_vae
         self.settings_io.write_settings(self.g.settings_data)
@@ -306,7 +319,8 @@ class SailingManager:
             sailing["sail_checkpoint"], sailing["sail_sampler"], sailing["sail_vae"], sailing["sail_dimensions"],
             sailing["sail_gen_type"], sailing["sail_gen_steps"], sailing["sail_gen_enabled"],
             sailing["sail_override_settings_restore"], sailing["sail_store_folders"], sailing["sail_depth_preset"],
-            sailing['sail_scheduler'], sailing["sail_neg_embed"], sailing['sail_pos_embed']
+            sailing['sail_scheduler'], sailing["sail_neg_embed"], sailing['sail_pos_embed'], sailing['sail_quality'],
+            not sailing['sail_wildcards_only']
         )
 
     def automa_sail_refresh(self):
@@ -336,6 +350,7 @@ class SailingManager:
         images = deque(maxlen=int(self.g.settings_data['sailing']['sail_max_gallery_size']))
         filename = os.path.join(self.out_dir_t2t, f'journey_log_{self.timestamp()}.txt')
         black_images_filename = os.path.join(self.out_dir_t2t, f'black_images_{self.timestamp()}.txt')
+        new_nodes = []
 
         if self.g.settings_data['translate']:
             query = self.interface.translate(self.g.settings_data['sailing']['sail_text'])
@@ -343,13 +358,21 @@ class SailingManager:
         prompt_discard_count = 0
         n = 1
         sail_steps = self.g.settings_data['sailing']['sail_width']
-        context_count = self.interface.count_context().count
-        possible_images = int(context_count / self.g.settings_data['sailing']['sail_depth']) - int(self.g.settings_data['sailing']['sail_depth_preset'] / self.g.settings_data['sailing']['sail_depth'])
+        #if LLM enabled
+        if self.g.settings_data['sailing']['sail_wildcards_only']:
+            context_count = self.interface.count_context().count
+            possible_images = int(context_count / self.g.settings_data['sailing']['sail_depth']) - int(self.g.settings_data['sailing']['sail_depth_preset'] / self.g.settings_data['sailing']['sail_depth'])
+        else:
+            context_count = sail_steps
+            possible_images = sail_steps
 
         yield self.sail_log, [], f"Sailing for {sail_steps} steps has started please be patient for the first result to arrive, there is {context_count} possible context entries in the ocean based on your filter settings, based on your distance setting there might be {possible_images} images possible"
         query = shared.WildcardResolver().resolve_prompt(query)
-        new_nodes = self.interface.direct_search(query, self.g.settings_data['sailing']['sail_depth'], 0)
-        query = self.get_next_target_new(new_nodes)
+
+        #if LLM enabled
+        if self.g.settings_data['sailing']['sail_wildcards_only']:
+            new_nodes = self.interface.direct_search(query, self.g.settings_data['sailing']['sail_depth'], 0)
+            query = self.get_next_target_new(new_nodes)
 
         while n < sail_steps + 1:
             try:
@@ -359,7 +382,10 @@ class SailingManager:
                     break
 
                 prompt, orig_prompt, n, prompt_discard_count, sail_steps = self.get_new_prompt(query, n, prompt_discard_count, sail_steps, filename, self.g.settings_data['sailing']['sail_keep_text'])
-                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
+
+                #if LLM enabled
+                if self.g.settings_data['sailing']['sail_wildcards_only']:
+                    new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
 
                 if self.g.settings_data['sailing']['sail_generate']:
                     if self.g.settings_data['sailing']['sail_gen_rephrase']:
@@ -369,25 +395,26 @@ class SailingManager:
                     images = self.run_sail_automa_gen(prompt, images)
                     images = self.check_black_images(prompt, images, black_images_filename)
 
-
-
-
-
                     yield self.sail_log, list(images), f'{self.images_done} image(s) done\n{prompt_discard_count} prompts filtered'
                 else:
                     yield self.sail_log, [], f'{self.images_done} prompts(s) done\n{prompt_discard_count} prompts filtered'
 
-                query = self.get_next_target_new(new_nodes)
-                if query == -1:
-                    self.interface.log_raw(filename, f'{n} sail is finished early due to no more context')
-                    yield self.sail_log, list(images), f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
-                    break
+                #if LLM enabled
+                if self.g.settings_data['sailing']['sail_wildcards_only']:
+                    query = self.get_next_target_new(new_nodes)
+                    if query == -1:
+                        self.interface.log_raw(filename, f'{n} sail is finished early due to no more context')
+                        yield self.sail_log, list(images), f'after {self.images_done} image(s), sail is finished early due to no more context\n{prompt_discard_count} prompts filtered'
+                        break
 
             except Exception as e:
                 n += 1
                 sail_steps += 1
-                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
-                query = self.get_next_target_new(new_nodes)
+
+                #if LLM enabled
+                if self.g.settings_data['sailing']['sail_wildcards_only']:
+                    new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
+                    query = self.get_next_target_new(new_nodes)
                 print('some error happened: ', str(e))
                 time.sleep(5)
             finally:

@@ -4,6 +4,7 @@ import gradio as gr
 from settings.io import settings_io
 from llm_fw import llm_interface_qdrant
 
+
 class SettingsManager:
     def __init__(self):
         self.g = globals.get_globals()
@@ -13,7 +14,8 @@ class SettingsManager:
     def load_preset_list(self):
         try:
             self.g.settings_data['preset_list'] = self.settings_io.load_preset_list()
-            return gr.update(choices=self.g.settings_data['preset_list'], value=self.g.settings_data['selected_preset']), 'OK'
+            return gr.update(choices=self.g.settings_data['preset_list'],
+                             value=self.g.settings_data['selected_preset']), 'OK'
         except Exception as e:
             return gr.update(choices=[], value=''), str(e)
 
@@ -43,6 +45,30 @@ class SettingsManager:
             self.g.settings_data['top_k']
         )
 
+    def get_advanced_model_settings(self):
+        return (
+            self.g.settings_data["llm_settings"]["top_p"],
+            self.g.settings_data["llm_settings"]["min_p"],
+            self.g.settings_data["llm_settings"]["typical_p"],
+            self.g.settings_data["llm_settings"]["frequency_penalty"],
+            self.g.settings_data["llm_settings"]["presence_penalty"],
+            self.g.settings_data["llm_settings"]["repeat_penalty"],
+            self.g.settings_data["llm_settings"]["top_k"],
+            self.g.settings_data["sailing"]["reset_model"]
+        )
+
+    def set_advanced_model_settings(self, top_p, min_p, typical_p, frequency_penalty, presence_penalty, repeat_penalty,
+                                    top_k, reset_model):
+        self.g.settings_data["llm_settings"]["top_p"] = top_p
+        self.g.settings_data["llm_settings"]["min_p"] = min_p
+        self.g.settings_data["llm_settings"]["typical_p"] = typical_p
+        self.g.settings_data["llm_settings"]["frequency_penalty"] = frequency_penalty
+        self.g.settings_data["llm_settings"]["presence_penalty"] = presence_penalty
+        self.g.settings_data["llm_settings"]["repeat_penalty"] = repeat_penalty
+        self.g.settings_data["llm_settings"]["top_k"] = top_k
+        self.g.settings_data["sailing"]["reset_model"] = reset_model
+        self.settings_io.write_settings(self.g.settings_data)
+
     def set_model(self, collection, model, embedding_model, temperature, n_ctx, n_gpu_layers, max_tokens, top_k):
         self.g.settings_data['collection'] = collection
         self.g.settings_data['LLM Model'] = model
@@ -53,7 +79,8 @@ class SettingsManager:
         self.g.settings_data['max output Tokens'] = max_tokens
         self.g.settings_data['top_k'] = top_k
         self.settings_io.write_settings(self.g.settings_data)
-        return self.interface.change_model(self.g.settings_data['model_list'][model], temperature, n_ctx, max_tokens, n_gpu_layers, top_k)
+        return self.interface.change_model(self.g.settings_data['model_list'][model], temperature, n_ctx, max_tokens,
+                                           n_gpu_layers, top_k)
 
     def set_neg_prompt(self, value):
         self.g.settings_data['negative_prompt'] = value
@@ -66,7 +93,8 @@ class SettingsManager:
         return 'Rephrase instruction saved'
 
     def get_prompt_template(self):
-        self.interface.prompt_template = self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
+        self.interface.prompt_template = self.g.settings_data["prompt_templates"][
+            self.g.settings_data["selected_template"]]
         return self.g.settings_data["prompt_templates"][self.g.settings_data["selected_template"]]
 
     def set_prompt_template_select(self, value):

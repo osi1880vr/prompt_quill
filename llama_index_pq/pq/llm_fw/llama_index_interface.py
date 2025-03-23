@@ -369,20 +369,21 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
     def create_completion(self, prompt):
 
         self.check_llm_loaded()
-        self.reset_model()
+        if self.g.settings_data["sailing"]["reset_model"]:
+            self.reset_model()
 
         completion_chunks = self.llm._model.create_completion(
             prompt=prompt,
             temperature=self.g.settings_data["Temperature"],
             max_tokens=self.g.settings_data["max output Tokens"],
-            top_p=0.9,
-            min_p=0.05,
-            typical_p=1,
-            frequency_penalty=0,
-            presence_penalty=0,
-            repeat_penalty=1.1,
-            top_k=40,
-            stream=True,
+            top_p=self.g.settings_data["llm_settings"]["top_p"],
+            min_p=self.g.settings_data["llm_settings"]["min_p"],
+            typical_p=self.g.settings_data["llm_settings"]["typical_p"],
+            frequency_penalty=self.g.settings_data["llm_settings"]["frequency_penalty"],
+            presence_penalty=self.g.settings_data["llm_settings"]["presence_penalty"],
+            repeat_penalty=self.g.settings_data["llm_settings"]["repeat_penalty"],
+            top_k=self.g.settings_data["llm_settings"]["top_k"],
+            stream=False,
             seed=None,
             tfs_z=1,
             mirostat_mode=0,
@@ -390,11 +391,7 @@ Given the context information and not prior knowledge,\n""" + self.g.settings_da
             mirostat_eta=0.1,
             grammar=None
         )
-
-        output = ""
-        for completion_chunk in completion_chunks:
-            text = completion_chunk['choices'][0]['text']
-            output += text
+        output = completion_chunks['choices'][0]['text']
 
         gc.collect()
         torch.cuda.empty_cache()

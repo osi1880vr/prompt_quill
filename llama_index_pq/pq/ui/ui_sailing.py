@@ -86,6 +86,11 @@ def sailing_main_view():
                         "if set to true there is no dynamic prompting, only the context is changed by the sailing."
                     )
             with gr.Row():
+                components['sail_wildcards_only'] = create_checkbox(
+                    "Turn off LLM and run Wildcards only",
+                    g.settings_data['sailing']['sail_wildcards_only'],
+                    "if set to true there is no LLM prompt processing, only Wildcards are processed."
+                )
                 components['sail_suggestions_checkbox'] = create_checkbox(
                     "Enable Wildcard Suggestions", False, "Show wildcard suggestions for text input"
                 )
@@ -295,6 +300,11 @@ def sailing_prompt_manipulation():
             components['sail_pos_embed_suggestions'] = gr.Dropdown(
                 label="Suggested Wildcards", choices=[], interactive=True, visible=False
             )
+    with gr.Row():
+        components['sail_quality'] = create_textbox(
+            "Quality Spec", g.settings_data['sailing']['sail_quality'], "Enter your hardcoded quality addons"
+        )
+
 
     with gr.Row():
         components['sail_summary'] = create_checkbox(
@@ -436,7 +446,8 @@ def setup_sailing_tab(sailor, ui_code):
             'sail_neg_filter_not_text', 'sail_neg_filter_context', 'automa_alt_vae', 'sail_checkpoint',
             'sail_sampler', 'sail_vae', 'sail_dimensions', 'sail_gen_type', 'sail_gen_any_combination',
             'sail_gen_steps', 'sail_gen_enabled', 'sail_override_settings_restore', 'sail_store_folders',
-            'sail_depth_preset', 'sail_scheduler', 'sail_unload_llm', 'sail_neg_embed', 'sail_pos_embed'
+            'sail_depth_preset', 'sail_scheduler', 'sail_unload_llm', 'sail_neg_embed', 'sail_pos_embed',
+            'sail_quality','sail_wildcards_only'
         ]
     ]
     gr.on(triggers=[comp.change for comp in inputs], fn=ui_code.set_sailing_settings, inputs=inputs, outputs=None)
@@ -450,7 +461,7 @@ def setup_sailing_tab(sailor, ui_code):
             'sail_neg_filter_text', 'sail_neg_filter_not_text', 'sail_neg_filter_context', 'automa_alt_vae',
             'sail_checkpoint', 'sail_sampler', 'sail_vae', 'sail_dimensions', 'sail_gen_type', 'sail_gen_steps',
             'sail_gen_enabled', 'sail_override_settings_restore', 'sail_store_folders', 'sail_depth_preset',
-            'sail_scheduler', 'sail_neg_embed', 'sail_pos_embed'
+            'sail_scheduler', 'sail_neg_embed', 'sail_pos_embed','sail_quality','sail_wildcards_only'
         ]
     ]
     gr.on(triggers=[sailor.select], fn=ui_code.get_sailing_settings, inputs=None, outputs=outputs)

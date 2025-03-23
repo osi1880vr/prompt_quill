@@ -1,8 +1,11 @@
 import gradio as gr
 import globals
-from .ui_helpers import create_textbox, create_slider, create_button, create_dropdown
+from .ui_helpers import create_textbox, create_slider, create_button, create_dropdown, create_checkbox
 
 g = globals.get_globals()
+
+
+
 
 def settings_presets(ui_code):
     components = {}
@@ -92,6 +95,63 @@ def settings_model_settings(ui_code):
         )
     return components
 
+
+def settings_advanced_model_settings(ui_code):
+    components = {}
+    with gr.Tab("Advanced Model Settings") as adv_settings:
+        with gr.Row():
+            with gr.Column(scale=3):
+                components['reset_model'] = create_checkbox(
+                    "do we reset the model before each request",
+                    g.settings_data['sailing']['reset_model'],
+                    "if set to true there no internal buildup of a history, this can be good or bad for the results. try it to see whats best."
+                )
+                components['top_p'] = create_slider(
+                    "Top P", g.settings_data["llm_settings"].get("top_p", 1.0), min_val=0, max_val=1, step=0.05,
+                    info="Controls diversity via nucleus sampling (0-1)"
+                )
+                components['min_p'] = create_slider(
+                    "Min P", g.settings_data["llm_settings"].get("min_p", 0.05), min_val=0, max_val=1, step=0.01,
+                    info="Minimum probability threshold (0-1)"
+                )
+                components['typical_p'] = create_slider(
+                    "Typical P", g.settings_data["llm_settings"].get("typical_p", 1.0), min_val=0, max_val=1, step=0.05,
+                    info="Typical probability for sampling (0-1)"
+                )
+                components['frequency_penalty'] = create_slider(
+                    "Frequency Penalty", g.settings_data["llm_settings"].get("frequency_penalty", 0.0), min_val=-2, max_val=2, step=0.1,
+                    info="Penalizes repeated tokens (-2 to 2)"
+                )
+                components['presence_penalty'] = create_slider(
+                    "Presence Penalty", g.settings_data["llm_settings"].get("presence_penalty", 0.0), min_val=-2, max_val=2, step=0.1,
+                    info="Penalizes already-present tokens (-2 to 2)"
+                )
+                components['repeat_penalty'] = create_slider(
+                    "Repeat Penalty", g.settings_data["llm_settings"].get("repeat_penalty", 1.0), min_val=0, max_val=2, step=0.05,
+                    info="Discourages repetition (0-2)"
+                )
+                components['top_k'] = create_slider(
+                    "Top K", g.settings_data["llm_settings"].get("top_k", 0), min_val=0, max_val=100, step=1,
+                    info="Limits sampling to top K tokens (0 disables)"
+                )
+            with gr.Column(scale=1):
+                components['adv_status'] = create_textbox("Status", "", "Status")
+                components['adv_save_button'] = create_button("Save advanced settings")
+
+        gr.on(triggers=[adv_settings.select], fn=ui_code.get_advanced_model_settings, inputs=None,
+              outputs=[components['top_p'], components['min_p'], components['typical_p'],
+                       components['frequency_penalty'], components['presence_penalty'],
+                       components['repeat_penalty'], components['top_k'], components['reset_model']])
+        components['adv_save_button'].click(
+            fn=ui_code.set_advanced_model_settings,
+            inputs=[components['top_p'], components['min_p'], components['typical_p'],
+                    components['frequency_penalty'], components['presence_penalty'],
+                    components['repeat_penalty'], components['top_k'], components['reset_model']],
+            outputs=components['adv_status']
+        )
+    return components
+
+
 def settings_prompting_settings(ui_code):
     components = {}
     with gr.Tab("Prompting Settings") as defaults:
@@ -153,4 +213,5 @@ def setup_settings_tab(ui_code):
     components.update(settings_presets(ui_code))
     components.update(settings_model_settings(ui_code))
     components.update(settings_prompting_settings(ui_code))
+    components.update(settings_advanced_model_settings(ui_code))
     return components

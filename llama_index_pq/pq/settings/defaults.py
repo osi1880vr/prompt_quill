@@ -13,6 +13,18 @@ default = {
     "collection": "prompts_ng_gte",
     "collections_list": ["prompts_ng_gte"],
 
+
+    "llm_settings": {
+        "top_p": 1.0,
+        "min_p": 0.05,
+        "typical_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "repeat_penalty": 1.0,
+        "top_k": 0  # Overrides the earlier top_k=5 to match your completion_chunks
+    },
+
+
     "rephrase_instruction": """create a text to image prompt based on the context and the query,
 You mix a new prompt based on the context and the query. The query is just adding a detail to the original context""",
 
@@ -168,6 +180,9 @@ You mix a new prompt based on the context and the query. The query is just addin
         "sail_unload_llm": False,
         "sail_neg_embed": "",
         "sail_pos_embed": "",
+        "sail_quality": "",
+        "reset_model": True,
+        "sail_wildcards_only": True
     },
 
     "model_test": {
@@ -361,9 +376,6 @@ You mix a new prompt based on the context and the query. The query is just addin
                 "context_window": 4096,
                 "repo_id":"unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF",
                 "filename":"DeepSeek-R1-Distill-Qwen-7B-Q5_K_M.gguf"
-
-
-
             },
 
         "TheBloke/Uncensored-Jordan-7B-GGUF-Q4":
