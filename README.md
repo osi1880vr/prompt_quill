@@ -3,7 +3,6 @@
 # Welcome to Prompt Quill <img src="images/pq_large.png" alt="Logo"  width="100px" height="105px" />
 
 ![Static Badge](https://img.shields.io/badge/python-3.9_%7C_3.10%7C_3.11-blue?color=blue)
-[![discord](https://img.shields.io/badge/Chat%20on-Discord-blue?logo=discord&logoColor=white)](https://discord.gg/gMDTAwfQAP)
 [![fazier](https://fazier.com/api/v1/public/badges/embed_image.svg?launch_id=229&badge_type=daily)](https://fazier.com/launches/prompt-quill)
 
 
