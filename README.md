@@ -5,6 +5,12 @@
 ![Static Badge](https://img.shields.io/badge/python-3.9_%7C_3.10%7C_3.11-blue?color=blue)
 [![fazier](https://fazier.com/api/v1/public/badges/embed_image.svg?launch_id=229&badge_type=daily)](https://fazier.com/launches/prompt-quill)
 
+I will stop sending updates. 
+It feels like a dead end since there is no input coming only requests, that's the opposite of why I do open source.
+The latest version is now moving into a fully automated production suite, and so I think since I don't get back any value here I keep pushing it on my private repo.
+My view might change as soon people start contributing code instead of complaints. 
+I'm tired of fixing non issues on local installs that are not caused by PQ itself but by the local systems.
+
 
 Prompt Quill was created to help users make better prompts for creating AI images.
 
