@@ -188,6 +188,8 @@ class SailingManager:
                     prompt_discard_count += 1
                     sail_steps += 1
             else:
+                new_nodes = self.interface.direct_search(self.g.settings_data['sailing']['sail_text'], self.g.settings_data['sailing']['sail_depth'], n)
+                query = self.get_next_target_new(new_nodes)
                 prompt = self.interface.retrieve_llm_completion(query, sail_keep_text=sail_keep_text)
 
             prompt = shared.clean_llm_artefacts(prompt)
