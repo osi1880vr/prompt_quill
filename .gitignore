@@ -13,3 +13,4 @@
 /llama_index_pq/installer_cache/
 **/__pycache__/
 /llama_index_pq/wildcards/
+.venv

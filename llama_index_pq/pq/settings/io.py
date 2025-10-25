@@ -1,6 +1,7 @@
 import json
 import os
 import copy
+from pathlib import Path
 
 from .defaults import default
 from .check_file_name import is_path_exists_or_creatable_portable
@@ -10,6 +11,7 @@ class settings_io:
     def __init__(self):
         self.default = default
         self.settings = self.default
+        self.settings_dir = Path(__file__).resolve().parent
 
 
     def get_defaults(self):
@@ -64,22 +66,25 @@ class settings_io:
         self.update_settings_with_defaults()
 
     def load_settings(self):
-        if os.path.isfile('pq/settings/settings.dat'):
-            f = open('pq/settings/settings.dat','r')
-            self.settings = json.loads(f.read())
-            f.close()
+        settings_file = self.settings_dir / 'settings.dat'
+        if settings_file.is_file():
+            with settings_file.open('r') as f:
+                self.settings = json.loads(f.read())
             self.check_missing_settings()
         return self.settings
 
 
     def write_settings(self, settings):
-        f = open('pq/settings/settings.dat','w')
-        f.write(json.dumps(settings,indent=4))
-        f.close()
+        settings_file = self.settings_dir / 'settings.dat'
+        with settings_file.open('w') as f:
+            f.write(json.dumps(settings,indent=4))
 
 
     def load_preset_list(self):
-        filelist = os.listdir('pq/settings/presets')
+        presets_dir = self.settings_dir / 'presets'
+        if not presets_dir.exists():
+            return None
+        filelist = os.listdir(presets_dir)
         out_list = []
         for file in filelist:
             if file != 'presets_go_here.txt':
@@ -90,28 +95,29 @@ class settings_io:
             return None
 
     def load_preset(self, name):
-        if os.path.isfile('pq/settings/settings.dat'):
-            f = open(f'pq/settings/presets/{name}_preset.dat','r')
-            self.settings = json.loads(f.read())
-            f.close()
+        preset_file = self.settings_dir / 'presets' / f'{name}_preset.dat'
+        if preset_file.is_file():
+            with preset_file.open('r') as f:
+                self.settings = json.loads(f.read())
             self.check_missing_seettings()
         return self.settings
 
     def save_preset(self, name, settings):
-        filename = f'pq/settings/presets/{name}_preset.dat'
-        check = is_path_exists_or_creatable_portable(filename)
+        filename = self.settings_dir / 'presets' / f'{name}_preset.dat'
+        check = is_path_exists_or_creatable_portable(str(filename))
 
         if check:
-            f = open(filename,'w')
-            f.write(json.dumps(settings))
-            f.close()
+            with filename.open('w') as f:
+                f.write(json.dumps(settings))
             return 'OK'
         else:
             return 'Filename not OK'
 
     def load_prompt_data(self):
-        if os.path.isfile('pq/settings/data.json'):
-            f = open('pq/settings/data.json','r')
-            self.prompt_iteration_raw = json.loads(f.read())
-            f.close()
+        data_file = self.settings_dir / 'data.json'
+        if data_file.is_file():
+            with data_file.open('r') as f:
+                self.prompt_iteration_raw = json.loads(f.read())
+        else:
+            self.prompt_iteration_raw = {}
         return self.prompt_iteration_raw
